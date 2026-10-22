@@ -1,19 +1,19 @@
 <p align="center">
-  <img src="docs/assets/hero.svg" width="820" alt="MemPABench: Why Bother Me Again? Memory systems remember what you said, not how you want to be helped. PSA: retrieval memory 50%, no memory 50%, file memory 59%, Oracle 99%.">
+  <img src="docs/assets/hero.gif" width="820" alt="A robot agent holds its notebook about the user, where &quot;Orders: just do it, don't ask&quot; is circled in red, yet it raises a sign asking &quot;Shall I proceed?&quot;. The user, shopping on a phone, face-palms and says &quot;Just do it!&quot;">
 </p>
+
+<h1 align="center">MemPABench</h1>
+<p align="center"><i>Why Bother Me Again? Benchmarking Personal Agent Memory for Interaction Preferences</i></p>
 
 <!-- TODO(arXiv): once the arXiv ID exists, point the Paper badge at https://arxiv.org/abs/<id>
      and switch it to https://img.shields.io/badge/arXiv-<id>-B31B1B?style=flat-square&logo=arxiv&logoColor=white
      Until then it points at the project website. -->
-<!-- TODO(site): confirm the leaderboard anchor id on mempabench.com is `leaderboard`. -->
 <p align="center">
   <a href="https://mempabench.com"><img src="https://img.shields.io/badge/Paper-PDF-B31B1B?style=flat-square&logo=adobeacrobatreader&logoColor=white" alt="Paper"></a>
   <a href="https://mempabench.com"><img src="https://img.shields.io/badge/Website-mempabench.com-4F46E5?style=flat-square&logo=googlechrome&logoColor=white" alt="Website"></a>
-  <a href="https://mempabench.com/#leaderboard"><img src="https://img.shields.io/badge/Leaderboard-results-FFD21E?style=flat-square" alt="Leaderboard"></a>
-  <!-- TODO(HF): uncomment once the datasets are public.
+  <a href="#results"><img src="https://img.shields.io/badge/Leaderboard-results-FFD21E?style=flat-square" alt="Leaderboard"></a>
   <a href="https://huggingface.co/datasets/mempabench/mempabench-personas"><img src="https://img.shields.io/badge/Dataset-mempabench--personas-FFD21E?style=flat-square&logo=huggingface&logoColor=000" alt="Dataset"></a>
   <a href="https://huggingface.co/datasets/mempabench/mempabench-traces"><img src="https://img.shields.io/badge/Traces-mempabench--traces-FFD21E?style=flat-square&logo=huggingface&logoColor=000" alt="Traces"></a>
-  -->
   <a href="LICENSE"><img src="https://img.shields.io/github/license/mempabench/mempabench?style=flat-square" alt="License"></a>
   <a href="https://github.com/mempabench/mempabench/stargazers"><img src="https://img.shields.io/github/stars/mempabench/mempabench?style=flat-square&logo=github&color=181717&cacheSeconds=300" alt="Stars"></a>
 </p>
@@ -24,7 +24,7 @@
   <sub><sup>*</sup>Corresponding author</sub>
 </p>
 
-**Does your personal assistant remember how you want to be helped?** MemPABench is an interactive environment for on-policy evaluation of memory in personal assistants (PAs). A PA works with four simulated users through four months of tasks at work and in their personal life. The users never state their interaction preferences. They react to what the PA does: a correction here, a shortcut tolerated there. Each user changes five preferences along the way. Probes then test whether the PA's memory lets it choose the right interaction setting (ask or act, explain or stay brief, reach out or wait) and carry it out.
+**Does your personal agent remember how you want to be helped?** MemPABench is an interactive environment for on-policy evaluation of memory in personal agents (PAs). A PA works with four simulated users through four months of tasks at work and in their personal life. The users never state their interaction preferences. They react to what the PA does: a correction here, a shortcut tolerated there. Each user changes five preferences along the way. Probes then test whether the PA's memory lets it choose the right interaction setting (ask or act, explain or stay brief, reach out or wait) and carry it out.
 
 <p align="center">
   <b>4</b> users · <b>14</b> interaction attributes × <b>2</b> contexts · <b>99</b> sessions per user over four months · <b>5</b> preference changes per user · <b>83</b> tools in <b>26</b> domains · <b>33</b> probes per user × <b>3</b> repeats
@@ -36,7 +36,7 @@
 
 | I want to… | Go to |
 |---|---|
-| See the scores | [Results](#results) below, or the [leaderboard](https://mempabench.com/#leaderboard) |
+| See the scores | [Results](#results) below |
 | Read the paper | [mempabench.com](https://mempabench.com) |
 | Get the data | [Data](#data) |
 | Evaluate my PA model or memory system | [Quick start](#quick-start) and [docs/adding_a_memory_backend.md](docs/adding_a_memory_backend.md) |
@@ -277,13 +277,13 @@ The four users are published on Hugging Face as [`mempabench/mempabench-personas
 
 Inside each user folder the files keep the relative paths the harness reads, including the `Authoring/` prefix.
 
-<!-- TODO(HF): add the traces dataset (mempabench/mempabench-traces: the paper runs' conversations and scores) once it is public. -->
+The conversations, tool calls and scores of the paper's runs are published as [`mempabench/mempabench-traces`](https://huggingface.co/datasets/mempabench/mempabench-traces) under CC-BY-4.0: 288 probe rounds (4 users × 4 PA models × 6 conditions × 3 repeats), each with the 33 probes and their offline-judge scores.
 
 ## Repository layout
 
 | Path | What it holds |
 |---|---|
-| `pa/` | The personal assistant (a nanobot fork), its interaction tools and wrapper |
+| `pa/` | The personal agent (a nanobot fork), its interaction tools and wrapper |
 | `simulator/` | The simulated user and the live judge |
 | `harness/` | Run plans, the orchestrator, checkpoints and probes, metrics |
 | `memory/` | Memory adapters (`conditions/` for File memory, No Memory, Oracle; `backends/` for Mem0, Simple RAG, MemOS) |
@@ -301,7 +301,7 @@ Inside each user folder the files keep the relative paths the harness reads, inc
 
 ```bibtex
 @misc{li2026mempabench,
-  title         = {Why Bother Me Again? Benchmarking Personal Assistant Memory for Interaction Preferences},
+  title         = {Why Bother Me Again? Benchmarking Personal Agent Memory for Interaction Preferences},
   author        = {Li, Jialin and Chen, Zhenhao and Luo, Hanjun and Salam, Hanan},
   year          = {2026},
   eprint        = {XXXX.XXXXX},
@@ -312,4 +312,4 @@ Inside each user folder the files keep the relative paths the harness reads, inc
 
 ## License
 
-The code is released under the [MIT License](LICENSE). The PA is a fork of [nanobot](https://github.com/HKUDS/nanobot) (MIT); see [NOTICE](NOTICE). The memory systems under `memory_raw_repos/` keep their own licenses (Apache-2.0). The user data on Hugging Face is released under CC-BY-4.0.
+The code is released under the [MIT License](LICENSE). The PA is a fork of [nanobot](https://github.com/HKUDS/nanobot) (MIT); see [NOTICE](NOTICE). The memory systems under `memory_raw_repos/` keep their own licenses (Apache-2.0). The user data and the traces on Hugging Face are released under CC-BY-4.0.
