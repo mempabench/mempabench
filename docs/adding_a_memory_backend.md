@@ -111,7 +111,7 @@ from it. It runs `user_a`'s first everyday session, the probe `pre_01` (cut
 just before slot 15) and the first preference-change event (slot 15). It makes
 paid OpenRouter calls, judges one probe and computes no metrics.
 
-1. Start your service and export `.env` (see the README's Quick start), then
+1. Start your service and export `.env` (see [Memory services](running.md#memory-services)), then
    run:
 
    ```bash
@@ -158,6 +158,6 @@ paid OpenRouter calls, judges one probe and computes no metrics.
    `$RUN/judge_output/llm__google_gemini-3.8-flash/pre_01.json`.
 
 The smoke run holds one of the 33 probes, so `mempabench score` refuses it;
-that is expected. Remove the run and its backend state afterwards (README,
-"Cleaning up"). A full run with `--acc-range 1-108`, followed by
+that is expected. Remove the run and its backend state afterwards ([Cleaning
+up](running.md#cleaning-up)). A full run with `--acc-range 1-108`, followed by
 `mempabench score`, then gives your backend's PSA and BRS for that user.
