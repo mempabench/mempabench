@@ -1,6 +1,5 @@
 """IX wrapper interface freeze (P0) -- types, constants and serialised shapes only, no runtime logic.
 
-Maps to the twelve-contract table of the IX wrapper plan §7.1 P0.
 This module is the single interface source between P1-P5 and P6a: the
 implementations of the renderer (`render.py`), the collector and the gates are
 not here. The one function, `turn_budget()`, is the §3.3 (part 5) formula

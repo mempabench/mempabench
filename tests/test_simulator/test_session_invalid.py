@@ -1,6 +1,6 @@
 """The simulator is the instrument: its own failures invalidate the session.
 
-Owner ruling 2026-09-08 (IX wrapper plan §10, audit item 6): a still-malformed
+A still-malformed
 three-block output used to be played on its parse fallback, routing the beat on
 a `next_beat` the actor never wrote. It ends the session as invalid instead:
 nothing reaches the PA, the transcript ends on `session_invalid` naming the

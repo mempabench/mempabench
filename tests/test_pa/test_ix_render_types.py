@@ -1,7 +1,7 @@
 """P0 contract tests for `pa.agent.ix.render_types`.
 
-Every construction below is taken from the plan's own examples in
-the IX wrapper plan (§3.3 a1-a3, §3.4 batches, §4.4 JSON).
+Every construction below is a worked example of a turn budget, a batch, or a
+serialised JSON shape.
 """
 
 from __future__ import annotations
@@ -99,7 +99,7 @@ from pa.agent.ix.render_types import (
 )
 from pa.agent.ix.specs import IX_PASSIVE_SPECS
 
-# --- the plan's own examples -------------------------------------------------
+# --- worked examples ---------------------------------------------------------
 
 # §3.3 (part 1) · IX_render_autonomy_level(plan_id="p1", plan=[a1, a2, a3], done=False)
 PLAN_A1_A3 = [

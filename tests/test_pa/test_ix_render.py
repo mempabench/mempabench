@@ -1,10 +1,8 @@
 """P1 · the pure renderer: one case per rendered attribute per setting.
 
-IX wrapper plan §3.1–§3.8,
-plus the unset fallback
-every rendered attribute must have. The worked examples are the plan's own:
-the three-batch travel turn (§3.4), the Dale plan with the email gate (§3.3),
-and the process notice / completion pair (§3.1 process row).
+Also covers the unset fallback every rendered attribute must have. The worked
+examples are the three-batch travel turn, the Dale plan with the email gate,
+and the process notice / completion pair.
 """
 
 from __future__ import annotations

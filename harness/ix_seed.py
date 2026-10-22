@@ -1,6 +1,6 @@
 """Force one IX setting into a live PA, for validation runs only.
 
-Validation rows 1b/5 of the IX wrapper plan (§7.3) need a session whose
+Some validation runs need a session whose
 `process_visibility` / `autonomy_level` is a setting the persona matrix never
 produces. The simulator's preference overlay only rewrites the *user* matrix, so
 nothing of it reaches the PA. This seeds the PA's own per-session selection cache

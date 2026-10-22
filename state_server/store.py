@@ -292,7 +292,7 @@ WRITE_TOOL_METHODS: dict[str, str] = {
 }
 
 
-# Capability-limit contract (IX wrapper plan §3.5 part 3).
+# Capability-limit contract.
 # The frozen source of these four values is pa/agent/ix/render_types.py:
 # CAPABILITY_LIMIT_ERROR_CODE, CAPABILITY_LIMIT_TOOL_STATUS,
 # CAPABILITY_LIMIT_RESULT_KEYS and the BoundaryKind Literal (whose members are

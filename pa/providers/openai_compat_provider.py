@@ -54,8 +54,8 @@ _ALLOWED_MSG_KEYS = frozenset({
     "role", "content", "tool_calls", "tool_call_id", "name",
     "reasoning_content", "extra_content",
 })
-#: Provider-side reasoning keys, read in this order for **audit capture only**
-#: (IX wrapper plan §3.2 appendix): `reasoning_content` is the Kimi /
+#: Provider-side reasoning keys, read in this order for **audit capture only**:
+#: `reasoning_content` is the Kimi /
 #: DeepSeek-R1 name, `reasoning` is what OpenRouter normalises to, and
 #: `reasoning_details` is the structured variant. None of it is ever rendered.
 PROVIDER_REASONING_KEYS: tuple[str, str, str] = (
@@ -666,7 +666,7 @@ class OpenAICompatProvider(LLMProvider):
     def _extract_provider_reasoning(cls, message: Any) -> str | None:
         """Audit-only capture of provider-side reasoning.
 
-        IX wrapper plan §3.2: this is **never rendered** and never reaches
+        This is **never rendered** and never reaches
         `public_turn` / `runtime_history` / `memory_projection` — it exists only so
         `AuditTrace.provider_reasoning` can record whether the provider returned any.
         OpenRouter normalises the field to `reasoning` (not `reasoning_content`), and

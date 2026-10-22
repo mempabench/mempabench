@@ -1,6 +1,6 @@
 """The capability-limit signal on state read/retrieve tools.
 
-Contract (IX wrapper plan §3.5 part 3): only a read or
+Contract: only a read or
 retrieve of an *already resolved* resource that the fixture explicitly marks
 unavailable returns the capability-limit shape. A search with no hits stays an
 ordinary empty result, and an identifier that matches no record stays the

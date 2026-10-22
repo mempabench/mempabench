@@ -1,7 +1,6 @@
 """The IX renderer: a pure function from one PA turn to the one message the user sees.
 
-IX wrapper plan §2.2 part 3 and §3.1–§3.8. No IO, no
-LLM call, no wall clock: every per-attribute rule is an `if` in `render()`.
+No IO, no LLM call, no wall clock: every per-attribute rule is an `if` in `render()`.
 
 What it does, in the order the parts reach the user:
 

@@ -1,7 +1,6 @@
 """Taxonomy-aligned IX tool specs and the single source of setting prose.
 
-Since 2026-09-05 (IX wrapper plan §5.2 "round 5 unified wording")
-there is **one text per attribute x setting**. It lives in
+There is **one text per attribute x setting**. It lives in
 `configs/setting_definitions.yaml` (`pa_instruction`, loaded by
 `pa/agent/ix/settings_table.py`) and reaches the runtime as
 `IXToolSpec.setting_descriptions` here, attributes in the document order. The IX

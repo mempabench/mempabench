@@ -1,6 +1,6 @@
 """P3 · pure-function rendering of `reasoning_visibility` and `uncertainty_expression`.
 
-Maps to the IX wrapper plan:
+Rules:
 
 - §3.2  the render source is **only** the `user_facing_rationale` the PA wrote
   itself in `IX_render_reasoning_visibility`; the provider-side
