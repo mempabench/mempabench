@@ -1,4 +1,4 @@
-"""Evidence validator for a judge output — test doc §4.6 "`text_face.evidence` 有两种类型".
+"""Evidence validator for a judge output's `text_face.evidence`.
 
 Two evidence kinds, two checks, no third path:
 
@@ -10,7 +10,7 @@ Two evidence kinds, two checks, no third path:
   on the evidence item must equal the row's field of the same name. A gated
   call never executed and has no row, so it cannot be cited this way.
 
-One failing item makes the whole output invalid (§4.6: 无效、重打).
+One failing item makes the whole output invalid.
 """
 
 from __future__ import annotations

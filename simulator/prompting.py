@@ -23,7 +23,7 @@ from simulator.skills import reception_only, resolve_active_skills
 
 
 PROMPT_TEMPLATE_PATH = Path(__file__).parent / "prompts" / "generate_message.md"
-#: The probe session's sibling template (design §2.4.4): same blocks, but the
+#: The probe session's sibling template: same blocks, but the
 #: user corrects content errors only and never the assistant's manner.
 PROBE_PROMPT_TEMPLATE_PATH = Path(__file__).parent / "prompts" / "generate_message_probe.md"
 #: `SessionScript.artifact_kind` value that selects the probe template.

@@ -1,14 +1,14 @@
 """P2 · Collector, gates, hold bookkeeping and turn projections.
 
-This module is the Runner/Loop-side half of the IX wrapper (plan §2.2 part 1
-and part 2). It owns:
+This module is the Runner/Loop-side half of the IX wrapper.
+It owns:
 
 - :class:`TurnCollector` — per-iteration model text plus per-call metadata,
   assembled into the frozen :class:`~pa.agent.ix.render_types.IXRenderInput`.
-- the gate predicates (§3.3 (part 2)·B, §3.4 (parts 2/3), §3.5, §3.7) and the fail-closed
-  binding validation (§3.3 (part 2)·A);
-- the step-boundary hold check and the controlled reminder (§4.2, §4.3);
-- the runtime-history projection built from a rendered turn (§2.4).
+- the gate predicates and the fail-closed
+  binding validation;
+- the step-boundary hold check and the controlled reminder;
+- the runtime-history projection built from a rendered turn.
 
 The pure renderer itself lives in ``pa/agent/ix/render.py``, and the hold
 write-back with it; :func:`render_turn` is this side's single call site.
@@ -105,7 +105,7 @@ _BOUNDARY_KINDS = frozenset({
     "external_dependency",
 })
 
-#: §3.6 covers only the attributes the renderer does *not* transform.
+#: The per-turn restatement covers only the attributes the renderer does *not* transform.
 _REMINDER_ATTRIBUTES = (
     "tone_formality",
     "verbosity",
@@ -115,7 +115,7 @@ _REMINDER_ATTRIBUTES = (
     "task_expansion",
 )
 #: `autonomy_level` joins them only for the one setting the wrapper does not
-#: hard-gate (§3.3 (part 2)·B): it has no carrier but instruction text. Keep this in
+#: hard-gate: it has no carrier but instruction text. Keep this in
 #: step with `RESTATED_AUTONOMY_SETTINGS` in `pa/agent/ix/specs.py`.
 _REMINDER_AUTONOMY_SETTINGS = ("Autonomous",)
 
@@ -153,14 +153,14 @@ CERTAINTY_CLAIM_SOURCE_REMINDER = (
 
 
 # ---------------------------------------------------------------------------
-# §3.6 · per-turn restatement of the pass-through settings
+# per-turn restatement of the pass-through settings
 # ---------------------------------------------------------------------------
 
 def turn_reminder_message(
     selections: Sequence[IXSelection],
     session_active_ix: Sequence[str] = (),
 ) -> str:
-    """Build the §3.6 restatement, or "" when there is nothing to restate.
+    """Build the per-turn restatement, or "" when there is nothing to restate.
 
     One line per already-chosen setting the renderer does not transform. An
     attribute with no selection this session has nothing to restate and simply
@@ -210,7 +210,7 @@ def turn_reminder_message(
 
 
 # ---------------------------------------------------------------------------
-# §3.8 · action type coverage
+# action type coverage
 # ---------------------------------------------------------------------------
 
 def assert_action_type_coverage(
@@ -220,7 +220,7 @@ def assert_action_type_coverage(
     """Fail before the world is touched when a task tool has no action type.
 
     ``set(base tool names) - {IX tools}`` must be a subset of the action map
-    plus the per-run overrides (§3.8, contract 10).
+    plus the per-run overrides (contract 10).
     """
     known = set(DEFAULT_TOOL_ACTION_TYPES) | set(overrides or {})
     missing = sorted(
@@ -234,7 +234,7 @@ def assert_action_type_coverage(
 
 
 # ---------------------------------------------------------------------------
-# payload parsing (§3.0 carriers B/D/E) — read off the model's own arguments
+# payload parsing (carriers B/D/E) — read off the model's own arguments
 # ---------------------------------------------------------------------------
 
 def _as_list(value: Any) -> list[Any]:
@@ -367,7 +367,7 @@ def boundary_payload_invalid(payloads: TurnPayloads) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# §3.7 (part 3) · PA-blind consent sideband
+# PA-blind consent sideband
 # ---------------------------------------------------------------------------
 
 def consent_decisions_from_metadata(
@@ -376,8 +376,8 @@ def consent_decisions_from_metadata(
     """Read the simulator's ``consent_decisions`` block off the PA call metadata.
 
     The block is evaluation-side state, never text: it is read here as a gate
-    input and never reaches a prompt. ``missing`` is rejected on the input path
-    (§3.7 (part 3)): it is a status the wrapper infers, not one the model may claim.
+    input and never reaches a prompt. ``missing`` is rejected on the input path:
+    it is a status the wrapper infers, not one the model may claim.
 
     Two shapes are accepted. An entry naming an ``interaction_item_id`` answers
     a held ask. An entry with **no** id but a ``tool`` is a standing
@@ -507,7 +507,7 @@ def live_act_releases(
 ) -> dict[str, str]:
     """`tool -> the item id whose release on it is still unspent` (owner, 2026-09-08).
 
-    §3.3 (part 3) binds an authorisation to the *action*, and the tool name is
+    An authorisation is bound to the *action*, and the tool name is
     what names the action; the `interaction_item_id` is minted fresh whenever
     the PA re-plans. Live acc_039 asked for one booking three times because of
     that: a rewritten reason and then a store refusal each produced a new plan
@@ -525,7 +525,7 @@ def live_act_releases(
 
     Only `autonomy_level` holds are read: they are the ones the floor gate asks
     about, and `asked` is required because an id the ask never named authorises
-    nothing (§3.7 (part 3)).
+    nothing.
     """
     grants = dict(hold.act_releases)
     decisions = {
@@ -560,18 +560,18 @@ def live_act_releases(
 
 
 # ---------------------------------------------------------------------------
-# §3.3 (part 2) · gates
+# gates
 # ---------------------------------------------------------------------------
 
 def gate_opens(policy: str, action_type: str, is_key: bool) -> bool:
-    """Whether the autonomy gate opens for one call (§3.3 (part 2)·B).
+    """Whether the autonomy gate opens for one call.
 
     ``read`` never opens a gate. ``Reactive`` gates every substantive action.
     ``Self-directed`` never gates reversible ``draft``, always gates
     ``external_action`` (the deterministic floor the model cannot argue away
     with ``is_key=False``), and gates ``internal_write`` only when the model
     marked the item as the key decision. ``Autonomous`` gates nothing — it is
-    instruction text (§3.6), not a hard gate.
+    instruction text, not a hard gate.
     """
     if action_type == "read":
         return False
@@ -606,20 +606,20 @@ def declared_item_ids(payloads: TurnPayloads, hold: IXHold) -> set[str]:
 
 
 #: Which attribute's payload a binding declaration belongs to. Only these two
-#: carry `interaction_item_id`s (§3.3 (part 2)·A): a plan through `bound_item_ids`, a
+#: carry `interaction_item_id`s: a plan through `bound_item_ids`, a
 #: batch through `call_binding`. Questions and boundaries declare no ids, so a
 #: binding refusal can never be theirs.
 _ID_DECLARING_ATTRIBUTES = ("autonomy_level", "topic_management")
 
 
 def binding_attribute(payloads: TurnPayloads, hold: IXHold, fallback: str) -> str:
-    """Whose declaration the failed binding belongs to (§3.3 (part 2)·A).
+    """Whose declaration the failed binding belongs to.
 
     Live `v7r06` t18 stamped all six `binding_invalid` rows
     `attribute: "autonomy_level"` while the response had declared
     `topic_management` batches and the rows carried `batch_id: "b1"` — so
     anything that keys held rows by attribute (the episode's `calls_held`, the
-    §3.3 (part 3)·b release list) looked in the wrong place. The response says which
+    release list) looked in the wrong place. The response says which
     payload declared ids; when exactly one did, that is the answer. When two did
     the wrapper cannot tell which id was meant, so it falls back rather than
     picking — a guess here is the same defect with better odds.
@@ -690,7 +690,7 @@ def validate_bindings(
     *,
     ids_declarable: bool = True,
 ) -> str | None:
-    """Fail-closed binding check (§3.3 (part 2)·A). Returns repair text, or None.
+    """Fail-closed binding check. Returns repair text, or None.
 
     Unknown or duplicate ``interaction_item_id`` means the whole batch of task
     calls is not executed and the model is asked once to resend it. So does a
@@ -708,7 +708,7 @@ def validate_bindings(
     ``interaction_item_id = None``.
 
     A question id is an *unknown* binding like any other — questions declare no
-    call ids (§3.3 (part 2)·A) — but it is the one confusion the model makes on its
+    call ids — but it is the one confusion the model makes on its
     own: live `v8s02` t3 bound three task calls to `q1`/`q1`/`q2` on the turn it
     declared those questions, and read the generic "unknown id" back as "the
     field is not part of the tool definitions". `question_ids` only changes what
@@ -745,7 +745,7 @@ def validate_bindings(
     )
 
 
-#: §3.4 (part 3) — the one repair `One-at-a-time` gets when the response arrives as a
+#: The one repair `One-at-a-time` gets when the response arrives as a
 #: single undivided batch. Asked once; a second undivided response is accepted
 #: and recorded (`ix_batch_undivided`), because the wrapper cannot split topics
 #: the model refuses to name.
@@ -822,12 +822,12 @@ class RecurrenceRepair:
 
 
 # ---------------------------------------------------------------------------
-# §2.2 component 1 · the collector
+# the collector
 # ---------------------------------------------------------------------------
 
 @dataclass
 class TurnCollector:
-    """Per-turn raw material for the renderer (§2.2 component 1)."""
+    """Per-turn raw material for the renderer."""
 
     turn_index: int = 0
     segments: list[str] = field(default_factory=list)
@@ -841,19 +841,19 @@ class TurnCollector:
     events: list[dict[str, Any]] = field(default_factory=list)
     #: Repair prompt for a fail-closed binding batch; "" when the batch is fine.
     repair: str = ""
-    #: §3.4 (part 3) repair prompt for an undivided `One-at-a-time` turn, and how many
+    #: Repair prompt for an undivided `One-at-a-time` turn, and how many
     #: times it has been sent this turn (it is sent at most once).
     batch_repair: str = ""
     batch_repair_attempts: int = 0
     #: Provider tool_call ids that never ran, so no tool result is appended.
     skipped_call_ids: set[str] = field(default_factory=set)
     capability_limit_seen: bool = False
-    #: §3.3 (part 2)·A — `interaction_item_id`s that have already spent their release
+    #: `interaction_item_id`s that have already spent their release
     #: on a world-changing call. Seeded from the open episodes at the first
     #: gate of the turn, so the limit holds across the turn's iterations and
     #: across turns while the episode is open.
     executed_item_ids: set[str] = field(default_factory=set)
-    #: `{attribute: setting}` this turn was rendered with, kept so the §4.4 blob
+    #: `{attribute: setting}` this turn was rendered with, kept so the `ix_render` blob
     #: can re-run the pure per-attribute renderers for its audit rows.
     settings: dict[str, str] = field(default_factory=dict)
     #: The prose of the response currently being handled, "" when it wrote none.
@@ -861,10 +861,10 @@ class TurnCollector:
     #: `segments[-1]` instead would steal an earlier iteration's prose whenever
     #: the gated response was tool calls only.
     current_segment: str = ""
-    #: §3.3 (part 2)·D addendum — prose written in the same assistant message as a call the
+    #: Prose written in the same assistant message as a call the
     #: gate held. It narrates work that did not happen, so it is audit-only.
     held_narration: list[HeldNarration] = field(default_factory=list)
-    #: §3.4 (part 5) — whether the one closing request after a batch / question hold
+    #: Whether the one closing request after a batch / question hold
     #: came back with prose. `None` means no closing request was made this turn.
     #: The audit blob has no other record of it: live it was visible only as an
     #: extra provider call whose prompt was ~14k tokens shorter.
@@ -962,7 +962,7 @@ class TurnCollector:
         # `segments` stays raw: the block is part of what the model wrote, and
         # `audit_trace` is the one place it is allowed to survive.
         self.segments.append(text)
-        # §5.3 carrier F — the trailing block is the primary certainty carrier,
+        # Carrier F — the trailing block is the primary certainty carrier,
         # because it quotes prose the model has already written; the tool call
         # is emitted before that prose exists and can only promise a span. A
         # block therefore replaces the tool payload; no block leaves it alone.
@@ -1090,7 +1090,7 @@ class TurnCollector:
             batch_id=batch_id,
             reason=reason,
         ))
-        # §3.3 (part 2)·D addendum: the prose of this same assistant message describes the
+        # The prose of this same assistant message describes the
         # call that is being stopped -- live, `📧 Email confirmation sent to
         # Dr. Okafor` while the send was held. It goes to the audit plane with
         # the call, never to the user.
@@ -1108,7 +1108,7 @@ class TurnCollector:
         """Drop this turn's hold bookkeeping so a repaired retry starts clean.
 
         Used when the wrapper sends the model back for a payload it owed (a
-        gate with no ask, §3.3 (part 2)·C). The records of the refused attempt would
+        gate with no ask). The records of the refused attempt would
         otherwise be written into an episode and shipped as `held.calls`,
         reporting a hold that the retry has already answered.
 
@@ -1190,18 +1190,18 @@ class TurnCollector:
 
 
 # ---------------------------------------------------------------------------
-# §2.2 component 3 · the renderer call site (P1 owns `render.py`)
+# the renderer call site (P1 owns `render.py`)
 # ---------------------------------------------------------------------------
 
 _MARKER_RES = (BATCH_MARKER_RE, QUESTION_MARKER_RE, CERTAINTY_MARKER_RE)
 
 
 def strip_internal_markers(text: str) -> str:
-    """Remove ``[[batch:…]]`` / ``[[q:…]]`` / ``[[c:…]]`` (§3.1.1).
+    """Remove ``[[batch:…]]`` / ``[[q:…]]`` / ``[[c:…]]``.
 
     Plus anything else still wearing double brackets: an id shape the wrapper
     does not recognise is still an internal control marker, and shipping it raw
-    is the one outcome §3.1.1 rules out.
+    is the one outcome ruled out.
     """
     for pattern in (*_MARKER_RES, UNRECOGNISED_MARKER_RE):
         text = pattern.sub("", text)
@@ -1216,7 +1216,7 @@ def render_turn(
     executed_call_ids: Sequence[str] = (),
     held_call_ids: Sequence[str] = (),
 ) -> RenderedTurn:
-    """The single renderer call site (§2.3: no bypass, no second entry point).
+    """The single renderer call site (no bypass, no second entry point).
 
     The gate records which calls actually ran, so those two lists are passed
     back in rather than re-derived: the renderer is pure and must not have to
@@ -1235,7 +1235,7 @@ def render_turn(
 
 
 # ---------------------------------------------------------------------------
-# §4.1 / §3.7 · hold episodes
+# hold episodes
 #
 # The write-back itself belongs to the renderer (`render.py` returns
 # `hold_next`): one owner, so a turn cannot advance an episode twice. What
@@ -1253,7 +1253,7 @@ def open_episode_ids(hold: IXHold) -> list[tuple[str, str]]:
 
 
 def hold_prompt(hold: IXHold, unreleased: Sequence[str] = ()) -> str:
-    """The §4.3 controlled reminder: hold ids only, never the user's own words.
+    """The controlled reminder: hold ids only, never the user's own words.
 
     An episode holding only questions or batches gets the reminder too (owner
     decision 2026-09-05). It used to be skipped for having no held *call*, so an
@@ -1264,7 +1264,7 @@ def hold_prompt(hold: IXHold, unreleased: Sequence[str] = ()) -> str:
     the PA rewrites in its own words.
 
     The two marker kinds settle differently, so each gets its own sentence next
-    to its own ids (§4.3). A carried *question* with a bare `release` folds into
+    to its own ids. A carried *question* with a bare `release` folds into
     the reply -- "a reply carrying none of them is released whole". A carried
     *batch* has no such fold: it stays held until its `[[batch:id]]` marker goes
     out, a bound call runs, the PA reports `skip`, or the round cap cancels it.
@@ -1333,7 +1333,7 @@ def hold_prompt(hold: IXHold, unreleased: Sequence[str] = ()) -> str:
             + ", ".join(unreleased)
             + "."
         )
-    # §3.7 (part 4): a cancelled item is a terminal fact, and the PA is told it on
+    # A cancelled item is a terminal fact, and the PA is told it on
     # **every** later turn of the session -- not only on the turn it happened.
     # Live, `v6g01`'s round cap dropped `email1` in silence and three turns
     # later the PA's own summary listed the never-sent email under "Completed".
@@ -1353,10 +1353,10 @@ def hold_prompt(hold: IXHold, unreleased: Sequence[str] = ()) -> str:
 
 
 # ---------------------------------------------------------------------------
-# §2.4 · the persistence projections
+# the persistence projections
 # ---------------------------------------------------------------------------
 
-#: The payload carriers whose persisted **result** is replaced (§2.4). Their
+#: The payload carriers whose persisted **result** is replaced. Their
 #: `execute()` echoes the arguments back verbatim, so a held `Question.text` or
 #: `Batch.body` landed in `runtime_history` twice: once as the PA's own
 #: declaration, once as a tool result that read like a delivered answer. The
@@ -1379,8 +1379,8 @@ def ix_payload_status(
 
     The three lists are **per turn**, and together they say what became of the
     turn's payload sections: `released` went out, `held_not_released` is still
-    held, and `cancelled` hit `HOLD_ROUNDS_HARD_CAP` and will never go out
-    (§3.7 (part 4)). `cancelled` exists because an empty `held_not_released`
+    held, and `cancelled` hit `HOLD_ROUNDS_HARD_CAP` and will never go out.
+    `cancelled` exists because an empty `held_not_released`
     does not mean everything was delivered — a forced close empties the hold by
     cancelling it — and the memory pool decides on both lists: a payload call's
     arguments are the delivered text and are remembered, unless this turn held
@@ -1409,7 +1409,7 @@ def build_runtime_history(
     held_not_released: Sequence[str] = (),
     cancelled: Sequence[str] = (),
 ) -> RuntimeHistory:
-    """Projection 2 (§2.4): user message once → executed subset → public turn.
+    """Projection 2: user message once → executed subset → public turn.
 
     The assistant protocol message is *copied* and its ``tool_calls`` filtered
     to ``executed_call_ids``; only those ids' results follow. Held call

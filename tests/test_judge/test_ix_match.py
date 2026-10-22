@@ -1,4 +1,4 @@
-"""judge/ix_match.py — test doc §0-B2 (a), §4.6 `ix_face` (§7 row 19). Pure code, no LLM."""
+"""judge/ix_match.py — the `ix_face` block. Pure code, no LLM."""
 
 from __future__ import annotations
 

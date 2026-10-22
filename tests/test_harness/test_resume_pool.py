@@ -1,7 +1,7 @@
-"""Resume of the turn pool across a crash (plan §6.1, §9 step 9).
+"""Resume of the turn pool across a crash.
 
 These are the acceptance tests for step 9, written before the code they
-describe. Step 9 has two deliverables: `memory/turn_journal.py` -- §6.1 (b)'s
+describe. Step 9 has two deliverables: `memory/turn_journal.py` -- the
 "append-only turn journal, one record per pool write" -- and the resume entry
 point that reads it and re-writes the pending pools. The **module has landed**
 and these tests are written to its API; the **entry point has not**, and the
@@ -18,7 +18,7 @@ skipped file asserts nothing:
   `event_writer.record_turn_journal` twice (`pa/agent/loop.py:1564`, `:1584`) --
   the seam step 5 left and step 7 wires. The tests bind that seam to the journal
   module and nothing else: production decides the `turn_id`, the span, the pool
-  and the ordering against `sessions.save`, which is what makes §12 item 7b
+  and the ordering against `sessions.save`, which is what makes the rule
   ("the record is durable BEFORE the turn's first `sessions.save`") assertable
   here at all. The crashes are likewise production-side -- a monkeypatched
   `AgentLoop` method raises -- so the state a resume finds on disk is the state
@@ -63,7 +63,7 @@ from pa.session.manager import SessionManager
 _journal = pytest.importorskip(
     "memory.turn_journal",
     reason=(
-        "plan §9 step 9 lands `memory/turn_journal.py` (§6.1 (b)): the "
+        "the step that adds `memory/turn_journal.py` has not landed: the "
         "append-only turn journal that persists the rendered pool per turn_id, "
         "and the resume entry point that replays its pending records. These "
         "tests are that step's acceptance criteria and cannot run before it. "
@@ -83,7 +83,7 @@ if not hasattr(_journal, "replay_pending_turns"):
     # These tests deliberately do NOT hand-roll that loop in the test body. An
     # earlier round of this file did, and was refuted for it: a suite that
     # writes the replay itself goes green on a journal module alone, with zero
-    # resume logic in production, and satisfies the §9 step 9 row's log check
+    # resume logic in production, and satisfies the log check
     # ("the resume log lists rewritten turn ids") with its own logging. So the
     # suite waits for the production entry point, and
     # `test_resume_pool_stub_proof.py` keeps it honest meanwhile -- it now runs
@@ -93,7 +93,7 @@ if not hasattr(_journal, "replay_pending_turns"):
         "`memory.turn_journal` has landed but the resume entry point has not: "
         "the module exposes `TurnJournal.resume_pending()` and no function that "
         "re-writes those pools to the adapter and logs the turn ids it rewrote "
-        "(§6.1 (a), §9 step 9). These tests drive that entry point rather than "
+        "(at-least-once). These tests drive that entry point rather than "
         "hand-rolling the replay, so they run when it lands.",
         allow_module_level=True,
     )
@@ -109,7 +109,7 @@ SESSION_KEY = "benchmark:main"
 TIMESTAMP = datetime(2026, 9, 13, 10, 0, tzinfo=timezone.utc)
 SCOPE = MemoryScope(run_id="run_001", persona_id="user_a", agent_id="nanobot")
 
-#: The three things §6.1 (b) says `session.messages` cannot give a resume back:
+#: The three things `session.messages` cannot give a resume back:
 #: intermediate assistant prose (blanked at `pa/agent/ix/collector.py:1404`),
 #: the final iteration's reasoning (dropped at `:1434`), and the PA's own IX
 #: call, which lives only in the raw provider slice. A journal that persisted a
@@ -200,7 +200,7 @@ def _bind_journal(
     API. Binding it here is the whole of the test's involvement: every argument
     -- `turn_id`, `span`, `timestamp`, `pool`, `state` -- and the moment of the
     call are production's. `SessionManager.save` is traced beside it so the
-    ordering §12 item 7b requires can be asserted rather than assumed.
+    required ordering can be asserted rather than assumed.
     """
     def _record(
         *, turn_id, session_id, span, timestamp, pool, state,
@@ -261,7 +261,7 @@ def _turn_slice(trace: list[tuple[str, ...]], marker: str) -> list[tuple[str, ..
 def _assert_durable_before_first_save(
     trace: list[tuple[str, ...]], turn_id: str
 ) -> None:
-    """§12 item 7b: the record is durable BEFORE the turn's first `sessions.save`."""
+    """The record is durable BEFORE the turn's first `sessions.save`."""
     entries = _turn_slice(trace, turn_id)
     pending = entries.index(("journal", turn_id, "pending"))
     saves = [i for i, entry in enumerate(entries) if entry[0] == "save"]
@@ -276,7 +276,7 @@ def _assert_durable_before_first_save(
 async def test_rederived_pool_equals_the_uninterrupted_pool(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Plan §6.1 (e) (iii): "the re-derived pool for turn N+1 is byte-equal to
+    """The acceptance check: "the re-derived pool for turn N+1 is byte-equal to
     the pool the uninterrupted run produced for it -- which is the assertion
     that fails today, on the losses in (b)."
 
@@ -287,9 +287,9 @@ async def test_rederived_pool_equals_the_uninterrupted_pool(
     resume re-reads that. Neither value is derived from the other, which is
     what makes the equality mean anything.
 
-    Per §6.1 (b) the artefact the resume re-reads is the journal record, not
+    The artefact the resume re-reads is the journal record, not
     `session.messages`: "persist the pool itself. Write the rendered pool
-    messages (or the `items` list of §3.6) beside the turn, keyed by `turn_id`,
+    messages (or the `items` list) beside the turn, keyed by `turn_id`,
     so a resume re-reads a rendered artefact instead of re-deriving one."
     """
     # Run 1, uninterrupted: the pool its adapter received is the reference.
@@ -329,7 +329,7 @@ async def test_rederived_pool_equals_the_uninterrupted_pool(
     assert rederived.messages == reference.messages
     assert rederived.items == list(reference.items)
 
-    # The three things §6.1 (b) says `session.messages` loses, named one by
+    # The three things `session.messages` loses, named one by
     # one, so a journal that persisted only a span, a hash or the lossy slice
     # cannot pass this.
     text = "\n".join(str(message["content"]) for message in rederived.messages)
@@ -342,17 +342,17 @@ async def test_rederived_pool_equals_the_uninterrupted_pool(
 async def test_resume_writes_pools_after_the_committed_turn_and_none_before(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Plan §6.1 (e) (i) and (ii): "assert (i) a pool receipt exists for every
+    """The acceptance checks: "assert (i) a pool receipt exists for every
     turn N+1 and after, (ii) no second receipt exists for any turn <= N".
 
-    §6.1 (e)'s setup, with N = 1: three turns driven through the production
+    The setup, with N = 1: three turns driven through the production
     commit window against a fake adapter that records every `record_event`;
     the adapter stops being reachable after turn N, so turns N+1 and N+2 leave
     durable `pending` records and no receipt; the process state is dropped
     (a fresh `SessionManager` re-reads the run directory) and the resume runs.
 
-    This is the §9 step 9 row's first crash point -- "after the journal record,
-    before the adapter call". Per §6.1 (c) "the authority is the journal
+    This is the first crash point -- "after the journal record,
+    before the adapter call". The rule: "the authority is the journal
     record's state, not a message index".
     """
     trace: list[tuple[str, ...]] = []
@@ -411,7 +411,7 @@ async def test_resume_writes_pools_after_the_committed_turn_and_none_before(
         assert FINAL_REASONING in text
 
     # The cursor catches up to the turn the resume wrote, and neither file
-    # cursor moved on the way (§9 step 9).
+    # cursor moved on the way.
     assert resumed_session.adapter_committed_end_index == len(
         resumed_session.messages
     )
@@ -423,11 +423,11 @@ async def test_resume_writes_pools_after_the_committed_turn_and_none_before(
 async def test_crash_between_adapter_ack_and_cursor_save_replays_and_logs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Plan §6.1 (a): at-least-once, declared.
+    """At-least-once, declared.
 
     "a crash after the adapter returns and before the cursor is saved leaves a
     written pool with a stale cursor, and the resume writes it again ... every
-    resume logs the turn ids it rewrote". That is the §9 step 9 row's second
+    resume logs the turn ids it rewrote". That is the second
     crash point, and it is production that crashes there: the turn's
     `_record_adapter_write_commit` raises, which is exactly between the
     adapter's receipt (`pa/agent/loop.py:1575`) and the cursor and journal
@@ -435,8 +435,8 @@ async def test_crash_between_adapter_ack_and_cursor_save_replays_and_logs(
 
     The replay is driven through the production entry point, so the log line
     the row asks for ("the resume log lists rewritten turn ids") is the resume
-    path's own, not the test's. Per §6.1 (c) the authority for the skip is the
-    journal record's state, never a message index, and per §9 step 9 neither
+    path's own, not the test's. The authority for the skip is the
+    journal record's state, never a message index, and neither
     `file_consolidated_end_index` nor `prompt_history_start_index` may move on
     the failed turn.
     """

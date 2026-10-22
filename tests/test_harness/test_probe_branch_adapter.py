@@ -1,4 +1,4 @@
-"""§9 step 12 — a probe branch runs on the namespace its checkpoint restored.
+"""A probe branch runs on the namespace its checkpoint restored.
 
 `_restore_backend_state_into_branch` imports the pinned snapshot into a
 per-branch namespace for every external backend, and until now nothing was
@@ -467,7 +467,7 @@ async def test_mem0_branch_preserves_payload_owner_and_retrieves_it(
 async def test_a_probe_on_an_external_backend_with_no_branch_adapter_raises(
     tmp_path: Path,
 ) -> None:
-    """A silent `None` is exactly the defect §9 step 12 fixed."""
+    """A silent `None` is exactly the missing-adapter defect."""
     executor = ProbeAdapterExecutor()
     orchestrator, _client = _external_run(tmp_path, executor=executor)
     # A manager that restores a namespace but builds nothing on it.

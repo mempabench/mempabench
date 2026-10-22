@@ -1,6 +1,6 @@
 """A journal that keeps the span and a hash, and loses the pool.
 
-This is the shortcut §6.1 (b) rules out -- "persist the pool itself", not a
+This is the ruled-out shortcut -- "persist the pool itself", not a
 pointer to a slice that has already been stripped -- and it is here to be
 refuted. `test_resume_pool_stub_proof.py` runs the step-9 suite against it and
 asserts every test fails on its own assertions, which is what makes "these
@@ -10,8 +10,8 @@ claimed.
 It is the landed `TurnJournal` with one change: `append_pending` drops the
 rendered pool on the way to disk and keeps only the span, the timestamp and the
 payload digest the record already carries. It also stands in for the other
-shortcut: `replay_pending_turns` rewrites the turn but logs nothing, so the §9
-step 9 verification column ("the resume log lists rewritten turn ids") has
+shortcut: `replay_pending_turns` rewrites the turn but logs nothing, so the
+verification check ("the resume log lists rewritten turn ids") has
 something concrete to fail against.
 """
 

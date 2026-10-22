@@ -1343,7 +1343,7 @@ def test_a_style_retry_note_quotes_the_sentence_that_already_carries_the_fact():
     asyncio.run(run())
 
 
-#: `probe_fact_missing` is the judge's alone (contract §9): with the judge off
+#: `probe_fact_missing` is the judge's alone: with the judge off
 #: the rule is not checked, so a test about it runs one. Every fact answers
 #: `no` — the turn does not say it — which is what composes the missing list.
 def _fact_judge() -> JudgeSession:
@@ -1443,7 +1443,7 @@ def test_a_fact_still_missing_is_recorded_and_the_session_plays(
 def test_with_the_judge_off_a_missing_probe_fact_is_not_checked(
     make_judge, tmp_path: Path
 ) -> None:
-    """The rule is the judge's alone (contract §9), and the hard finding of
+    """The rule is the judge's alone, and the hard finding of
     2026-09-13 did not change that: with no judge, or one that is off, the same
     turn that the judge sends back is played as it stands on its first attempt.
     """

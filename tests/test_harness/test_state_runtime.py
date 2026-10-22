@@ -1182,7 +1182,7 @@ def test_a_records_overlay_naming_an_absent_store_is_refused(tmp_path: Path):
 
 
 def test_a_failed_step_leaves_the_canonical_stage_untouched(tmp_path: Path):
-    """§3.5 part 6 / §2.4: the "no state change" guarantee's actual mechanism.
+    """The "no state change" guarantee's actual mechanism.
 
     A turn that later fails the IX contract has already run its tools -- the
     raise happens after the agent loop returns -- so the world write exists.

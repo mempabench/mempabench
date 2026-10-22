@@ -448,7 +448,7 @@ def test_invalid_evidence_is_re_asked_once_then_raises():
     assert event["raw_response"] == bad
     # The re-ask is not the identical request: in the live batch of 2026-09-09
     # every blind re-send came back with the same wrong answer, so this one says
-    # what was wrong with the last one (owner ruling, contract §4).
+    # what was wrong with the last one (owner ruling).
     first, second = client.prompts
     assert first == "p"
     assert second.startswith("p")
@@ -551,7 +551,7 @@ def test_every_failure_event_carries_its_dict():
 
 
 def test_no_questions_means_no_call():
-    """An empty group is not a question group, so §2 has no call to make — and
+    """An empty group is not a question group, so there is no call to make — and
     an empty `format` enum is not something Ollama can sample against."""
     client = FakeClient([GOOD])
     budget = TurnBudget("turn-1", limit=1)

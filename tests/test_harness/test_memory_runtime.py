@@ -167,7 +167,7 @@ def test_capabilities_follow_backend():
 # `session.messages[file_consolidated_end_index:]` through
 # the two-message projection the pool replaces. The pool is
 # projection 3, built at live time from the raw provider slice, and the
-# persisted slice cannot re-derive it (§6.1 (b)). So the journal, not the
+# persisted slice cannot re-derive it. So the journal, not the
 # message list, is what mid-session compaction and the pinned flush consume.
 
 import asyncio
@@ -423,7 +423,7 @@ class _FlushHandle:
 def test_pinned_flush_consumes_journal_when_message_tail_is_empty(
     tmp_path: Path,
 ) -> None:
-    """§6.1 (e): the flush must run with nothing left in `session.messages`.
+    """The flush must run with nothing left in `session.messages`.
 
     A pinned checkpoint is the only copy a probe branches from. A suppressed
     outreach as the last turn of a step leaves the message tail empty, and the
@@ -585,7 +585,7 @@ _PROBE_TURN = [
 async def test_probe_step_writes_nothing_and_moves_no_cursor(
     kind: str, tmp_path: Path
 ) -> None:
-    """Plan §4.1 (c): the read-only gate is what makes a test probe retrieve-only.
+    """The read-only gate is what makes a test probe retrieve-only.
 
     The pool change rewrites every write path, so this pins the three layers
     the plan names -- the step's fixed `memory_mode`, the mode applied once per
@@ -660,7 +660,7 @@ async def test_probe_step_writes_nothing_and_moves_no_cursor(
 
 
 # ---------------------------------------------------------------------------
-# The forced-event line's own journal record (§6.1 (d), §12 7b).
+# The forced-event line's own journal record.
 # ---------------------------------------------------------------------------
 
 FE_SESSION_KEY = "benchmark:fe_main"
@@ -840,5 +840,5 @@ async def test_forced_exchange_reaches_the_memory_files_under_the_file_condition
     record = handle.turn_journal().record_for("evolv_05:exchange_01")
     assert record.file_consolidated is True
     # A pure-dialogue exchange realized nothing, and says so rather than
-    # leaving `realized` absent -- which §6.1 (d) treats as an error.
+    # leaving `realized` absent -- which is treated as an error.
     assert record.realized == {"results": {}, "action_ids": []}

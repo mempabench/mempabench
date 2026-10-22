@@ -117,7 +117,7 @@ def tool_action_type(tool_name: str, overrides: dict[str, Any] | None = None) ->
 
     Checks overrides first, then DEFAULT_TOOL_ACTION_TYPES. An unregistered
     tool falls back to the most tightly gated class, not the least: "unknown"
-    must never mean "exempt from the gate" (plan §3.8). The startup coverage
+    must never mean "exempt from the gate". The startup coverage
     check in `pa.agent.ix.collector.assert_action_type_coverage` is the main
     defence; this return value is the runtime floor behind it.
     """

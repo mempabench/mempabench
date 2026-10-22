@@ -49,7 +49,7 @@ def is_ix_tool_event(tool_event: dict) -> bool:
 
     Name-prefix based so the six `IX_render_*`, the four `IX_continue_*` and
     `IX_capability_resolve` are all covered without a second list to keep in
-    sync (§3.8 uses the same prefix rule).
+    sync (the action-type coverage check uses the same prefix rule).
 
     `ix_event` covers the wrapper's own control records — `beat_gate_turn`,
     `ix_consent_denied`, `ix_release_missing`, `ix_hold_forced_close` and the
@@ -553,7 +553,7 @@ def extract_pa_toolcalls(jsonl_path: Path | str, extra_meta: dict | None = None)
             _merge_unique("ix_render", [record])
             gate = render_blob.get("gate")
             if gate:
-                # §4.4: this group records the gate, not the old interception.
+                # This group records the gate, not the old interception.
                 # Every hold-bearing attribute gates through the same record,
                 # so `attribute` says which one fired.
                 _merge_unique("autonomy_events", [{"t": event.get("t"), **gate}])
@@ -575,7 +575,7 @@ def extract_pa_toolcalls(jsonl_path: Path | str, extra_meta: dict | None = None)
                 # `payload_type` is what separates a selection from a per-turn
                 # payload (`pa/agent/ix/events.py:101`). Without it every
                 # `IX_render_*` / `IX_continue_*` entry reads as a selection
-                # whose `setting` is the empty string, and TJ §4.1's
+                # whose `setting` is the empty string, and the judge packer's
                 # "take only `payload_type == "ix_preference_selection"`"
                 # selector has nothing to filter on.
                 call.update({
@@ -586,10 +586,10 @@ def extract_pa_toolcalls(jsonl_path: Path | str, extra_meta: dict | None = None)
                     "application": tool_event.get("application"),
                 })
             elif tool_event.get("ix_event"):
-                # The wrapper's own control records (TJ §4.3 table 1.4). Each
+                # The wrapper's own control records. Each
                 # name carries its own diagnostic fields — `item_id`,
                 # `item_ids`, `tool`, `tools`, `episode_id`, `cancelled`,
-                # `sideband_decision`, `reason` — and §4.3 correlates
+                # `sideband_decision`, `reason` — and the judge correlates
                 # cancellations and false claims through exactly those ids, so
                 # they are carried over as they came. A fixed list would drop
                 # the next record's field silently, which is how the whole
@@ -755,7 +755,7 @@ def _render_eval_block(sim_evt: dict) -> list[str]:
     )
     out.append("")
 
-    # §7 #53 ②: the consent sideband is the gate's ground truth — PA-blind,
+    # The consent sideband is the gate's ground truth — PA-blind,
     # like `factual_check` and `turn_assessment`. Without it the IX face's
     # human review cannot tell a held item the user refused from one the user
     # was never asked about. It stays inside this eval-only block; the text
@@ -837,7 +837,7 @@ def _render_ix_audit(pa_evt: dict) -> list[str]:
 
 
 def _render_ix_render(pa_evt: dict) -> list[str]:
-    """Render the §4.4 `ix_render` blob — the IX face, held content included.
+    """Render the `ix_render` blob — the IX face, held content included.
 
     The held bodies are printed verbatim: a reviewer has to be able to tell
     "the PA never wrote it" from "the PA wrote it and the wrapper held it".

@@ -394,7 +394,7 @@ def persona_has_probe_line(persona_id: str) -> bool:
 
 def freeze_resolved_gt_copy(plan: RunPlan, run_dir: Path) -> Path:
     """Copy the persona's `resolved_gt.yaml`, as it is now, into the run
-    directory (§7 row 8)."""
+    directory."""
     if plan.resolved_gt is None:
         raise ValueError(
             f"plan records no resolved_gt to freeze: run_id={plan.run_id!r}"
@@ -578,7 +578,7 @@ def _build_frozen_run_plan(
     """Freeze a run plan; `existing_plan` is what a re-freeze may not change.
 
     `--regenerate-plan` on a finished run re-freezes the plan so a probe line
-    can be attached to it (§2.4.6), and everything it rebuilds from today's
+    can be attached to it, and everything it rebuilds from today's
     artifacts it rebuilds over steps that have already run. So the caller hands
     back the plan those steps ran under together with the ledger's done step
     ids, and two things are carried over instead of re-minted: the mainline

@@ -204,7 +204,7 @@ class MemOSAdapter:
         # Off the event loop: `search_memories` is a synchronous client call --
         # one container, one database, a 180 s timeout and its own transport
         # retry -- and on the loop it left every other coroutine's in-flight
-        # HTTP unread for its whole length (probe parallel runner plan §9). The
+        # HTTP unread for its whole length. The
         # retry runs inside the thread, unchanged.
         grouped_result = await asyncio.to_thread(
             self._client.search_memories, search_request

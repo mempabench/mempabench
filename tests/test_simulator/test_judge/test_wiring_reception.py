@@ -1,4 +1,4 @@
-"""The reaction beat's four rules, judged and no longer matched (Phase 3 §C 1-2).
+"""The reaction beat's four rules, judged and no longer matched.
 
 The reception two — `reaction_asserts_unexecuted_pa_action` and
 `reaction_authorises_pa_action` — and the reaction two —

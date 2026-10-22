@@ -60,7 +60,7 @@ class SettingRow(BaseModel):
     user_sees: str
     judge_observable: str
     judge_evidence: str
-    #: What the wrapper releases or holds under this setting (plan §3.1). Filled in U6.
+    #: What the wrapper releases or holds under this setting. Filled in U6.
     wrapper: str | None = None
 
     @field_validator(
@@ -78,7 +78,7 @@ class AttributeRow(BaseModel):
     label: str
     contract_class: ContractClass
     decision: str
-    #: Simple counts that recur in several texts (plan §2), keyed by a name of
+    #: Simple counts that recur in several texts, keyed by a name of
     #: the author's choosing; empty until a number really appears in every text.
     thresholds: dict[str, int] = Field(default_factory=dict)
     settings: list[SettingRow]

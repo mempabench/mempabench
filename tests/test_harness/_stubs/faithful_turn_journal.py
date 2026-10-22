@@ -7,7 +7,7 @@ correct step 9 can turn all three green.
 `TurnJournal` and `JournalRecord` here are **the real `memory.turn_journal`**,
 re-exported, not a reimplementation: the module has landed, so the faithful
 journal is simply the journal. What is stubbed is the part that has *not*
-landed, `replay_pending_turns` -- §6.1 (a)'s at-least-once resume, reading
+landed, `replay_pending_turns` -- the at-least-once resume, reading
 `resume_pending()`, re-writing each pending pool, advancing the cursor and
 logging every turn id it rewrote. It is a test fixture, not a proposal: whoever
 lands the real entry point picks its home and its name, and the behaviour
@@ -46,7 +46,7 @@ async def replay_pending_turns(
     Q5, at-least-once: a turn whose adapter write was acknowledged but whose
     state never reached disk is written a second time, and the duplicate is
     left for the backend to absorb. Nothing here dedupes, and the id of every
-    rewritten turn is logged (§9 step 9's verification column).
+    rewritten turn is logged.
     """
     rewritten: list[str] = []
     for record in journal.resume_pending().records:

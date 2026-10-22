@@ -3,10 +3,10 @@
 Five carriers:
 
 - A `IX_<attribute>`            — the setting for this session, shown once
-- B `IX_render_<attribute>`     — this turn's payload, six attributes (§3.0)
+- B `IX_render_<attribute>`     — this turn's payload, six attributes
 - C three per-call fields injected onto task tool schemas (`registry.py`)
-- D `IX_continue_<attribute>`   — consumes an existing hold, four attributes (§3.7)
-- E `IX_capability_resolve`     — forced boundary declaration after `capability_limit` (§3.5)
+- D `IX_continue_<attribute>`   — consumes an existing hold, four attributes
+- E `IX_capability_resolve`     — forced boundary declaration after `capability_limit`
 """
 
 from __future__ import annotations
@@ -152,7 +152,7 @@ class IXPreferenceTool(Tool):
                 return "Error: Proactive Outreach High requires outreach_action='send'."
             message = (outreach_message or "").strip()
             if not message:
-                # §3.1 proactive row: the model always writes the contact, so a
+                # The model always writes the contact, so a
                 # suppressed candidate can be audited against a sent one.
                 return "Error: outreach_message is required for send and for suppress."
             payload["outreach_action"] = outreach_action
@@ -161,7 +161,7 @@ class IXPreferenceTool(Tool):
 
 
 # ---------------------------------------------------------------------------
-# Required predicates — §7.1 P0 "response-evaluated conditionally-required"
+# Required predicates — "response-evaluated conditionally-required"
 # ---------------------------------------------------------------------------
 # Each predicate is pure over `RequiredContext` (frozen in P0) and is evaluated
 # after this turn's provider response is in hand, at the existing check in
@@ -193,7 +193,7 @@ def _has_task_call(context: RequiredContext) -> bool:
 
 
 def requires_visible_message(context: RequiredContext) -> bool:
-    """§3.0 — required on every turn that produces a user-visible message.
+    """Required on every turn that produces a user-visible message.
 
     Used by the three payloads whose absence would make the message unrenderable
     under at least one setting: rationale, certainties, completion message.
@@ -203,9 +203,9 @@ def requires_visible_message(context: RequiredContext) -> bool:
 
 
 def requires_certainty_payload(context: RequiredContext) -> bool:
-    """§3.0 — required on a visible-message turn that carries no trailing block.
+    """Required on a visible-message turn that carries no trailing block.
 
-    The `<certainties>` block (§5.3 carrier F) is the primary carrier: it quotes
+    The `<certainties>` block (carrier F) is the primary carrier: it quotes
     prose the model has already written, which a tool call emitted *before* that
     prose cannot do. With a block in the response the tool payload is optional;
     with neither, the turn owes a payload and falls to the generic
@@ -220,7 +220,7 @@ def requires_certainty_payload(context: RequiredContext) -> bool:
 
 
 def requires_new_plan_binding(context: RequiredContext) -> bool:
-    """§3.0 — required when the response carries an item id the open plan has not claimed."""
+    """Required when the response carries an item id the open plan has not claimed."""
     episode = _open_episode(context, "autonomy_level")
     claimed = {
         item_id
@@ -231,14 +231,14 @@ def requires_new_plan_binding(context: RequiredContext) -> bool:
 
 
 def requires_batch_payload(context: RequiredContext) -> bool:
-    """§3.0 — required when the response has a task call or a `[[batch:…]]` marker."""
+    """Required when the response has a task call or a `[[batch:…]]` marker."""
     return _has_task_call(context) or any(
         marker.startswith("batch:") for marker in context.response_markers
     )
 
 
 def requires_open_elicitation(context: RequiredContext) -> bool:
-    """§3.0 — required on every turn while the attribute is active.
+    """Required on every turn while the attribute is active.
 
     It used to be required only while an elicitation episode was open, and only
     this tool can open one: nothing bootstrapped it, so across two live acc_009
@@ -257,12 +257,12 @@ def requires_open_elicitation(context: RequiredContext) -> bool:
 
 
 def requires_capability_declaration(context: RequiredContext) -> bool:
-    """§3.5 (part 4) — required on the iteration after a tool returned `capability_limit`."""
+    """Required on the iteration after a tool returned `capability_limit`."""
     return context.capability_limit_seen
 
 
 def hold_release_predicate(attribute: str) -> RequiredPredicate:
-    """§3.7 (part 2) — `IX_continue_<attribute>` is required exactly when its hold is non-empty."""
+    """`IX_continue_<attribute>` is required exactly when its hold is non-empty."""
 
     def _predicate(context: RequiredContext) -> bool:
         episode = _open_episode(context, attribute)

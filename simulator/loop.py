@@ -1,6 +1,6 @@
 """Simulator prompt assembly, single-beat enactment, and SimulatorLoop session driver.
 
-Per Simulator Design § "Factual Reporter / dual-assessment architecture" (2026-08-31 schema), each turn produces:
+Under the "Factual Reporter / dual-assessment architecture" (2026-08-31 schema), each turn produces:
   <message>          — PA-visible
   <factual_check>    — eval-only, conditional
   <turn_assessment>  — eval-only, every turn (next_beat + goal_already_met)
@@ -88,7 +88,7 @@ def ix_tool_names_for(active_preferences: list[str] | tuple[str, ...] | None) ->
 # exchanges; reaching the cap force-advances the story (direction, not failure).
 # This is the FALLBACK budget, used when nothing is injected. The real per-beat
 # budget is a function of the beat's hold-bearing attributes and is defined once,
-# in pa/agent/ix/render_types.py (IX wrapper §3.3 part 5); simulator/ never imports
+# in pa/agent/ix/render_types.py; simulator/ never imports
 # pa/, so the harness passes that function in as `turn_budget_fn`.
 MAX_TURNS_PER_BEAT = 3
 
@@ -301,7 +301,7 @@ def _ask_retry_note_for(
 def _consent_decisions_payload(
     output: SimulatorOutput, preauthorised_tool: str | None = None
 ) -> list[dict[str, str]]:
-    """The PA-blind consent sideband as plain dicts (§3.7 part 3).
+    """The PA-blind consent sideband as plain dicts.
 
     Two consumers, one shape: the transcript event log, and the typed
     `consent_decisions` key on the PA call, which the wrapper reads as gate
@@ -458,7 +458,7 @@ class SimulatorLoop:
     Per Access Boundary: only `<message>` is forwarded to PA. `<factual_check>`,
     `<turn_assessment>` and `<consent_decisions>` live exclusively in the
     transcript event log; the consent sideband additionally rides the PA-call
-    metadata channel as a typed key the wrapper reads as gate state (§3.7 part 3).
+    metadata channel as a typed key the wrapper reads as gate state.
 
     History format: OpenAI-style chat messages. Simulator-emitted text lands as
     {role: assistant}; PA's reply lands as {role: user} (it's input to the next
@@ -582,7 +582,7 @@ class SimulatorLoop:
             )
         self.benchmark_session_deadline = benchmark_session_deadline
         self.suppress_resume_delay = suppress_resume_delay
-        # Injected by the harness (§3.3 part 5). The default keeps simulator/ free of
+        # Injected by the harness. The default keeps simulator/ free of
         # any pa/ import: with nothing injected every beat gets the flat cap.
         self._turn_budget_fn = turn_budget_fn or _default_turn_budget
         self._check_in_world_envelope()
@@ -604,7 +604,7 @@ class SimulatorLoop:
         self._reception_joined: list[str] = []
         # Items the PA is holding, as the harness reported them on the LAST PA
         # turn. They become this turn's stage direction and the only ids the
-        # consent sideband may carry (§3.7 part 3).
+        # consent sideband may carry.
         self._pending_held_items: list[dict[str, str]] = []
         # Whether the PA is mid-interaction at all, as the harness reported it
         # on the LAST PA turn. A question-only or batch-only hold is consent-able
@@ -704,7 +704,7 @@ class SimulatorLoop:
         return items
 
     def _worst_case_turn_offset(self) -> int:
-        """Highest in-world minute offset this session can reach (§3.3 part 6).
+        """Highest in-world minute offset this session can reach.
 
         One exchange is one minute (`_turn_timestamp`), and the worst case is
         every beat spending its whole budget with no beat jumped over. A
@@ -726,7 +726,7 @@ class SimulatorLoop:
         return max(send_path, suppress_path)
 
     def _check_in_world_envelope(self) -> None:
-        """Fail before the first turn when the worst case cannot fit (§3.3 part 6).
+        """Fail before the first turn when the worst case cannot fit.
 
         `_turn_timestamp` raises the moment an exchange lands on or past the
         deadline. Widening the per-beat budget makes that reachable, so the same
@@ -816,7 +816,7 @@ class SimulatorLoop:
 
         The armed flag is never asked of the judge: this method is only reached
         on a turn the harness has already decided owes an ask, and `must_ask`
-        goes in as a fact (§2). The judge is the only decider (contract §9):
+        goes in as a fact. The judge is the only decider:
         with it off the ask gate is not checked and no retry fires.
         """
         if not self.judge.enabled:
@@ -1845,7 +1845,7 @@ class SimulatorLoop:
                 ),
                 "memory_retrieval_budget_items": self.memory_retrieval_max_items,
                 "active_ix": active_ix,
-                # PA-blind sideband (§3.7 part 3). It rides the same metadata
+                # PA-blind sideband. It rides the same metadata
                 # channel as `active_ix`, is read by the wrapper as gate state,
                 # and is never rendered into anything the model reads.
                 "consent_decisions": _consent_decisions_payload(
@@ -1886,7 +1886,7 @@ class SimulatorLoop:
         self._pending_held_items = self._normalize_held_items(
             pa_metadata.get("held_items")
         )
-        # Pacing only (§3.4 part 3): it says something is waiting, never what, and
+        # Pacing only: it says something is waiting, never what, and
         # it is deliberately absent from `generate_turn`'s arguments.
         self._pending_interaction = bool(pa_metadata.get("has_pending_interaction"))
         # The wrapper's own record that this turn delivered nothing. It rides

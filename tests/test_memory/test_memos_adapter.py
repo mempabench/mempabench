@@ -453,8 +453,8 @@ async def test_a_blocking_search_leaves_the_event_loop_running() -> None:
     """`search_memories` is a synchronous client call inside an `async def` --
     one container, one database, a 180 s timeout -- so on the loop it left
     every other coroutine's in-flight HTTP unread for its whole length, which
-    with more than one session at a time is another session's request budget
-    (probe parallel runner plan §9, risk (f)). It goes out through
+    with more than one session at a time is another session's request budget.
+    It goes out through
     `asyncio.to_thread`, so a sibling coroutine gets to run while the search is
     out, and it is the sibling that releases it: the order is the assertion and
     the clock is not. The client's own transport retry runs inside the thread.

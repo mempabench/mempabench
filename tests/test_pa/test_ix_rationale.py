@@ -39,12 +39,12 @@ UNCERTAINTY_SETTINGS = ("Express", "Hide", UNSET)
 
 
 # ---------------------------------------------------------------------------
-# reasoning_visibility (§3.2)
+# reasoning_visibility
 # ---------------------------------------------------------------------------
 
 
 def test_rationale_is_validated_identically_in_every_setting() -> None:
-    """Whether it is required must not leak the setting: all three validate identically (§3.2)."""
+    """Whether it is required must not leak the setting: all three validate identically."""
     assert normalize_rationale(RATIONALE) == RATIONALE
     assert normalize_rationale("  " + RATIONALE + "\n") == RATIONALE
     for empty in ("", "   ", None, 42, ["a"], {"text": "a"}):
@@ -97,7 +97,7 @@ def test_unknown_setting_falls_back_to_the_unset_branch_and_says_so() -> None:
 
 
 def test_provider_reasoning_is_only_a_boolean_never_a_render_source() -> None:
-    """§3.2: provider reasoning goes to audit_trace only, and `source` is always `user_facing_rationale`."""
+    """Provider reasoning goes to audit_trace only, and `source` is always `user_facing_rationale`."""
     result = render_rationale("Show", RATIONALE, provider_reasoning_present=True)
     assert result.reasoning["provider_reasoning_present"] is True
     assert result.reasoning["source"] == RATIONALE_SOURCE
@@ -109,7 +109,7 @@ def test_provider_reasoning_is_only_a_boolean_never_a_render_source() -> None:
 
 
 # ---------------------------------------------------------------------------
-# uncertainty_expression (§3.1 that row, §4.4)
+# uncertainty_expression
 # ---------------------------------------------------------------------------
 
 TEXT = "Monday morning is free[[c:c1]], and room 302 is still open[[c:c2]]."
@@ -117,7 +117,7 @@ CERTAINTIES = [Certainty(ref="c1", level="low"), Certainty(ref="c2", level="high
 
 
 def test_certainty_annotation_matches_the_format_frozen_in_the_plan() -> None:
-    """§3.1's uncertainty row hard-codes `(confidence: low)`; §4.4's `rendered` is identical, verbatim."""
+    """The renderer hard-codes `(confidence: low)`; the audit row's `rendered` is identical, verbatim."""
     assert certainty_annotation("low") == "(confidence: low)"
     assert certainty_annotation("medium") == "(confidence: medium)"
     assert certainty_annotation("high") == "(confidence: high)"
@@ -181,7 +181,7 @@ def test_duplicate_ref_keeps_the_first_level_for_both_rows() -> None:
 
 
 def test_empty_certainties_on_an_unmarked_answer_is_a_no_op() -> None:
-    """The PA gives an empty list when the prose has no marker -- the render must pass it straight through (§3.1 that row's required rule)."""
+    """The PA gives an empty list when the prose has no marker -- the render must pass it straight through."""
     for setting in UNCERTAINTY_SETTINGS:
         result = render_certainties(setting, "Monday morning is already scheduled.", [])
         assert result.text == "Monday morning is already scheduled."
@@ -220,7 +220,7 @@ def test_express_annotates_after_each_claim_it_finds() -> None:
         "Monday morning is free(confidence: low), so I can put the review there.\n\n"
         "Room 302 is still open(confidence: high), so I am holding it."
     )
-    # `claim` / `strategy` ride along for the audit plane (§4.4 certainties[]).
+    # `claim` / `strategy` ride along for the audit plane (certainties[]).
     assert result.rows == [
         {
             "ref": "c1", "level": "low", "rendered": "(confidence: low)",
@@ -237,7 +237,7 @@ def test_express_annotates_after_each_claim_it_finds() -> None:
 
 @pytest.mark.parametrize("setting", ["Hide", UNSET])
 def test_hide_and_unset_insert_nothing_for_a_found_claim(setting: str) -> None:
-    """A found claim is still not annotated -- the setting decides whether to insert, the lookup only where (§3.1 that row)."""
+    """A found claim is still not annotated -- the setting decides whether to insert, the lookup only where."""
     result = render_certainties(setting, CLAIM_TEXT, CLAIM_CERTAINTIES)
     assert result.text == CLAIM_TEXT
     assert [row["rendered"] for row in result.rows] == ["", ""]
@@ -488,7 +488,7 @@ def test_a_located_but_withheld_claim_leaves_a_trace_line(setting: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# §5.3 carrier F · the `<certainties>` block at the end of the reply
+# carrier F · the `<certainties>` block at the end of the reply
 # ---------------------------------------------------------------------------
 
 BLOCK_REPLY = (
@@ -571,7 +571,7 @@ def test_express_annotates_the_claims_the_block_quoted() -> None:
 
 
 def test_the_block_instruction_is_setting_blind() -> None:
-    """Both settings read the same passage, and writing the block or not leaks no setting (same required rule as §3.2)."""
+    """Both settings read the same passage, and writing the block or not leaks no setting (same required rule as reasoning_visibility)."""
     for setting in ("Express", "Hide"):
         assert setting not in CERTAINTY_BLOCK_INSTRUCTION
     assert "<certainties></certainties>" in CERTAINTY_BLOCK_INSTRUCTION
@@ -579,7 +579,7 @@ def test_the_block_instruction_is_setting_blind() -> None:
 
 
 # ---------------------------------------------------------------------------
-# optional audit capture: the three provider reasoning keys (§3.2 appendix, §7.2 P3 optional item)
+# optional audit capture: the three provider reasoning keys
 # ---------------------------------------------------------------------------
 
 
@@ -599,7 +599,7 @@ def test_provider_still_reads_reasoning_content() -> None:
 
 
 def test_provider_reads_the_openrouter_reasoning_key() -> None:
-    """The field name OpenRouter normalises to is `reasoning` (§3.2 appendix, item 1)."""
+    """The field name OpenRouter normalises to is `reasoning`."""
     response = _parse_message(
         {"role": "assistant", "content": "ok", "reasoning": "openrouter thoughts"}
     )
@@ -633,7 +633,7 @@ def test_no_reasoning_anywhere_stays_none() -> None:
 
 
 def test_captured_provider_reasoning_never_reaches_the_rendered_text() -> None:
-    """§3.2: captured provider reasoning goes to audit_trace only, and the render source is still the PA's own field."""
+    """Captured provider reasoning goes to audit_trace only, and the render source is still the PA's own field."""
     response = _parse_message(
         {"role": "assistant", "content": "ok", "reasoning": "private reasoning"}
     )

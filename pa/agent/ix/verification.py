@@ -34,8 +34,8 @@ ENV_VAR = "MEMPA_VERIFY_OUTREACH"
 #: plane the stamp reaches.
 VERIFICATION_OVERRIDE = "verification_override"
 
-#: `proactive_outreach` has exactly two settings, one per action (§3.1 that
-#: row). Forcing the action without the setting would leave the renderer's own
+#: `proactive_outreach` has exactly two settings, one per action.
+#: Forcing the action without the setting would leave the renderer's own
 #: `High -> send` / `Low -> suppress` rule to undo the override.
 OVERRIDE_SETTINGS = {"send": "High", "suppress": "Low"}
 

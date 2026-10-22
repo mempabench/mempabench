@@ -1,6 +1,6 @@
 """`test_resume_pool.py` is skipped on this branch. This proves it still says something.
 
-Plan §9 step 9's acceptance suite waits for `memory/turn_journal.py`, which is
+The acceptance suite waits for `memory/turn_journal.py`, which is
 step 9's own deliverable, so on this branch the suite is skipped at import and
 contributes no red. That is an honest state to be in, but only if two claims
 about the skipped file can be checked rather than taken on trust:
@@ -9,8 +9,8 @@ about the skipped file can be checked rather than taken on trust:
    rejects, so a correct step 9 can turn all three tests green. A test that can
    never pass is worse than no test: under `strict=True` it never fires;
 2. **it is non-vacuous** -- the tests fail on their own assertions, not on the
-   module's absence, and specifically they refuse the shortcut §6.1 (b) rules
-   out (a journal that keeps a span and a hash rather than the pool itself).
+   module's absence, and specifically they refuse the ruled-out shortcut
+   (a journal that keeps a span and a hash rather than the pool itself).
 
 Both are checked here by loading the suite twice, once against each throwaway
 journal in `_stubs/`, and running its three tests by hand. This file runs
@@ -38,7 +38,7 @@ TEST_NAMES = (
 )
 #: The assertion each test must fail on when the journal loses the pool -- the
 #: rendered pool's byte-equality, the prose surviving a replay, and the resume
-#: log line §9 step 9's verification column asks for.
+#: log line the verification check asks for.
 REFUTED_BY = (
     "assert rederived.messages == reference.messages",
     "assert INTERMEDIATE_PROSE in text",
@@ -87,7 +87,7 @@ def test_the_step9_suite_passes_against_a_faithful_journal(
 ) -> None:
     """Claim 1: every assertion in the suite is satisfiable.
 
-    The faithful stub is the smallest journal §6.1 (b) describes -- it persists
+    The faithful stub is the smallest correct journal -- it persists
     the rendered pool per `turn_id`, and its `replay_pending_turns` rewrites
     every pending record and logs the ids. Against it all three tests pass, so
     none of them is asserting an equality the plan rejects, and each of the
@@ -105,7 +105,7 @@ def test_the_step9_suite_fails_against_a_journal_that_loses_the_pool(
     """Claim 2: the suite refuses the shortcut, and fails by assertion.
 
     The inert stub keeps the span and a payload hash and throws the pool away,
-    which is the alternative §6.1 (b) rejects, and its replay logs nothing. The
+    which is the rejected alternative, and its replay logs nothing. The
     failure must be an `AssertionError`: an `ImportError`, a `TypeError` or an
     `AttributeError` here would mean the suite is only checking that a module
     with the right names exists.

@@ -1,6 +1,6 @@
 """T1–T4, T9 — the turn envelope across turns and across packages.
 
-Plan §7.2 P7. `tests/test_pa/test_ix_wrapper_loop.py` already owns the
+`tests/test_pa/test_ix_wrapper_loop.py` already owns the
 single-turn half of T3/T4/T9 (plain turn, one executed + one held call, the
 history the next provider call accepts). What is here is the part that only
 shows up when more than one turn, or more than one package, is involved: a
@@ -79,7 +79,7 @@ def _payload_turn(notice: str, completion: str, item_id: str, text: str) -> list
 def test_a_setting_chosen_on_turn_one_still_forces_the_payload_on_turn_three(
     loop_factory,
 ) -> None:
-    """T1 (§3.0): selection is per session, the payload contract is per turn.
+    """T1: selection is per session, the payload contract is per turn.
 
     Turn 3 brings a task the plan has never claimed. The selection tools are
     gone — that attribute is settled — but `IX_render_<attribute>` is still
@@ -116,7 +116,7 @@ def test_a_setting_chosen_on_turn_one_still_forces_the_payload_on_turn_three(
         loop, _ = loop_factory(provider, "task_read")
         active = ["process_visibility", "autonomy_level"]
         # `task_read` is not in the real action-type table, and an unregistered
-        # tool fails closed to `external_action` (§3.8), which `Self-directed`
+        # tool fails closed to `external_action`, which `Self-directed`
         # gates. This scenario is about payload requiredness, not the gate.
         reads = {"task_read": "read"}
 
@@ -174,7 +174,7 @@ def test_a_setting_chosen_on_turn_one_still_forces_the_payload_on_turn_three(
 def test_a_batch_held_on_turn_one_is_absent_from_turn_twos_history_and_memory(
     loop_factory,
 ) -> None:
-    """T2 (§2.4): the PA may know b2 exists, but only through the hold channel."""
+    """T2: the PA may know b2 exists, but only through the hold channel."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content=None, tool_calls=[

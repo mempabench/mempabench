@@ -1429,7 +1429,7 @@ def test_entity_memory_rejects_missing_nlp_before_backend_initialization(monkeyp
         )
 
 
-# ── §9 step 6: the pool passes the raw-dialogue role check ─────────
+# ── The pool passes the raw-dialogue role check ─────────
 
 from memory.backends.mem0_client import (  # noqa: E402
     _RAW_DIALOGUE_ROLES,

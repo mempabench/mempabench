@@ -1343,12 +1343,12 @@ def _draft_records(state_root: Path) -> list[dict]:
 async def test_resume_does_not_re_execute_a_realized_exchange(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, crash_point: str
 ) -> None:
-    """Plan §6.1 (d): Q5 authorises replaying a memory write, never a world action.
+    """A resume may replay a memory write, never a world action.
 
-    The §9 step 9 row asks for two interruption points, and both are here.
+    There are two interruption points, and both are here.
 
     `after_preparation` interrupts once every exchange is prepared and before
-    any commit -- the point §6.1 (d) names, because "preparation of every
+    any commit -- the point that matters, because "preparation of every
     exchange completes before any commit" -- so every world call of the run is
     realized and no memory write is.
 
@@ -1371,8 +1371,8 @@ async def test_resume_does_not_re_execute_a_realized_exchange(
     `after_preparation` every world call of the run is realized, so the resume
     calls the registry for nothing. After
     `after_world_call_before_memory_ack` the calls that never ran -- here
-    `call_fixture_03` -- run for the first time on resume (§6.1 (d) case (ii),
-    "not executed"); what may never happen is a second execution of a call
+    `call_fixture_03` -- run for the first time on resume;
+    what may never happen is a second execution of a call
     that was already realized.
     """
     transcript_path = _with_realized_call_reference(tmp_path)
@@ -1892,7 +1892,7 @@ def test_the_preview_of_a_landed_transcript_is_its_dialogue_plus_tool_blocks(
 async def test_crash_between_pending_and_written_resumes_through_the_journal(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """§6.1 (a) Q5: the memory write is replayed, the world action is not.
+    """The memory write is replayed, the world action is not.
 
     The window this pins is the one the journal exists for: the pending record
     is durable, the adapter has acknowledged, and the process dies before
@@ -1977,7 +1977,7 @@ async def test_crash_between_pending_and_written_resumes_through_the_journal(
 
 
 # ---------------------------------------------------------------------------
-# §6.1 (e) · a mid-event compaction sweep against the step-7 turn journal
+# a mid-event compaction sweep against the step-7 turn journal
 # ---------------------------------------------------------------------------
 
 
@@ -2017,7 +2017,7 @@ async def test_a_mid_event_sweep_consolidates_whole_journal_records_only(
 ) -> None:
     """A sweep that stops mid-event must cut on a journal-record boundary.
 
-    The plan's consumption rule is per TURN, not per event (§6.1 (e)): "automatic
+    The plan's consumption rule is per TURN, not per event: "automatic
     compaction consumes exactly the journal prefix whose turns end at or before
     the chosen `compaction_end_index`". So an event's exchanges being split
     across two sweeps is by design -- an FE exchange *is* a turn. What is not by

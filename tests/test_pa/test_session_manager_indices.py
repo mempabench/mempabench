@@ -136,7 +136,7 @@ def _journal_with_one_pending(manager, key):
 
 
 def test_the_journal_is_saved_and_restored_with_the_checkpoint(tmp_path):
-    """§6.1(b): a checkpoint that drops the journal drops the pool writes.
+    """A checkpoint that drops the journal drops the pool writes.
 
     The benchmark harness snapshots the whole `pa_workspace`, so it carries
     the journal today; a caller of this manager-level round trip got a valid

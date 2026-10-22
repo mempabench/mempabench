@@ -2,23 +2,23 @@
 
 This module is the single interface source between P1-P5 and P6a: the
 implementations of the renderer (`render.py`), the collector and the gates are
-not here. The one function, `turn_budget()`, is the §3.3 (part 5) formula
+not here. The one function, `turn_budget()`, is the beat budget formula
 itself, not runtime wiring.
 
-The twelve contracts (§7.1 P0; the numbers are the `contract N` referenced
+The twelve contracts (the numbers are the `contract N` referenced
 throughout below):
 
-- contract 1  lifecycle of the per-session setting and the per-turn payload (§3.0) --
+- contract 1  lifecycle of the per-session setting and the per-turn payload --
   `IX_SELECTION_TOOL_NAMES` / `IX_RENDER_TOOL_NAMES` / `IX_CONTINUE_TOOL_NAMES` /
   `RENDER_PAYLOAD_FIELDS` / `IX_TOOL_NAME_PREFIX` / `TurnPayloads` / `RequiredContext`
-- contract 2  the five projections and the full turn envelope (§2.4) --
+- contract 2  the five projections and the full turn envelope --
   `PublicTurn` / `RuntimeHistory` / `MemoryProjection` / `TextJudgeProjection` / `AuditTrace`
-- contract 3  injection, stripping and fail-closed validation of `interaction_item_id` (§3.3 (part 2)·A, §5.3 carrier C) --
+- contract 3  injection, stripping and fail-closed validation of `interaction_item_id` (carrier C) --
   `PER_CALL_INJECTED_FIELDS` / `ToolCallRecord` / `PlanItem.bound_item_ids` / `Batch.call_binding`
-- contract 4  the two-phase capability protocol (§3.5 (parts 1/4)) --
+- contract 4  the two-phase capability protocol --
   `CapabilityStage` / `BoundaryState` / `STOP_REASON_IX_CONTRACT_FAILURE`
   / `BOUNDARY_FAILURE_REASONS`
-- contract 5  the `capability_limit` error-code contract (§3.5 (part 3)) --
+- contract 5  the `capability_limit` error-code contract --
   `CAPABILITY_LIMIT_ERROR_CODE` / `CAPABILITY_LIMIT_TOOL_STATUS` / `ToolResultStatus`
   / `CAPABILITY_LIMIT_RESULT_KEYS` / `CapabilityLimitResult`
 - contract 6  retired 2026-09-06. The number is left unused rather than renumbered
@@ -27,17 +27,17 @@ throughout below):
   internal position markers `BATCH_MARKER_RE` / `QUESTION_MARKER_RE` /
   `CERTAINTY_MARKER_RE` are **always** stripped deterministically, whatever the
   setting
-- contract 7  episode-scoped holds and no open hold at a step boundary (§4.1, §4.2) --
+- contract 7  episode-scoped holds and no open hold at a step boundary --
   `HoldEpisode` / `IXHold` / `EPISODE_ID_FIELDS` / `HoldEpisodeKind`
-- contract 8  consent-aware continuation and the trusted sideband hard gate (§3.7) --
+- contract 8  consent-aware continuation and the trusted sideband hard gate --
   `ReleaseDecision` / `ConsentDecision` / `ConsentRecord` / `CONSENT_DECISIONS_BLOCK`
   / `SIDEBAND_CONSENT_VALUES` / `HOLD_ROUNDS_HARD_CAP`
-- contract 9  the beat budget constants (§3.3 (part 5)) --
+- contract 9  the beat budget constants --
   `BASE_TURNS` / `CLOSE_ROUNDS` / `GLOBAL_TURN_CAP` / `UNIT_CAP` / `turn_budget()`
   / `TURN_BUDGET_PARAMS` (a pure-data copy for the harness to inject)
-- contract 10 the action-type total-coverage contract (§3.8) --
+- contract 10 the action-type total-coverage contract --
   `ActionType` / `UNKNOWN_TOOL_ACTION_TYPE` (an unknown tool fails closed to `external_action`)
-- contract 11 the proactive render fields (§3.1 that row, §4.4) --
+- contract 11 the proactive render fields --
   `ProactiveDecision` / `HeldJSON.outreach_message` / `IXRenderJSON.proactive_decision`
 - contract 12 the version boundary of `ix_contract_version` + `schema_version` --
   `IX_CONTRACT_VERSION` / `IX_RENDER_SCHEMA_VERSION` / `from_ix_render_metadata()`
@@ -55,7 +55,7 @@ from typing import Any, Callable, Literal, NotRequired, TypedDict
 # ---------------------------------------------------------------------------
 
 #: Identifier for the setting / spec / renderer contract that produced a render
-#: record. The one recorded in the frozen RunPlan must equal it (§7.1 contract 12).
+#: record. The one recorded in the frozen RunPlan must equal it (contract 12).
 #: 2.0.0: the "No known preference" neutral setting left the taxonomy, so every
 #: attribute's setting domain shrank. Every run frozen under 1.x is read-only —
 #: it cannot be resumed or branched, because its selections were made against a
@@ -67,7 +67,7 @@ from typing import Any, Callable, Literal, NotRequired, TypedDict
 #: frozen under 2.0.0 becomes read-only (owner ruling 2026-09-17).
 IX_CONTRACT_VERSION = "ix-wrapper/2.1.0"
 
-#: The schema version of the `metadata["ix_render"]` blob itself (§4.4).
+#: The schema version of the `metadata["ix_render"]` blob itself.
 #: 1.1.0: new optional top-level key `raw_blocks`, and new optional columns
 #: `claim` / `strategy` on `certainties[]`.
 #: **The reader matches on major**: inside one major only optional fields may be
@@ -87,23 +87,23 @@ class IXContractVersionError(ValueError):
 
 
 # ---------------------------------------------------------------------------
-# contract 9 · the beat budget constants (§3.3 (part 5))
+# contract 9 · the beat budget constants
 # ---------------------------------------------------------------------------
 
 #: The existing `MAX_TURNS_PER_BEAT` (`simulator/loop.py:72`).
 BASE_TURNS = 3
 
-#: The one forced-close round of §3.7 (part 4).
+#: The one forced-close round.
 CLOSE_ROUNDS = 1
 
 #: The global hard cap. Without it a beat with all four hold kinds active would
-#: compute 14 turns, which the in-world envelope cannot hold (§3.3 (part 6)).
+#: compute 14 turns, which the in-world envelope cannot hold.
 GLOBAL_TURN_CAP = 8
 
 #: How many units each attribute may release this beat at most. **Per attribute,
 #: independent of which setting was chosen** -- `Organize` (all at once) and
 #: `One-at-a-time` (one batch per round) get exactly the same budget, so "how
-#: many turns this beat got" cannot be worked back into the setting (§3.3 (part 5)).
+#: many turns this beat got" cannot be worked back into the setting.
 UNIT_CAP: dict[str, int] = {
     "autonomy_level": 3,          # unit: plan item (one item, one gate = one round)
     "topic_management": 3,        # unit: batch
@@ -111,10 +111,10 @@ UNIT_CAP: dict[str, int] = {
     "capability_boundary": 1,     # unit: boundary resolution
 }
 
-#: The four attributes that can produce a cross-turn hold (§3.3 (part 5) `HOLD_BEARING`).
+#: The four attributes that can produce a cross-turn hold (`HOLD_BEARING`).
 HOLD_BEARING_ATTRIBUTES: frozenset[str] = frozenset(UNIT_CAP)
 
-#: The two attributes whose payload declares call ids (§3.3 (part 2)·A): an
+#: The two attributes whose payload declares call ids: an
 #: `IX_render_autonomy_level` plan step (`bound_item_ids`) and an
 #: `IX_render_topic_management` batch (`call_binding`). The other two
 #: hold-bearing attributes have no carrier for one, so a turn governed by them
@@ -125,15 +125,15 @@ ID_DECLARING_ATTRIBUTES: frozenset[str] = frozenset(
 
 
 def turn_budget(active_skills: Iterable[str]) -> int:
-    """The §3.3 (part 5) per-beat budget formula. Pure, reading only this beat's `active_skills`.
+    """The per-beat budget formula. Pure, reading only this beat's `active_skills`.
 
-    The formula (§3.3 (part 5), verbatim)::
+    The formula::
 
         turn_budget(beat) = min(
             GLOBAL_TURN_CAP,                                  # global hard cap, proposed 8
             BASE_TURNS                                        # 3 (the existing MAX_TURNS_PER_BEAT)
               + Σ over attr ∈ (HOLD_BEARING ∩ beat.active_skills) : UNIT_CAP[attr]
-              + CLOSE_ROUNDS                                  # 1 (the forced-close round, §3.7 (part 4))
+              + CLOSE_ROUNDS                                  # 1 (the forced-close round)
         )
 
     **Who calls it** (owner's decision, how contract 9 lands): the formula and
@@ -142,11 +142,11 @@ def turn_budget(active_skills: Iterable[str]) -> int:
     `TURN_BUDGET_PARAMS` and computes it itself) and passes it (a callable, or
     the already-computed per-beat turn count) in when it builds the simulator;
     **`simulator/` never imports `pa/`**. The formula reads only
-    `beat.active_skills` and no setting, so the budget leaks no GT (§3.3 (part 5)).
+    `beat.active_skills` and no setting, so the budget leaks no GT.
 
-    One point lands per the owner's P0 acceptance example (see the deviation
-    record in §9): a beat with no hold-bearing attribute returns `BASE_TURNS`
-    (3) without `CLOSE_ROUNDS` -- `CLOSE_ROUNDS` is the §3.7 (part 4)
+    One point lands per the owner's acceptance example:
+    a beat with no hold-bearing attribute returns `BASE_TURNS`
+    (3) without `CLOSE_ROUNDS` -- `CLOSE_ROUNDS` is the
     forced-close round, and with no episode there is nothing to close, so there
     is no reason to widen.
     """
@@ -177,12 +177,12 @@ TURN_BUDGET_PARAMS: dict[str, Any] = {
 
 
 # ---------------------------------------------------------------------------
-# attribute groupings (§3.1, §3.1.1, §3.6)
+# attribute groupings
 # ---------------------------------------------------------------------------
 
-#: The attributes the renderer applies a setting-specific transform to (§3.6,
-#: the "what is not covered" row). `autonomy_level`'s gate part is here, while
-#: its `Autonomous` instruction part goes through the §3.6 per-turn restatement.
+#: The attributes the renderer applies a setting-specific transform to.
+#: `autonomy_level`'s gate part is here, while
+#: its `Autonomous` instruction part goes through the per-turn restatement.
 RENDERED_ATTRIBUTES: frozenset[str] = frozenset({
     "reasoning_visibility",
     "uncertainty_expression",
@@ -195,11 +195,11 @@ RENDERED_ATTRIBUTES: frozenset[str] = frozenset({
 })
 
 #: Rendered attributes that **produce no cross-turn hold** -- they have no
-#: `UNIT_CAP` entry and take no part in the §3.3 (part 5) budget (contract 9).
+#: `UNIT_CAP` entry and take no part in the beat budget (contract 9).
 NON_HOLD_RENDERED_ATTRIBUTES: frozenset[str] = RENDERED_ATTRIBUTES - HOLD_BEARING_ATTRIBUTES
 
 #: The six attributes the renderer does not transform, whose runtime effect the
-#: §3.6 per-turn restatement carries instead.
+#: per-turn restatement carries instead.
 PASS_THROUGH_ATTRIBUTES: frozenset[str] = frozenset({
     "tone_formality",
     "verbosity",
@@ -211,17 +211,17 @@ PASS_THROUGH_ATTRIBUTES: frozenset[str] = frozenset({
 
 
 # ---------------------------------------------------------------------------
-# contract 1 · the per-attribute per-turn tool names (§3.0, §5.3 carrier B / D / E)
+# contract 1 · the per-attribute per-turn tool names (carrier B / D / E)
 # ---------------------------------------------------------------------------
 
-#: The prefix every internal IX tool shares. `§3.8`'s start-up coverage check
+#: The prefix every internal IX tool shares. The start-up coverage check
 #: uses it to exclude the IX tools from `ToolRegistry.tool_names`
-#: (`set(base) − {internal IX tools} ⊆ action map`), and the §2.4 projection 4
+#: (`set(base) − {internal IX tools} ⊆ action map`), and the projection 4
 #: packing uses it to drop IX tools out of `task_tool_events`.
 IX_TOOL_NAME_PREFIX = "IX_"
 
 #: Carrier A: the per-session setting selection tools, one per attribute for all
-#: 14 (§3.0, first row of that table).
+#: 14.
 #: **Literals, not derived from `pa.agent.ix.specs`**: this module is P0's
 #: interface freeze point and depends on the standard library only; importing
 #: `pa.agent.ix.specs` would also execute `pa/agent/ix/__init__.py` (which
@@ -248,7 +248,7 @@ IX_SELECTION_TOOL_NAMES: tuple[str, ...] = (
 )
 
 #: Carrier B: the per-turn payload tools, **one per attribute, no shared
-#: envelope**. Six of them (§3.0).
+#: envelope**. Six of them.
 IX_RENDER_TOOL_NAMES: dict[str, str] = {
     "reasoning_visibility": "IX_render_reasoning_visibility",
     "uncertainty_expression": "IX_render_uncertainty_expression",
@@ -259,22 +259,22 @@ IX_RENDER_TOOL_NAMES: dict[str, str] = {
 }
 
 #: Carrier D: the cross-turn release tools, which only consume an existing hold.
-#: One per hold-bearing attribute, four in all (§3.7 (part 2)).
+#: One per hold-bearing attribute, four in all.
 IX_CONTINUE_TOOL_NAMES: dict[str, str] = {
     attribute: f"IX_continue_{attribute}" for attribute in sorted(HOLD_BEARING_ATTRIBUTES)
 }
 
-#: Carrier E: the forced boundary-declaration tool (§3.5 (parts 1/4)).
+#: Carrier E: the forced boundary-declaration tool.
 IX_CAPABILITY_RESOLVE_TOOL = "IX_capability_resolve"
 
 #: The one attribute a *runtime trigger* activates rather than a beat: the first
 #: `capability_limit` tool result in a session puts it in the session's active
-#: set for good (§3.5; pre-run-test audit §2, acc_026). Named here so the runner
+#: set for good (acc_026). Named here so the runner
 #: and the loop agree on the string.
 CAPABILITY_BOUNDARY_ATTRIBUTE = "capability_boundary"
 
-#: Which `TurnPayloads` fields each `IX_render_<attribute>` carries (§3.0, that
-#: table, and the per-field carrier notes inside `TurnPayloads`). P1 aligns its
+#: Which `TurnPayloads` fields each `IX_render_<attribute>` carries (see the
+#: per-field carrier notes inside `TurnPayloads`). P1 aligns its
 #: schema and P2 its payload collection against this, so the field list is not
 #: written out twice.
 RENDER_PAYLOAD_FIELDS: dict[str, tuple[str, ...]] = {
@@ -288,23 +288,23 @@ RENDER_PAYLOAD_FIELDS: dict[str, tuple[str, ...]] = {
 
 
 # ---------------------------------------------------------------------------
-# contract 3 · the three per-call fields injected into task tool schemas (§5.3 carrier C)
+# contract 3 · the three per-call fields injected into task tool schemas (carrier C)
 # ---------------------------------------------------------------------------
 
-#: process_visibility's per-call notice (§3.1 that row). Stripped before the real tool is forwarded.
+#: process_visibility's per-call notice. Stripped before the real tool is forwarded.
 IX_NOTICE_FIELD = "_ix_notice"
 
-#: The one binding id, written by the model itself into the function arguments
-#: (§3.3 (part 2)·A). Stripped before forwarding.
+#: The one binding id, written by the model itself into the function arguments.
+#: Stripped before forwarding.
 INTERACTION_ITEM_ID_FIELD = "interaction_item_id"
 
-#: The ask, verbatim, written by the PA at the moment it issues this real call
-#: (§3.3 (part 2)·C). Stripped before forwarding.
+#: The ask, verbatim, written by the PA at the moment it issues this real call.
+#: Stripped before forwarding.
 IX_CONFIRMATION_MESSAGE_FIELD = "_ix_confirmation_message"
 
 #: All three are injected onto every task tool's schema keyed on
 #: **`session_active_ix`** (not `turn_active_ix`), and stripped together before
-#: `execute()` forwards (§3.0, §5.3 carrier C).
+#: `execute()` forwards (carrier C).
 PER_CALL_INJECTED_FIELDS: tuple[str, str, str] = (
     IX_NOTICE_FIELD,
     INTERACTION_ITEM_ID_FIELD,
@@ -313,7 +313,7 @@ PER_CALL_INJECTED_FIELDS: tuple[str, str, str] = (
 
 
 # ---------------------------------------------------------------------------
-# contract 8 · the simulator-side PA-blind private block name (§3.7 (part 3))
+# contract 8 · the simulator-side PA-blind private block name
 # ---------------------------------------------------------------------------
 
 #: The fourth private block in the simulator's per-turn output, a sibling of
@@ -334,21 +334,21 @@ ActionType = Literal["read", "draft", "internal_write", "external_action"]
 
 #: Contract 10 · the runtime floor for an unknown tool: changed from `"read"` to
 #: the most tightly gated class, because **"unknown means exempt" is not
-#: allowed** (§3.8).
+#: allowed**.
 UNKNOWN_TOOL_ACTION_TYPE: ActionType = "external_action"
 
 #: Contract 5 · the stable status codes for a tool result. `capability_limit`
 #: coexists with, but stays distinguishable from, the existing error verdict of
-#: `_tool_result_error` (§3.5 (parts 2/3)).
+#: `_tool_result_error`.
 ToolResultStatus = Literal["ok", "error", "capability_limit"]
 
-#: Contract 5 · only this can send the wrapper into `IX_capability_resolve` (§3.5 (part 3)).
+#: Contract 5 · only this can send the wrapper into `IX_capability_resolve`.
 CAPABILITY_LIMIT_ERROR_CODE = "capability_limit"
 
-#: Contract 5 · the status value on the `log_tool` side (§3.5 (part 3)).
+#: Contract 5 · the status value on the `log_tool` side.
 CAPABILITY_LIMIT_TOOL_STATUS: ToolResultStatus = "capability_limit"
 
-#: Contract 4 · the boundary-kind enum (§3.5 (part 1)). Not in the enum =
+#: Contract 4 · the boundary-kind enum. Not in the enum =
 #: illegal payload -> contract failure.
 BoundaryKind = Literal[
     "missing_data",
@@ -357,10 +357,10 @@ BoundaryKind = Literal[
     "external_dependency",
 ]
 
-#: Contract 4 · capability_boundary's two-phase protocol (the three stages of §3.5 (part 1)).
+#: Contract 4 · capability_boundary's two-phase protocol (the three stages).
 CapabilityStage = Literal["select_setting", "declare_boundary", "apply_setting"]
 
-#: Contract 5 · the **three required keys** of a `capability_limit` tool result (§3.5 (part 3)).
+#: Contract 5 · the **three required keys** of a `capability_limit` tool result.
 #: The plan's shape is `{"ok": false, "error_code": "capability_limit", "boundary_kind": …}`;
 #: the `log_tool` side also records `status="capability_limit"`
 #: (`CAPABILITY_LIMIT_TOOL_STATUS`), so that it **coexists with, yet stays
@@ -371,16 +371,16 @@ CAPABILITY_LIMIT_RESULT_KEYS: tuple[str, str, str] = ("ok", "error_code", "bound
 
 
 class CapabilityLimitResult(TypedDict):
-    """Contract 5 · the capability-boundary result shape a state tool returns (§3.5 (part 3); P0 fixes the shape, P6a lands it).
+    """Contract 5 · the capability-boundary result shape a state tool returns.
 
-    The production rule (§3.5 (part 3)'s source table, not optional): only a
+    The production rule (not optional): only a
     read/retrieve **whose argument is an exact, already-resolved resource id**
     may produce it, and only when the fixture **explicitly marks that entry
     unobtainable**; a free-text query search **always** gives an ordinary empty
     result (`status="ok"`), and an id the model made up still goes to
     `not_found`. The verdict looks only at `error_code`, and `boundary_kind`
     must fall inside the `BoundaryKind` enum -- outside it = illegal payload ->
-    contract failure (§3.5 (part 6)).
+    contract failure.
     """
 
     ok: Literal[False]
@@ -389,8 +389,8 @@ class CapabilityLimitResult(TypedDict):
     detail: NotRequired[str]
     """An optional human-readable note. **It takes no part in any verdict**, and goes to `audit_trace` only."""
 
-#: Contract 3 / 8 · the gate stage recorded when a gate holds a call (§3.3
-#: (part 2)·D; the four gates share one piece of code and only swap the status).
+#: Contract 3 / 8 · the gate stage recorded when a gate holds a call
+#: (the four gates share one piece of code and only swap the status).
 HoldStatus = Literal[
     "held_for_confirmation",  # autonomy_level
     "held_for_handoff",       # capability_boundary
@@ -399,7 +399,7 @@ HoldStatus = Literal[
     "held_for_binding",       # a contract violation, belonging to no gate
 ]
 
-#: Attribute -> the `status` that attribute's gate records (§3.3 (part 2)·D).
+#: Attribute -> the `status` that attribute's gate records.
 HELD_STATUS_BY_ATTRIBUTE: dict[str, HoldStatus] = {
     "autonomy_level": "held_for_confirmation",
     "capability_boundary": "held_for_handoff",
@@ -436,7 +436,7 @@ NO_ASK_HOLD_REASONS: frozenset[str] = frozenset({
 
 
 def held_status(attribute: str, reason: str = "") -> HoldStatus:
-    """The `status` of one held record: **reason first, attribute second** (§3.3 (part 2)·D, restated in round 7).
+    """The `status` of one held record: **reason first, attribute second**.
 
     One entry point, so the collector's gate path and the runner's back-fill
     path cannot give two answers for the same `(attribute, reason)` -- which is
@@ -447,20 +447,20 @@ def held_status(attribute: str, reason: str = "") -> HoldStatus:
         return by_reason
     return HELD_STATUS_BY_ATTRIBUTE.get(attribute, "held_for_binding")
 
-#: Contract 7 · the four kinds of hold episode (§4.1).
+#: Contract 7 · the four kinds of hold episode.
 HoldEpisodeKind = Literal["plan", "batch_set", "elicitation", "boundary"]
 
-#: Contract 8 · the hard cap on one episode's `rounds_open` (§3.7 (part 4)). On
+#: Contract 8 · the hard cap on one episode's `rounds_open`. On
 #: the round that reaches it: every item still not `release`d is marked
 #: `cancelled` (**never** released just because "time is up"),
 #: `ix_hold_forced_close` fires, and `IX_continue_<attribute>.closing_message`
 #: **becomes required** -- one closing sentence must render into `public_turn`
 #: telling the user these things were not done.
-#: It is also the round the §3.3 (part 5) budget formula has to reach: any beat
+#: It is also the round the beat budget formula has to reach: any beat
 #: with one 3-unit attribute budgets `min(8, 3+3+1) = 7`, enough to hit round 4.
 HOLD_ROUNDS_HARD_CAP = 4
 
-#: Contract 7 · which payload field each attribute's episode id is written in (§4.1).
+#: Contract 7 · which payload field each attribute's episode id is written in.
 EPISODE_ID_FIELDS: dict[str, str] = {
     "autonomy_level": "plan_id",
     "topic_management": "batch_set_id",
@@ -468,18 +468,18 @@ EPISODE_ID_FIELDS: dict[str, str] = {
     "capability_boundary": "boundary_id",
 }
 
-#: Contract 8 · the PA's verdict on each held id inside `IX_continue_<attribute>` (§3.7 (part 2)).
-#: `release` is the PA's **intent**, not permission to execute (§5.3 carrier D).
+#: Contract 8 · the PA's verdict on each held id inside `IX_continue_<attribute>`.
+#: `release` is the PA's **intent**, not permission to execute (carrier D).
 ReleaseDecisionValue = Literal["release", "keep", "skip"]
 
-#: Contract 8 · the PA-blind sideband's verdict on each held id shown to the user (§3.7 (part 3)).
+#: Contract 8 · the PA-blind sideband's verdict on each held id shown to the user.
 #: `missing` appears in the audit record only, and means the id was absent from
 #: the sideband -- fail-closed and treated as `keep`, the same as `deny` /
 #: `unclear`.
 ConsentDecisionValue = Literal["allow", "deny", "unclear", "missing"]
 
 #: Contract 8 · the three values the simulator's `<consent_decisions>` block may
-#: carry **on the input path** (§3.7 (part 3)).
+#: carry **on the input path**.
 #: `"missing"` is a member of `ConsentDecisionValue`, but it is **only an audit
 #: record value** -- meaning "this held id did not appear in this turn's
 #: sideband at all", a state the wrapper infers for itself, not a verdict the
@@ -490,13 +490,13 @@ ConsentDecisionValue = Literal["allow", "deny", "unclear", "missing"]
 #: releases an `external_action`.
 SIDEBAND_CONSENT_VALUES: tuple[str, str, str] = ("allow", "deny", "unclear")
 
-#: Contract 11 · the action on a proactive event turn (§3.1 that row).
+#: Contract 11 · the action on a proactive event turn.
 ProactiveAction = Literal["send", "suppress"]
 
-#: §3.1 uncertainty row: the confidence level on a `[[c:…]]` marker.
+#: The confidence level on a `[[c:…]]` marker.
 CertaintyLevel = Literal["high", "medium", "low"]
 
-# --- the three internal position markers in the prose (§3.4 (part 1), §3.1 uncertainty / elicitation rows) ---
+# --- the three internal position markers in the prose ---
 #: They are **position information**, written by the model into its prose to
 #: divide it: `[[batch:b1]] …prose… [[batch:b2]] …prose…`. On release the marker
 #: is stripped before delivery; **stripping is unconditional and happens under
@@ -526,34 +526,33 @@ def _marker_re(short: str, long: str) -> re.Pattern[str]:
     )
 
 
-#: `[[batch:b1]]` / `[[b1]]` -- `IX_render_topic_management.batches[].batch_id` (§3.4 (part 1)).
+#: `[[batch:b1]]` / `[[b1]]` -- `IX_render_topic_management.batches[].batch_id`.
 #: `IX_render_topic_management`'s required predicate reads it: a `[[batch:…]]`
-#: in the prose makes the call mandatory (§3.0).
+#: in the prose makes the call mandatory.
 BATCH_MARKER_RE = _marker_re("b", "batch")
 
-#: `[[q:q1]]` / `[[q1]]` -- `IX_render_information_elicitation.questions[].id` (§3.1 that row).
+#: `[[q:q1]]` / `[[q1]]` -- `IX_render_information_elicitation.questions[].id`.
 QUESTION_MARKER_RE = _marker_re("q", "question")
 
-#: `[[c:c1]]` / `[[c1]]` -- `IX_render_uncertainty_expression.certainties[].ref` (§3.1 that row).
+#: `[[c:c1]]` / `[[c1]]` -- `IX_render_uncertainty_expression.certainties[].ref`.
 CERTAINTY_MARKER_RE = _marker_re("c", "certainty")
 
 #: Any `[[…]]` token the three above did not recognise. Letting one reach the
-#: user verbatim is absolutely barred (§3.1.1, the "internal control markers"
-#: row), so after the three kinds are stripped this sweeps up once more, and
+#: user verbatim is absolutely barred,
+#: so after the three kinds are stripped this sweeps up once more, and
 #: what it strips goes to `trace`.
 UNRECOGNISED_MARKER_RE = re.compile(r"\[\[([^\[\]]*)\]\]")
 
-#: Why this turn ended. `ix_gate` = a gate fired (§3.3 (part 2)·D);
-#: `ix_hold` = a batch / question hold (§3.4 (part 3), which closes on the spot
+#: Why this turn ended. `ix_gate` = a gate fired;
+#: `ix_hold` = a batch / question hold (which closes on the spot
 #: the same way a gate does); `ix_contract_failure` = `IX_capability_resolve`
-#: missing or illegal a second time (§3.5 (part 6)).
+#: missing or illegal a second time.
 StopReason = Literal["ix_gate", "ix_hold", "ix_contract_failure"]
 STOP_REASON_IX_GATE: StopReason = "ix_gate"
 STOP_REASON_IX_HOLD: StopReason = "ix_hold"
 STOP_REASON_IX_CONTRACT_FAILURE: StopReason = "ix_contract_failure"
 
-#: The diagnostic event names the wrapper emits (§3.3 (part 2)·A, §3.3 (part 2)·C,
-#: §3.5 (part 6), §3.7 (parts 2/3/4), §4.3).
+#: The diagnostic event names the wrapper emits.
 IX_EVENT_NAMES: tuple[str, ...] = (
     "ix_binding_invalid",
     "ix_gate_no_message",
@@ -639,8 +638,7 @@ IX_EVENT_NAMES: tuple[str, ...] = (
     "ix_reselection_ignored",
 )
 
-#: Contract 4 · the value domain of `reason` in an `ix_boundary_unresolved` event
-#: (§3.5 (part 4), step 6).
+#: Contract 4 · the value domain of `reason` in an `ix_boundary_unresolved` event.
 #: `IX_capability_resolve` still not called in the second response after the
 #: reminder = `"missing"`; called but with a field missing / the wrong type /
 #: a `boundary_kind` outside the `BoundaryKind` enum = `"invalid_payload"`.
@@ -651,8 +649,8 @@ IX_EVENT_NAMES: tuple[str, ...] = (
 #: The event also carries `attempts` (always 2).
 BOUNDARY_FAILURE_REASONS: tuple[str, str] = ("missing", "invalid_payload")
 
-# The setting value domains of the rendered attributes (§3.1's master table +
-# §6's three reductions). Each one is exactly `IX_PASSIVE_SPECS[attribute].settings`
+# The setting value domains of the rendered attributes.
+# Each one is exactly `IX_PASSIVE_SPECS[attribute].settings`
 # — every selection names a taxonomy setting, and there is no extra option
 # outside the taxonomy.
 # The three reductions (reasoning_visibility drops `Summarize`,
@@ -670,13 +668,13 @@ ProactiveOutreachSetting = Literal["Low", "High"]
 
 
 # ---------------------------------------------------------------------------
-# contract 7 · the data shapes of the cross-turn cache (§4.1)
+# contract 7 · the data shapes of the cross-turn cache
 # ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
 class PlanItem:
-    """One item of `IX_render_autonomy_level.plan` (§3.3 (part 1))."""
+    """One item of `IX_render_autonomy_level.plan`."""
 
     id: str
     intent: str
@@ -686,14 +684,14 @@ class PlanItem:
     """Whether this is a **decision point**: making a choice, causing a real
     state change, or having an outward effect. Not "is this step important".
     Read by the wrapper under `Self-directed` only, and **only in effect for
-    `internal_write`** (§3.3 (part 2)·B)."""
+    `internal_write`**."""
     bound_item_ids: list[str] = field(default_factory=list)
-    """The `interaction_item_id`s this item claims, written out explicitly by the model (§3.3 (part 2)·A)."""
+    """The `interaction_item_id`s this item claims, written out explicitly by the model."""
 
 
 @dataclass(frozen=True)
 class Batch:
-    """One batch of `IX_render_topic_management.batches` (§3.4)."""
+    """One batch of `IX_render_topic_management.batches`."""
 
     batch_id: str
     label: str
@@ -701,12 +699,12 @@ class Batch:
     """The passage the `[[batch:b1]]` marker delimits in the prose. While
     unreleased it is **kept verbatim** in `audit_trace`."""
     call_binding: list[str] = field(default_factory=list)
-    """**`interaction_item_id` only** (§3.4 (part 3)) -- not the provider `tool_call_id`, and not `plan_item_id`."""
+    """**`interaction_item_id` only** -- not the provider `tool_call_id`, and not `plan_item_id`."""
 
 
 @dataclass(frozen=True)
 class Question:
-    """One entry of `IX_render_information_elicitation.questions` (§3.1 that row), marked `[[q:q1]]` in the prose."""
+    """One entry of `IX_render_information_elicitation.questions`, marked `[[q:q1]]` in the prose."""
 
     id: str
     text: str
@@ -715,7 +713,7 @@ class Question:
 
 @dataclass(frozen=True)
 class Assumption:
-    """One entry of `IX_render_information_elicitation.assumptions`. Must be non-empty under `Infer` (§3.1 that row)."""
+    """One entry of `IX_render_information_elicitation.assumptions`. Must be non-empty under `Infer`."""
 
     about: str
     assumed: str
@@ -723,7 +721,7 @@ class Assumption:
 
 @dataclass(frozen=True)
 class Certainty:
-    """One entry of `IX_render_uncertainty_expression.certainties` (§3.1 that row).
+    """One entry of `IX_render_uncertainty_expression.certainties`.
 
     `claim` is the **production channel**: in the tool call the model writes the
     sentence it is about to put verbatim in its reply, and the renderer finds it
@@ -743,31 +741,31 @@ class Certainty:
 
 @dataclass(frozen=True)
 class GateRecord:
-    """The record of a gate firing. §4.1's four fields + the two more the §4.4 `gate` blob carries."""
+    """The record of a gate firing. The four cross-turn cache fields + the two more the `gate` blob carries."""
 
     attribute: str
     item_id: str
     reason: str
     """E.g. `"external_action_floor"`. **`audit_trace` only** -- the text-plane
-    judge never sees it (§2.4)."""
+    judge never sees it."""
     asked_at_turn: int = 0
     action_type: ActionType = UNKNOWN_TOOL_ACTION_TYPE
-    """§4.4 `gate.action_type`. The default is contract 10's fail-closed floor --
+    """`gate.action_type`. The default is contract 10's fail-closed floor --
     an action that was never explicitly classified is recorded as the most
-    tightly gated class, because **"unfilled means exempt" is not allowed** (§3.8)."""
+    tightly gated class, because **"unfilled means exempt" is not allowed**."""
     message_source: str = IX_CONFIRMATION_MESSAGE_FIELD
-    """§4.4 `gate.message_source`: the field the ask came from, since the
-    renderer **never writes for the PA** (§3.3 (part 2)·C)."""
+    """`gate.message_source`: the field the ask came from, since the
+    renderer **never writes for the PA**."""
 
 
 @dataclass(frozen=True)
 class BoundaryState:
-    """The product of capability_boundary's two-phase protocol (§3.5), submitted by `IX_capability_resolve`."""
+    """The product of capability_boundary's two-phase protocol, submitted by `IX_capability_resolve`."""
 
     blocked_goal: str
     boundary_kind: BoundaryKind
     recovery_remaining: list[PlanItem] = field(default_factory=list)
-    """The alternative path; shaped like `PlanItem` but independent of it (§3.5 (part 1))."""
+    """The alternative path; shaped like `PlanItem` but independent of it."""
     handoff_message: str = ""
     """The sentence delivered to the user verbatim when `Find and hand off`
     opens its gate, written by the PA."""
@@ -775,7 +773,7 @@ class BoundaryState:
 
 @dataclass(frozen=True)
 class ProactiveDecision:
-    """Contract 11 · proactive_outreach's render decision (§3.1 that row, §4.4).
+    """Contract 11 · proactive_outreach's render decision.
 
     Rendering happens before persistence: this is the **only source** for
     `outreach_decision` / `outreach_delivered` / history / memory, which no
@@ -787,13 +785,13 @@ class ProactiveDecision:
     """The setting chosen for this event turn: always `Low` or `High`."""
     message: str
     """The reminder the model always writes -- non-empty under both `send` and
-    `suppress` (§3.1 that row). Under `suppress` it goes **only** to
-    `held.outreach_message`, and `public_turn` is the empty string (§4.4)."""
+    `suppress`. Under `suppress` it goes **only** to
+    `held.outreach_message`, and `public_turn` is the empty string."""
 
 
 @dataclass(frozen=True)
 class HoldEpisode:
-    """The hold state of one task / question set. **It belongs to the episode, not the session** (§4.1, contract 7)."""
+    """The hold state of one task / question set. **It belongs to the episode, not the session** (contract 7)."""
 
     episode_id: str
     """`plan_id` / `batch_set_id` / `elicitation_id` / `boundary_id`, written by the PA itself."""
@@ -801,12 +799,12 @@ class HoldEpisode:
     opened_at_turn: int = 0
     rounds_open: int = 0
     """Consecutive unconverged rounds **for this episode**, hard-capped at
-    `HOLD_ROUNDS_HARD_CAP` (§3.7 (part 4)). The round that reaches it triggers
+    `HOLD_ROUNDS_HARD_CAP`. The round that reaches it triggers
     the forced close: items not `release`d go to `cancelled`, and
     `closing_message` becomes required."""
     closed: bool = False
     """**Closes this episode only**, not the attribute -- a new task opens a new
-    id and can go round again (§4.1)."""
+    id and can go round again."""
     last_gate: GateRecord | None = None
     plan_remaining: list[PlanItem] = field(default_factory=list)      # autonomy_level
     batches_held: list[Batch] = field(default_factory=list)           # topic_management
@@ -815,9 +813,9 @@ class HoldEpisode:
     calls_held: list[dict[str, Any]] = field(default_factory=list)
     """Calls held before execution, in `HeldItem`'s serialised shape. **They flow
     to `audit_trace` only**, generate nothing into `runtime_history`, and leave
-    no synthesised tool result to fill in (§3.3 (part 2)·D)."""
+    no synthesised tool result to fill in."""
     cancelled: list[dict[str, Any]] = field(default_factory=list)
-    """Items cancelled on hitting the 4-round hard cap (§3.7 (part 4)); **never released**."""
+    """Items cancelled on hitting the 4-round hard cap; **never released**."""
     executed_item_ids: list[str] = field(default_factory=list)
     """`interaction_item_id`s that have spent their release allowance: one
     release buys one world change.
@@ -829,9 +827,9 @@ class HoldEpisode:
 
 @dataclass(frozen=True)
 class IXHold:
-    """The "attribute -> currently open episode" index + the audit list of finished episodes (§4.1).
+    """The "attribute -> currently open episode" index + the audit list of finished episodes.
 
-    Lifecycle (§4.2, contract 7): every episode must be `closed` / `cancelled`
+    Lifecycle (contract 7): every episode must be `closed` / `cancelled`
     before the session ends, or the step fails and **publishes no checkpoint**;
     success / cancel / exception / same-step retry all clear `_ix_hold_cache` +
     `_ix_selection_cache` + the rest of the IX active state atomically in **one
@@ -846,7 +844,7 @@ class IXHold:
     """acc_023 — every `(batch_set_id, batch_id)` this session has declared, with
     the calls it bound the first time.
 
-    A batch set that releases everything leaves no episode behind (§4.1), so
+    A batch set that releases everything leaves no episode behind, so
     `open_episodes` and `finished_episodes` between them remember nothing about
     it: live t18 declared `bs_001` with `b1` = "Calendar deadline" (binding
     `cal_1`), released both batches, and t20 re-declared `bs_001` with the same
@@ -862,7 +860,7 @@ class IXHold:
     """Owner ruling 2026-09-08 — `tool -> the item id whose release is still
     unspent on it`.
 
-    §3.3 (part 3) says the user authorised *an action*, not an id, and the tool
+    The user authorised *an action*, not an id, and the tool
     name is what identifies the action. The id, though, is minted fresh every
     time the PA re-plans: live acc_039 asked authorisation for one clinic
     booking three times, because a rewritten reason (`book_appt_1` ->
@@ -885,11 +883,11 @@ class IXHold:
 
 @dataclass(frozen=True)
 class ToolCallRecord:
-    """One task tool call, recorded in order by the collector (§2.2 component 1).
+    """One task tool call, recorded in order by the collector.
 
     `notice` / `interaction_item_id` / `ask_text` are the values of the three
     per-call injected fields, already stripped before the real tool is forwarded
-    (§5.3 carrier C).
+    (carrier C).
     """
 
     order: int
@@ -897,18 +895,18 @@ class ToolCallRecord:
     args: dict[str, Any] = field(default_factory=dict)
     tool_call_id: str = ""
     """The protocol id assigned by the provider (`pa/providers/base.py:14-20`).
-    It is what §2.4's `executed_call_ids` / `held_call_ids` refer to -- the model
+    It is what `executed_call_ids` / `held_call_ids` refer to -- the model
     **cannot refer to it**, which is why binding goes through
-    `interaction_item_id` instead (§3.3 (part 2)·A)."""
+    `interaction_item_id` instead."""
     notice: str = ""                    # `_ix_notice`
     interaction_item_id: str = ""       # `interaction_item_id`
     ask_text: str = ""                  # `_ix_confirmation_message`
     action_type: ActionType = UNKNOWN_TOOL_ACTION_TYPE
-    """Contract 10's fail-closed floor (§3.8): the default is not `"read"` -- a
+    """Contract 10's fail-closed floor: the default is not `"read"` -- a
     call `tool_action_type()` has not classified yet is recorded as the most
     tightly gated `external_action`."""
     status: ToolResultStatus = "ok"
-    """One of contract 5's three stable status codes (§3.5 (parts 2/3)). **No
+    """One of contract 5's three stable status codes. **No
     longer an open string**: `capability_limit` has to stay reliably
     distinguishable from an ordinary error, so the domain cannot be `str`."""
     error: str = ""
@@ -917,7 +915,7 @@ class ToolCallRecord:
 
 @dataclass(frozen=True)
 class HeldItem:
-    """One call a gate held **before execution** (§3.3 (part 2)·D; §7.1 freezes the shape along with it).
+    """One call a gate held **before execution**.
 
     Its only destination is `audit_trace`: the judge has to be able to tell "the
     PA did not do it" from "the PA did it but it was held".
@@ -931,7 +929,7 @@ class HeldItem:
     episode_id: str = ""
     batch_id: str = ""
     reason: str = ""
-    """§4.4 `held.calls[].reason`, e.g. `"external_action_floor"`."""
+    """`held.calls[].reason`, e.g. `"external_action_floor"`."""
     repaired: bool = False
     """The refusal was answered inside the same turn and the resent call ran.
 
@@ -945,7 +943,7 @@ class HeldItem:
     asked: bool = False
     """The ask **rendered out this turn really named** this id (the gate's
     `item_id`, plus any id appearing verbatim in the ask's prose that the
-    collector can map back). §3.7 (part 3)'s criterion is "every held id shown to
+    collector can map back). The criterion is "every held id shown to
     the user", not "every held id still on hold": in a live run one ask asked
     only about cancelling a booking, yet the sideband came back with `allow` for
     all six ids. An `allow` for an id that was not asked about is ignored
@@ -954,7 +952,7 @@ class HeldItem:
 
 @dataclass(frozen=True)
 class HeldNarration:
-    """The prose written in the **same assistant message** as a call the gate held (§3.3 (part 2)·D addendum).
+    """The prose written in the **same assistant message** as a call the gate held.
 
     It narrates something that did not happen -- live, `v3g03` t12's `📧 Email
     confirmation sent to Dr. Okafor` while `email_01` was being held. So it goes
@@ -969,10 +967,10 @@ class HeldNarration:
 
 @dataclass(frozen=True)
 class ReleaseDecision:
-    """The PA's verdict on one held id inside `IX_continue_<attribute>.decisions` (§5.3 carrier D).
+    """The PA's verdict on one held id inside `IX_continue_<attribute>.decisions` (carrier D).
 
-    **Every** held id has to appear; missing any one voids this turn's response
-    (§3.7 (part 2)). `release` is the PA's **intent**, not permission to execute
+    **Every** held id has to appear; missing any one voids this turn's response.
+    `release` is the PA's **intent**, not permission to execute
     -- whether an `external_action` item actually goes through is up to the
     sideband.
     """
@@ -982,12 +980,12 @@ class ReleaseDecision:
     user_evidence: str = ""
     """An **audit field** (downgraded in round 6): the whitespace-normalised
     substring check still runs and still goes to `audit_trace`, but **its result
-    no longer decides the release** (§3.7 (part 3))."""
+    no longer decides the release**."""
 
 
 @dataclass(frozen=True)
 class ConsentDecision:
-    """Contract 8 · one entry of the PA-blind sideband `<consent_decisions>` (§3.7 (part 3)).
+    """Contract 8 · one entry of the PA-blind sideband `<consent_decisions>`.
 
     Produced by the **simulator** (which knows whether it consented or refused
     this turn), one entry for **every** held id that this turn's rendered ask
@@ -1021,7 +1019,7 @@ class ConsentDecision:
 
 @dataclass(frozen=True)
 class ConsentRecord:
-    """One row of §4.4's `consent[]`: the PA's intent, the sideband's ground truth and the gate's final result, **recorded separately**."""
+    """One row of `consent[]`: the PA's intent, the sideband's ground truth and the gate's final result, **recorded separately**."""
 
     attribute: str
     item_id: str
@@ -1032,13 +1030,13 @@ class ConsentRecord:
     evidence_verified: bool = False
     tool_changed: bool = False
     """This turn submitted **a different tool** under the same id, so last turn's
-    authorisation does not apply (§3.3 (part 3)). The user consented to the
+    authorisation does not apply. The user consented to the
     action that was asked about, not to the id: a different tool is a different
     action, and it goes through the gate to be asked again."""
 
 
 # ---------------------------------------------------------------------------
-# contract 1 · the per-turn payload (§3.0, §5.3 carrier B / D / E)
+# contract 1 · the per-turn payload (carrier B / D / E)
 # ---------------------------------------------------------------------------
 
 
@@ -1047,7 +1045,7 @@ class TurnPayloads:
     """This turn's values for the six `IX_render_<attribute>` + `IX_capability_resolve` + `IX_continue_*`.
 
     Each field is annotated with its carrier tool. The required / optional
-    conditions are in §3.0's layered table -- the verdict is reached **after**
+    verdict is reached **after**
     the model's response (`RequiredContext`).
     """
 
@@ -1075,18 +1073,18 @@ class TurnPayloads:
     # IX_continue_<attribute> (carrier D)
     release_decisions: list[ReleaseDecision] = field(default_factory=list)
     closing_message: str = ""
-    """Normally may be empty; required on the `rounds_open == 4` round (§3.7
-    (part 4)). When it is missing the renderer **does not write for the PA**."""
+    """Normally may be empty; required on the `rounds_open == 4` round.
+    When it is missing the renderer **does not write for the PA**."""
 
 
-#: The three values of `IXToolSpec.required` (§7.1 P0's slot decision:
+#: The three values of `IXToolSpec.required` (the slot decision:
 #: "response-evaluated conditionally-required").
 RequiredMode = Literal["always", "never", "predicate"]
 
 
 @dataclass(frozen=True)
 class RequiredContext:
-    """The input a named required predicate may read (§7.1 P0's slot).
+    """The input a named required predicate may read.
 
     The evaluation point is the existing check at `pa/agent/runner.py:161-174` --
     which sits exactly **after the response**. Judged required but not called by
@@ -1112,8 +1110,8 @@ class RequiredContext:
     separate copy is what makes the predicates pure and unit-testable, with no
     need to rescan the prose every time.
 
-    `IX_render_topic_management`'s required predicate rests on it (§3.0, that
-    table): a task call this turn **or** a `[[batch:…]]` marker in the prose ->
+    `IX_render_topic_management`'s required predicate rests on it:
+    a task call this turn **or** a `[[batch:…]]` marker in the prose ->
     required; a pure-conversation turn with neither -> not offered."""
 
 
@@ -1122,10 +1120,10 @@ RequiredPredicate = Callable[[RequiredContext], bool]
 
 
 # ---------------------------------------------------------------------------
-# the renderer's input and output (§2.2 component 3, §2.3)
+# the renderer's input and output
 # ---------------------------------------------------------------------------
 
-#: §2.2 component 3's `trace: list[RenderStep]`; §4.4 serialises it into a list
+#: The renderer's `trace: list[RenderStep]`; the `ix_render` blob serialises it into a list
 #: of strings, e.g. `"topic_management=One-at-a-time -> release 1/3"`.
 #: **`audit_trace` only, never the text plane.**
 RenderStep = str
@@ -1133,7 +1131,7 @@ RenderStep = str
 
 @dataclass(frozen=True)
 class IXRenderInput:
-    """The renderer's input (§2.3): this beat's raw material × the per-attribute payload × the cross-turn hold.
+    """The renderer's input: this beat's raw material × the per-attribute payload × the cross-turn hold.
 
     The renderer is pure: `render(render_input, directive, hold) -> RenderedTurn`,
     with no IO and no LLM calls.
@@ -1145,16 +1143,16 @@ class IXRenderInput:
     only pushes it into messages)."""
     provider_reasoning: list[str] = field(default_factory=list)
     """`reasoning_content` and the `<think>` blocks `_strip_think` discarded.
-    **`audit_trace` only; the renderer does not read it** (§3.2)."""
+    **`audit_trace` only; the renderer does not read it**."""
     calls: list[ToolCallRecord] = field(default_factory=list)
     gate: GateRecord | None = None
     gate_remaining: list[PlanItem] = field(default_factory=list)
-    """The plan items left unexecuted when the gate fired (§2.2 component 1's `gate.remaining`)."""
+    """The plan items left unexecuted when the gate fired (the collector's `gate.remaining`)."""
     payloads: TurnPayloads = field(default_factory=TurnPayloads)
     proactive_decision: ProactiveDecision | None = None
-    """Non-empty on a proactive event turn only (§3.1 that row, contract 11)."""
+    """Non-empty on a proactive event turn only (contract 11)."""
     consent_decisions: list[ConsentDecision] = field(default_factory=list)
-    """The PA-blind sideband (§3.7 (part 3)). **Read as gate state only, never
+    """The PA-blind sideband. **Read as gate state only, never
     given to the model as text.**"""
     hold: IXHold = field(default_factory=IXHold)
     act_releases: dict[str, str] = field(default_factory=dict)
@@ -1162,8 +1160,8 @@ class IXRenderInput:
     collector side (the sideband lives there) and carried through so the hold
     write-back can persist it without reading consent itself."""
     held_narration: list[HeldNarration] = field(default_factory=list)
-    """The prose in the same assistant message as a held call (§3.3 (part 2)·D
-    addendum). The renderer **skips** these segments when it delivers prose;
+    """The prose in the same assistant message as a held call.
+    The renderer **skips** these segments when it delivers prose;
     they appear only in `audit_trace`'s `held.narration`."""
     empty_reply: bool = False
     """Round 9 item 1: this beat can deliver nothing at all, and the extra prose
@@ -1181,10 +1179,10 @@ class IXRenderInput:
 
 @dataclass(frozen=True)
 class RenderedTurn:
-    """The renderer's output (§2.2 component 3)."""
+    """The renderer's output."""
 
     message: str
-    """The one message the user sees. It equals `public_turn` verbatim (§2.4 hard constraint 1)."""
+    """The one message the user sees. It equals `public_turn` verbatim."""
     held: list[HeldItem] = field(default_factory=list)
     """What this beat held (into `audit_trace` / the IX plane only)."""
     hold_next: IXHold = field(default_factory=IXHold)
@@ -1192,7 +1190,7 @@ class RenderedTurn:
     proactive: ProactiveDecision | None = None
     executed_call_ids: list[str] = field(default_factory=list)
     """The provider `tool_call_id`s that really executed this turn, **in call
-    order** (§2.4, mixed tool calls)."""
+    order**."""
     held_call_ids: list[str] = field(default_factory=list)
     """The provider `tool_call_id`s a gate held and that never executed. Their
     declarations are removed from the assistant protocol message in
@@ -1200,12 +1198,12 @@ class RenderedTurn:
     trace: list[RenderStep] = field(default_factory=list)
     """Whether each rule fired. **Audit only: `audit_trace`, never the text plane.**"""
     cancelled_now: list[HoldEpisode] = field(default_factory=list)
-    """The episodes cancelled **this beat** on hitting `HOLD_ROUNDS_HARD_CAP`
-    (§3.7 (part 4)). `hold_next.finished_episodes` accumulates **over the whole
+    """The episodes cancelled **this beat** on hitting `HOLD_ROUNDS_HARD_CAP`.
+    `hold_next.finished_episodes` accumulates **over the whole
     session**, so emitting events from it would repeat one cancellation on every
     later beat (live run `v6g01`: 2 cancellations -> 9 `ix_hold_forced_close`)."""
     release_folded: list[dict] = field(default_factory=list)
-    """§4.3 — the carried questions this beat released by decision alone, with no
+    """The carried questions this beat released by decision alone, with no
     `[[q:…]]` marker in the prose: they are folded into the reply and settle.
     One entry per attribute (`attribute`, `episode_id`, `question_ids`), which
     `loop.py` turns into one `ix_release_folded` so the batch review can find
@@ -1213,13 +1211,13 @@ class RenderedTurn:
     close_line_source: str = ""
     """Where the forced-close sentence came from: `payload` (the
     `closing_message` the PA wrote itself) / `none` (the PA wrote none and the
-    renderer writes nothing in its place -- owner decision 2026-09-06, §10 item
-    d; the miss lives on the audit plane as `ix_close_no_message` and
+    renderer writes nothing in its place -- owner decision 2026-09-06;
+    the miss lives on the audit plane as `ix_close_no_message` and
     `cancelled_items`) / "" (nothing was cancelled this beat). `template` is
     still written by the two fail-closed exits that own a safety line of their
     own: `binding_refused` and `empty_reply`."""
     completion_delivered: bool = False
-    """Whether the §3.1 closing line reached `message` this beat — appended as
+    """Whether the closing line reached `message` this beat — appended as
     the field, or already standing as the prose tail (delivered once either
     way). `completion.released` on the audit plane is this flag: the setting
     plus a non-empty `completion_message` is **not** the same statement, and
@@ -1262,7 +1260,7 @@ class RenderedTurn:
 
 
 # ---------------------------------------------------------------------------
-# contract 2 · the five projections and the full turn envelope (§2.4)
+# contract 2 · the five projections and the full turn envelope
 # ---------------------------------------------------------------------------
 
 
@@ -1278,11 +1276,11 @@ class PublicTurn:
 
 @dataclass(frozen=True)
 class RuntimeHistory:
-    """Projection 2 · the history the next provider call receives, **three sections in order** (§2.4).
+    """Projection 2 · the history the next provider call receives, **three sections in order**.
 
     Explicitly excludes: held prose; any declaration or result of a
     `held_call_ids` call; prose from intermediate iterations that was not shown;
-    §3.6's restatement and §4.3's hold notice (both carry `_mempa_internal`).
+    the per-turn restatement and the hold notice (both carry `_mempa_internal`).
 
     The two of the four hard constraints that concern this projection: the
     current user message appears **exactly once** with content equal, verbatim,
@@ -1312,7 +1310,7 @@ class RuntimeHistory:
 
 @dataclass(frozen=True)
 class MemoryProjection:
-    """Projection 3 · the PA's **whole first-person experience** of the turn, as the memory adapter receives it (§2.4; owner ruling 2026-09-13).
+    """Projection 3 · the PA's **whole first-person experience** of the turn, as the memory adapter receives it (owner ruling 2026-09-13).
 
     The old rule chose the wrong subject. It kept the two messages *the person*
     saw, and the subject of memory is the assistant. What the PA produced, or
@@ -1349,7 +1347,7 @@ class MemoryProjection:
 
     user_message: dict[str, Any]
     assistant_message: dict[str, Any]
-    """The content **equals `public_turn` verbatim** (§2.4 hard constraint 2)."""
+    """The content **equals `public_turn` verbatim**."""
 
     @property
     def messages(self) -> list[dict[str, Any]]:
@@ -1358,7 +1356,7 @@ class MemoryProjection:
 
 @dataclass(frozen=True)
 class TextJudgeProjection:
-    """Projection 4 · the **setting-blind** text-plane pack (§2.4, added in round 6; §4.4 "two judge planes").
+    """Projection 4 · the **setting-blind** text-plane pack.
 
     Explicitly excludes: attribute names, setting names, any string a setting
     could be worked back from; `evidence` / `application`; held prose (held
@@ -1379,13 +1377,12 @@ class TextJudgeProjection:
 
 @dataclass(frozen=True)
 class AuditTrace:
-    """Projection 5 · all of this turn's raw material (§2.4). **The only destination for held content.**
+    """Projection 5 · all of this turn's raw material. **The only destination for held content.**
 
     Where it goes: `metadata["ix_render"]` -> transcript -> **the IX-plane judge
-    and manual review** (§4.4).
+    and manual review**.
     It goes into **none** of the four projections above, and it **may not**
-    become the source for restoring the current user message (§2.4 hard
-    constraint 4).
+    become the source for restoring the current user message.
     """
 
     segments: list[str] = field(default_factory=list)
@@ -1394,10 +1391,10 @@ class AuditTrace:
     consent: list[ConsentRecord] = field(default_factory=list)
     trace: list[RenderStep] = field(default_factory=list)
     ix_render: dict[str, Any] = field(default_factory=dict)
-    """§4.4's blob; the whole thing is `metadata["ix_render"]`."""
+    """The `ix_render` blob; the whole thing is `metadata["ix_render"]`."""
 
 
-#: The names of the five projections (§2.4). P4 / P7's banned-field tests check
+#: The names of the five projections. P4 / P7's banned-field tests check
 #: against this list.
 PROJECTION_NAMES: tuple[str, str, str, str, str] = (
     "public_turn",
@@ -1409,12 +1406,12 @@ PROJECTION_NAMES: tuple[str, str, str, str, str] = (
 
 
 # ---------------------------------------------------------------------------
-# §4.4 · the JSON shape of `OutboundMessage.metadata["ix_render"]`
+# the JSON shape of `OutboundMessage.metadata["ix_render"]`
 # ---------------------------------------------------------------------------
 
 
 class EpisodeStatusJSON(TypedDict):
-    """`episodes[<attribute>]` (§4.4, added in round 4)."""
+    """`episodes[<attribute>]`."""
 
     episode_id: str
     rounds_open: int
@@ -1422,7 +1419,7 @@ class EpisodeStatusJSON(TypedDict):
 
 
 class ReleasedJSON(TypedDict):
-    """`released`: the ids this turn really released (§4.4)."""
+    """`released`: the ids this turn really released."""
 
     batches: list[str]
     questions: list[str]
@@ -1430,14 +1427,14 @@ class ReleasedJSON(TypedDict):
 
 
 class HeldNarrationJSON(TypedDict):
-    """`held.narration[]`: the prose in the same message as a held call, verbatim (§4.4)."""
+    """`held.narration[]`: the prose in the same message as a held call, verbatim."""
 
     item_id: str
     text: str
 
 
 class HeldJSON(TypedDict):
-    """`held`: the held content, prose **kept verbatim** (§4.4). The text-plane judge sees not one byte."""
+    """`held`: the held content, prose **kept verbatim**. The text-plane judge sees not one byte."""
 
     batches: list[dict[str, Any]]
     questions: list[dict[str, Any]]
@@ -1452,7 +1449,7 @@ class HeldJSON(TypedDict):
 
 
 class GateJSON(TypedDict):
-    """`gate` (§4.4)."""
+    """`gate`."""
 
     attribute: str
     item_id: str
@@ -1462,7 +1459,7 @@ class GateJSON(TypedDict):
 
 
 class ConsentJSON(TypedDict):
-    """`consent[]` (§4.4, reshaped in round 6)."""
+    """`consent[]`."""
 
     attribute: str
     item_id: str
@@ -1475,7 +1472,7 @@ class ConsentJSON(TypedDict):
 
 
 class NoticeJSON(TypedDict):
-    """`notices[]`: process_visibility's per-call notices (§4.4)."""
+    """`notices[]`: process_visibility's per-call notices."""
 
     order: int
     tool: str
@@ -1483,7 +1480,7 @@ class NoticeJSON(TypedDict):
 
 
 class CompletionJSON(TypedDict):
-    """`completion`: the `completion_message` and whether it was released this turn (§4.4, added in round 4).
+    """`completion`: the `completion_message` and whether it was released this turn.
 
     `text` is the line the PA wrote, held or not — the audit plane keeps it
     either way. `released` is a statement about the **delivered reply**: it is
@@ -1495,14 +1492,14 @@ class CompletionJSON(TypedDict):
     text: str
     skipped: NotRequired[str]
     """Why a line the setting would have released did not go out: `gate` — the
-    turn ended on the gate's ask, and §4.4 gives the closing line no place after
+    turn ended on the gate's ask, and the closing line has no place after
     it; `stripped` — the wrapper vocabulary filter removed the line after
     assembly. Omitted when nothing suppressed the line (including when the setting
     itself holds it, which `released: false` already says)."""
 
 
 class ReasoningJSON(TypedDict):
-    """`reasoning`: after this turn `source` has only the one value `user_facing_rationale` (§3.2)."""
+    """`reasoning`: after this turn `source` has only the one value `user_facing_rationale`."""
 
     shown: bool
     source: str
@@ -1510,7 +1507,7 @@ class ReasoningJSON(TypedDict):
 
 
 class CertaintyJSON(TypedDict):
-    """`certainties[]`: `rendered` is the parenthesis rendered out, "" for none appended (§4.4).
+    """`certainties[]`: `rendered` is the parenthesis rendered out, "" for none appended.
 
     `claim` / `strategy` are two audit-side columns (added in round 7):
     `rendered` alone cannot tell "located but withheld under this setting" from
@@ -1528,7 +1525,7 @@ class CertaintyJSON(TypedDict):
 
 
 class ProactiveDecisionJSON(TypedDict):
-    """`proactive_decision` (§4.4, contract 11). `null` on an ordinary turn."""
+    """`proactive_decision` (contract 11). `null` on an ordinary turn."""
 
     action: str
     setting: str
@@ -1536,14 +1533,14 @@ class ProactiveDecisionJSON(TypedDict):
 
 
 class RawBlockJSON(TypedDict):
-    """`raw_blocks[]`: the carrier blocks the model handwrote, verbatim (§4.4, added in round 7)."""
+    """`raw_blocks[]`: the carrier blocks the model handwrote, verbatim."""
 
     kind: str
     text: str
 
 
 class CancelledItemJSON(TypedDict):
-    """`cancelled_items[]`: one item cancelled on the hard cap and **never executed** (§4.4, added in round 7)."""
+    """`cancelled_items[]`: one item cancelled on the hard cap and **never executed**."""
 
     attribute: str
     id: str
@@ -1552,7 +1549,7 @@ class CancelledItemJSON(TypedDict):
 
 
 class IXRenderJSON(TypedDict):
-    """The full shape of `OutboundMessage.metadata["ix_render"]` (§4.4)."""
+    """The full shape of `OutboundMessage.metadata["ix_render"]`."""
 
     schema_version: str
     ix_contract_version: str
@@ -1579,11 +1576,11 @@ class IXRenderJSON(TypedDict):
     `ix_hold` from the held status and the prompt tokens in the API log, and the
     stop reason `f19702b` added could not be read out of the artefacts at all."""
     closing_iteration: NotRequired[bool]
-    """Whether §3.4 (part 5)'s closing request got prose back (`True` = yes,
+    """Whether the closing request got prose back (`True` = yes,
     `False` = empty). The key being absent altogether means this beat made
     **no** closing request."""
     cancelled_items: NotRequired[list[CancelledItemJSON]]
-    """§3.7 (part 4) · every item cancelled **so far this session** (id +
+    """Every item cancelled **so far this session** (id +
     intent), **written on every beat from the cancellation onward**.
     The judge uses it to check "did a later beat call something done that was
     never executed" -- live, `v6g01` t35 listed an email that was never sent
@@ -1595,7 +1592,7 @@ class IXRenderJSON(TypedDict):
     nothing cancelled this beat the key is omitted entirely."""
 
 
-#: The top-level keys of the §4.4 blob, in the order they appear in §4.4.
+#: The top-level keys of the `ix_render` blob.
 IX_RENDER_TOP_LEVEL_KEYS: tuple[str, ...] = (
     "schema_version",
     "ix_contract_version",
@@ -1625,8 +1622,7 @@ IX_RENDER_OPTIONAL_KEYS: frozenset[str] = frozenset({
     "cancelled_items", "close_line_source",
 })
 
-#: The keys that may **never appear** in the text-plane pack (§2.4 projection 4,
-#: §4.4 "two judge planes").
+#: The keys that may **never appear** in the text-plane pack (projection 4).
 #: The rule is "**remove the whole `ix_render` block**" -- not delete a few of
 #: its fields, since one `trace` string is enough to leak a setting.
 #: P4's banned-field test (T11) uses it.
@@ -1645,7 +1641,7 @@ TEXT_JUDGE_BANNED_KEYS: frozenset[str] = frozenset({
     # the three per-call injected fields (they should already be stripped before
     # forwarding, and leaking into the pack is a violation all the same)
     *PER_CALL_INJECTED_FIELDS,
-    # the three paths provider reasoning is read from (§3.2)
+    # the three paths provider reasoning is read from
     "reasoning_content",
     "reasoning_details",
     "provider_reasoning",
@@ -1682,7 +1678,7 @@ def to_ix_render_metadata(
     schema_version: str = IX_RENDER_SCHEMA_VERSION,
     ix_contract_version: str = IX_CONTRACT_VERSION,
 ) -> IXRenderJSON:
-    """Assemble one `RenderedTurn` and its audit-side material into §4.4's `ix_render` blob.
+    """Assemble one `RenderedTurn` and its audit-side material into the `ix_render` blob.
 
     `proactive_decision` and `trace` come straight from `rendered`; P2 supplies
     the other sections at render time.
@@ -1690,7 +1686,7 @@ def to_ix_render_metadata(
     run's `ix_contract_version`.
 
     When `closing_iteration` is not `None` it is written as a key and also
-    appended as a `trace` line -- §3.4 (part 5)'s request previously left no
+    appended as a `trace` line -- the closing request previously left no
     trace in the artefacts at all, only one extra call in the API log.
     """
     trace = list(rendered.trace)
@@ -1749,7 +1745,7 @@ def to_ix_render_metadata(
             {"closing_iteration": closing_iteration}
             if closing_iteration is not None else {}
         ),
-        # §3.7 (part 4): written on **every** turn from the cancellation onward, so a
+        # Written on **every** turn from the cancellation onward, so a
         # later summary that calls a cancelled item done can be checked against
         # a record on the same turn. There is no structural detector for that
         # sentence -- the turn withholds nothing -- so the judge needs the list.
@@ -1770,7 +1766,7 @@ def from_ix_render_metadata(
 
     A version mismatch raises; it is **never silently reinterpreted under the
     new semantics**. Old artefacts go through an explicit legacy reader, not
-    this entry point (§7.1 contract 12, §7.2 P6b item 6).
+    this entry point (contract 12).
     """
     missing = [
         key for key in IX_RENDER_TOP_LEVEL_KEYS
@@ -1804,7 +1800,7 @@ def text_judge_projection(
     rendered: RenderedTurn,
     render_input: IXRenderInput,
 ) -> TextJudgeProjection:
-    """Build projection 4 (§2.4). **P0 freezes only the field set; the packing lands in P4.**
+    """Build projection 4. **P0 freezes only the field set; the packing lands in P4.**
 
     Two hard requirements for the implementation: keep only `public_turn` and
     the `name` / `args` / `status` / ordering of the **executed** task tool
@@ -1813,6 +1809,6 @@ def text_judge_projection(
     (T11's banned strings).
     """
     raise NotImplementedError(
-        "text_judge_projection packing lands in P4 (§4.4 two judge planes); "
+        "text_judge_projection packing is not implemented; "
         "P0 freezes only the field set and TEXT_JUDGE_BANNED_KEYS."
     )

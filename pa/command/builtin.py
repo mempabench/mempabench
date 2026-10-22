@@ -72,7 +72,7 @@ async def cmd_new(ctx: CommandContext) -> OutboundMessage:
     cleared and only then archived, so a consolidation that refused the
     contract took the conversation with it. Archive first, clear only on
     success, and the command is retriable. The source is the same turn journal
-    mid-session compaction and the pinned flush read (§9 step 7) -- this was
+    mid-session compaction and the pinned flush read -- this was
     the one entry point that archived the raw message tail with no projection
     at all.
     """

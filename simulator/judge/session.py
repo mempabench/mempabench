@@ -6,15 +6,15 @@ things the call sites should not each re-decide:
 - **the mode.** `MEMPA_JUDGE` is `off` (default — nothing changes for a run or
   a test that says nothing) or `live` (the judge decides; a rule it decides is
   simply not checked when it is off). There is no per-rule switch and no
-  per-variant flag: contract §13 (ii) makes the prompt file the only patch
+  per-variant flag: the prompt file is the only patch
   channel.
 - **the budget.** `MEMPA_JUDGE_TURN_BUDGET` question groups per candidate
-  generation, reset by `begin_generation` (§4(3)). The ask gate spends against
+  generation, reset by `begin_generation`. The ask gate spends against
   the generation that produced the candidate it is judging, which is the last
   one begun.
 - **the void door.** A failure exception lands on the transcript as its own
-  event and raises `SessionInvalidError` with that event name as the rule (§4,
-  §13 i). There is no fallback model, no degrade to the regex, and no "played
+  event and raises `SessionInvalidError` with that event name as the rule.
+  There is no fallback model, no degrade to the regex, and no "played
   with a diagnostic" path: the simulator is an instrument, and an instrument
   that cannot read gives no number.
 - **the advisory door.** A rule whose prompt header says `status: unmeasured`
@@ -232,7 +232,7 @@ class JudgeSession:
             # Asked, recorded, and not allowed to decide: no replay has scored
             # this text, so it may not block or release a live turn. The only
             # way up is to replay it and re-stamp the prompt file's header —
-            # there is no list and no flag (contract §13 ii).
+            # there is no list and no flag.
             self.emit("judge_advisory", rule=rule, composed=composed)
             return RELEASED_VALUE.get(rule, False)
         return composed

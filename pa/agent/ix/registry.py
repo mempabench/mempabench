@@ -127,7 +127,7 @@ class TurnToolRegistry:
 
     @staticmethod
     def _fields_to_inject(session_active_ix: tuple[str, ...]) -> tuple[str, ...]:
-        """§5.3 carrier C — which per-call fields this session's attributes need."""
+        """Carrier C — which per-call fields this session's attributes need."""
         active = set(session_active_ix)
         fields: list[str] = []
         if "process_visibility" in active:
@@ -174,14 +174,14 @@ class TurnToolRegistry:
         ]
 
     def _inject(self, definition: dict[str, Any]) -> dict[str, Any]:
-        """Add the per-call fields to one task tool schema (§5.3 carrier C)."""
+        """Add the per-call fields to one task tool schema (carrier C)."""
         if not self._injected_fields:
             return definition
         function = definition.get("function") or {}
         parameters = dict(function.get("parameters") or {})
         properties = dict(parameters.get("properties") or {})
         required = list(parameters.get("required") or [])
-        # A read never has to carry an ask: §3.3 (part 2)·C requires it only for
+        # A read never has to carry an ask: it is required only for
         # draft / internal_write / external_action calls.
         is_read = tool_action_type(str(function.get("name") or "")) == "read"
         for field in self._injected_fields:
@@ -214,7 +214,7 @@ class TurnToolRegistry:
 
         That is the `required == "always"` tier — the per-session selection tools.
         Conditionally-required tools are answered by `required_ix_tool_names_for`
-        once the response is in hand (§7.1: "response-evaluated
+        once the response is in hand ("response-evaluated
         conditionally-required"); asking for them here would force a call the
         model has nothing to say with.
         """

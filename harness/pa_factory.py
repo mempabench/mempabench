@@ -226,7 +226,7 @@ def outreach_keys_from_ix_render(ix_render: Mapping[str, Any]) -> dict[str, Any]
 
     The simulator branches on `outreach_decision` / `outreach_delivered`
     (`simulator/loop.py`) and must not learn to read `ix_render` — that block is
-    the IX face. §4.4 makes the render the single source for this decision, so
+    the IX face. The render is the single source for this decision, so
     the harness restates it in the vocabulary the simulator already speaks.
     Neither the chosen setting nor the suppressed message crosses over.
     """
@@ -243,14 +243,14 @@ def held_items_from_ix_render(ix_render: Mapping[str, Any]) -> list[dict[str, st
     """The held ids the simulator may give a consent verdict on.
 
     Id plus the intent text, nothing else: no attribute, no setting, no gate
-    reason. The sideband keys on `interaction_item_id` (§3.7 part 3), so an item
+    reason. The sideband keys on `interaction_item_id`, so an item
     only appears once the wrapper can address it by one — either a held call
     that carries it, or a held plan item that bound it.
 
     **Open episodes only, and only what this turn's ask named.** A verdict on an
     id the wrapper is not holding is not consent to anything: nothing can
     consume it, and if the id is ever reused a stale `allow` would be sitting
-    there ready to release it. §3.7 part 3's criterion is narrower still — "every
+    there ready to release it. The criterion is narrower still — "every
     held id shown to the user" — so an id the ask did not name is not offered
     either: live, an ask about one cancellation came back with an `allow` for
     six ids. `ix_render.held` still lists every held call for the judge; this
@@ -278,7 +278,7 @@ def held_items_from_ix_render(ix_render: Mapping[str, Any]) -> list[dict[str, st
     asked_ids.discard("")
     # A turn that asked nothing put no ids to the user, so there is nothing to
     # scope to: a batch or question hold opens no gate and writes no ask, and
-    # its continuation protocol is the whole release mechanism (§3.4 part 3). Once a
+    # its continuation protocol is the whole release mechanism. Once a
     # turn does render an ask, only what that ask named is answerable.
     scoped = bool(asked_ids)
 
@@ -316,7 +316,7 @@ def has_pending_interaction_from_ix_render(ix_render: Mapping[str, Any]) -> bool
     answers it with an empty list: nothing was addressable by an
     `interaction_item_id`, so nothing is consent-able. Using that emptiness as
     "the exchange is finished" walks the simulator out of a question, and on the
-    last beat ends the session with the episode still open (§3.4 part 3 / §4.2).
+    last beat ends the session with the episode still open.
 
     An episode stays open only while it is holding something — a call, a
     question, a batch, or a remaining plan item (`render.py:1145-1151` closes it
@@ -434,7 +434,7 @@ class RecordingPA:
     def close_ix_session(
         self, session_key: str, script_session_id: str | None = None
     ) -> list[tuple[str, str]]:
-        """Pass the step-boundary close through to the wrapped PA (§4.2)."""
+        """Pass the step-boundary close through to the wrapped PA."""
         return self.inner.close_ix_session(session_key, script_session_id)
 
     def _triggered_skills(
@@ -475,7 +475,7 @@ class RecordingPA:
         # nothing has fired, and sticky once it has: `capability_boundary` is
         # listed from the turn a tool reported a `capability_limit` onward, so
         # the simulator can tell that the attribute is live on a beat whose
-        # script never named it (audit §2, acc_026 — the limit fired two beats
+        # script never named it (acc_026 — the limit fired two beats
         # before the beat that listed the skill). Like `has_pending_interaction`
         # this carries no setting, no text and no ids: only which attribute.
         metadata["triggered_skills"] = self._triggered_skills(
@@ -499,7 +499,7 @@ class RecordingPA:
 
 
 # ---------------------------------------------------------------------------
-# IX wrapper seams (plan §3.8 contract 10, §4.2 contract 7)
+# IX wrapper seams (contract 10, contract 7)
 # ---------------------------------------------------------------------------
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -507,7 +507,7 @@ _CATALOG_RELATIVE = Path("data/state_tools/catalog.yaml")
 
 
 class OpenHoldEpisodeError(RuntimeError):
-    """A step ended with a hold episode still open (§4.2, contract 7).
+    """A step ended with a hold episode still open (contract 7).
 
     The step failed and **no checkpoint may be published**: a cut point that
     carried an open hold would restore into a session whose PA is waiting on a
@@ -561,7 +561,7 @@ def assert_benchmark_action_type_coverage(
     tool surface is read from the world-toolbox catalog rather than from a live
     MCP connection, so an unclassified tool fails the run up front instead of
     at the turn that first calls it — where `tool_action_type()`'s fail-closed
-    floor would silently gate it as `external_action` (§3.8).
+    floor would silently gate it as `external_action`.
     """
     tools = world_toolbox_tools(_catalog_root(project_root))
     assert_action_type_coverage(tools, overrides)

@@ -2,16 +2,16 @@
 
 Rules:
 
-- §3.2  the render source is **only** the `user_facing_rationale` the PA wrote
+- `reasoning_visibility`  the render source is **only** the `user_facing_rationale` the PA wrote
   itself in `IX_render_reasoning_visibility`; the provider-side
   `reasoning_content` / `reasoning` / `reasoning_details` / `<think>` is never
   rendered, it goes to `AuditTrace.provider_reasoning` alone. That field is
   **required under both** `Show` and `Hide` -- whether it is required must not
   leak the setting; whether it is released is what the setting decides.
-- §3.1 uncertainty row  `Express`: append `(confidence: low)` at every
+- `uncertainty_expression`  `Express`: append `(confidence: low)` at every
   certainty; `Hide`: append nothing, just drop the
   markers. The **primary carrier for level and position is the `<certainties>`
-  block at the end of the reply** (§5.3 carrier F): tool calls are produced
+  block at the end of the reply** (carrier F): tool calls are produced
   before the prose, so the model cannot quote words it has not written yet; the
   trailing block is it **copying the prose it just finished**, which is where
   the ordering problem gets solved. With no trailing block it falls back to the
@@ -21,7 +21,7 @@ Rules:
   setting-specific transform (no parenthesis appended, `user_facing_rationale`
   not released), but `[[c:*]]` markers are **still deterministically stripped**
   (contract 6).
-- §4.4  the JSON shapes of `ix_render.reasoning` (`ReasoningJSON`) and
+- the JSON shapes of `ix_render.reasoning` (`ReasoningJSON`) and
   `ix_render.certainties` (`CertaintyJSON`).
 
 This module is pure: no IO, no LLM calls, it never reads provider reasoning.
@@ -46,18 +46,18 @@ from pa.agent.ix.render_types import (
     UncertaintyExpressionSetting,
 )
 
-#: §3.2, last row of that rule table: after this turn `metadata["ix_render"].reasoning.source`
+#: After this turn `metadata["ix_render"].reasoning.source`
 #: has only this one value.
 RATIONALE_SOURCE = "user_facing_rationale"
 
-#: §3.1 uncertainty row, the parenthetical wording. The plan hard-codes a
+#: The parenthetical wording. The plan hard-codes a
 #: Chinese parenthetical, but every benchmark persona speaks English (user_a)
 #: and the Chinese one already reached live English prose, so what ships is
 #: `(confidence: low)`, with `high` / `medium` in the same shape.
 CERTAINTY_LABELS: dict[str, str] = {"high": "high", "medium": "medium", "low": "low"}
 
-#: The levels each setting really appends a parenthesis for (§3.1 uncertainty
-#: row). A setting outside this table — the unset fallback included — appends
+#: The levels each setting really appends a parenthesis for.
+#: A setting outside this table — the unset fallback included — appends
 #: none.
 _ANNOTATED_LEVELS: dict[str, frozenset[str]] = {
     "Express": frozenset(CERTAINTY_LABELS),
@@ -76,8 +76,7 @@ def normalize_rationale(raw: object) -> str:
 
     Type and whitespace checks only, no semantic judgement -- "is this passage
     evidence and a causal chain, or is it inner monologue" is constrained on the
-    model by the setting descriptions in `specs.py`, not decided by the renderer
-    (§3.2).
+    model by the setting descriptions in `specs.py`, not decided by the renderer.
     """
     return raw.strip() if isinstance(raw, str) else ""
 
@@ -91,7 +90,7 @@ def normalize_rationale(raw: object) -> str:
 #: ignored both, and nothing counted it because the call was well-formed.
 #:
 #: Deliberately narrow — the opening only. "Is this passage reasons or a recap"
-#: is not a judgement the renderer makes (§3.2); what this catches is the one
+#: is not a judgement the renderer makes; what this catches is the one
 #: mechanical tell, a rationale that starts by talking *about* the reader.
 _WORK_LOG_OPENING_RE = re.compile(
     r"\A[\s*_>#-]*the\s+(?:user|client)\b",
@@ -106,7 +105,7 @@ def reads_as_a_work_log(rationale: object) -> bool:
 
 @dataclass(frozen=True)
 class RationaleRender:
-    """This turn's render result for `reasoning_visibility` (§3.2)."""
+    """This turn's render result for `reasoning_visibility`."""
 
     prefix: str = ""
     """Under `Show` with a non-empty field = the passage rendered **before** the
@@ -118,9 +117,9 @@ class RationaleRender:
             shown=False, source=RATIONALE_SOURCE, provider_reasoning_present=False
         )
     )
-    """§4.4's `ix_render.reasoning`."""
+    """`ix_render.reasoning`."""
     trace: list[RenderStep] = field(default_factory=list)
-    """Goes to `audit_trace` only, never to the text plane (§4.4 "two judge planes")."""
+    """Goes to `audit_trace` only, never to the text plane."""
 
 
 def render_rationale(
@@ -133,7 +132,7 @@ def render_rationale(
 
     `provider_reasoning_present` is only the single boolean "was any captured" --
     the **content** of the provider reasoning never passes through here, and it
-    certainly never lands in `prefix` (§3.2).
+    certainly never lands in `prefix`.
     """
     text = normalize_rationale(rationale)
     shown = setting == "Show" and bool(text)
@@ -164,13 +163,13 @@ def render_rationale(
 
 @dataclass(frozen=True)
 class CertaintyRender:
-    """This turn's render result for `uncertainty_expression` (§3.1 that row, §4.4)."""
+    """This turn's render result for `uncertainty_expression`."""
 
     text: str = ""
     """The prose: every `[[c:*]]` marker is stripped and, per setting, replaced
     in place by the parenthesis ("" when this setting appends nothing)."""
     rows: list[CertaintyJSON] = field(default_factory=list)
-    """§4.4's `ix_render.certainties`, one row per `certainties` entry the PA
+    """`ix_render.certainties`, one row per `certainties` entry the PA
     submitted; `rendered` is the parenthesis **actually** appended, "" for none."""
     trace: list[RenderStep] = field(default_factory=list)
 
@@ -396,7 +395,7 @@ def claim_end(text: str, claim: str) -> ClaimMatch | None:
 
 
 # ---------------------------------------------------------------------------
-# §5.3 carrier F · the `<certainties>` block at the end of the reply
+# carrier F · the `<certainties>` block at the end of the reply
 # ---------------------------------------------------------------------------
 
 #: The trailing block's boundary. Case-insensitive; the block is stripped along
@@ -453,7 +452,7 @@ class CertaintyBlock:
 
 
 def has_certainty_block(text: str) -> bool:
-    """Whether this turn's reply has a trailing block -- the required predicate reads it (§3.0)."""
+    """Whether this turn's reply has a trailing block -- the required predicate reads it."""
     return bool(text) and CERTAINTY_BLOCK_RE.search(text) is not None
 
 
@@ -475,7 +474,7 @@ def strip_certainty_block(text: str) -> str:
 def certainty_block_text(text: str) -> str:
     """The trailing `<certainties>` block verbatim, tags included, or "".
 
-    §4.4 `raw_blocks`: the block is a carrier the renderer strips out of every
+    `raw_blocks`: the block is a carrier the renderer strips out of every
     delivered surface, so without this the one thing that says which claims the
     model committed to would exist nowhere on the audit plane either -- under
     `Hide` nobody could tell a located-and-withheld claim from one never found.
@@ -491,7 +490,7 @@ def parse_certainty_block(text: str) -> CertaintyBlock:
     A line that will not parse only goes to the trace, it does not raise: the
     block is handwritten by the model, and one botched line should not void the
     whole turn -- the backstop for shape validation is still "no block and no
-    tool arguments -> one reminder -> contract failure" (§3.0).
+    tool arguments -> one reminder -> contract failure".
     """
     matches = list(CERTAINTY_BLOCK_RE.finditer(text or ""))
     if not matches:
@@ -544,7 +543,7 @@ def render_certainties(
     finding 4).
 
     The appended parenthesis is **not part of the prose** -- the model does not
-    hedge in prose, the parenthesis is generated here (§3.1 that row).
+    hedge in prose, the parenthesis is generated here.
     """
     levels = _ANNOTATED_LEVELS.get(str(setting))
     trace: list[RenderStep] = []

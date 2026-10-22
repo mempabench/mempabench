@@ -282,7 +282,7 @@ class SessionStory(StrictModel):
     key_terms: list[str] = Field(default_factory=list, max_length=5)
 
 
-# The frozen world-toolbox domains (design doc §2.4/§2.5). Kept in sync with
+# The frozen world-toolbox domains. Kept in sync with
 # data/state_tools/catalog.yaml by a test. Fine-grained by real-world context:
 # where you book/submit/pay differs, the domain (and tool names) differ.
 ToolboxDomain = Literal[

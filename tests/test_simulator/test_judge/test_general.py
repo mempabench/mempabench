@@ -157,7 +157,7 @@ def test_every_question_is_asked_exactly_once_across_the_chunks():
     assert len(set(flat)) == len(flat)
 
 
-# ------------------------------------------------------- scope clauses (§11.2)
+# ------------------------------------------------------- scope clauses
 
 
 SCOPE_AVOID = (
@@ -222,7 +222,7 @@ def test_the_scope_instruction_is_out_of_the_rendered_prompt():
     assert "a clause like that forbids nothing" not in prompt
 
 
-# ----------------------------------------------------- the beat's goal (§11.2)
+# ----------------------------------------------------- the beat's goal
 
 
 _GOAL_SENTENCE = (

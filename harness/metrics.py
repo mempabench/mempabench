@@ -1,8 +1,8 @@
-"""Aggregate scores E1–E5 over one run's judge outputs (design §5; §7 row 23).
+"""Aggregate scores E1–E5 over one run's judge outputs.
 
 Pure data, no LLM. Inputs, all under one run directory:
 
-- `judge_output/<judge_id>/<probe_id>.json` — one record per probe (§4.6). Both faces
+- `judge_output/<judge_id>/<probe_id>.json` — one record per probe. Both faces
   are read from the record: `ix_face.exact_match` / `ix_face.pa_setting` (computed by
   code) and `text_face.score` (1–5). A record missing either face raises (B9).
 - `judge_input/<probe_id>/ground_truth.json` — `context` / `attribute` / `setting`
@@ -32,7 +32,7 @@ from pathlib import Path
 
 import yaml
 
-#: The fixed probe set (§2.1): 28 finals (14 attributes × work / personal) + 5 pre-event.
+#: The fixed probe set: 28 finals (14 attributes × work / personal) + 5 pre-event.
 FINAL_PROBE_IDS = tuple(f"fin_{i:02d}" for i in range(1, 29))
 PRE_EVENT_PROBE_IDS = tuple(f"pre_{i:02d}" for i in range(1, 6))
 PROBE_IDS = FINAL_PROBE_IDS + PRE_EVENT_PROBE_IDS
@@ -274,7 +274,7 @@ def render_markdown(metrics: dict) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Aggregate E1–E5 over one run's judge outputs (design §5).")
+    parser = argparse.ArgumentParser(description="Aggregate E1–E5 over one run's judge outputs.")
     parser.add_argument("--run-dir", required=True, type=Path,
                         help="run directory holding judge_input/<probe_id>/ and judge_output/<judge_id>/")
     parser.add_argument("--judge-id", required=True,

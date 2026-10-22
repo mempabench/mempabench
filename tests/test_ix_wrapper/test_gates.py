@@ -1,6 +1,6 @@
 """T13–T16 and the T18 cases the loop-level pair does not reach.
 
-Plan §7.2 P7. T18's four sideband verdicts, the missing release and the blind
+T18's four sideband verdicts, the missing release and the blind
 assertion all live in `tests/test_pa/test_ix_wrapper_loop.py`; what is added
 here is the two-and-three-held-id shape, the four-round cancellation, and the
 three contracts that need either every attribute (T13), every setting (T14), a
@@ -78,7 +78,7 @@ def _blob(value: Any) -> str:
 # T13 · the per-turn restatement, one case per pass-through setting
 # ---------------------------------------------------------------------------
 
-#: §3.6 covers the six attributes the renderer does not transform, plus the one
+#: The per-turn restatement covers the six attributes the renderer does not transform, plus the one
 #: `autonomy_level` setting whose whole effect is instruction text.
 RESTATED = [
     ("tone_formality", "Formal"),
@@ -95,7 +95,7 @@ RESTATED = [
 def test_a_chosen_setting_is_restated_on_a_later_toolless_turn(
     loop_factory, attribute: str, setting: str
 ) -> None:
-    """T13 (§3.6): the setting must not lapse on a turn that calls no tool.
+    """T13: the setting must not lapse on a turn that calls no tool.
 
     The restatement is an internal message: it reaches the model and nothing
     else — not the transcript, not memory, not the user.
@@ -205,7 +205,7 @@ def test_a_setting_chosen_at_call_zero_shapes_the_same_turn(loop_factory) -> Non
 def test_a_gating_autonomy_setting_is_not_restated_as_instruction_text(
     loop_factory,
 ) -> None:
-    """§3.6 — `Reactive` / `Self-directed` are enforced by the gate, not by a reminder.
+    """`Reactive` / `Self-directed` are enforced by the gate, not by a reminder.
 
     Restating them would give the model a second, softer copy of a rule the
     wrapper already enforces, and the two could disagree.
@@ -238,7 +238,7 @@ def test_a_gating_autonomy_setting_is_not_restated_as_instruction_text(
 def test_the_process_payload_is_forced_under_every_process_setting(
     loop_factory, setting: str
 ) -> None:
-    """T14 (§3.1 process row): `Silent` demands the completion line too.
+    """T14: `Silent` demands the completion line too.
 
     If the payload were only required where it is rendered, the model could
     read the requirement and infer the setting.
@@ -367,7 +367,7 @@ def _batch_prose(*batch_ids: str) -> str:
 
 
 def test_three_batches_one_at_a_time_finish_inside_the_beats_budget() -> None:
-    """T15 (§3.3 (part 5)): three One-at-a-time rounds fit in the widened beat."""
+    """T15: three One-at-a-time rounds fit in the widened beat."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content=None, tool_calls=[
@@ -469,7 +469,7 @@ def _questions(*ids: str) -> Any:
 def test_a_closed_elicitation_episode_lets_a_later_task_open_a_new_one(
     loop_factory,
 ) -> None:
-    """T16 (§4.1): Structured closes its episode, so a new task may ask again."""
+    """T16: Structured closes its episode, so a new task may ask again."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content=None, tool_calls=[
@@ -568,7 +568,7 @@ def test_a_new_episode_id_while_the_old_one_is_open_is_refused(loop_factory) -> 
             if str(message.get("content") or "").startswith(IX_PER_TURN_REMINDER_PREFIX)
         }
         assert any("IX_continue_information_elicitation" in nudge for nudge in nudges)
-        # §3.0 / T16: nudge once, record the second miss **once**, then deliver.
+        # T16: nudge once, record the second miss **once**, then deliver.
         # `IX_continue_<attribute>` is neither forcible nor fatal, so the check
         # re-fired on every remaining iteration -- live (`v11s02` acc_009 t8) one
         # owed continuation was recorded eight times.
@@ -640,7 +640,7 @@ def test_one_allow_among_three_verdicts_releases_only_that_item(loop_factory) ->
 
 
 def test_a_release_reused_for_another_tool_is_asked_again(loop_factory) -> None:
-    """§3.3 (part 3) (owner, round 10): consent is for the action, not for the id.
+    """Consent is for the action, not for the id.
 
     `i1` was held as an email and the user allowed the email. Reissuing `i1` as
     a payment is a different action: it inherits nothing, and the gate asks
@@ -1004,7 +1004,7 @@ def test_a_re_mint_after_a_content_objection_inherits_the_release(loop_factory) 
 
 
 def test_an_inherited_release_still_buys_only_one_call(loop_factory) -> None:
-    """§3.3 (part 2)·A survives the ruling: one authorisation, one act.
+    """The one-release-one-execution rule survives the ruling: one authorisation, one act.
 
     The release moves to the re-minted item; it does not multiply. A response
     that mints two items on the tool gets the first one through and is asked
@@ -1225,7 +1225,7 @@ def test_a_go_ahead_in_the_turn_just_gone_pre_authorises_the_act(loop_factory) -
         assert "ix_release_preauthorised" in IX_EVENT_NAMES
         # Spent, so there is nothing left to lapse at the end of the turn.
         assert _named_events(outbound, "ix_preauthorisation_expired") == []
-        # §4.4: the judge counts authorisations off `consent[]`, and this one
+        # The judge counts authorisations off `consent[]`, and this one
         # never passed through a hold. The tool name stands in for the item id.
         assert outbound.metadata["ix_render"]["consent"] == [{
             "attribute": "autonomy_level",
@@ -1460,7 +1460,7 @@ def test_a_standing_allow_for_another_tool_does_not_release_this_one(
 def test_a_hold_that_never_converges_is_cancelled_with_the_pa_s_own_line(
     loop_factory,
 ) -> None:
-    """T18 (f) (§3.7 (part 4)): round four cancels; it never releases by default."""
+    """T18 (f): round four cancels; it never releases by default."""
     async def scenario() -> None:
         questions = ix(
             "IX_render_information_elicitation",
@@ -1521,7 +1521,7 @@ def test_a_hold_that_never_converges_is_cancelled_with_the_pa_s_own_line(
 # ---------------------------------------------------------------------------
 
 def test_a_response_with_no_ix_call_is_still_binding_checked(loop_factory) -> None:
-    """A turn with no IX call is still the IX layer being engaged (§3.3 (part 2)·A).
+    """A turn with no IX call is still the IX layer being engaged.
 
     A response that happened to carry no IX call used to fall through to the
     plain concurrent path — which never validates bindings, never gates and
@@ -1680,7 +1680,7 @@ def test_a_refusal_repaired_in_the_same_turn_claims_no_unexecuted_action(
 
 
 def test_a_capability_limit_is_seen_on_a_turn_with_no_ix_call(loop_factory) -> None:
-    """§3.5 (part 4) — the two-phase protocol does not need an IX call to start.
+    """The two-phase protocol does not need an IX call to start.
 
     Live, a `--force-ix` seed put `capability_boundary` in the session before
     the beat that lists it in `session_active_ix`. `scholarly_paper_read`
@@ -1738,7 +1738,7 @@ def test_a_capability_limit_is_seen_on_a_turn_with_no_ix_call(loop_factory) -> N
 
 
 # ---------------------------------------------------------------------------
-# §3.0 / §7.1 · a refused selection is attempted, never completed
+# a refused selection is attempted, never completed
 # ---------------------------------------------------------------------------
 
 #: `Suggest` was retired when `autonomy_level` went to three settings, so the
@@ -1899,8 +1899,8 @@ def test_a_never_offered_selection_fails_on_the_selection_contract(
 #: regress18 `acc_001` t6. The reception beat cues no IX tool, so the model's
 #: `IX_verbosity` call comes back "not found" -- a refused selection -- and the
 #: same response's two `document_update` calls are withheld with it. The retry
-#: drops the selection and reissues the writes, which run, exactly as §3.0
-#: intends ("reissued with the corrected selection or not at all").
+#: drops the selection and reissues the writes, which run, exactly as intended
+#: ("reissued with the corrected selection or not at all").
 def _reissued_write_responses() -> list[LLMResponse]:
     refused = LLMResponse(content="Both updates are saved.", tool_calls=[
         ix(
@@ -1958,7 +1958,7 @@ def test_a_refused_selections_holds_do_not_outlive_the_reissued_calls(
 
 
 # ---------------------------------------------------------------------------
-# §3.3 (part 2)·C · a gate with no ask asks the user nothing
+# a gate with no ask asks the user nothing
 # ---------------------------------------------------------------------------
 
 def _no_ask_gate_responses(*, repaired: bool) -> list[LLMResponse]:
@@ -2081,7 +2081,7 @@ def test_failed_gate_keeps_the_final_unexecuted_confirmation_for_diagnosis(
 def test_an_empty_ask_on_an_earlier_held_call_does_not_shadow_the_real_ask(
     loop_factory,
 ) -> None:
-    """§3.3 (part 2)·C — the gate's ask is the first held call that *wrote* one.
+    """The gate's ask is the first held call that *wrote* one.
 
     Live `v9s03` t24: one item held two calls, a refused `document_read` with no
     `_ix_confirmation_message` ahead of the `document_update` that carried the
@@ -2132,7 +2132,7 @@ def test_an_empty_ask_on_an_earlier_held_call_does_not_shadow_the_real_ask(
 
 
 def test_an_allow_for_an_id_the_ask_never_named_releases_nothing(loop_factory) -> None:
-    """§3.7 (part 3) as written: "every held id **shown** to the user", not "every held id".
+    """The consent rule as written: "every held id **shown** to the user", not "every held id".
 
     Live (`v2g02` t19/t21), an ask that named only a cancellation came back with
     an `allow` for six ids, five of them searches. The sideband is the user's
@@ -2202,7 +2202,7 @@ def test_an_allow_for_an_id_the_ask_never_named_releases_nothing(loop_factory) -
 
 
 # ---------------------------------------------------------------------------
-# §3.3 (part 2)·D addendum · the narration of a held call is not delivered
+# the narration of a held call is not delivered
 # ---------------------------------------------------------------------------
 
 def test_a_gate_turn_does_not_ship_the_narration_of_the_held_call(loop_factory) -> None:

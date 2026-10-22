@@ -1,4 +1,4 @@
-"""§3.0 — a turn that owes a selection *and* a render payload at the same time.
+"""A turn that owes a selection *and* a render payload at the same time.
 
 `information_elicitation` is the shape live `pre_run_test_9` (acc_009 t1) died
 on: natural selection, so the turn owes `IX_information_elicitation`

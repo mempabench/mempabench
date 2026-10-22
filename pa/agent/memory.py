@@ -425,11 +425,11 @@ class MemoryConsolidator:
         `select_compaction_end_index` cuts at any `role: user` message, and a
         journal record can own more than one (an FE exchange pairs a delivery or
         a PA line with the user line about it), so the cut can land *inside* one
-        record's span. §6.1 (e) consumes the journal prefix whose turns end at
+        record's span. Compaction consumes the journal prefix whose turns end at
         or before the boundary, so a straddling record is still owed: its head
         must stay in the prompt rather than fall inside a "consolidated" prefix
-        the files do not hold yet. Snapping back, not forward, is what §6.1 (e)
-        says, and it can never evict past `safe_eviction_end_index`.
+        the files do not hold yet. Snapping back, not forward, is the rule,
+        and it can never evict past `safe_eviction_end_index`.
 
         Returns 0 when no whole record ends at or before `end_index`; the
         caller's empty-chunk guard then leaves the prompt untouched.
@@ -658,7 +658,7 @@ class MemoryConsolidator:
                     # prefix is a union of whole journal records. The boundary
                     # above is a bare user-turn cut and can be interior to one
                     # record's span, so snap it back before the file write, the
-                    # chunk identity and the two cursors all read it (§6.1 (e)).
+                    # chunk identity and the two cursors all read it.
                     compaction_end_index = self.snap_end_index_to_journal_records(
                         journal, compaction_end_index
                     )
@@ -693,9 +693,9 @@ class MemoryConsolidator:
                     # message list. `session.messages` is projection 2 -- the
                     # PA's own next prompt -- and cannot re-derive the turn's
                     # prose, its held declarations or the final iteration's
-                    # reasoning (§6.1 (b)). Compaction consumes exactly the
+                    # reasoning. Compaction consumes exactly the
                     # journal prefix whose turns end at or before the chosen
-                    # boundary, zero-span records included (§6.1 (e)); the
+                    # boundary, zero-span records included; the
                     # cursor below keeps advancing on raw message indices.
                     consumed = records_owed_to_files(
                         journal.records_through_message_index(

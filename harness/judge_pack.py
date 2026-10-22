@@ -1,9 +1,9 @@
-"""Text-face judge packing — projection 4 of §2.4 (`text_judge_projection`).
+"""Text-face judge packing — projection 4 (`text_judge_projection`).
 
 Lives in harness/ because it spans the PA's render output and the transcript the
 simulator loop produced (the no-share rule keeps pa/ and simulator/ apart).
 
-Two judge faces, one transcript (§4.4 "two judge faces"):
+Two judge faces, one transcript:
 
 - **IX face** — the full `ix_render` blob + the full tool log + the transcript.
   Nothing here filters it; `harness/transcript.py` writes it as it came.
@@ -13,7 +13,7 @@ Two judge faces, one transcript (§4.4 "two judge faces"):
   `ix_directives` / `process_events` / `elicitation_events` groups go, and the
   per-call injected fields are stripped out of the args that remain. Removing a
   few fields is not enough: one `trace` string leaks the setting. Two ruled
-  exceptions (2026-09-17, unification plan §5.4 / §5.5): a proactive turn also
+  exceptions (2026-09-17): a proactive turn also
   carries its send / suppress decision and delivery flag plus the trigger it
   answered (`TEXT_JUDGE_OUTREACH_KEYS` / `TEXT_JUDGE_TRIGGER_KEYS`), and the
   judge prompt renders `tool_log.jsonl` through `text_judge_tool_log`, an
@@ -54,8 +54,7 @@ from pa.agent.ix.specs import IX_PASSIVE_SPECS
 TEXT_JUDGE_PACK_SCHEMA_VERSION = "text_judge_pack/1.0.0"
 
 #: **Narrow scan.** Every attribute name and every setting label in the taxonomy
-#: — the strings that say *which* attribute the wrapper selected and *which way*
-#: (§2.4 projection 4 "any string a setting can be inferred from").
+#: — the strings that say *which* attribute the wrapper selected and *which way*.
 #:
 #: Half of them are ordinary English words — `High`, `Low`, `Show`, `Hide`,
 #: `Terse`, `Moderate`, `Detailed`, `Guided`, `Formal`, `Casual`, `Silent`,
@@ -96,13 +95,13 @@ IX_CONTROL_VOCABULARY: frozenset[str] = frozenset(
 )
 
 #: The key names whose leaves are wrapper structure rather than task data — the
-#: only place `IX_SETTING_LABELS` is looked for. Derived from the §4.4 blob's own
+#: only place `IX_SETTING_LABELS` is looked for. Derived from the `ix_render` blob's own
 #: top-level keys (`IX_RENDER_TOP_LEVEL_KEYS`) and `TEXT_JUDGE_BANNED_KEYS` (a
 #: banned key's subtree is IX by definition), plus the selection-payload words
 #: the wrapper writes around them. A key path containing an `ix` / `IX_`-prefixed
 #: key counts as IX-shaped for everything below it, which is how
 #: `ix_render.selections[0].setting` is reached even though `selections` is not
-#: itself a §4.4 key. Ordinary task arguments — `priority`, `query`, `title`,
+#: itself a top-level key. Ordinary task arguments — `priority`, `query`, `title`,
 #: `path` — are deliberately absent.
 IX_STRUCTURAL_KEY_NAMES: frozenset[str] = frozenset(
     {key.lower() for key in TEXT_JUDGE_BANNED_KEYS}
@@ -151,7 +150,7 @@ TEXT_JUDGE_PA_DELIVERED_VISIBILITY: frozenset[str] = frozenset({"pa", "both"})
 #:
 #: `target_cell` / `target_attribute` / `target_setting` are deliberately out:
 #: they are the attribute and setting names the text face exists to be blind
-#: to. The judge gets the ground truth through `ground_truth.json` (§4.2),
+#: to. The judge gets the ground truth through `ground_truth.json`,
 #: which is a different file with a different reader.
 TEXT_JUDGE_META_KEYS: frozenset[str] = frozenset({
     "created_at", "run_id", "step_id", "kind",
@@ -163,8 +162,8 @@ TEXT_JUDGE_META_KEYS: frozenset[str] = frozenset({
     "pa_model", "simulator_model",
 })
 
-#: The proactive-outreach exception (owner ruling 2026-09-17, unification plan
-#: §5.5): on a `proactive_event` turn the text face carries these three keys
+#: The proactive-outreach exception (owner ruling 2026-09-17):
+#: on a `proactive_event` turn the text face carries these three keys
 #: of the transcript's `pa_turn` — the runtime's send / suppress decision and
 #: whether the contact was delivered — next to `public_turn`, which is the
 #: delivered content itself. The contact opportunity travels as its own entry
@@ -184,7 +183,7 @@ TEXT_JUDGE_TRIGGER_KEYS: tuple[str, ...] = (
     "trigger_id", "source_type", "prior_thread", "detail", "user_impact",
 )
 
-#: **`tool_log.jsonl`, §5.4 (owner ruling 2026-09-17, unification plan):** the
+#: **`tool_log.jsonl` (owner ruling 2026-09-17):** the
 #: text face may show a tool's business result and error, filtered through an
 #: allow-list rather than the assumption that nothing else in the row leaks.
 #: The store writes every row through `state_server/store.py` `log_tool`
@@ -235,7 +234,7 @@ TEXT_JUDGE_TOOL_LOG_RESULT_KEYS: frozenset[str] = frozenset({
     "path", "bytes", "files", "match_tier", "note",
     # domain payload summaries
     "options", "usable", "events", "bills", "methods", "matched",
-    # errors and the capability boundary (§3.5)
+    # errors and the capability boundary
     "error", "error_code", "boundary_kind", "detail",
 })
 
@@ -284,7 +283,7 @@ def text_judge_projection(
     rendered: RenderedTurn,
     render_input: IXRenderInput,
 ) -> TextJudgeProjection:
-    """Projection 4 for one turn (§2.4). Implements the P0 stub.
+    """Projection 4 for one turn. Implements the P0 stub.
 
     `public_turn` is the rendered message verbatim — the gate's ask is already
     inside it, which is why there is no second field for it. The task events are
@@ -389,7 +388,7 @@ def build_text_judge_pack(
                 }
             )
         elif kind == "environment_trigger":
-            # §5.5: the contact opportunity, as the simulator emitted it. It is
+            # The contact opportunity, as the simulator emitted it. It is
             # the arrival the proactive turn answers, so without it the judge
             # would read a send / suppress decision with nothing to decide on.
             turns.append(
@@ -408,7 +407,7 @@ def build_text_judge_pack(
                 "task_tool_events": _pack_task_tool_events(event),
             }
             if event.get("proactive_event"):
-                # §5.5: the decision and the delivery, and only on this turn.
+                # The decision and the delivery, and only on this turn.
                 # `public_turn` already is the delivered content (empty on a
                 # suppress: the archived message stays held, on the IX face).
                 turn.update({key: event.get(key) for key in TEXT_JUDGE_OUTREACH_KEYS})
@@ -455,7 +454,7 @@ def _pack_task_tool_events(pa_event: dict) -> list[dict[str, Any]]:
 def _strip_injected_fields(args: Mapping[str, Any]) -> dict[str, Any]:
     """Drop the three per-call injected fields and any banned key from args.
 
-    They are stripped before the real tool is called (§5.3 carrier C), so
+    They are stripped before the real tool is called (carrier C), so
     seeing one here already means something went wrong upstream — dropping it
     keeps the leak out of the pack, and `scan_banned_keys` still reports it when
     the caller scans the raw event.

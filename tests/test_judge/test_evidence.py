@@ -1,4 +1,4 @@
-"""judge/evidence.py — test doc §4.6 "`text_face.evidence` 有两种类型".
+"""judge/evidence.py: the two `text_face.evidence` kinds.
 
 The transcript and tool log are the real acc_001 artifacts under
 `tests/fixtures/judge/acc_001/`.

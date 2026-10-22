@@ -1,7 +1,7 @@
 """Throwaway `memory.turn_journal` stand-ins, for the step-9 stub proof only.
 
-`tests/test_harness/test_resume_pool.py` is the acceptance suite for plan §9
-step 9 and cannot run until `memory/turn_journal.py` exists, so on this branch
+`tests/test_harness/test_resume_pool.py` is the acceptance suite for the
+pool resume and cannot run until `memory/turn_journal.py` exists, so on this branch
 it is skipped at import. These two modules make the claim "those tests assert
 behaviour, not the module's presence" re-verifiable instead of asserted in a
 receipt: `test_resume_pool_stub_proof.py` loads the acceptance suite twice, once

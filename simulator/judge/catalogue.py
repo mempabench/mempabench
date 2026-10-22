@@ -2,7 +2,7 @@
 
 The question TEXT is not here. It lives in `prompts/rules/<rule>.md`, which is
 the measured text from the experiment wherever a measurement exists — the
-prompt files are the rule, and contract §9's English column is a gloss of them.
+prompt files are the rule.
 That is the only sanctioned patch channel, so it is a file and not a string.
 
 What is here is the shape: which questions a rule asks, which context blocks
@@ -51,7 +51,7 @@ PROMPTS_DIR = Path(__file__).parent / "prompts"
 RULES_DIR = PROMPTS_DIR / "rules"
 
 #: A carve-out is at most this many clauses. Five is the draft validator's
-#: error at authoring time, never a judge event at run time (§9).
+#: error at authoring time, never a judge event at run time.
 MAX_EXCEPTION_CLAUSES = 4
 
 _EXCEPTION_RE = re.compile(
@@ -201,7 +201,7 @@ class TurnContext:
     """Everything the harness hands the judge about one candidate turn.
 
     Verbatim text only: no persona, no outline, no setting name, no attribute
-    name, no world state (§2). The fields below the two verbatim blocks are the
+    name, no world state. The fields below the two verbatim blocks are the
     context the catalogue lets specific questions draw on, plus the
     code-computed facts that the judge is told rather than asked.
     """
@@ -225,7 +225,7 @@ class TurnContext:
     gate_reveal_beat: str = ""
     cue: str = ""
     #: The attribute this session measures. The one place the judge is told an
-    #: attribute name (§2 otherwise forbids it): `reaction_beat_off_attribute`
+    #: attribute name (it is otherwise forbidden): `reaction_beat_off_attribute`
     #: asks whether the turn sends the speaker at some OTHER attribute's
     #: surface, and that question cannot be put without naming this one.
     target_attribute: str = ""
@@ -333,7 +333,7 @@ class Question:
 
 @dataclass(frozen=True)
 class QuestionGroup:
-    """One call: a rule's whole set of steps (§2, "一次调用一个问题组")."""
+    """One call: a rule's whole set of steps."""
 
     rule: str
     shape: str
@@ -348,7 +348,7 @@ class QuestionGroup:
 
     @property
     def is_empty(self) -> bool:
-        """A group with nothing to ask. No call is made for one (§2: a call is
+        """A group with nothing to ask. No call is made for one (a call is
         a question group, and there is no group here) — an empty `format` enum
         is not a request Ollama can honour anyway."""
         return not self.questions
@@ -577,7 +577,7 @@ def build_probe_fact_missing(ctx: TurnContext) -> QuestionGroup:
 
     One fact at a time so the evidence always points at words that are really in
     this turn: a question asking the model to quote what is *not* there cannot
-    pass the §4(2) check by construction.
+    pass the evidence check by construction.
     """
     prompt = RULE_PROMPTS["probe_fact_missing"]
     questions = [
@@ -603,7 +603,7 @@ def build_probe_fact_missing(ctx: TurnContext) -> QuestionGroup:
 def build_authorises_pa_action(ctx: TurnContext) -> QuestionGroup:
     """The experiment's five questions, plus one per carve-out cut from `avoid`.
 
-    Contract §9 names only q1 and the carve-outs. The other three — does the
+    The rule names only q1 and the carve-outs. The other three — does the
     turn release the assistant, is the release the speaker's own next step, is
     it held or conditional — are the measured form, and the boolean that scored
     0 misses / 0 false alarms is over all five.
@@ -844,7 +844,7 @@ def named_noun(reason: str) -> str:
     """The thing the judge says the assistant asked about.
 
     The prompt tells it to open `reason` with that name, then a colon, then one
-    sentence, because the §3 schema has no field of its own for it. The first
+    sentence, because the verdict schema has no field of its own for it. The first
     word run is what is read, so `noun:`, `noun —` and `noun.` all resolve;
     the separator is the prompt's business, not this function's. A `reason`
     with no word in it yields "", which fails the rule closed — the exemption

@@ -128,7 +128,7 @@ class _WritingPA(_RecordingPA):
         )
 
 
-#: The ask gate is the judge's alone (contract §9), so every session here runs
+#: The ask gate is the judge's alone, so every session here runs
 #: one. These are the candidate turns that put nothing to the assistant; every
 #: other turn reads as an ask, quoted out of the turn itself.
 _NO_ASK = (

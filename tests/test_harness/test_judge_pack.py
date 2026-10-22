@@ -186,7 +186,7 @@ def test_pack_has_no_attribute_setting_or_held_string() -> None:
 
 
 def test_pack_never_carries_the_consent_sideband() -> None:
-    """§7 #53 ①: assert, don't filter.
+    """Assert, don't filter.
 
     `consent_decisions` is the evaluation side's ground truth for the gate,
     PA-blind like `factual_check` and `turn_assessment`. The whitelist is what
@@ -285,7 +285,7 @@ def test_the_same_session_keeps_all_of_it_on_the_ix_face(tmp_path: Path) -> None
             writer.log_event(event)
 
     ix_face = json.dumps(load_events(run_dir / "transcript.jsonl"), ensure_ascii=False)
-    # Provider reasoning is not in this list: §4.4 records only whether it was
+    # Provider reasoning is not in this list: the blob records only whether it was
     # present (`reasoning.provider_reasoning_present`), never its text.
     for needle in (
         HELD_BODY, GATE_REASON, TRACE_LINE, "autonomy_level", "Reactive",
@@ -378,7 +378,7 @@ def test_a_held_body_inside_a_document_is_still_a_leak() -> None:
 
 # --- setting labels vs control vocabulary -------------------------------------
 #
-# §10 item 1: the structural half used to scan the whole `IX_VOCABULARY` as
+# The structural half used to scan the whole `IX_VOCABULARY` as
 # substrings over every leaf outside `FREE_TEXT_KEYS`, so `priority: "High"`,
 # a reply that said "keep it casual" and the word "Highlight" all failed the
 # pack. Labels are now whole tokens on IX-shaped leaves only; the wrapper's
@@ -804,7 +804,7 @@ def test_the_environment_action_filter_matches_what_the_executor_delivers() -> N
 
 
 def test_a_simulator_turn_contributes_only_t_beat_and_text() -> None:
-    """Test doc §7 row 29: the `simulator_turn` branch is a whitelist of three
+    """The `simulator_turn` branch is a whitelist of three
     keys. `consent_decisions` (the evaluation-side truth the PA is blind to),
     `factual_check`, `turn_assessment` and `parse_warnings` never cross, and
     this pin is what keeps them out — not an entry in `TEXT_JUDGE_BANNED_KEYS`.
@@ -835,7 +835,7 @@ def test_a_simulator_turn_contributes_only_t_beat_and_text() -> None:
 
 
 # ------------------------------------------------------------------------------
-# 2026-09-17 input boundary — §5.4 tool_log allow-list, §5.5 proactive exception
+# 2026-09-17 input boundary — tool_log allow-list, proactive exception
 # ------------------------------------------------------------------------------
 
 from harness.judge_pack import (  # noqa: E402

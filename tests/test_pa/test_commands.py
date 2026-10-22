@@ -1,4 +1,4 @@
-"""The slash commands, and what `/new` owes the turn journal (plan §9 step 7).
+"""The slash commands, and what `/new` owes the turn journal.
 
 `/new` was the odd one out among the three consolidation entry points: it
 archived the raw `session.messages` tail with no projection at all, and it
@@ -97,7 +97,7 @@ async def _one_turn(tmp_path, memory_provider: LLMProvider) -> AgentLoop:
 
 @pytest.mark.asyncio
 async def test_new_keeps_session_and_journal_when_archive_fails(tmp_path) -> None:
-    """§12 item 7e: a refused consolidation must leave a retriable command.
+    """A refused consolidation must leave a retriable command.
 
     The old order cleared the session first, so an archive that raised took the
     conversation with it. Archiving first means the failure costs nothing.

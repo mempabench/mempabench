@@ -217,7 +217,7 @@ def _mem0_branch_client_kwargs(namespace: str, branch_dir: Path) -> dict[str, An
 def _requires_committed_adapter_writes(step: RunStep) -> bool:
     """Whether this step's PA may refuse a turn whose adapter write is not committed.
 
-    Plan §4.1: a test probe (`pre_event_probe`, `final_probe`) is read-only by
+    A test probe (`pre_event_probe`, `final_probe`) is read-only by
     design — `run_plan.py` pins it to `read_only`/`discard` — so its adapter
     answers `skipped_read_only` on every turn and `record_adapter_write_commit`
     would raise `AdapterWriteCommitError` on the first one. The steps whose
@@ -727,7 +727,7 @@ def _finished_plan_carry_over(
     run_dir: Path,
     run_id: str,
 ) -> tuple[RunPlan | None, frozenset[str]]:
-    """What a re-freeze of a finished run's plan may not re-mint (§2.4.6).
+    """What a re-freeze of a finished run's plan may not re-mint.
 
     `--regenerate-plan` rebuilds the plan from today's artifacts, which is the
     point when a probe line is being attached and wrong for everything the run
@@ -940,7 +940,7 @@ def _supersede_probe_steps(
     rerun safe where an accumulation rerun is not.
 
     The move itself is `harness.run_layout.supersede_step_dirs`, shared with
-    the in-batch void retry (`Orchestrator._run_one_probe`, plan §6b) so both
+    the in-batch void retry (`Orchestrator._run_one_probe`) so both
     write the one layout the cohort manifest reads.
     """
     moved = supersede_step_dirs(run_dir, step_ids)
@@ -1152,7 +1152,7 @@ class MainlinePACheckpointHandle:
         self._require().sessions.save(session)
 
     def close_ix_session(self, script_session_id: str) -> list[tuple[str, str]]:
-        """Clear the mainline PA's IX state for this step (§4.2, contract 7).
+        """Clear the mainline PA's IX state for this step (contract 7).
 
         Unlike the cut-point methods this tolerates an unbound PA: the step
         boundary runs in a `finally`, and a step that died before its PA was
@@ -1482,7 +1482,7 @@ class RealSessionLoop:
         pa_recorder = RecordingPA(pa_inner)
         # The executor reaches the per-call `ix_render` records through this:
         # the PA is built here, but the transcript is assembled after the
-        # session ends (§4.4 merge site in harness/session_executor.py).
+        # session ends (merge site in harness/session_executor.py).
         self.pa_recorder = pa_recorder
         try:
             loop = SimulatorLoop(
@@ -1713,7 +1713,7 @@ async def _execute_benchmark_run(args: argparse.Namespace, *, shared_probe_memor
                 pa_model=args.pa_model,
                 script_names=script_names,
                 # A persona with a probe line freezes into the plan every
-                # probe whose cut point lies in the requested accs (§2.4.1):
+                # probe whose cut point lies in the requested accs:
                 # all of them for the full timeline. There is no flag to
                 # leave them out.
                 with_probes=run_plan_builder.persona_has_probe_line(
@@ -1810,8 +1810,7 @@ async def _execute_benchmark_run(args: argparse.Namespace, *, shared_probe_memor
     # Before the run: with the local judge armed (`MEMPA_JUDGE=live`) a round
     # that starts without the endpoint answering on the pinned model would
     # record its sessions against another standard. No fallback model, so a
-    # failure here refuses the round rather than degrading it (local judge
-    # contract §6).
+    # failure here refuses the round rather than degrading it.
     from simulator.judge.session import preflight as judge_preflight
 
     judge_preflight()
@@ -1860,7 +1859,7 @@ async def _execute_benchmark_run(args: argparse.Namespace, *, shared_probe_memor
             "before this run does anything else"
         )
     # A run may execute its accumulation timeline now and have a probe plan
-    # attached later, off the same checkpoints (§2.4): `--regenerate-plan`
+    # attached later, off the same checkpoints: `--regenerate-plan`
     # rebuilds and re-freezes the plan on a directory whose ledger already
     # records steps. That is a resume of that run, not a new one -- the Qdrant
     # collection and history db those steps wrote are expected to be there --
@@ -2232,7 +2231,7 @@ async def _execute_benchmark_run(args: argparse.Namespace, *, shared_probe_memor
         def bind_pa(pa: Any) -> None:
             pa_checkpoint.bind(pa)
             # Validation-only: pre-select a setting the persona matrix never
-            # produces, so §7.3 rows 1b/5 can be run at all.
+            # produces, so the validation cases that need it can be run at all.
             for attribute, setting in (forced_ix.get(step.step_id) or {}).items():
                 seed_ix_selection(
                     pa,

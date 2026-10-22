@@ -1,4 +1,4 @@
-"""Shared fakes for the cross-package IX wrapper tests (plan §7.2 P7).
+"""Shared fakes for the cross-package IX wrapper tests.
 
 Everything here is a fake provider, a fake tool or a recording memory adapter:
 no LLM call, no network, no state server. The shapes follow
@@ -55,7 +55,7 @@ class EchoTool(Tool):
 
 
 class CapabilityLimitTool(EchoTool):
-    """The §3.5 (part 3) result shape a fixture-blocked read produces."""
+    """The `capability_limit` result shape a fixture-blocked read produces."""
 
     async def execute(self, **kwargs: Any) -> str:
         self.calls.append(dict(kwargs))

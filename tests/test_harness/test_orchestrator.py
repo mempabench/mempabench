@@ -729,7 +729,7 @@ async def test_orchestrator_marks_failed_step(tmp_path: Path):
 
 
 class InvalidSessionExecutor(FakeExecutor):
-    """The executor of a step the simulator invalidated (owner ruling §10.6)."""
+    """The executor of a step the simulator invalidated (owner ruling)."""
 
     async def execute(self, step, **kwargs):
         try:
@@ -830,7 +830,7 @@ class FakeCheckpointManager:
 
     def build_branch_adapter(self, branch_dir: Path):
         # Stands in for a manager that restored this branch's namespace and
-        # built an adapter on it. Returning None here would be the §9 step 12
+        # built an adapter on it. Returning None here would be the missing-adapter
         # defect itself, and the orchestrator now refuses it for an external
         # condition — which is what these plans declare.
         return FakeMemoryAdapter()
@@ -840,7 +840,7 @@ class _FakeTurnJournal:
     """The records a real journal holds for this fake session's turns.
 
     Built through the same renderer the loop uses, so a pinned flush sees what
-    a live run would have left it (§6.1 (b)). The flush reads the journal, not
+    a live run would have left it. The flush reads the journal, not
     `session.messages`, so a fake session needs one.
     """
 
@@ -1220,11 +1220,11 @@ async def _flush_one_wrapper_turn(tmp_path: Path) -> tuple[FakePACheckpoint, str
 async def test_pinned_flush_hands_the_files_the_whole_turn(
     tmp_path: Path,
 ) -> None:
-    """§9 step 7: the flush reads the journal, so the files get the pool.
+    """The flush reads the journal, so the files get the pool.
 
     It used to archive the two-message projection, and MEMORY.md never learned
     that the PA had looked the venue up or what it chose to do about response
-    length. §7 rules the PA's own IX call and its world traffic IN -- they are
+    length. The PA's own IX call and its world traffic are ruled IN -- they are
     the PA's experience, and the ground truth reaches the PA through
     `metadata`, never through a message.
     """
@@ -1245,7 +1245,7 @@ async def test_pinned_flush_hands_the_files_the_whole_turn(
 async def test_no_wrapper_scaffolding_survives_the_pinned_flush(
     tmp_path: Path,
 ) -> None:
-    """§7's OUT column, regrepped: carrier C and the injected scaffold.
+    """The OUT column, regrepped: carrier C and the injected scaffold.
 
     The IN column moved in step 7, so the old blanket `ix_` grep would now ban
     the PA's own choice. What stays banned is what exists only because a
@@ -1262,7 +1262,7 @@ async def test_no_wrapper_scaffolding_survives_the_pinned_flush(
         "tools_used",
     ):
         assert key not in written, key
-    # Not vacuous: the half §7 rules IN did survive the same flush.
+    # Not vacuous: the half ruled IN did survive the same flush.
     assert "mcp_state_document_read" in written
 
 
@@ -1849,7 +1849,7 @@ async def test_a_later_start_does_not_replay_dropped_turns(tmp_path: Path, monke
 
 @pytest.mark.asyncio
 async def test_a_probe_with_no_checkpoint_manager_stops_the_run(tmp_path: Path):
-    """§2.4.2: a probe runs only in a branch cut from a pin. With no
+    """A probe runs only in a branch cut from a pin. With no
     checkpoint manager there is no mainline fallback: the run stops at the
     first probe, the probe is never marked, and the timeline stays done."""
     plan = _plan()
@@ -2205,7 +2205,7 @@ def test_rollback_goes_to_the_furthest_cut_point_not_the_latest_clock_reading(
 
     # The run then died in a timeline step, which is what makes it unsafe to
     # resume as it stands. It has to be a timeline step: this plan's probe is
-    # rerun from its own immutable pin (§2.4.2), so a probe left `running`
+    # rerun from its own immutable pin, so a probe left `running`
     # forces no rollback and there would be nothing here to measure.
     ledger.mark_failed("acc_002", "died after the cut point was published")
 
@@ -2434,7 +2434,7 @@ class FailingProbeExecutor(FakeExecutor):
 
 @pytest.mark.asyncio
 async def test_a_failed_probe_leaves_its_evidence_behind(tmp_path: Path):
-    """§7 #49: the probe most worth auditing must not die with its branch."""
+    """The probe most worth auditing must not die with its branch."""
     plan = _two_acc_plan()
     run_dir = tmp_path / "runs" / plan.run_id
     _seed_run_dir(run_dir, plan.persona_id, plan.main_pa_session_key())
@@ -2449,7 +2449,7 @@ async def test_a_failed_probe_leaves_its_evidence_behind(tmp_path: Path):
     orchestrator.ledger = ledger
     orchestrator.executor = FailingProbeExecutor()
 
-    # §2.4.2: a probe is a job of its own, so its failure ends the probe, not
+    # A probe is a job of its own, so its failure ends the probe, not
     # the run — it is recorded and the batch goes on.
     result = await orchestrator.run()
     assert result.failed == ["pretest_W_A"]
@@ -2891,7 +2891,7 @@ def test_prompt_history_at_start_counts_past_the_start_index(tmp_path: Path):
 
 
 # ---------------------------------------------------------------------------
-# IX wrapper step boundary — plan §3.8 (contract 10) and §4.2 (contract 7, T17)
+# IX wrapper step boundary — contract 10 and contract 7 (T17)
 # ---------------------------------------------------------------------------
 
 
@@ -2997,7 +2997,7 @@ async def test_a_clean_step_closes_its_ix_session_and_still_publishes(
 
 @pytest.mark.asyncio
 async def test_a_failing_step_still_closes_its_ix_session(tmp_path: Path) -> None:
-    """§4.2: success, exception, cancel and retry all clear the state."""
+    """Success, exception, cancel and retry all clear the state."""
     plan = _two_acc_plan()
     calls: list = []
     pa = HoldingPACheckpoint(calls)
@@ -3320,7 +3320,7 @@ async def test_a_probe_branch_carries_the_runs_simulator_identity(tmp_path: Path
     )
 
 
-# ── probe batch runner (test doc §2.4.2, §7 rows 1/4/5/6) ─────────────
+# ── probe batch runner ─────────────
 
 
 def _two_probe_plan() -> RunPlan:
@@ -3479,7 +3479,7 @@ async def test_a_probes_simulator_memory_write_stays_in_its_branch(
 
 @pytest.mark.asyncio
 async def test_a_failed_probe_does_not_stop_the_later_probes(tmp_path: Path):
-    """§2.4.2: `failed` + `failure_kind`, evidence kept, next probe runs."""
+    """`failed` + `failure_kind`, evidence kept, next probe runs."""
     plan = _two_probe_plan()
     executor = FailOneProbeExecutor("pretest_W_A")
     orchestrator, ledger, run_dir = _probe_orchestrator(tmp_path, plan, executor)
@@ -3987,7 +3987,7 @@ def _pre_event_probe_plan() -> RunPlan:
     """acc_001 (pinned) → pre_01 → evolv_01, the shape a run really has.
 
     The probe sits before the event on the timeline but *runs* after it: the
-    timeline finishes first and every probe is a job of its own (§2.4.2), so by
+    timeline finishes first and every probe is a job of its own, so by
     the time `pre_01` branches acc_001, the ledger already holds evolv_01's
     flip.
     """
@@ -4086,7 +4086,7 @@ async def test_a_pre_event_probe_meta_omits_the_cell_its_own_event_flips(
     }
 
 
-# ── probe batch dispatcher (plan §5, Codex F2/F3/F6) ──────────────────
+# ── probe batch dispatcher ──────────────────
 
 #: How a finished step is read off the tee'd log in the launch runbook. Every
 #: line the dispatcher adds has to fall outside it.
@@ -4577,7 +4577,7 @@ async def test_a_stop_mid_batch_finishes_the_in_flight_and_leaves_the_queue(
 async def test_a_probe_dequeued_as_the_run_stops_is_left_unrecorded(
     tmp_path: Path, gate: str
 ):
-    """§5.4: *both* stop conditions are read again before `mark_running`.
+    """*Both* stop conditions are read again before `mark_running`.
 
     The stop flag is set by a plain `signal.signal` handler, so it can flip at
     any bytecode boundary in the main thread — including between the worker's
@@ -5053,7 +5053,7 @@ async def test_a_void_with_a_stop_already_up_is_failed_without_a_retry(
     tmp_path: Path, gate: str
 ):
     """A retry is a new start, and nothing new starts after a stopper or a
-    signal (§5.4). The void is then recorded exactly as it was before D5."""
+    signal. The void is then recorded exactly as it was before D5."""
     plan = _two_probe_plan()
     lines: list[str] = []
     stopping = {"requested": False}

@@ -3,11 +3,11 @@
 Decoupled module — knows nothing about prompt templates, LLM providers, or schemas.
 Pure string-in / dataclass-out.
 
-Per Simulator Design § "Factual Reporter / dual-assessment architecture" (2026-08-31 schema):
+Under the "Factual Reporter / dual-assessment architecture" (2026-08-31 schema):
   <message>            — PA-visible dialog (always present)
   <factual_check>      — eval-only, conditional (empty when no PA fact errors)
   <turn_assessment>    — eval-only, every turn — next_beat + goal_already_met
-  <consent_decisions>  — eval-only, conditional (2026-09-05, IX wrapper §3.7 part 3):
+  <consent_decisions>  — eval-only, conditional (2026-09-05):
                          the PA-blind consent sideband. One entry per held item
                          the PA's last message asked this user to approve.
 
@@ -106,7 +106,7 @@ class TurnAssessment:
 
 @dataclass
 class ConsentDecision:
-    """One entry of the PA-blind consent sideband (IX wrapper §3.7 part 3).
+    """One entry of the PA-blind consent sideband.
 
     The simulated user knows whether this turn agreed or refused; the wrapper
     reads that as gate state, never as text for the model. `decision` is one of
@@ -167,7 +167,7 @@ class SimulatorOutputContractError(RuntimeError):
 
 
 #: The simulator-side rules that end a session as invalid (owner ruling
-#: 2026-09-08, plan §10 audit item 6). The first two were play-anyway hatches:
+#: 2026-09-08). The first two were play-anyway hatches:
 #: the beat whose scripted ask never reached the PA, and the three-block output
 #: that never parsed and was played on a defaulted `next_beat`. The third is the
 #: same failure one step further on: the dictation the session gate is keyed on,
@@ -178,7 +178,7 @@ SESSION_INVALID_RULES: tuple[str, ...] = (
     "beat_ask_unfulfilled",
     "simulator_output_format_invalid",
     "dictation_missing_key_terms",
-    # The four judge failures (local judge contract §4, §13 i). A judge that
+    # The four judge failures. A judge that
     # cannot be parsed, cannot quote what it read, ran out of clock or ran out
     # of budget has not answered, and a session recorded on a missing answer is
     # a session measured against nothing. No fallback, no pass-through.

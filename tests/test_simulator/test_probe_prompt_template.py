@@ -1,6 +1,6 @@
 """The probe session's simulator prompt template and its selection by kind.
 
-Design §2.4.4 / §0-A3: probe sessions use `generate_message_probe.md`, a
+Probe sessions use `generate_message_probe.md`, a
 sibling of `generate_message.md` that keeps the `<consent_decisions>` rules
 verbatim and differs only in the probe rule (correct content, never manner,
 never an earlier session).
@@ -91,7 +91,7 @@ def test_agent_context_builder_follows_the_kind() -> None:
 
 
 def test_both_templates_carry_the_same_consent_and_output_blocks() -> None:
-    """§2.4.4 hard requirement 1: the consent block must survive verbatim, or
+    """The consent block must survive verbatim, or
     every IX gate release fails closed on probes."""
     consent_rules = ("**`<consent_decisions>`**", "## Response skeleton")
     assert _section(BASE, *consent_rules) == _section(PROBE, *consent_rules)

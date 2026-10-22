@@ -180,7 +180,7 @@ def test_a_client_without_an_api_key_refuses_to_be_built(monkeypatch):
 
 
 def test_the_schema_pins_the_question_ids_and_their_count(captured):
-    """§3 wants one verdict per asked id. Said only in the parse, this model
+    """The rule is one verdict per asked id. Said only in the parse, this model
     answers the first question of a group and stops."""
     JudgeClient().generate(
         system="s", prompt="p", allowed={"rule__q1": ("yes", "no"), "rule__q2": ("yes", "no")}

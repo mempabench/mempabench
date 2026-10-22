@@ -1,6 +1,6 @@
-"""vLLM chat-completions client for the judge (contract §6).
+"""vLLM chat-completions client for the judge.
 
-An OpenAI-compatible endpoint, pinned model, temperature 0, the §3 schema
+An OpenAI-compatible endpoint, pinned model, temperature 0, the verdict schema
 passed as `response_format: json_schema` so the sampler honours it, one call at
 a time per process, a wall-clock deadline, and one unbuffered log line per call.
 The pool is one primary endpoint and its fallbacks, each carrying its own model
@@ -51,7 +51,7 @@ from simulator.judge.guards import ASK_GATE_VALUES, JudgeTimeout, strip_fences
 #: line of the log.
 
 #: Pinned, because it is the one the replay's gold table is measured against.
-#: `MEMPA_JUDGE_MODEL` overrides it for a deliberate model swap, which per §6
+#: `MEMPA_JUDGE_MODEL` overrides it for a deliberate model swap, which
 #: means re-running the replay. There is no second candidate and no fallback.
 DEFAULT_MODEL = "gemma-4-12b-it"
 
@@ -156,7 +156,7 @@ def effective_deadline_s(n_questions: int, floor: float = DEFAULT_DEADLINE_S) ->
     extra = max(0, n_questions - DEADLINE_FLOOR_QUESTIONS)
     return floor + extra * DEADLINE_PER_QUESTION_S * DEADLINE_HEADROOM
 
-#: `num_predict` follows the schema's width (§6). 300/400 truncated the wide
+#: `num_predict` follows the schema's width. 300/400 truncated the wide
 #: two-step schema mid-string; 900 truncated 21% of general-form replies.
 NUM_PREDICT = {"yes_no": 256, "wide": 600, "general": 2048}
 
@@ -193,7 +193,7 @@ def effective_num_predict(kind: str, n_questions: int) -> int:
     cap = NUM_PREDICT["general"]
     return needed if questions > cap else min(needed, cap)
 
-#: The §3 verdict schema, passed as `response_format` rather than asked for in
+#: The verdict schema, passed as `response_format` rather than asked for in
 #: prose. Unconstrained, this model answers a group of one with a fenced,
 #: unwrapped single verdict (step-0 probe, 2026-09-10), so the constraint is
 #: what makes the reply parseable at all.
@@ -227,11 +227,11 @@ VERDICT_SCHEMA: dict[str, Any] = {
 
 
 def verdict_schema(allowed: Mapping[str, Sequence[str]]) -> dict[str, Any]:
-    """§3's "one for one with the ids in the request", stated in the schema.
+    """The rule "one for one with the ids in the request", stated in the schema.
 
     Without the count, this model answers the first question of a group and
     stops: 21 of 57 two-step and per-fact calls came back well-formed, under
-    the token cap, and one verdict short. §3 already calls that a schema
+    the token cap, and one verdict short. That is already a schema
     failure, so it belongs in `response_format` where the sampler can honour
     it, rather than only in the parse that rejects it afterwards.
 
@@ -451,7 +451,7 @@ def load_endpoints(
 
 
 #: Concurrency is 1 per process, and a correctness choice rather than a
-#: performance one: a shared judge took a call from 2 seconds to 89 (§6).
+#: performance one: a shared judge took a call from 2 seconds to 89.
 _CALL_LOCK = threading.Lock()
 
 #: Proxy handlers empty: the endpoint must never be sent through the
@@ -568,7 +568,7 @@ class JudgeCall:
         that reached the cap says the same thing. A truncated reply is
         well-formed JSON up to the cut, so the parse rejects it and nothing
         downstream can tell the two apart — which is why `guards.ask` widens
-        instead of re-asking (§4(1)).
+        instead of re-asking.
         """
         if self.done_reason:
             return self.done_reason == "length"
@@ -1025,7 +1025,7 @@ class JudgeClient:
         """One real call with a real-shaped payload, before any run.
 
         Phase 2 uses it as the run gate: it must come back parseable against the
-        §3 schema, or the round does not start.
+        verdict schema, or the round does not start.
         """
         from simulator.judge.catalogue import PROBE_PROMPT, PROBE_SYSTEM
         from simulator.judge.guards import parse_verdicts

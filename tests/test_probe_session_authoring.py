@@ -1,5 +1,5 @@
-"""The `probe_session` branch of `scripts/session_authoring_schema.py` (design
-§2.1.3) and the runtime loader that dispatches on the same discriminator."""
+"""The `probe_session` branch of `scripts/session_authoring_schema.py`
+and the runtime loader that dispatches on the same discriminator."""
 
 from __future__ import annotations
 
@@ -95,7 +95,7 @@ TRIGGER = {
 
 
 def _triggered_probe() -> dict:
-    """The `proactive_outreach` shape (§2.1.2b): the record arrives, the PA decides,
+    """The `proactive_outreach` shape: the record arrives, the PA decides,
     and the two openings are the beats -- both declaring the attribute."""
     data = _probe()
     data["meta"].update(probe_id="fin_09", session_id="fin_09", cell="work_proactive_outreach")
@@ -271,7 +271,7 @@ def test_opening_beats_still_belong_to_a_triggered_probe_alone() -> None:
 
 
 def test_the_runtime_loader_reads_a_triggered_probe(tmp_path: Path) -> None:
-    """§2.1.2b: the probe is the PA's own trigger turn, so the script runs as the
+    """The probe is the PA's own trigger turn, so the script runs as the
     accumulation side's triggered session does -- one exchange, then it stops."""
     path = tmp_path / "fin_09.yaml"
     path.write_text(yaml.safe_dump(_triggered_probe()), encoding="utf-8")

@@ -390,7 +390,7 @@ class SessionManager:
         src = self._get_session_path(session.key)
         shutil.copy2(str(src), str(checkpoint_path))
 
-        # §6.1(b): the journal is saved and restored with the checkpoint. A
+        # The journal is saved and restored with the checkpoint. A
         # session restored without it loses the pool writes its records still
         # owe. A session that has written none has nothing to copy.
         src_journal = journal_path(self.sessions_dir, session.key)

@@ -465,7 +465,7 @@ def test_setting_for_reads_the_record_by_kind() -> None:
         setting_for("post", {"setting": "S"})
 
 
-# ── §7 row 8: the frozen resolved_gt copy ──────────────────────────
+# ── the frozen resolved_gt copy ──────────────────────────
 
 
 def test_with_probes_records_the_frozen_resolved_gt(synthetic_root: Path) -> None:

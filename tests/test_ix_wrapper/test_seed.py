@@ -1,6 +1,6 @@
 """`--force-ix`: forcing one IX setting for the PA in a validation run.
 
-Plan §7.3 rows 1b/5 need settings user_a's matrix never produces (`Bookend`,
+Some validation cases need settings user_a's matrix never produces (`Bookend`,
 `Reactive`). They assumed the simulator's preference overlay could make them,
 but that overlay only rewrites the *user* matrix — nothing of it reaches the PA.
 `harness/ix_seed.py` seeds the PA's own per-session selection cache instead, and
@@ -90,7 +90,7 @@ def test_seeded_setting_renders_and_its_selection_tool_is_not_offered(
 # so `IX_proactive_outreach` is still offered -- it has to be, it is the only
 # carrier of the candidate contact -- and the model's own answer used to
 # overwrite the seed in `_ix_selection_cache` before the renderer read it. The
-# seed is `forced` now, so the renderer applies §3.1's override instead.
+# seed is `forced` now, so the renderer applies its override instead.
 
 
 async def _proactive(loop):

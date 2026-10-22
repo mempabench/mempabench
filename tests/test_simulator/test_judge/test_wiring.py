@@ -619,7 +619,7 @@ def test_preflight_passes_on_a_probe_that_parses(monkeypatch) -> None:
 
 # -------------------------------------------------------------- the gate rule
 #
-# Phase 3 commit 3 (plan §C step 3, §2(c)), merged into one rule on the owner's
+# Phase 3 commit 3, merged into one rule on the owner's
 # ruling of 2026-09-09. The semantic regex went in that commit, so the judge is
 # the only thing that can produce the finding: `off` produces it on neither arm
 # of the union, and on both it is the judge's answer composed against the
@@ -980,7 +980,7 @@ def test_a_repeated_avoid_violation_never_spends_an_attempt() -> None:
 
 def test_the_instruction_is_asked_only_on_the_turn_it_binds() -> None:
     """An instruction covers a beat and a beat runs over several turns. Eight of
-    the 28 false alarms the §11 measurement counted were the judge reading a
+    the 28 false alarms a measurement counted were the judge reading a
     beat-wide instruction as owed by every turn of the beat."""
     client = ScriptedJudgeClient()
     _run_general(
@@ -1095,7 +1095,7 @@ def test_a_blocking_judge_call_leaves_the_event_loop_running(site: str) -> None:
     """The judge client is synchronous `urllib` under a process-wide lock, so
     on the loop one call left every other coroutine's in-flight HTTP unread for
     its whole length -- and with more than one session at a time that is
-    another session's request budget (probe parallel runner plan §9, risk (f)).
+    another session's request budget.
 
     Every armed site goes out through `asyncio.to_thread`, so a sibling
     coroutine gets to run while the call is out -- and it is the sibling that

@@ -102,7 +102,7 @@ class GeneratedFrom(BaseModel):
 
 
 class FrozenResolvedGT(BaseModel):
-    """The run's frozen copy of the persona's `resolved_gt.yaml` (§7 row 8).
+    """The run's frozen copy of the persona's `resolved_gt.yaml`.
 
     Copied into the run directory when the plan is frozen; the judge packer
     reads only this copy, never the authoring file.

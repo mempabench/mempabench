@@ -1,6 +1,6 @@
 """T22 — the contract-12 version boundary, on the artefacts a run produces.
 
-Plan §7.2 P7, §7.1 contract 12. A frozen `RunPlan` records its
+A frozen `RunPlan` records its
 `ix_contract_version` and identity triple; nothing refuses a plan on them.
 What is here is (b) and (c): what an old `ix_render` record does on the way
 into a judge pack, and whether the records a live turn produces really carry

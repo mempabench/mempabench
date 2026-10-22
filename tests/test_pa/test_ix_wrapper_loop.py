@@ -1,4 +1,4 @@
-"""Loop-level IX wrapper contracts (plan §2.4, §3.6, §3.7, §4.2).
+"""Loop-level IX wrapper contracts.
 
 These are not "does the renderer format nicely" tests. Each one asks whether a
 semantic boundary can be walked around: can held content reach history or
@@ -549,7 +549,7 @@ def test_an_open_hold_is_reported_at_the_step_boundary_and_cleared_with_the_sett
 
 
 # ---------------------------------------------------------------------------
-# §3.7 (part 3) · a verdict is consent only while the wrapper is holding the id
+# a verdict is consent only while the wrapper is holding the id
 # ---------------------------------------------------------------------------
 
 def test_a_stale_allow_does_not_release_anything_after_the_episode_closed(

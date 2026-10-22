@@ -97,7 +97,7 @@ _TASK_CALL = ToolCallRecord(
 
 
 def _gate_turn(setting_attribute: str = "autonomy_level") -> IXRenderInput:
-    """One read executed, the external action stopped before it ran (§3.3 (part 2)·D)."""
+    """One read executed, the external action stopped before it ran."""
     return _input(
         segments=["Checked the shop, the pull list is up to date."],
         calls=[
@@ -142,7 +142,7 @@ def _open_episode(attribute: str, rounds_open: int, **held) -> IXHold:
     )
 
 
-# --- reasoning_visibility (§3.2) --------------------------------------------
+# --- reasoning_visibility --------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -161,12 +161,12 @@ def test_reasoning_visibility_releases_only_under_show(setting: str, shown: bool
     assert (rationale in rendered.message) is shown
     assert "It is the first of the two emails." in rendered.message
     if shown:
-        # §3.2: the rationale is rendered as a paragraph *before* the answer.
+        # The rationale is rendered as a paragraph *before* the answer.
         assert rendered.message.index(rationale) < rendered.message.index("It is the first")
 
 
 def test_provider_reasoning_is_never_rendered() -> None:
-    """§3.2 — provider reasoning is audit-only, whatever the setting."""
+    """Provider reasoning is audit-only, whatever the setting."""
     rendered = render(
         _input(
             segments=["The 09:40 works."],
@@ -179,7 +179,7 @@ def test_provider_reasoning_is_never_rendered() -> None:
     assert "think" not in rendered.message
 
 
-# --- uncertainty_expression (§3.1 uncertainty row) --------------------------
+# --- uncertainty_expression --------------------------
 
 
 @pytest.mark.parametrize(
@@ -210,7 +210,7 @@ def test_uncertainty_expression_parentheses_per_setting(
     assert "[[c:" not in rendered.message
 
 
-# --- process_visibility (§3.1 process row, T14) -----------------------------
+# --- process_visibility (T14) -----------------------------
 
 
 @pytest.mark.parametrize(
@@ -260,7 +260,7 @@ def test_process_visibility_notices_and_completion(
 
 
 def test_completion_message_is_never_taken_from_the_prose() -> None:
-    """§3.1 process row — an ordinary last paragraph is not a completion line."""
+    """An ordinary last paragraph is not a completion line."""
     rendered = render(
         _input(segments=["Monday 10:00 is booked. All done."], payloads=TurnPayloads()),
         {"process_visibility": "Bookend"},
@@ -346,7 +346,7 @@ def test_a_completion_that_is_not_the_prose_tail_is_still_appended(setting: str)
 
 @pytest.mark.parametrize("setting", ["Bookend", "Full narration"])
 def test_a_gate_turn_skips_the_completion_line_and_records_why(setting: str) -> None:
-    """§4.4 — the gate's ask ends the turn, so no closing line is delivered.
+    """The gate's ask ends the turn, so no closing line is delivered.
 
     `loop.py` used to write `completion.released` from the setting plus a
     non-empty `completion_message`, independent of which branch the renderer
@@ -417,7 +417,7 @@ def test_a_clean_completion_is_untouched_by_the_post_strip_check() -> None:
     assert rendered.withheld_narration == []
 
 
-# --- autonomy_level (§3.3) --------------------------------------------------
+# --- autonomy_level --------------------------------------------------
 
 
 @pytest.mark.parametrize("setting", ["Reactive", "Self-directed"])
@@ -438,7 +438,7 @@ def test_autonomy_gate_delivers_the_per_call_ask_verbatim(setting: str) -> None:
 
 @pytest.mark.parametrize("setting", ["Autonomous", UNSET])
 def test_autonomy_gate_off_settings_render_the_same_shape(setting: str) -> None:
-    """§3.3 (part 2)·B — these two open no gate, so the renderer has nothing to hold."""
+    """These two open no gate, so the renderer has nothing to hold."""
     render_input = _input(
         segments=["Sent the extension request to Dale."],
         calls=[
@@ -464,7 +464,7 @@ def test_autonomy_gate_off_settings_render_the_same_shape(setting: str) -> None:
 
 
 def test_gate_without_a_written_ask_is_recorded_not_invented() -> None:
-    """§3.3 (part 2)·C — the renderer never writes the ask for the PA."""
+    """The renderer never writes the ask for the PA."""
     render_input = _gate_turn()
     silent_call = render_input.calls[1]
     render_input = IXRenderInput(
@@ -487,7 +487,7 @@ def test_gate_without_a_written_ask_is_recorded_not_invented() -> None:
     assert any("ix_gate_no_message" in step for step in rendered.trace)
 
 
-# --- capability_boundary (§3.5) ---------------------------------------------
+# --- capability_boundary ---------------------------------------------
 
 
 def test_find_and_hand_off_ends_the_turn_with_the_handoff_message() -> None:
@@ -523,7 +523,7 @@ def test_find_and_hand_off_ends_the_turn_with_the_handoff_message() -> None:
 
 @pytest.mark.parametrize("setting", ["Suggest alternatives", UNSET])
 def test_capability_boundary_without_a_gate_holds_nothing(setting: str) -> None:
-    """§3.5 (part 3) — no gate means the PA keeps going; nothing is held."""
+    """No gate means the PA keeps going; nothing is held."""
     rendered = render(
         _input(
             segments=["The full text is not available; I will try the preprint instead."],
@@ -542,7 +542,7 @@ def test_capability_boundary_without_a_gate_holds_nothing(setting: str) -> None:
     assert rendered.hold_next.open_episodes == {}
 
 
-# --- topic_management (§3.4) ------------------------------------------------
+# --- topic_management ------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -572,7 +572,7 @@ def test_topic_management_batch_release(
 
 
 def test_unmarked_prose_ships_on_a_turn_with_held_batches() -> None:
-    """§8 item 2 option A — the framing line goes out, the held bodies do not."""
+    """The framing line goes out, the held bodies do not."""
     rendered = render(
         _input(segments=[THREE_BATCHES], payloads=BATCH_PAYLOADS),
         {"topic_management": "One-at-a-time"},
@@ -581,7 +581,7 @@ def test_unmarked_prose_ships_on_a_turn_with_held_batches() -> None:
     assert "finance has not signed it off" not in rendered.message
 
 
-# --- information_elicitation (§3.4 (part 2)) --------------------------------------
+# --- information_elicitation --------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -718,7 +718,7 @@ def test_a_released_question_does_not_ship_the_held_ones_bullet() -> None:
 
 
 def test_structured_closes_the_episode_when_everything_is_released() -> None:
-    """§4.1 — the episode closes, so a later task can open a new elicitation_id."""
+    """The episode closes, so a later task can open a new elicitation_id."""
     # The carried question is one this turn releases: "everything" has to mean
     # the episode's own pending set too, or the episode is not empty and does
     # not close.
@@ -733,7 +733,7 @@ def test_structured_closes_the_episode_when_everything_is_released() -> None:
     assert rendered.hold_next.finished_episodes[-1].closed is True
 
 
-# --- proactive_outreach (§3.1 proactive row, contract 11) -------------------
+# --- proactive_outreach (contract 11) -------------------
 
 
 @pytest.mark.parametrize(
@@ -778,7 +778,7 @@ def test_proactive_setting_overrides_a_contradicting_action() -> None:
     assert rendered.message == "Your order is ready."
 
 
-# --- pass-through attributes (§3.1, §3.6) -----------------------------------
+# --- pass-through attributes -----------------------------------
 
 
 @pytest.mark.parametrize("attribute", sorted(PASS_THROUGH_ATTRIBUTES))
@@ -862,7 +862,7 @@ def test_a_turn_with_no_selection_at_all_still_strips_all_three_marker_kinds() -
     _assert_unset_fallback(render(_all_three_marker_kinds()))
 
 
-# --- hold bookkeeping (§4.1, §3.7 (part 4)) ---------------------------------------
+# --- hold bookkeeping ---------------------------------------
 
 
 def test_an_empty_batch_render_does_not_rename_the_open_episode() -> None:
@@ -1036,7 +1036,7 @@ def _carried(rendered) -> list[str]:
 
 
 def test_a_keep_decision_leaves_the_item_held() -> None:
-    """§3.7 (part 3) — `keep` is a normal answer, not the end of the episode."""
+    """`keep` is a normal answer, not the end of the episode."""
     hold = _open_episode("autonomy_level", 1, calls_held=[_held_call("i1")])
     rendered = render(
         _input(
@@ -1097,7 +1097,7 @@ def test_handling_one_held_item_does_not_drop_the_others() -> None:
 
 
 def test_a_carried_item_reaches_the_hard_cap_and_is_cancelled() -> None:
-    """§3.7 (part 4) — the rounds keep counting while the item is still waiting."""
+    """The rounds keep counting while the item is still waiting."""
     hold = _open_episode(
         "autonomy_level", HOLD_ROUNDS_HARD_CAP - 1, calls_held=[_held_call("i1")]
     )
@@ -1208,7 +1208,7 @@ def test_a_continuation_that_releases_one_question_leaves_the_other_held() -> No
 
 
 def test_carried_questions_reach_the_cap_and_are_cancelled() -> None:
-    """§3.7 (part 4), owner decision 2026-09-06 — the cap writes no close line.
+    """Owner decision 2026-09-06 — the cap writes no close line.
 
     The reply is the PA's prose and nothing else. The cancellation is a fact of
     the audit plane: the ids are on the finished episode, `close_line_source` is
@@ -1230,7 +1230,7 @@ def test_carried_questions_reach_the_cap_and_are_cancelled() -> None:
 
 
 def test_a_cap_closed_turn_delivers_the_pa_prose_and_nothing_else() -> None:
-    """Owner decision 2026-09-06 (§10 item d): no template text on the force-close.
+    """Owner decision 2026-09-06: no template text on the force-close.
 
     Live `v11s02` t11 answered the held question in prose and the renderer then
     appended "I have not done meeting_duration; it is on hold." underneath it:
@@ -1311,7 +1311,7 @@ def test_a_fresh_hold_joins_the_carried_ones_without_duplicating_them() -> None:
 
 
 def test_a_bare_release_folds_the_carried_questions_into_the_reply() -> None:
-    """§4.3, owner decision 2026-09-06 — `release` alone settles a question.
+    """Owner decision 2026-09-06 — `release` alone settles a question.
 
     The hold reminder tells the PA that "a reply carrying none of them is
     released whole", so a released question with no `[[q:…]]` marker was asked
@@ -1392,7 +1392,7 @@ def test_a_released_question_that_carries_its_marker_is_not_folded() -> None:
 def test_a_batch_released_without_its_marker_stays_pending() -> None:
     """Only questions fold. A batch settles on delivery, or on a bound call.
 
-    `release` is the PA's intent (§3.7 (part 3)); a batch that was neither
+    `release` is the PA's intent; a batch that was neither
     re-marked nor executed is still the user's to receive.
     """
     hold = _open_episode(
@@ -1418,7 +1418,7 @@ def test_a_bare_release_at_the_round_cap_folds_instead_of_cancelling() -> None:
 
     `rounds_open == 3` means this turn is the one that reaches
     `HOLD_ROUNDS_HARD_CAP`. The PA answers both carried questions in its own
-    prose and reports `release` on each, so by §4.3 they are settled — there is
+    prose and reports `release` on each, so they are settled — there is
     nothing left for the cap to cancel, and the user must not be told "it is on
     hold" about a question they were just asked.
     """
@@ -1446,10 +1446,10 @@ def test_a_bare_release_at_the_round_cap_folds_instead_of_cancelling() -> None:
     assert rendered.message == "Aisle or window, and which card should I put it on?"
 
 
-# --- the §4.3 hold reminder: one sentence per marker kind --------------------
+# --- the hold reminder: one sentence per marker kind --------------------
 
 
-#: The two rules the reminder states, each in its own sentence (§4.3). A carried
+#: The two rules the reminder states, each in its own sentence. A carried
 #: question with a bare `release` folds into the reply; a carried batch has no
 #: such fold and is still owed when the episode closes.
 _RELEASED_WHOLE = "a reply carrying none of them is released whole"
@@ -1508,7 +1508,7 @@ def test_a_turn_holding_both_kinds_gets_both_sentences_each_with_its_own_ids() -
 
 
 def test_trivial_turn_passes_the_final_segment_through() -> None:
-    """§2.3 — no IX selection at all is the plain pass-through, not a bypass."""
+    """No IX selection at all is the plain pass-through, not a bypass."""
     hold = IXHold()
     rendered = render(
         IXRenderInput(segments=["thinking out loud", "The 09:40 works."], hold=hold), {}
@@ -1522,7 +1522,7 @@ def test_trivial_turn_passes_the_final_segment_through() -> None:
 
 
 def test_an_unrecognised_marker_never_reaches_the_user() -> None:
-    """§3.1.1 — a bracket shape the wrapper cannot read is still internal."""
+    """A bracket shape the wrapper cannot read is still internal."""
     rendered = render(
         _input(segments=["The 09:40 works. [[topic:1]] I will hold the rest."]), {},
     )
@@ -1715,7 +1715,7 @@ def test_a_whole_sentence_after_the_wrapped_line_is_kept() -> None:
     assert text.endswith("Both records now carry the 2021 date.")
 
 
-# --- §3.7 (part 3) · consent is scoped to what the ask named -----------------------
+# --- consent is scoped to what the ask named -----------------------
 
 
 def test_only_the_ids_the_ask_named_are_marked_asked() -> None:

@@ -1,4 +1,4 @@
-"""Append-only per-session journal of pool writes (plan §6.1 (b), (c), (e)).
+"""Append-only per-session journal of pool writes.
 
 The pool a turn writes cannot be re-derived from `session.messages`: the
 persisted slice drops intermediate prose, held call declarations and the final
@@ -16,7 +16,7 @@ Two completion tracks, because two backends commit differently:
 * `file_consolidated` — the second completion mark, for the file condition,
   whose `record_event` is a documented no-op returning
   `deferred_to_file_consolidation` and whose real write happens later, at
-  consolidation time (§6.1 (e)). `mark_file_consolidated` moves this flag only;
+  consolidation time. `mark_file_consolidated` moves this flag only;
   it does not touch `state`.
 
 One more mark, for the file condition only: `dropped_from_files` names a turn
@@ -53,12 +53,12 @@ acknowledges and before the cursor advances (`pa/agent/loop.py:1596-1613`).
 Step 9 reads `resume_pending()`: its `.records` are the pools to re-write and
 its `.turn_ids` are what the resume log must list. Two further step-9 duties
 live outside this module: the checkpoint must carry the journal file alongside
-`session.jsonl` (§6.1 (b), "The journal is saved and restored with the
-checkpoint" — `pa/session/manager.py:360-378` copies only the session file
+`session.jsonl` (the journal is saved and restored with the
+checkpoint — `pa/session/manager.py:360-378` copies only the session file
 today).
 
 The FE line's realized artefacts (tool results, world ids, the `$call_*`
-reference map, §6.1 (d)) ride in the optional `realized` field. Its producer is
+reference map) ride in the optional `realized` field. Its producer is
 `harness/forced_event_executor.py:_prepare_exchange`, which writes the pending
 record once the exchange's world calls have run and before the first
 `session_manager.save`; `_prepare_exchange` reads the field back on a resume and
@@ -296,7 +296,7 @@ class TurnJournal:
         return self._records[cursor.index :]
 
     def records_through_message_index(self, end_index: int) -> list[JournalRecord]:
-        """The journal prefix whose turns end at or before `end_index` (§6.1 (e)).
+        """The journal prefix whose turns end at or before `end_index`.
 
         Zero-span records belong to the turn that produced them, so a `[n,n)`
         record is carried with that prefix: the prefix ends at the first record
@@ -352,7 +352,7 @@ class TurnJournal:
         return self._records[index]
 
     def mark_file_consolidated(self, turn_ids: Iterable[str]) -> None:
-        """Mark the second completion track for the file condition (§6.1 (e))."""
+        """Mark the second completion track for the file condition."""
         ids = [turn_id for turn_id in turn_ids]
         indices = [self._index_of(turn_id) for turn_id in ids]
         unmarked = [
@@ -394,7 +394,7 @@ class TurnJournal:
             )
 
     def open_boundary(self) -> Path | None:
-        """Rotate the journal aside and open an empty one (`/new`, §9 step 7).
+        """Rotate the journal aside and open an empty one (`/new`).
 
         `<name>.journal.jsonl` becomes `<name>.journal.<n>.jsonl` with `n` the
         next free integer, so the cleared session's turn ids and spans cannot
@@ -541,13 +541,13 @@ async def replay_pending_turns(
 ) -> list[str]:
     """Rewrite every `pending` record's pool and return the ids, in order.
 
-    §6.1 (a), Q5: **at-least-once, declared.** A turn whose adapter write was
+    **At-least-once, declared.** A turn whose adapter write was
     acknowledged but whose state never reached disk is written a second time,
     and the duplicate is left for the backend to absorb — no adapter carries an
     idempotency key. Nothing here dedupes, and no exactly-once claim is made.
 
-    The authority for the skip is the record's `state`, never a message index
-    (§6.1 (c)), which is what makes a zero-span turn resumable: a suppressed
+    The authority for the skip is the record's `state`, never a message index,
+    which is what makes a zero-span turn resumable: a suppressed
     outreach's span is `[n, n)` and no index can tell "sent" from "never sent".
 
     The pool is the one the interrupted turn rendered, read back off the record
@@ -607,7 +607,7 @@ async def replay_pending_turns(
             require_committed=require_committed,
         )
         logger.info(
-            "Resume rewrote turn {} of session {} (at-least-once, §6.1 (a))",
+            "Resume rewrote turn {} of session {} (at-least-once)",
             record.turn_id,
             session.key,
         )

@@ -6,7 +6,7 @@ cell. An entry is exactly five blocks plus one provenance field: identity
 `cell`), the world point (`clock`), the world material (`world`), the ask
 (`ask`) and the criteria (`answer`), plus `errand` — and, on a
 `proactive_outreach` cell alone, the `trigger` block that attribute's probe is
-fired by instead of a question (§2.1.2b, A12). Nothing else — no story,
+fired by instead of a question. Nothing else — no story,
 no phases, no opening, no identity section — because probes need neither
 diversity nor a causal chain.
 
@@ -58,7 +58,7 @@ def resolve_choice_refs(value: Any, selected: dict[str, dict[str, Any]]) -> Any:
 
 #: The probe errand deck. Same shape as the acc deck (`^[wp][1-6]_…` in
 #: `scripts/outline_schema.py`) but cycle digit 0 is reserved for probes, so the
-#: two decks' id spaces never intersect (§2.1.2). Widened to `[0-6]` here ONLY;
+#: two decks' id spaces never intersect. Widened to `[0-6]` here ONLY;
 #: the acc schema keeps `[1-6]`.
 PROBE_ERRAND_ID_RE = re.compile(r"^[wp][0-6]_[a-z0-9_]+$")
 
@@ -301,7 +301,7 @@ class ProbeAsk(StrictModel):
 
 
 class ProbeTrigger(StrictModel):
-    """The arrival a `proactive_outreach` probe is read on (A12, §2.1.2b).
+    """The arrival a `proactive_outreach` probe is read on.
 
     That attribute is the one an external event fires instead of a user turn, so
     its probe reuses the accumulation side's triggered shape: `trigger_id` /

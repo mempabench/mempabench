@@ -1232,7 +1232,7 @@ def test_run_restorable_folds_the_plan_contract_into_the_snapshot_verdict(
     assert any("unreadable run_plan.yaml" in reason for reason in reasons)
 
 
-# ── §7 #51 · IX contract version boundary ─────────────────────────
+# ── IX contract version boundary ─────────────────────────
 
 
 def test_save_stamps_the_running_ix_wrapper(tmp_path: Path) -> None:

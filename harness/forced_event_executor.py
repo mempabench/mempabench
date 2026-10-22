@@ -59,7 +59,7 @@ class ForcedEventExecutionError(RuntimeError):
 def _exchange_turn_id(transcript: ForcedEventTranscript, index: int) -> str:
     """The one id an exchange's adapter event and journal record both carry.
 
-    §6.1 (c) matches receipt to record by `turn_id`, which two sites deriving
+    Receipt and record are matched by `turn_id`, which two sites deriving
     their own strings cannot do -- the defect step 7 found on the ACC line and
     fixed with `PAAgentLoop._turn_id`. This is the FE line's single id, the
     string the adapter event already carried before the journal existed; no
@@ -74,7 +74,7 @@ class _PreparedExchange:
     timestamp: datetime
     session_messages: list[dict[str, Any]]
     transcript_events: list[dict[str, Any]]
-    #: The id the journal record and the adapter event both carry (§6.1 (c)).
+    #: The id the journal record and the adapter event both carry.
     turn_id: str
     #: The `session.messages` slice this exchange owns. Zero-span (`[n, n)`)
     #: when the exchange added no PA-visible message.
@@ -256,7 +256,7 @@ class ForcedEventExecutor:
         record = self._journal_record(turn_id)
         realized = self._realized_artefacts(turn_id, record, items)
         if record is not None:
-            # §6.1 (d) case (i): the exchange is realized. Its `$call_*`
+            # The exchange is realized. Its `$call_*`
             # reference map goes back into the replay before any argument is
             # resolved, so a reference this exchange's own later call makes
             # resolves to the id the first run minted -- and the registry is
@@ -486,8 +486,8 @@ class ForcedEventExecutor:
             # journalled, because its world actions are realized all the same.
             span = (self._span_cursor, self._span_cursor + len(session_messages))
             self._span_cursor = span[1]
-            # Durable before the first `session_manager.save` (§6.1 (b), §12
-            # 7b) -- and here that is the whole preparation loop earlier, not
+            # Durable before the first `session_manager.save`
+            # -- and here that is the whole preparation loop earlier, not
             # just one statement: `run_session` prepares every exchange before
             # it commits any (`:131-143`, `:159`). The record is written at the
             # end of preparation rather than at the top because `realized` does
@@ -518,8 +518,8 @@ class ForcedEventExecutor:
     def _open_journal(self) -> None:
         """Bind this step's journal and the span it will write into.
 
-        Read fresh, so a resume sees what the crashed run left behind (§6.1
-        (d)). The span cursor starts where the session already ends: on a first
+        Read fresh, so a resume sees what the crashed run left behind.
+        The span cursor starts where the session already ends: on a first
         run that is the PA's own tail, on a resume it already includes any
         exchange the crashed run committed — and an exchange that already has a
         record carries its own span anyway.
@@ -543,7 +543,7 @@ class ForcedEventExecutor:
     def _realized_artefacts(
         self, turn_id: str, record: Any, items: list[Any]
     ) -> dict[str, Any]:
-        """What the world handed this exchange back, restored or empty (§6.1 (d)).
+        """What the world handed this exchange back, restored or empty.
 
         No compat path: a record for an exchange that touched the world and
         carries no `realized` cannot say which calls already ran, and the only
@@ -1041,7 +1041,7 @@ def _tool_call_messages(
             "tool_call_id": item.call_id,
             "name": item.name,
             "timestamp": timestamp_text,
-            # §3.3: a `[tool_result]` inherits the offset of the item that
+            # A `[tool_result]` inherits the offset of the item that
             # produced it, so both halves of one call carry the call's own.
             "offset_seconds": item.offset_seconds,
         },
@@ -1078,7 +1078,7 @@ def _pa_turn_event(
 
 
 def _compact_json(value: Any) -> str:
-    """The canonical compact JSON of §3.3, for an object the FE line holds.
+    """The canonical compact JSON, for an object the FE line holds.
 
     The wire form is never spelled a second time here: this serialises once and
     hands the text to `memory.event_writer`'s canonicaliser, which is the one

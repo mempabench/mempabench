@@ -536,7 +536,7 @@ PROBE_ID_PATTERN = r"^(fin|pre)_\d{2}$"
 
 
 class ProbeSessionMeta(StrictModel):
-    """`meta` of the `probe_session` branch (design §2.1.3 table).
+    """`meta` of the `probe_session` branch.
 
     Identity is `probe_id` + `probe_kind` + `cell`; `context` and
     `target_attribute` are derived from `cell` and never authored. No
@@ -609,14 +609,14 @@ class ProbeSessionDraft(StrictModel):
     """The `probe_session` branch: the `NormalSessionDraft` skeleton without
     `assistance_emergence`, and a fixed beat shape -- 0-2 setup beats that
     declare no `active_skills`, then exactly one active beat that declares the
-    cell's attribute (design §2.1.3, C5). `task_execution` / `task_facts` /
+    cell's attribute. `task_execution` / `task_facts` /
     `reveal_at` / `gate_cue_beat` mean what they mean on the normal branch.
     `world` is the outline entry's `world[]` carried over verbatim, so
     `validate_probe_suite --drafts` (S3) can compare a pair's material.
 
     A `proactive_outreach` probe is the one exception to that beat shape: it is
     triggered rather than asked, so it carries `proactive_trigger` and its beats
-    are exactly the two openings, both declaring the attribute (§2.1.2b).
+    are exactly the two openings, both declaring the attribute.
     """
 
     meta: ProbeSessionMeta
@@ -626,7 +626,7 @@ class ProbeSessionDraft(StrictModel):
     life_context: SessionLifeContext
     beats: list[AuthoringBeat] = Field(min_length=1, max_length=3)
     world: list[ProbeWorldObject] = Field(min_length=1)
-    # `proactive_outreach` alone (design §2.1.2b): that attribute is read by an
+    # `proactive_outreach` alone: that attribute is read by an
     # arriving record instead of a question, so its probe reuses the
     # accumulation side's triggered shape -- this block and the two openings
     # instead of an ask beat.

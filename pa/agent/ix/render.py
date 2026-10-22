@@ -57,12 +57,12 @@ from pa.agent.ix.render_types import (
 
 #: A `[[batch:…]]` or `[[q:…]]` marker opens a section that owns the prose after
 #: it until the next marker. Prose before the first marker carries no id and is
-#: delivered every turn (§8 item 2, owner option A).
+#: delivered every turn.
 _SECTION_MARKER_RE = re.compile(
     f"(?P<batch>{BATCH_MARKER_RE.pattern})|(?P<question>{QUESTION_MARKER_RE.pattern})"
 )
 
-#: §3.7 (part 4), owner decision 2026-09-06 (§10 item d) · the forced close writes
+#: Owner decision 2026-09-06 · the forced close writes
 #: **no** user-visible text. The renderer used to compose one sentence here when
 #: the round cap cancelled an item and the PA wrote no `closing_message`, and the
 #: line did more harm than the silence it covered: live `v11s02` t11 appended
@@ -72,7 +72,7 @@ _SECTION_MARKER_RE = re.compile(
 #: (`ix_hold_forced_close` / `ix_close_no_message` / `cancelled_items` /
 #: `close_line_source: none`); the PA's own `closing_message` still delivers.
 
-#: §3.3 (part 2)·A · the second safety line, on the other fail-closed exit. A binding
+#: The second safety line, on the other fail-closed exit. A binding
 #: refusal takes every task call in the turn and opens no gate, so the user is
 #: owed a sentence saying the steps did not run — live `v7r06` t18 dropped three
 #: reads in silence. Same justification as the cancelled line: the alternative
@@ -396,12 +396,12 @@ def clean_delivered_text(text: str) -> str:
 _BATCH = "batch"
 _QUESTION = "question"
 
-#: §3.3 (part 2)·C — the two attributes whose gate delivers a per-call ask verbatim.
+#: The two attributes whose gate delivers a per-call ask verbatim.
 #: Every other gate (a released-questions turn, a withheld batch) stops the turn
 #: without owing the user a sentence, so a missing ask there is not a failure.
 ASK_BEARING_ATTRIBUTES = frozenset({"autonomy_level", "capability_boundary"})
 
-#: §3.3 (part 2)·B — the action types a release actually buys. A read costs nothing.
+#: The action types a release actually buys. A read costs nothing.
 WORLD_CHANGING_ACTION_TYPES = frozenset({"internal_write", "external_action"})
 
 #: Hold reasons that are *not* a cross-turn hold: a fail-closed binding batch is
@@ -517,7 +517,7 @@ class _Section:
 
 
 # ---------------------------------------------------------------------------
-# public helpers (P2 builds the §4.4 blob with these, so the rules live once)
+# public helpers (the `ix_render` blob is built with these, so the rules live once)
 # ---------------------------------------------------------------------------
 
 
@@ -536,7 +536,7 @@ def released_item_ids(payloads: TurnPayloads, setting: str) -> set[str] | None:
 
     ``None`` means "no batch restriction" (Organize, unset, or no batches).
     ``One-at-a-time`` releases only the first batch, so only calls bound to it
-    run; the rest are held before execution, not after (§3.4 (part 3)).
+    run; the rest are held before execution, not after.
 
     It lives here rather than next to the gate because the renderer needs the
     same answer to decide which held calls belong to the topic episode, and two
@@ -552,7 +552,7 @@ def released_item_ids(payloads: TurnPayloads, setting: str) -> set[str] | None:
 def released_ids(
     render_input: IXRenderInput, settings: Mapping[str, str] | None = None
 ) -> dict[str, list[str]]:
-    """§4.4 ``released`` — what this turn actually let out, by id.
+    """``released`` — what this turn actually let out, by id.
 
     Pure, and deliberately re-derived from the same inputs `render` used rather
     than threaded out of it: `RenderedTurn` has no slot for these audit rows.
@@ -635,7 +635,7 @@ def render(
     `reason`, plan and batch ids). They are what tells the write-back which
     episode a held call belongs to: a call withheld because its batch was not
     released belongs to `topic_management`, not to whichever attribute happened
-    to own the gate — and on a batch hold no gate is opened at all (§3.4 (part 3)).
+    to own the gate — and on a batch hold no gate is opened at all.
     Callers that have no such records get the older gate-owned reading.
     """
     chosen = {attr: (value or "").strip() for attr, value in (settings or {}).items()}
@@ -690,7 +690,7 @@ def render(
 
     parts: list[str] = []
     parts.extend(_notices(render_input.calls, chosen.get("process_visibility", ""), trace))
-    # §3.2 — P3's pure branch: `Show` releases the PA's own rationale, everything
+    # `Show` releases the PA's own rationale, everything
     # else keeps it on the audit side. Provider reasoning never reaches it.
     rationale = render_rationale(
         chosen.get("reasoning_visibility", ""),
@@ -709,7 +709,7 @@ def render(
     completion_line = ""
     if gate_ask is not None:
         parts.append(gate_ask)
-        # §4.4: the ask is the end of the turn, so the closing line the process
+        # The ask is the end of the turn, so the closing line the process
         # setting would have released has nowhere to go. Recorded, because the
         # audit plane must say what reached the user — not what the setting
         # would have allowed.
@@ -719,7 +719,7 @@ def render(
         completion = _completion(
             chosen.get("process_visibility", ""), payloads, render_input.calls, trace,
         )
-        # §3.1 process row: the completion line is a field, but the model often
+        # The completion line is a field, but the model often
         # writes the same sentence as its own closing prose *and* puts it in
         # `completion_message`. Appending it then ships it twice — live `v7r01`
         # t13 and t22 under `Full narration`. Released either way; the field is
@@ -747,7 +747,7 @@ def render(
             close_line_source = "payload"
             trace.append("hold -> forced close, closing_message delivered")
         else:
-            # §3.7 (part 4), owner decision 2026-09-06: the renderer writes nothing.
+            # Owner decision 2026-09-06: the renderer writes nothing.
             # `ix_close_no_message` is still the recorded PA failure and
             # `cancelled_items` still carries the dropped ids to the judge on
             # every later beat -- what goes away is the sentence, which the user
@@ -793,7 +793,7 @@ def render(
         completion_delivered = False
         completion_skipped = "stripped"
         trace.append("completion line stripped by the wrapper filter -> not delivered")
-    # §3.3 (part 2)·A: the binding refusal took every task call and opened no gate, so
+    # The binding refusal took every task call and opened no gate, so
     # the user is owed the sentence saying so. Appended, not substituted (round 9
     # item 2): on a `questions_gate` turn the released questions are the reply
     # and this line is a postscript to them.
@@ -848,7 +848,7 @@ def _render_proactive(
     settings: Mapping[str, str],
     trace: list[RenderStep],
 ) -> RenderedTurn:
-    """§3.1 proactive row, contract 11 — the decision the rest of the turn is built on.
+    """Contract 11 — the decision the rest of the turn is built on.
 
     `High` delivers, `Low` suppresses, and the unset fallback passes the model's
     own action through. The candidate message always exists; on suppress it goes
@@ -903,7 +903,7 @@ def delivered_segments(
     """`segments` with every held-narration segment cut back to its markers.
 
     A segment written in the same assistant message as a call the gate stopped
-    narrates work that did not happen (§3.3 (part 2)·D addendum): live, `📧 Email
+    narrates work that did not happen: live, `📧 Email
     confirmation sent to Dr. Okafor` alongside a held send. That free prose is
     audit-only. What survives the cut is what the renderer selects by marker
     anyway — the questions and the released batches — because those are the ask,
@@ -986,7 +986,7 @@ def _select_sections(
     settings: Mapping[str, str],
     trace: list[RenderStep],
 ) -> tuple[set[tuple[str, str]], list[_Section], list[_Section]]:
-    """Which marked sections go out this turn (§3.4). Returns (released, held batches, held questions)."""
+    """Which marked sections go out this turn. Returns (released, held batches, held questions)."""
     released: set[tuple[str, str]] = set()
     held_batches: list[_Section] = []
     held_questions: list[_Section] = []
@@ -1140,7 +1140,7 @@ def _prose(
         if section.kind == "" or (section.kind, section.id) in released
     ]
     parts = [part for part in parts if part]
-    # §3.1 uncertainty row — P3's pure branch turns each released `[[c:…]]` into a
+    # The uncertainty renderer turns each released `[[c:…]]` into a
     # parenthetical or into nothing; the hedging is the renderer's, never the prose's.
     certainties = render_certainties(
         settings.get("uncertainty_expression", ""),
@@ -1251,7 +1251,7 @@ def split_truncated_tail(text: str) -> tuple[str, str]:
 def _notices(
     calls: Sequence[ToolCallRecord], setting: str, trace: list[RenderStep]
 ) -> list[str]:
-    """§3.1 process row — Silent none, Bookend the first, Full narration all of them."""
+    """process_visibility: Silent none, Bookend the first, Full narration all of them."""
     available = [call.notice.strip() for call in calls if call.executed and call.notice.strip()]
     if setting == "Bookend":
         released = available[:1]
@@ -1360,7 +1360,7 @@ def _completion(
     calls: Sequence[ToolCallRecord],
     trace: list[RenderStep],
 ) -> str:
-    """§3.1 process row — the closing line is a field, never the last paragraph.
+    """The closing line is a field, never the last paragraph.
 
     Released only on a turn that executed a task call. The closing line reports
     work the turn did; a turn with no task call has none to report, and under
@@ -1390,7 +1390,7 @@ def _completion(
 def _gate_ask(
     render_input: IXRenderInput, payloads: TurnPayloads, trace: list[RenderStep]
 ) -> str | None:
-    """§3.3 (part 2)·C/D and §3.5 — deliver the PA's own ask, verbatim, or nothing.
+    """Deliver the PA's own ask, verbatim, or nothing.
 
     Returns `None` when no gate fired, `""` when one fired without the message the
     PA was supposed to write (recorded, never invented).
@@ -1443,7 +1443,7 @@ ASK_SURFACE_RE = re.compile(
 
 
 def asks_the_user(text: str) -> bool:
-    """§3.3 (part 2)·C — does this text ask, or does it only announce?"""
+    """Does this text ask, or does it only announce?"""
     return bool(ASK_SURFACE_RE.search(text))
 
 
@@ -1499,9 +1499,9 @@ def _held_status(
 def _asked_item_ids(
     render_input: IXRenderInput, gate_ask: str | None, trace: list[RenderStep]
 ) -> set[str]:
-    """The held ids the ask this turn actually put to the user (§3.7 (part 3)).
+    """The held ids the ask this turn actually put to the user.
 
-    §3.7 (part 3)'s criterion is "every held id shown to the user", and what is shown
+    The criterion is "every held id shown to the user", and what is shown
     is one ask: the gate's own item, plus any other held id the PA named in the
     same `_ix_confirmation_message`. Live, an ask that mentioned only a
     cancellation came back with an `allow` for six ids, five of them searches
@@ -1550,7 +1550,7 @@ def _held_calls(
     asked_ids: set[str],
     held_items: Sequence[HeldItem] = (),
 ) -> list[HeldItem]:
-    """§3.3 (part 2)·D — one record per call the gate stopped before it ran.
+    """One record per call the gate stopped before it ran.
 
     `episode_id` is stamped from the write-back, so a row says whether the call
     is really waiting on an **open** episode or was refused for the turn only
@@ -1613,7 +1613,7 @@ def _calls_held_by_attribute(
     gate_attribute: str,
     asked_ids: set[str],
 ) -> dict[str, list[dict]]:
-    """Which attribute's episode owns each held call (§4.1 `calls_held`).
+    """Which attribute's episode owns each held call (`calls_held`).
 
     With the gate's own records this is the attribute the gate wrote on the
     hold; a batch hold therefore lands on `topic_management` even though it
@@ -1646,7 +1646,7 @@ def _calls_held_by_attribute(
             "plan_item_id": item.plan_item_id,
             "batch_id": item.batch_id,
             "reason": item.reason,
-            # §3.7 (part 3): consent next turn is scoped to the ids this turn's ask
+            # Consent next turn is scoped to the ids this turn's ask
             # actually named, so the episode has to carry that fact forward.
             "asked": item.asked or item.interaction_item_id in asked_ids,
         })
@@ -1669,11 +1669,10 @@ def _pending(
     held on t3 under `Iterative` and were simply gone on t8, episode closed,
     `cancelled` empty, no close line. What settles an id is that its call ran or
     its section went out, or that the PA reported `skip`; `keep` and no decision
-    at all leave it pending, and the episode closes only when nothing is left
-    (§3.7 (part 3), §4.1–4.2).
+    at all leave it pending, and the episode closes only when nothing is left.
 
     Questions are the one exception, and it is the caller that passes it in
-    `settled`: a bare `release` settles a carried question, because §4.3 tells
+    `settled`: a bare `release` settles a carried question, because the hold reminder tells
     the PA that "a reply carrying none of them is released whole" -- the
     question was folded into this reply's prose. Batches and calls keep the
     delivery rule.
@@ -1696,7 +1695,7 @@ def _next_hold(
     gate_ask: str | None,
     trace: list[RenderStep],
 ) -> tuple[IXHold, list[HoldEpisode], list[dict]]:
-    """Write back one episode per hold-bearing attribute (§4.1, §3.7 (part 4)).
+    """Write back one episode per hold-bearing attribute.
 
     The second return value is the episodes cancelled **on this turn**, not
     every cancelled episode of the session: `finished_episodes` accumulates, and
@@ -1704,7 +1703,7 @@ def _next_hold(
     every later turn (live `v6g01`: two cancellations, nine events).
 
     The third is the carried questions released by decision without their marker
-    (§4.3, "folded into the reply"), for `ix_release_folded`.
+    ("folded into the reply"), for `ix_release_folded`.
     """
     payloads = render_input.payloads
     open_episodes = dict(render_input.hold.open_episodes)
@@ -1762,7 +1761,7 @@ def _next_hold(
     calls_by_attribute = _calls_held_by_attribute(
         render_input, held_items, gate_attribute, asked_ids
     )
-    # §3.3 (part 2)·A / §3.7: one release buys one world-changing call. The ids that
+    # One release buys one world-changing call. The ids that
     # spent theirs ride on the episode so the next turn still knows.
     # Owner ruling 2026-09-08: it is the *world change* that spends the release,
     # so a call the tool refused spends nothing. Live acc_039 t31 had
@@ -1790,7 +1789,7 @@ def _next_hold(
         for decision in payloads.release_decisions
         if decision.decision == "skip"
     }
-    # §4.3, owner decision 2026-09-06: for **questions only**, a `release` with
+    # Owner decision 2026-09-06: for **questions only**, a `release` with
     # no `[[q:…]]` marker means the PA folded that question into this reply's
     # prose -- that is exactly what the hold reminder tells it ("a reply
     # carrying none of them is released whole"). So a bare `release` settles the
@@ -1802,7 +1801,7 @@ def _next_hold(
         if decision.decision == "release"
     }
     # A section settles the same way a call does: by going out. `release` is the
-    # PA's intent (§3.7 (part 3)) -- what removes the id from the episode is the
+    # PA's intent -- what removes the id from the episode is the
     # renderer actually delivering that section this turn.
     released_now = {
         kind: {section_id for section_kind, section_id in released if section_kind == kind}
@@ -1855,7 +1854,7 @@ def _next_hold(
         batches = _pending(
             carried.batches_held,
             batches,
-            # §4.4 `released`: a batch went out when its section did **or** when
+            # `released`: a batch went out when its section did **or** when
             # a call bound to it ran -- the model may release the work without
             # ever writing the `[[batch:…]]` marker again.
             released_now[_BATCH] | skipped_now | {
@@ -1918,7 +1917,7 @@ def _next_hold(
             ),
         )
         if rounds_open >= HOLD_ROUNDS_HARD_CAP:
-            # §3.7 (part 4): hitting the cap cancels, it never releases by default.
+            # Hitting the cap cancels, it never releases by default.
             open_episodes.pop(attribute, None)
             cancelled = replace(
                 episode,

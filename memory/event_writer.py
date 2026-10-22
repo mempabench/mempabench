@@ -51,7 +51,7 @@ PER_CALL_INJECTED_FIELDS = (
     "_ix_confirmation_message",
 )
 
-#: The three outcomes §3.3 gives `[ix_selection]`. There is no `held` and no
+#: The three outcomes of `[ix_selection]`. There is no `held` and no
 #: `voided`: IX selections are declarations that always run
 #: (`pa/agent/runner.py:2864-2866`), and a voided iteration contributes nothing
 #: at all (owner ruling 2026-09-13, Q1).
@@ -138,7 +138,7 @@ def build_turn_pool(
     # suppressed `IX_proactive_outreach` carries the contact the PA wrote and
     # the wrapper did not deliver. "Produced" means produced and kept, so the
     # candidate text stays on the audit plane and only the decision is
-    # remembered — the `[no_reply]` block below. See the receipt: §3.3 reads
+    # remembered — the `[no_reply]` block below. The general rule reads
     # the selection body as "the arguments as the registry received them",
     # which would put an unsent contact into memory as if it had been sent.
     withheld = delivered == ""
@@ -235,7 +235,7 @@ def build_turn_pool(
 
 
 def turn_journal_for(session_manager: Any, session_key: str) -> TurnJournal:
-    """The journal beside this session's file (§6.1 (b)).
+    """The journal beside this session's file.
 
     Four callers need the same journal for the same session — the loop that
     writes it, the two consolidation entry points that consume it and `/new` —
@@ -260,7 +260,7 @@ def record_turn_journal(
     receipt: WriteReceipt | None = None,
     realized: dict[str, Any] | None = None,
 ) -> None:
-    """Write one pool's journal record, or mark it written (§6.1 (a), (c)).
+    """Write one pool's journal record, or mark it written.
 
     Every caller writes `state="pending"` before the turn's first
     `sessions.save`, so the record is durable before the session file it
@@ -273,7 +273,7 @@ def record_turn_journal(
     condition's completion mark is `file_consolidated`, the journal's second
     track, not this one.
 
-    `realized` is the forced-event line's (§6.1 (d)): the artefacts the world
+    `realized` is the forced-event line's: the artefacts the world
     handed back for the exchange this record describes, so a resume can restore
     them instead of calling the world a second time. The ACC loop passes none —
     it re-executes nothing, because its turn is not replayed from a script.
@@ -300,7 +300,7 @@ def records_owed_to_files(
     records: Sequence[JournalRecord],
 ) -> list[JournalRecord]:
     """Of these records, the ones the memory files have not had and are to
-    have (§6.1 (e)).
+    have.
 
     `file_consolidated` is the journal's second completion track, separate from
     `state`: the file condition's adapter write is a documented no-op, so its
@@ -387,7 +387,7 @@ def _undelivered_payload_ids(status: str) -> list[Any]:
 
     F1 keeps a payload call's arguments when they are the delivered text. An
     empty `held_not_released` on its own does not prove that: a forced close
-    *empties* the hold by cancelling what was in it (§3.7 (part 4)), so a
+    *empties* the hold by cancelling what was in it, so a
     cancelled question would read as delivered and its wording would enter
     memory having reached nobody. Both lists decide.
     """
@@ -534,7 +534,7 @@ def _without_carrier_fields(arguments: str) -> str:
 
 
 def _compact_json(text: str) -> str:
-    """The canonical compact JSON of §3.3, or the text as it stands.
+    """The canonical compact JSON, or the text as it stands.
 
     A provider serializes call arguments with `json.dumps` defaults
     (`pa/providers/base.py:24-32`), which inserts spaces and keeps the model's

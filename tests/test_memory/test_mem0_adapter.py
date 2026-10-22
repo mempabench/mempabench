@@ -697,7 +697,7 @@ async def test_a_blocking_search_leaves_the_event_loop_running() -> None:
     """`search` is a synchronous client call inside an `async def`, so on the
     loop it left every other coroutine's in-flight HTTP unread for its whole
     length -- and with more than one session at a time that is another
-    session's request budget (probe parallel runner plan §9, risk (f)). It goes
+    session's request budget. It goes
     out through `asyncio.to_thread`, so a sibling coroutine gets to run while
     the search is out, and it is the sibling that releases it: the order is the
     assertion and the clock is not.
@@ -852,7 +852,7 @@ async def test_simple_rag_cuts_inside_a_single_over_cap_line() -> None:
         assert _raw_embed_input_tokens(piece) <= _RAW_BUDGET
 
 
-# ── §1 boundary checks: measured pieces, no whitespace-only record ──
+# ── Boundary checks: measured pieces, no whitespace-only record ──
 #
 # Two risks the review of `3c451e0b` named, both reproduced against that
 # commit before this one:
@@ -972,7 +972,7 @@ def test_content_that_cannot_be_cut_without_a_blank_record_is_an_error() -> None
     assert "whitespace-only record" in str(excinfo.value)
 
 
-# ── §2 mem0 `infer=True`: one over-budget message, pre-split ────────
+# ── mem0 `infer=True`: one over-budget message, pre-split ────────
 #
 # `_chunks_that_fit_the_embedding_input` batches at message boundaries, so a
 # message that alone exceeds the budget was a hard error there — the same
@@ -1109,7 +1109,7 @@ async def test_mem0_splits_a_message_that_only_the_wrapping_pushes_over(
 
 
 
-# ── §3 What a failed batch leaves behind ───────────────────────────
+# ── What a failed batch leaves behind ───────────────────────────
 #
 # Every piece and every batch is measured before the first `add`, so a pool
 # that cannot be written is refused with nothing written

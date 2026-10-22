@@ -1,4 +1,4 @@
-"""Playability audit §4 — the undivided `[[q:…]]` block, and the nudge that splits it.
+"""The undivided `[[q:…]]` block, and the nudge that splits it.
 
 `information_elicitation` releases whole marker blocks, not questions:
 `render.py::_release_count` returns 1 under `Iterative` and `total` under
@@ -185,7 +185,7 @@ def test_no_nudge_when_each_block_asks_one_question(loop_factory) -> None:
 def test_the_nudge_never_pins_a_tool_or_spends_the_payload_ladder(
     loop_factory,
 ) -> None:
-    """(e) Its own budget: no `tool_choice`, and no step off the §3.0 ladder."""
+    """(e) Its own budget: no `tool_choice`, and no step off the ladder."""
     async def scenario() -> None:
         provider = ScriptProvider([
             _opening("Iterative", "q1", "q2"),

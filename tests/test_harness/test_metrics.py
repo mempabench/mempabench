@@ -1,4 +1,4 @@
-"""Aggregation E1–E5 (design §5) over synthetic 33-probe judge outputs.
+"""Aggregation E1–E5 over synthetic 33-probe judge outputs.
 
 Pure data, no LLM. Run:
     PYTHONPATH=. python -m pytest tests/test_harness/test_metrics.py

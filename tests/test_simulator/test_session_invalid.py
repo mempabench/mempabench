@@ -117,7 +117,7 @@ def _script() -> SessionScript:
     )
 
 
-#: The ask gate is the judge's alone (contract §9), so every session here runs
+#: The ask gate is the judge's alone, so every session here runs
 #: one. These are the candidate turns that put nothing to the assistant; every
 #: other turn reads as an ask, quoted out of the turn itself.
 _NO_ASK = (
@@ -347,7 +347,7 @@ def test_only_the_three_simulator_rules_invalidate_a_session() -> None:
 
     The judge's are a different kind of instrument failure — nothing about the
     turn is wrong, the reader of the turn did not answer — but they share this
-    door exactly (local judge contract §4, §13 i): the session is void, there
+    door exactly: the session is void, there
     is no fallback and no diagnostic-and-play path. `judge_unavailable` shares
     the door and then goes further: the loop re-raises the underlying
     `JudgeUnavailable` so the round stops, because a judge that is gone is gone

@@ -1,6 +1,6 @@
 """T17, T19, T20 — the step boundary, the proactive four-way, the action map.
 
-Plan §7.2 P7. Each of these three crosses a package line: the hold cache is
+Each of these three crosses a package line: the hold cache is
 `pa/`'s but the step boundary is `harness/`'s; the proactive decision is
 rendered in `pa/` and has to look the same in four different places; the action
 map is `pa/`'s but the tool surface it must cover is the world toolbox's.
@@ -81,7 +81,7 @@ def _gate_responses() -> list[LLMResponse]:
 def test_the_harness_step_boundary_sees_the_open_episode_through_the_recording_pa(
     loop_factory,
 ) -> None:
-    """T17 (a): the seam the orchestrator closes a step with (§4.2, contract 7).
+    """T17 (a): the seam the orchestrator closes a step with (contract 7).
 
     `harness/orchestrator.py` calls `close_ix_session(step_id)` on its PA
     handle inside the step's `finally` and raises `OpenHoldEpisodeError` on a
@@ -284,7 +284,7 @@ def test_a_sent_reminder_is_the_same_text_on_every_plane(
 # ---------------------------------------------------------------------------
 
 def test_every_standing_world_tool_has_a_declared_action_type() -> None:
-    """T20 (§3.8, contract 10) against the real toolbox, not a stub.
+    """T20 (contract 10) against the real toolbox, not a stub.
 
     `assert_benchmark_action_type_coverage` is the check the harness runs once
     at benchmark start; it reads the world-toolbox catalog, so an unclassified
@@ -300,7 +300,7 @@ def test_every_standing_world_tool_has_a_declared_action_type() -> None:
 
 
 def test_a_turn_registrys_task_tools_are_all_in_the_action_map() -> None:
-    """The same subset relation stated the way §3.8 states it: registry ⊆ map."""
+    """The same subset relation stated directly: registry ⊆ map."""
     base = ToolRegistry()
     for name in assert_benchmark_action_type_coverage(PROJECT_ROOT):
         base.register(EchoTool(name))
@@ -331,7 +331,7 @@ def test_an_unclassified_tool_is_gated_as_the_tightest_class_and_refused_up_fron
 
 
 # ---------------------------------------------------------------------------
-# §3.4 (part 3) · a withheld batch is a hold, not a one-turn pause
+# a withheld batch is a hold, not a one-turn pause
 # ---------------------------------------------------------------------------
 
 BATCH_ACTION_TYPES = {"task_write": "internal_write", "task_send": "external_action"}
@@ -357,7 +357,7 @@ def _batch_prose(*bound: tuple[str, str]) -> str:
 
 
 def test_one_at_a_time_holds_the_rest_across_three_turns(loop_factory) -> None:
-    """The batch gate holds calls *and* remembers them (§3.4 (part 3), §3.7 (part 2)).
+    """The batch gate holds calls *and* remembers them.
 
     Live, `One-at-a-time` held `email_message_send` for exactly one turn and
     then forgot it: no episode was opened, `IX_continue_topic_management` was
@@ -367,7 +367,7 @@ def test_one_at_a_time_holds_the_rest_across_three_turns(loop_factory) -> None:
     """
     async def scenario() -> None:
         provider = ScriptProvider([
-            # §3.4 (part 5): the calls arrive in a message with no prose of its own,
+            # The calls arrive in a message with no prose of its own,
             # and the marked prose is written in the closing iteration the
             # wrapper asks for once the hold is recorded.
             LLMResponse(
@@ -463,7 +463,7 @@ def test_one_at_a_time_holds_the_rest_across_three_turns(loop_factory) -> None:
 
 
 def test_a_denied_batch_item_stays_held(loop_factory) -> None:
-    """§3.7 (part 3): the PA's `release` is intent; the sideband is the gate."""
+    """The PA's `release` is intent; the sideband is the gate."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content=None, tool_calls=[
@@ -508,7 +508,7 @@ def test_a_denied_batch_item_stays_held(loop_factory) -> None:
 
 
 # ---------------------------------------------------------------------------
-# §3.3 (part 2)·A · one release, one execution
+# one release, one execution
 # ---------------------------------------------------------------------------
 
 def test_a_released_id_carries_one_world_changing_call_only(loop_factory) -> None:
@@ -719,7 +719,7 @@ def test_a_second_undivided_batch_is_accepted_and_recorded(loop_factory) -> None
 
 
 # ---------------------------------------------------------------------------
-# §3.3 (part 2)·D addendum · a batch hold's narration is withheld, its released batch is not
+# a batch hold's narration is withheld, its released batch is not
 # ---------------------------------------------------------------------------
 
 def test_a_batch_hold_withholds_the_narration_and_keeps_the_released_batch(
@@ -763,7 +763,7 @@ def test_a_batch_hold_withholds_the_narration_and_keeps_the_released_batch(
 
 
 # ---------------------------------------------------------------------------
-# §3.4 (part 3) · a batch or question hold ends the turn, the way a gate does
+# a batch or question hold ends the turn, the way a gate does
 # ---------------------------------------------------------------------------
 
 _CLOSING_TEXT = (
@@ -790,9 +790,9 @@ def test_a_batch_hold_asks_one_closing_message_and_narrates_only_what_ran(
     Live (`measurements_gates.md` round 3, `v3g03`), deepseek wrote the held
     `email_message_send` in a tool-call message with **empty content** and its
     narration in the next, text-only message: `📧 Email confirmation sent to
-    Dr. Okafor`. The same-message rule (§3.3 (part 3)·a) cannot see that shape. So
+    Dr. Okafor`. The same-message rule cannot see that shape. So
     the turn stops the work at the hold and asks for exactly that message under
-    conditions where it can do no harm (§3.4 (part 5)): no task tool is on the table,
+    conditions where it can do no harm: no task tool is on the table,
     the held call's result says it did not run, and only the released batch's
     section is delivered.
     """
@@ -915,7 +915,7 @@ def test_a_closing_iteration_with_no_text_leaves_the_turn_where_the_hold_did(
 
         assert provider.responses == []
         assert executed_tools(outbound) == ["task_write"]
-        # §3.3 (part 3)·a still cuts the framing prose it shared with the held call.
+        # The same-message rule still cuts the framing prose it shared with the held call.
         assert "Item c1 is settled." in outbound.content
         assert "Here is where things stand." not in outbound.content
 
@@ -923,7 +923,7 @@ def test_a_closing_iteration_with_no_text_leaves_the_turn_where_the_hold_did(
 
 
 def test_a_gate_turn_asks_for_no_closing_message(loop_factory) -> None:
-    """§3.4 (part 5) is the hold exit only: a gate's ask is already the delivered text."""
+    """The closing iteration is the hold exit only: a gate's ask is already the delivered text."""
     async def scenario() -> None:
         provider = ScriptProvider(_gate_responses())
         loop, _ = loop_factory(provider, "task_send")
@@ -970,7 +970,7 @@ def test_organize_holds_nothing_so_the_turn_runs_to_its_own_end(loop_factory) ->
 
 
 def test_a_question_hold_still_ends_the_turn_through_the_gate(loop_factory) -> None:
-    """§3.4 (part 2) is unchanged: the asking turn already stopped, and still does."""
+    """The question gate is unchanged: the asking turn already stopped, and still does."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(
@@ -1007,7 +1007,7 @@ def test_a_question_hold_still_ends_the_turn_through_the_gate(loop_factory) -> N
 
 
 # ---------------------------------------------------------------------------
-# §3.7 (part 3) · a release has to issue its call in the same reply
+# a release has to issue its call in the same reply
 # ---------------------------------------------------------------------------
 
 def _release_turn_two(*, with_call: bool, tail: str) -> list[LLMResponse]:
@@ -1062,7 +1062,7 @@ def test_a_release_that_carries_its_call_executes(loop_factory) -> None:
 def test_a_release_without_a_call_is_repaired_once_and_then_executes(loop_factory) -> None:
     """Live (`v3g03` t15), `email_01` was released and no call followed.
 
-    Releases are never replayed (§3.3 (part 3)), so the episode closed and the email
+    Releases are never replayed, so the episode closed and the email
     the user had just authorised was never sent. One repair asks for the call.
     """
     async def scenario() -> None:
@@ -1193,7 +1193,7 @@ def test_the_repaired_release_call_runs_before_the_payload_reminder(
 
 
 # ---------------------------------------------------------------------------
-# §3.3 (part 2)·D · a held row says which gate held it, whether or not one opened
+# a held row says which gate held it, whether or not one opened
 # ---------------------------------------------------------------------------
 
 def test_a_batch_hold_records_its_own_attribute_reason_and_status(loop_factory) -> None:
@@ -1261,7 +1261,7 @@ def test_the_held_status_is_the_one_the_runner_ended_the_turn_on(loop_factory) -
 def test_a_batch_release_without_its_call_is_repaired_once_and_then_executes(
     loop_factory,
 ) -> None:
-    """§3.7 (part 3) on the batch path. Live, `v5g01` released `c2` three times and
+    """The release repair on the batch path. Live, `v5g01` released `c2` three times and
     never sent it: the repair is the only thing that asks for the call back."""
     async def scenario() -> None:
         provider = ScriptProvider([
@@ -1303,7 +1303,7 @@ def test_a_batch_release_without_its_call_is_repaired_once_and_then_executes(
 
 
 # ---------------------------------------------------------------------------
-# §3.4 (part 5) · the closing iteration leaves a record, and what it delivers counts
+# the closing iteration leaves a record, and what it delivers counts
 # ---------------------------------------------------------------------------
 
 def test_the_closing_iteration_and_the_stop_reason_are_on_the_record(
@@ -1384,7 +1384,7 @@ def _claims_events(outbound: Any) -> list[dict]:
 def test_a_hold_turn_that_narrates_the_released_batch_makes_no_claim(
     loop_factory,
 ) -> None:
-    """§3.4 (part 5) puts prose back on exactly these turns, so a structural test that
+    """The closing iteration puts prose back on exactly these turns, so a structural test that
     only asks "was the message non-empty" now fires by construction: live,
     `v5g01` scored 3, and two of the three were honest text about the batch
     that did run. A released batch is what the prose is about."""
@@ -1445,7 +1445,7 @@ def test_a_turn_that_released_nothing_still_claims(loop_factory) -> None:
 
 
 # ---------------------------------------------------------------------------
-# §3.4 (part 3) · the release *is* the release (round-6 finding 1 / 3, owner decision)
+# the release *is* the release (round-6 finding 1 / 3, owner decision)
 # ---------------------------------------------------------------------------
 
 def _re_declared_release_responses(closing: str) -> list[LLMResponse]:
@@ -1514,7 +1514,7 @@ def test_a_release_overrides_the_batch_hold_for_that_id(loop_factory) -> None:
 
 
 def test_the_batch_override_does_not_lift_the_consent_gate(loop_factory) -> None:
-    """It lifts `batch_not_released` and nothing else (§3.7 (part 3) still governs).
+    """It lifts `batch_not_released` and nothing else (the consent gate still governs).
 
     Same shape as above — the id sits in a re-declared, unreleased second batch
     — but the sideband says `deny`. The PA's `release` is intent; the sideband
@@ -1550,7 +1550,7 @@ def test_the_batch_override_does_not_lift_the_consent_gate(loop_factory) -> None
 
 
 def test_a_held_call_does_not_satisfy_a_release() -> None:
-    """§3.7 (part 3): only an **executed** call answers a release (owner decision 2).
+    """Only an **executed** call answers a release (owner decision 2).
 
     `_releases_without_calls` read `collector.calls`, which carries the withheld
     ones too, so a call the wrapper itself re-held counted as the call the
@@ -1618,7 +1618,7 @@ def test_a_held_call_does_not_satisfy_a_release() -> None:
 
 
 # ---------------------------------------------------------------------------
-# §3.7 (part 4) · a cancelled item is told to the user, and stays told
+# a cancelled item is told to the user, and stays told
 # ---------------------------------------------------------------------------
 
 _EMAIL_LABEL = "the confirmation email to Dr. Okafor"
@@ -1679,7 +1679,7 @@ async def _run_to_the_cap(loop) -> list[Any]:
 def test_a_cancelled_item_is_recorded_and_the_user_reads_only_the_pa_prose(
     loop_factory,
 ) -> None:
-    """§3.7 (part 4) + owner decision 2026-09-06 (§10 item d): no template close line.
+    """Owner decision 2026-09-06: no template close line.
 
     Live `v6g01`: the round cap cancelled `email1` twice, `ix_close_no_message`
     fired both times, and the PA wrote no closing line — the answer to that was
@@ -1711,7 +1711,7 @@ def test_a_cancelled_item_is_recorded_and_the_user_reads_only_the_pa_prose(
 
 
 def test_the_pa_s_own_closing_line_is_still_delivered(loop_factory) -> None:
-    """`closing_message` is PA text, so it is delivered (§3.7 (part 4) unchanged)."""
+    """`closing_message` is PA text, so it is delivered."""
     async def scenario() -> None:
         line = "I am dropping the email for now; tell me when to send it."
         provider = ScriptProvider(_cap_responses(closing_message=line))
@@ -1801,7 +1801,7 @@ def test_a_cancelled_item_is_on_the_record_and_in_the_reminder_afterwards(
 
 
 # ---------------------------------------------------------------------------
-# §3.7 (part 4) (R3) · the cancel line names the label, never the held question
+# the cancel line names the label, never the held question
 #
 # A `Batch` is cancelled by its `label`, which is already a safe short string.
 # A `Question` was cancelled by its `text` — the whole withheld question — so
@@ -1944,7 +1944,7 @@ def test_a_cancelled_question_without_a_label_drops_the_subject(
 
 
 # ---------------------------------------------------------------------------
-# §3.7 (part 3) · `consent[]` survives the repair that follows the authorisation
+# `consent[]` survives the repair that follows the authorisation
 # ---------------------------------------------------------------------------
 
 def test_a_gate_repair_keeps_the_consent_row_of_a_call_that_already_ran(
@@ -1953,7 +1953,7 @@ def test_a_gate_repair_keeps_the_consent_row_of_a_call_that_already_ran(
     """Round-6 finding 5: two authorisations, one `consent[]` row.
 
     `v6g02` t20 released `item_2`, ran `appointment_create`, then opened a second
-    gate for `item_3` whose ask was missing. The §3.3 (part 2)·C repair calls
+    gate for `item_3` whose ask was missing. The missing-ask repair calls
     `clear_holds()`, which wiped `consent[]` wholesale — and the retry has no
     reason to re-issue a call that already ran, so the row was gone for good. A
     judge counting authorisations off `consent[]` under-counted two to one. The
@@ -2017,7 +2017,7 @@ def test_a_gate_repair_keeps_the_consent_row_of_a_call_that_already_ran(
 
 
 # ---------------------------------------------------------------------------
-# §4.3 · the reminder an episode holding no calls used to lose
+# the reminder an episode holding no calls used to lose
 # ---------------------------------------------------------------------------
 
 def _held_episode(attribute: str, **held: Any) -> IXHold:

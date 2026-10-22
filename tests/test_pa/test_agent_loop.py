@@ -1,4 +1,4 @@
-"""The pool the loop hands the memory adapter (plan §9 steps 4 and 5).
+"""The pool the loop hands the memory adapter.
 
 Steps 1–3 rendered whatever `session.messages` had kept. These tests ask the
 harder question: does the adapter receive the PA's *whole* first-person
@@ -303,7 +303,7 @@ def test_the_acc_slice_reaches_the_pool_already_cut(tmp_path: Path) -> None:
         )
         assert result.attrs["truncated"] == "true"
 
-        # §6.1: the journal record is what a resume replays, so it carries the
+        # The journal record is what a resume replays, so it carries the
         # cut form too.
         record = loop.turn_journal(SESSION_KEY).records()[-1]
         journalled = next(
@@ -341,7 +341,7 @@ def _render(call_id: str) -> ToolCallRequest:
 def test_ix_selection_outcomes_cover_executed_rejected_and_duplicate(
     tmp_path: Path,
 ) -> None:
-    """§3.3: the block is the executed request, not the model's serialized copy.
+    """The block is the executed request, not the model's serialized copy.
 
     `outcome=` comes from the call's own `_run_tool` event status, and the body
     from the arguments the registry received. The assistant message's
@@ -529,7 +529,7 @@ def test_a_sent_outreach_writes_one_pool_and_advances_the_cursor_once(
 def test_environment_branch_pool_carries_the_ix_selection_and_result(
     tmp_path: Path,
 ) -> None:
-    """§12 item 3e: both decisions carry the turn's kept loop experience.
+    """Both decisions carry the turn's kept loop experience.
 
     The event plus the reply is not the experience — the PA's own
     `IX_proactive_outreach` call is the half of the (choice, reaction) pair

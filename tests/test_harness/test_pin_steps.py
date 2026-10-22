@@ -377,7 +377,7 @@ async def test_borrowed_start_point_under_a_memory_condition_reads_memory(
     # Built on the branch's own restored collection, never on the mainline one.
     assert built == [adapter.namespace]
     assert adapter.namespace.startswith(f"{MAINLINE_COLLECTION}_br_")
-    # Read-only before the probe PA exists (§9 step 12).
+    # Read-only before the probe PA exists.
     assert [mode.read_only for mode in adapter.modes] == [True]
     # The source run's own memory files came across with the snapshot.
     assert view["memory_files"] == ["MEMORY.md"]

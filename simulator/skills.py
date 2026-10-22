@@ -4,9 +4,6 @@ Actor skill specs live at `data/actor_skill_specs/{attribute}/{setting}.md`
 (45 files, character-agnostic). At simulator runtime we slice the persona's
 preference matrix by `session.context` and load the spec for each attribute
 named in the beat's `active_skills`.
-
-See MemPABench_Simulator_Design.md § "Active Skills Only (2026-04-22)"
-and § "Actor Skill Spec generation method and reproducibility" for design rationale.
 """
 
 from __future__ import annotations

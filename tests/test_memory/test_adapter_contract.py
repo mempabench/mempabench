@@ -7,7 +7,7 @@ Tests cover:
 - Empty retrieval produces empty format_context.
 - Trace fields are recorded without inventing scores/timestamps.
 - Capability protocols can be checked structurally.
-- Every real adapter presents every pool item it receives (§9 step 6).
+- Every real adapter presents every pool item it receives.
 """
 
 from __future__ import annotations
@@ -406,7 +406,7 @@ class TestCapabilityProtocols:
         assert not isinstance(o, SupportsNativeQuery)
 
 
-# ── §9 step 6: every adapter presents every item it receives ────────
+# ── Every adapter presents every item it receives ────────
 
 from pathlib import Path  # noqa: E402
 
@@ -433,7 +433,7 @@ from test_memory.test_memos_adapter import FakeMemOSClient  # noqa: E402
 async def test_adapter_presents_every_item_it_receives(
     backend: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """No adapter drops, filters or reorders a pool message (§3.6, §9 step 6)."""
+    """No adapter drops, filters or reorders a pool message."""
     pool = full_experience_pool()
     event = pool_event(pool)
     before = [dict(message) for message in event.messages]

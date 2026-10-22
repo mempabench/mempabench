@@ -12,7 +12,7 @@ from collections.abc import Collection, Iterable, Mapping
 _EVAL_TAG_RE = re.compile(
     r"</?(?:factual_check|turn_assessment|emotion_event)>", re.IGNORECASE
 )
-# The consent sideband (IX wrapper §3.7 part 3) gets its own finding: it is the one
+# The consent sideband gets its own finding: it is the one
 # private block that decides whether a real external action happens, so a leak
 # into <message> has to be named for what it is rather than folded into the
 # generic eval-tag finding.

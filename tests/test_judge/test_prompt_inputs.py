@@ -1,6 +1,6 @@
 """What reaches the judge prompt, and what must not — the 2026-09-17 input boundary.
 
-Unification plan §5 (judge line) / design §4.4「输入边界」: every check here runs
+Every check here runs
 `assemble_prompt` over a small synthetic `judge_input/<probe>/` directory and
 reads the *final* prompt, not `UNUSED_BLOCKS`. Baited inputs carry the wrapper's
 control surface (an `IX_*` row, injected fields, the store's gate bookkeeping,
@@ -65,7 +65,7 @@ def _tool_log_rows() -> list[dict]:
          "session_id": "fin_13", "tool": "appointment_search",
          "args": {"query": "physio", "_ix_notice": "NOTICE_looking_it_up", "interaction_item_id": "i1"},
          "result_summary": {"matches": 2, "ids": ["ap_0001", "ap_0002"]}, "status": "ok"},
-        # a capability limit: the error is business evidence (§3.5)
+        # a capability limit: the error is business evidence
         {"t": 2, "timestamp": "2026-10-04T09:00:00+00:00", "run_id": "run_x", "user_id": "user_a",
          "session_id": "fin_13", "tool": "scholarly_paper_read", "args": {"paper_id": "pp_0007"},
          "result_summary": {"error_code": "capability_limit", "boundary_kind": "missing_data"},
@@ -109,7 +109,7 @@ def _scene(attribute: str) -> dict:
 
 
 def _text_pack(proactive: str | None = None) -> dict:
-    """A one-exchange pack; `proactive` = "send" / "suppress" builds the §5.5 shape instead."""
+    """A one-exchange pack; `proactive` = "send" / "suppress" builds the proactive shape instead."""
     if proactive is None:
         events = [
             {"t": 3, "kind": "simulator_turn", "beat": "beat1",
@@ -187,7 +187,7 @@ def rubric_block(user: str) -> str:
     return _block(user, "# 本属性 rubric", "# 输出指令")
 
 
-# ----------------------------------------------------------------- §5.1 IE scene
+# ----------------------------------------------------------------- IE scene
 
 
 def test_information_elicitation_gets_the_scene_block_and_every_withheld_fact(tmp_path: Path) -> None:
@@ -239,7 +239,7 @@ def test_the_withheld_list_is_judge_only_no_pa_side_module_reads_scene_json() ->
     assert offenders == []
 
 
-# ---------------------------------------------------------- §5.5 proactive items
+# ---------------------------------------------------------- proactive items
 
 
 @pytest.mark.parametrize("decision", ["send", "suppress"])
@@ -305,8 +305,8 @@ def test_state_diff_is_not_offered_outside_the_rubric(tmp_path: Path, attribute:
     assert "state_diff" not in user.replace(rubric_block(user), "")
 
 
-#: The feature files whose judge-facing half still cites `ix_render` / `state_diff`
-#: (plan §5.3 / §5.6). Strict xfail: an entry that starts XPASSing has to be removed,
+#: The feature files whose judge-facing half still cites `ix_render` / `state_diff`.
+#: Strict xfail: an entry that starts XPASSing has to be removed,
 #: so the list cannot go stale. Empty since U3b rendered the 14 files from the
 #: Feature Tables; add a name only if a file regresses on purpose.
 _RUBRIC_STILL_CITES_IX_FIELDS: set[str] = set()
@@ -329,7 +329,7 @@ def test_the_rubric_block_cites_no_field_the_judge_cannot_see(tmp_path: Path, at
     assert "ix_render" not in rubric and "state_diff" not in rubric and "IX_" not in rubric
 
 
-# ------------------------------------------------- §5.4 tool results, filtered
+# ------------------------------------------------- tool results, filtered
 
 
 def test_tool_results_show_business_fields_and_no_control_fields(tmp_path: Path) -> None:

@@ -110,7 +110,7 @@ IX_UNAVAILABLE_TOOL_REPAIR = (
     "handling the user's request without one. A tool appearing in history "
     "does not mean it is available now. "
 )
-#: Sent with the forced-tool retry (§3.0): the model is about to see the tool
+#: Sent with the forced-tool retry: the model is about to see the tool
 #: pinned by `tool_choice`, so the message says what to fill in, not "call it".
 IX_PER_TURN_FORCED_PREFIX = (
     "The interaction payload for this turn is still missing and is now "
@@ -150,7 +150,7 @@ IX_TASK_CALLS_DEFERRED_FOR_CARRIER = (
 #: recorded `evidence: ""`, and so did all three of regress20's (`002`, `026`,
 #: `035`); no pinned selection in either round carried one. The other half of
 #: the same wound already has an answer -- `_restore_voided_selection_fields`
-#: refills the blanks from a copy the *same turn* wrote and §3.0 then voided --
+#: refills the blanks from a copy the *same turn* wrote and the wrapper then voided --
 #: but on the ordinary ladder path there is no earlier copy to refill from,
 #: because the model never sent the call at all. So the pin asks for the
 #: fields by name. `evidence` keeps its own rule from
@@ -261,7 +261,7 @@ IX_RESELECTION_IGNORED_RESULT = (
     "is ignored. Continue your reply."
 )
 #: The per-turn payload carriers. A missing one is a contract failure; a missing
-#: `IX_continue_<attribute>` is not (§3.0 required table vs §3.7).
+#: `IX_continue_<attribute>` is not.
 _RENDER_TOOL_NAMES = frozenset(IX_RENDER_TOOL_NAMES.values())
 #: The per-session selection carriers, the `required == "always"` tier. Every
 #: exposed attribute must be given a named setting and has no unset surface, so
@@ -327,7 +327,7 @@ def _missing_required_fields(
 _NO_GATE_HOLD_REASONS = frozenset({
     "batch_not_released", "release_spent", "capability_handoff",
 })
-#: §3.4 (part 3) — the two hold statuses that end the turn on their own. A batch or a
+#: The two hold statuses that end the turn on their own. A batch or a
 #: question hold opens no gate, so before this the loop went back to the
 #: provider and the provider's *next* message narrated the held call as done:
 #: live, `v3g03` withheld the send and the following text-only message read
@@ -335,14 +335,14 @@ _NO_GATE_HOLD_REASONS = frozenset({
 #: cannot reach that shape — deepseek writes the call with empty content and
 #: the prose one message later — so the turn stops here, exactly as a gate does.
 _TURN_ENDING_HOLD_STATUSES = frozenset({"held_for_batch", "held_for_questions"})
-#: §3.4 (part 5) — the only tools the closing iteration is shown. Every task tool is
+#: The only tools the closing iteration is shown. Every task tool is
 #: gone, because nothing more may run this turn; neither of these is required
 #: there, so the closing message owes no payload.
 _CLOSING_TOOL_NAMES = frozenset({
     *IX_RENDER_TOOL_NAMES.values(),
     *IX_CONTINUE_TOOL_NAMES.values(),
 })
-#: §3.4 (part 5) — the result the closing iteration sees for a call the hold stopped.
+#: The result the closing iteration sees for a call the hold stopped.
 #: Executed calls keep their real results; this one says in as many words that
 #: its call did not run, so the closing text has nothing to report it as.
 IX_HELD_TOOL_RESULT = json.dumps(
@@ -355,7 +355,7 @@ IX_HELD_TOOL_RESULT = json.dumps(
     },
     ensure_ascii=False,
 )
-#: §3.3 (part 2)·A — the same result for the other fail-closed exit. A binding refusal
+#: The same result for the other fail-closed exit. A binding refusal
 #: is not "waiting for the user": nothing was put to anybody, the ids were the
 #: problem, and the turn's whole batch is gone. Live `v7r06` t18 held all six
 #: calls this way and shipped the loop placeholder, because the closing
@@ -372,7 +372,7 @@ IX_BINDING_HELD_TOOL_RESULT = json.dumps(
 )
 #: regress23m `acc_001` / `acc_004`, 2026-09-12 — the tool protocol's last
 #: resort. A call the wrapper withheld gets no result at the point it is
-#: withheld (§2.4: a held call never touches the world), and the paths that
+#: withheld (a held call never touches the world), and the paths that
 #: re-request inside the same turn -- the `ix_selection_invalid` retry, the
 #: batch/binding repairs, the deduped duplicate selection -- left its
 #: `tool_call_id` unanswered in `messages`. deepseek/gemini/qwen tolerate that;
@@ -409,7 +409,7 @@ IX_MISSING_NOTICE_PROMPT = (
 )
 #: How many times the opening line is asked for before the turn fails.
 IX_MISSING_NOTICE_ATTEMPTS = 2
-#: §3.4 (part 5) — what the closing iteration is asked for. Ending at the hold left
+#: What the closing iteration is asked for. Ending at the hold left
 #: the turn with nothing to say whenever the model narrates only *after* its
 #: calls (deepseek writes the tool-call message with empty content and the prose
 #: one message later), and the loop shipped its placeholder. One more iteration
@@ -471,7 +471,7 @@ IX_CAPABILITY_RESOLVE_REMINDER = (
     "boundary_kind, recovery_options and handoff_message before doing anything "
     "else. " + NO_WRAPPER_TALK
 )
-#: §3.3 (part 2)·C — the renderer never writes the ask for the PA, so a gated call
+#: The renderer never writes the ask for the PA, so a gated call
 #: that carried no `_ix_confirmation_message` leaves the turn with nothing to
 #: say. One repair, then the same contract failure the render payloads get.
 IX_GATE_MESSAGE_REPAIR = (
@@ -482,8 +482,8 @@ IX_GATE_MESSAGE_REPAIR = (
     "Nothing is written for you if you leave it out. "
     + NO_META_ACKNOWLEDGEMENT
 )
-#: §3.7 (part 3) — a `release` is a promise to act in this same reply, and releases are
-#: never auto-replayed (§3.3 (part 3)). Live, `v3g03` released the held email, issued
+#: A `release` is a promise to act in this same reply, and releases are
+#: never auto-replayed. Live, `v3g03` released the held email, issued
 #: no call, closed the episode, and told the user it had gone out. Asked once; a
 #: second response without the call keeps the item held (`ix_release_missing`).
 IX_RELEASE_REPAIR = (
@@ -512,7 +512,7 @@ IX_PROSE_ASK_REPAIR = (
     "than permission to act, ask it again as it stands. "
     + NO_META_ACKNOWLEDGEMENT
 )
-#: Playability audit §4 — `information_elicitation` splits per `[[q:…]]` **block**,
+#: `information_elicitation` splits per `[[q:…]]` **block**,
 #: not per question (`render.py::_release_count`). Two missing fields written
 #: into one block are released together under `Iterative` exactly as they are
 #: under `Structured`, so both settings produce the identical reply and the
@@ -572,7 +572,7 @@ IX_RATIONALE_WORK_LOG_REPAIR = (
 #: quoting the wrong text, and the only thing that fixes it is asking again for
 #: a fragment of *this* reply. The wrapper never appends the claim itself: an
 #: unlocated certainty written into the message would be the wrapper inventing
-#: PA prose, which is the one thing §3.1 forbids it.
+#: PA prose, which is the one thing it must never do.
 IX_CERTAINTY_CLAIM_REPAIR = (
     "[interaction wrapper] Every claim in your `<certainties>` block failed to "
     "match a sentence of the reply you just wrote, so the confidence you "
@@ -708,7 +708,7 @@ def _business_args_signature(arguments: Any) -> str:
 
     Two calls share a signature when they are the same act: a changed date,
     title, location or participant list is a different arrangement and must go
-    back through the gate even under the same item id (§4).
+    back through the gate even under the same item id.
     """
     args = arguments if isinstance(arguments, dict) else {}
     return json.dumps(
@@ -723,7 +723,7 @@ def _business_args_signature(arguments: Any) -> str:
 def _recurrence_repair(
     collector: TurnCollector, tool_call: ToolCallRequest, item_id: str
 ) -> tuple[str, str, RecurrenceRepair] | None:
-    """Does this struck call spend the turn's one recurrence exception (§3.3)?
+    """Does this struck call spend the turn's one recurrence exception?
 
     `("run", item_id, repair)` for a correction on the same authorised item;
     `("rebind", original_id, repair)` for the same correction under a fresh id
@@ -851,8 +851,8 @@ def _answer_withheld_tool_calls(messages: list[dict[str, Any]]) -> list[str]:
 def _with_capability_boundary(ix_context: dict[str, Any]) -> dict[str, Any]:
     """This turn's IX context with `capability_boundary` in the active set.
 
-    The trigger, not the beat, activates the attribute (§3.5; audit §2,
-    acc_026). A copy, not an in-place edit: the caller's dict belongs to the
+    The trigger, not the beat, activates the attribute (acc_026).
+    A copy, not an in-place edit: the caller's dict belongs to the
     turn, and the session-scoped half of the stickiness is the loop's
     (`pa/agent/loop.py`, `_remember_ix_triggers`).
     """
@@ -883,17 +883,17 @@ class AgentRunSpec:
     required_tool_names: list[str] = field(default_factory=list)
     ix_context: dict[str, Any] = field(default_factory=dict)
     inherited_ix_selections: list[IXSelection] = field(default_factory=list)
-    # §3.6: restated once before the first provider request of every turn, so a
+    # Restated once before the first provider request of every turn, so a
     # pass-through setting does not lapse on turns without tool calls.
     turn_reminder: str = ""
-    # §4.3: the controlled hold reminder. Hold ids and intents only -- it never
+    # The controlled hold reminder. Hold ids and intents only -- it never
     # copies the user's own words, and never the sideband verdict.
     hold_prompt: str = ""
     hold: IXHold = field(default_factory=IXHold)
-    # §3.7 (part 3): PA-blind consent sideband. Gate state, never prompt text.
+    # PA-blind consent sideband. Gate state, never prompt text.
     consent_decisions: list[ConsentDecision] = field(default_factory=list)
     turn_index: int = 0
-    # §3.5 (part 4): rebuilds the per-turn tool view once a tool has reported a
+    # Rebuilds the per-turn tool view once a tool has reported a
     # capability limit, so `IX_capability_resolve` can be offered and forced on
     # the *next* provider iteration rather than declared up front.
     tools_factory: Callable[[dict[str, Any]], Any] | None = None
@@ -919,9 +919,9 @@ class AgentRunResult:
     #: The turn's selection calls `_dedupe_ix_selections` dropped before
     #: execution, as `{id, name, args, outcome}`. Memory-pool input only: they
     #: ran nothing, so they emit no tool event and reach the collector's call
-    #: records through no other path (§3.3 `outcome=ignored_duplicate`).
+    #: records through no other path (`outcome=ignored_duplicate`).
     ignored_ix_selections: list[dict[str, Any]] = field(default_factory=list)
-    # §2.2: the collector's product, consumed by the renderer in the loop.
+    # The collector's product, consumed by the renderer in the loop.
     render_input: IXRenderInput | None = None
     collector: Any = None
     #: One of the `IX_CONTRACT_*` kinds while `stop_reason` is
@@ -946,7 +946,7 @@ class AgentRunner:
         messages = list(spec.initial_messages)
         final_content: str | None = None
         tools_used: list[str] = []
-        #: §3.0 / §7.1 — *attempted* is `tools_used`; this is *completed*. An IX
+        #: *Attempted* is `tools_used`; this is *completed*. An IX
         #: call the registry refused (live: `IX_autonomy_level(setting="Suggest")`,
         #: a setting the three-way enum no longer has) returns an error and no
         #: payload, so it contributes nothing to the directive. Counting it as
@@ -969,7 +969,7 @@ class AgentRunner:
         ix_directive = directive_for(spec.inherited_ix_selections)
         collector = TurnCollector(turn_index=spec.turn_index)
 
-        # §3.6 / §4.3: both are internal messages -- `_save_turn` drops them, so
+        # Both are internal messages -- `_save_turn` drops them, so
         # they never reach runtime_history, memory or the user.
         for prompt in (spec.turn_reminder, spec.hold_prompt):
             if prompt:
@@ -1000,10 +1000,10 @@ class AgentRunner:
         #: `IX_<attribute>` arguments this turn sent in a response that was
         #: voided, by tool name. A voided response banks nothing, but the model
         #: reasoned once and is not asked to reason again, so a later selection
-        #: for the same setting reads its blanks back from here (§3.0).
+        #: for the same setting reads its blanks back from here.
         voided_selections: dict[str, dict[str, Any]] = {}
         #: The tools already recorded as missing this turn, so the second miss is
-        #: recorded once rather than once per remaining iteration (§3.0 / T16).
+        #: recorded once rather than once per remaining iteration.
         payload_missing_reported: set[str] = set()
         #: Owner ruling 2026-09-08 — how many *iterations* of this turn each tool
         #: has come back an error on. One per iteration however many of its calls
@@ -1030,7 +1030,7 @@ class AgentRunner:
         #: would take a pin off the render-payload ladder for a repair whose
         #: whole point is that ignoring it is allowed.
         prose_ask_nudges = 0
-        #: Playability audit §4 — the undivided `[[q:…]]` block, nudged once per
+        #: The undivided `[[q:…]]` block, nudged once per
         #: turn. Its own counter for the same reason as `prose_ask_nudges`: it
         #: pins nothing and ending the turn on it is not an option, so it must
         #: not spend the render-payload ladder's budget.
@@ -1046,7 +1046,7 @@ class AgentRunner:
         #: ruling 4 (2026-09-08) made the second all-drop ship untagged with the
         #: failure recorded, rather than ending the step.
         certainty_claim_retries = 0
-        #: §3.7 (part 3) — set for the one response that answers the release repair,
+        #: Set for the one response that answers the release repair,
         #: so the payload reminder cannot discard the call the repair asked for.
         release_repair_sent = False
         capability_required = False
@@ -1100,12 +1100,12 @@ class AgentRunner:
         #: to the model. The strike itself is on the collector; this is only so
         #: the instruction is written once however many iterations follow.
         strike_prompted: set[str] = set()
-        #: Attributes whose §3.6 restatement has already been said on this turn,
+        #: Attributes whose per-turn restatement has already been said on this turn,
         #: so a selection made mid-turn is restated once rather than once per
         #: remaining iteration.
         restated_in_turn: set[str] = set()
         #: The tool `tool_choice` pins on the next request, for one request only
-        #: (§3.0, third attempt). `None` leaves the provider on "auto".
+        #: (the third attempt). `None` leaves the provider on "auto".
         forced_tool: str | None = None
         pinned_tool: str | None = None
         forced_tools_used: set[str] = set()
@@ -1326,7 +1326,7 @@ class AgentRunner:
             response_tool_names = [
                 tool_call.name for tool_call in provider_response.tool_calls
             ]
-            # §3.7 (part 3): a response that carries the call a release already
+            # A response that carries the call a release already
             # promised is executed before the payload reminder can throw it
             # away. The repair is asked once, so discarding that response is
             # how the action the user authorised gets lost -- the second miss
@@ -1397,7 +1397,7 @@ class AgentRunner:
                         ],
                         owed=deferred_owed,
                     )
-            #: §3.0 — the ladder carriers this response *did* send, has not
+            #: The ladder carriers this response *did* send, has not
             #: banked yet, and will actually get to run. Same wound as
             #: `answers_release`, one level up: live `pre_run_test_9` (acc_009
             #: t1) died here. A natural-selection turn owes two carriers at once
@@ -1492,14 +1492,14 @@ class AgentRunner:
                 # call per tool, so an ignored force still ends the turn. Only
                 # the carriers whose absence is fatal are worth a third call: a
                 # missing `IX_continue_<attribute>` keeps its record-and-deliver
-                # rule (§3.7, T16) and must not cost the turn an extra request.
+                # rule and must not cost the turn an extra request.
                 # The pin has to name a carrier that is still owed *after* this
                 # response is voided, and a voided response banks nothing: the
                 # carriers it did send are owed too. `conditional_missing`
                 # reads those off `response_tool_names` and calls them
                 # satisfied, which only holds for a response that runs. Live
                 # `regress19r` acc_009 t1: the model answered the nudge with
-                # the selection alongside a task call, so §3.0 voided the
+                # the selection alongside a task call, so the wrapper voided the
                 # response whole, but the ladder had already counted that
                 # selection as made and pinned the render instead. The
                 # selection went with the discarded response, the render came
@@ -1539,7 +1539,7 @@ class AgentRunner:
                     ))
                     await hook.after_iteration(hook_context)
                     continue
-                # §3.0 / §3.7 (T16): "remind once, record **one**
+                # The rule is "remind once, record **one**
                 # `ix_render_payload_missing` on the second miss, then deliver".
                 # `IX_continue_<attribute>` is not forcible and not fatal, so the
                 # check re-fires on every later iteration of the same turn: live
@@ -1632,7 +1632,7 @@ class AgentRunner:
                 await hook.after_iteration(hook_context)
                 continue
 
-            # Playability audit §4: under `Iterative` the renderer releases the
+            # Under `Iterative` the renderer releases the
             # first `[[q:…]]` block, so two questions inside one block go out
             # together and the reply is indistinguishable from `Structured`.
             # Nudged once per turn towards one question per block, before the
@@ -1984,13 +1984,13 @@ class AgentRunner:
                 # Owner ruling 2026-09-09 — the setting the model just chose
                 # shapes *this* turn's reply. regress21 `acc_002` t5 selected
                 # `solution_breadth: Low` at call 0 and still delivered a
-                # five-row table; the Low surface arrived on t8, because §3.6's
+                # five-row table; the Low surface arrived on t8, because the per-turn
                 # restatement is built from `inherited_ix_selections`, which the
                 # loop writes only after the run. The message slot is the same
                 # one the next turn uses (`spec.turn_reminder`) and the text is
                 # the same builder's output, so nothing new is said to the
                 # model — it is said one turn earlier. Empty, and therefore
-                # absent, for every attribute §3.6 does not restate: those are
+                # absent, for every attribute the restatement leaves out: those are
                 # the ones the wrapper enforces at render or gate time, and
                 # both already read this turn's events.
                 fresh = [
@@ -2006,7 +2006,7 @@ class AgentRunner:
                 hook_context.tool_results = list(results)
                 hook_context.tool_events = list(new_events)
 
-                # §3.0 / §7.1: an IX call the registry refused is owed again,
+                # An IX call the registry refused is owed again,
                 # exactly like a missing payload -- so a model that keeps
                 # re-sending the same invalid argument ends the turn instead of
                 # spending every iteration on it. The refused result is already
@@ -2124,10 +2124,10 @@ class AgentRunner:
                 # items 1 and 3, 2026-09-09).
                 #
                 # A `capability_limit` is excluded from the count for the same
-                # reason the strike excludes it: §3.5 owns the blocked-capability
+                # reason the strike excludes it: the capability-boundary protocol owns the blocked-capability
                 # case, and its two-stage repair is exactly the re-prompting this
                 # would cut short. The recurrence rebind instruction (gpt
-                # acc_082 §4) is excluded for exactly that reason too: it is the
+                # acc_082) is excluded for exactly that reason too: it is the
                 # wrapper telling the model which id to use, not a tool coming
                 # back an error, and counting it spent the one iteration the
                 # re-bound call needed. The still-illegal retry is *not*
@@ -2168,7 +2168,7 @@ class AgentRunner:
                 )
 
                 if collector.batch_repair:
-                    # §3.4 (part 3): asked once, and only once. Nothing ran, so the
+                    # Asked once, and only once. Nothing ran, so the
                     # refused attempt's hold records go with it -- the retry
                     # resends the same calls under a new decomposition.
                     repair = collector.batch_repair
@@ -2188,7 +2188,7 @@ class AgentRunner:
                         # afterwards -- scanning them would tell the user the
                         # steps failed on a turn where the retry ran them.
                         collector.binding_refused = True
-                        # §3.4 (part 5) applies here too. A binding refusal takes the
+                        # The closing iteration applies here too. A binding refusal takes the
                         # whole turn's batch, so `last_segment` is whatever the
                         # refused response happened to write -- live `v7r06` t18
                         # that was nothing at all, and the loop's old placeholder
@@ -2239,8 +2239,8 @@ class AgentRunner:
                     # it: the tool view is rebuilt so the resolve tool exists on
                     # the next iteration and is forced there.
                     capability_required = True
-                    # The same rebuild carries the activation (audit §2,
-                    # acc_026). `session_active_ix` gains `capability_boundary`
+                    # The same rebuild carries the activation (acc_026).
+                    # `session_active_ix` gains `capability_boundary`
                     # so the rest of the turn injects, gates and renders under
                     # it, and the factory puts `IX_capability_boundary` on the
                     # turn when the session has not chosen a setting yet --
@@ -2263,7 +2263,7 @@ class AgentRunner:
                 if collector.gate is not None:
                     ask = self._gate_message(collector)
                     if not ask and collector.gate.attribute in ASK_BEARING_ATTRIBUTES:
-                        # §3.3 (part 2)·C: the renderer never invents the ask, so a
+                        # The renderer never invents the ask, so a
                         # gate without one asks the user nothing and ships the
                         # PA's own prose instead -- observed live twice, with
                         # the whole turn reading `Let me set up the plan`. One
@@ -2307,7 +2307,7 @@ class AgentRunner:
                     await hook.after_iteration(hook_context)
                     break
 
-                # §3.4 (part 3): a batch or question hold ends the turn's *work* the
+                # A batch or question hold ends the turn's *work* the
                 # way a gate does -- no task tool runs after this point. What
                 # ships is the released batches or questions and whatever frame
                 # the payloads already in hand let the renderer build. Those
@@ -2321,7 +2321,7 @@ class AgentRunner:
                     for item in collector.held
                 ):
                     stop_reason = STOP_REASON_IX_HOLD
-                    # One closing iteration first (§3.4 (part 5)): the prose may still
+                    # One closing iteration first: the prose may still
                     # be owed. It adds a segment or it does not, and either way
                     # `last_segment` is the same fallback as before.
                     await self._closing_iteration(
@@ -2334,7 +2334,7 @@ class AgentRunner:
                     await hook.after_iteration(hook_context)
                     break
 
-                # §3.7 (part 3): a released id whose call never arrived. Ask once for
+                # A released id whose call never arrived. Ask once for
                 # the call the release promised -- nothing is replayed for the
                 # model, so an unanswered release is simply an action the user
                 # authorised and never got.
@@ -2357,7 +2357,7 @@ class AgentRunner:
                 # rule above has declined to end the turn, so the only thing left
                 # is another request, and the tool it would carry has said
                 # everything it is going to say. One exception (review item 1): a
-                # `capability_limit` seen this turn owes §3.5's declaration, and
+                # `capability_limit` seen this turn owes the boundary declaration, and
                 # that is exactly the re-prompting the cap would cut short --
                 # the turn would ship `completed` with the block unresolved and
                 # no `ix_boundary_unresolved` on the record.
@@ -2388,7 +2388,7 @@ class AgentRunner:
                             "ix_render_payload_missing", tools=capped_missing
                         )
                     if _fatal_missing(capped_missing):
-                        # §3.0's own consequence: unrenderable is unrenderable,
+                        # Unrenderable is unrenderable,
                         # however the turn arrived at its last message.
                         stop_reason = STOP_REASON_IX_CONTRACT_FAILURE
                         contract_failure_kind = IX_CONTRACT_RENDER
@@ -2468,8 +2468,8 @@ class AgentRunner:
                 reasoning_content=provider_response.reasoning_content,
                 thinking_blocks=provider_response.thinking_blocks,
             ))
-            # regress13 acc_035 — after `add_segment`, because §5.3 carrier F
-            # says the trailing block replaces the tool payload and this is the
+            # regress13 acc_035 — after `add_segment`, because under carrier F
+            # the trailing block replaces the tool payload and this is the
             # call that reads it; and after the assistant message, so the re-ask
             # goes out with the reply it is about on the history. `last_segment`
             # is the same delivery surface the renderer locates in, minus the
@@ -2515,7 +2515,7 @@ class AgentRunner:
                     detail="certainties contract",
                     continued=True,
                 )
-            # §5.3 carrier F: the renderer strips the trailing `<certainties>`
+            # Carrier F: the renderer strips the trailing `<certainties>`
             # block out of the prose it delivers, but `final_content` is the
             # fallback the loop ships when the renderer produced no message at
             # all -- so the block has to come off here too, or the one path
@@ -2598,7 +2598,7 @@ class AgentRunner:
 
         The predicate is evaluated *after* the response, because that is the
         only point where "would this turn be renderable without it" can be
-        answered. `IX_capability_resolve` is excluded: §3.5 (part 6) gives it its own
+        answered. `IX_capability_resolve` is excluded: it has its own
         two-attempt contract-failure rule rather than the generic one.
 
         "Produces a user-visible message" normally means "this response called
@@ -2646,7 +2646,7 @@ class AgentRunner:
 
     @staticmethod
     def _rejected_ix_tools(events: Sequence[dict[str, Any]]) -> list[str]:
-        """The IX tools this response called and the registry refused (§3.0).
+        """The IX tools this response called and the registry refused.
 
         An IX result carries `ix` only once it parsed into a payload, so a
         setting the enum does not allow lands here rather than in the directive
@@ -2663,7 +2663,7 @@ class AgentRunner:
     def _answers_release_repair(
         collector: TurnCollector, response: Any, *, repair_sent: bool
     ) -> bool:
-        """§3.7 (part 3) — does this response carry a task call a release promised?
+        """Does this response carry a task call a release promised?
 
         True for a call bound to an id already released this turn, and for any
         task call in the response answering the one release repair: the model
@@ -2749,7 +2749,7 @@ class AgentRunner:
         if collector.gate is not None or collector.held:
             return False
         # The certainty block is never delivered, so it must not hide the `?`
-        # that is (§5.3 carrier F).
+        # that is (carrier F).
         prose = strip_certainty_block(text) if text else ""
         lines = [line for line in prose.splitlines() if line.strip()]
         if not lines or not lines[-1].rstrip().endswith("?"):
@@ -2866,7 +2866,7 @@ class AgentRunner:
     def _capability_handoff_gate(
         collector: TurnCollector, directive: IXDirective
     ) -> GateRecord | None:
-        """`Find and hand off` gates once the boundary has been declared (§3.5)."""
+        """`Find and hand off` gates once the boundary has been declared."""
         if directive.capability_boundary_policy != "find_handoff_path":
             return None
         if not collector.boundary_declared or collector.gate is not None:
@@ -3223,7 +3223,7 @@ class AgentRunner:
         held_result: str = IX_HELD_TOOL_RESULT,
         prompt: str = IX_HOLD_CLOSING_PROMPT,
     ) -> None:
-        """§3.4 (part 5) — the one closing request after a batch / question hold.
+        """The one closing request after a batch / question hold.
 
         The hold is already recorded and no task tool is offered any more, so
         this cannot start work; it exists because the model that writes its
@@ -3252,7 +3252,7 @@ class AgentRunner:
         if not collector.closing_iteration:
             return
         # Added after the holds were recorded, so it shares no assistant message
-        # with a held call: the §3.3 (part 3)·a narration cut does not reach it, and
+        # with a held call: the held-narration cut does not reach it, and
         # the renderer selects its `[[batch:…]]` / `[[q:…]]` sections as usual.
         collector.add_segment(clean)
         messages.append(build_assistant_message(clean))
@@ -3433,7 +3433,7 @@ class AgentRunner:
                 status=str(event.get("status") or "ok"),
             )
 
-        # §3.0 / §7.1: the selection has to be *valid* before this turn's task
+        # The selection has to be *valid* before this turn's task
         # calls are filtered against it. A refused one contributes no payload,
         # so the directive below is rebuilt empty -- and an empty policy gates
         # nothing: live, `IX_autonomy_level(setting="Suggest")` errored and the
@@ -3473,14 +3473,14 @@ class AgentRunner:
         # qwen `acc_082`, 2026-09-18 — name resolution, then authorisation, then
         # execution. Qwen called `mcp_state_calendar_list`, which does not exist
         # (the beat offered `..._event_search` and `..._event_read`), and the
-        # invented name went straight into the business-call list: §3.8's
+        # invented name went straight into the business-call list: the
         # fail-closed floor read it as an `external_action`, Self-directed
         # withheld it for a confirmation, and the registry's "Tool ... not
         # found" -- which was sitting right there -- never reached the model.
         # The turn ended reported as carrying no ask. Deciding whether an
         # operation is authorised before knowing the operation exists is the
         # wrong order. The name is checked against this turn's own registry
-        # view, never probed by running anything, and §3.8's classification
+        # view, never probed by running anything, and the action-type classification
         # defaults are untouched: a tool that does not exist simply does not
         # reach them.
         offered = set(spec.tools.tool_names)
@@ -3667,8 +3667,8 @@ class AgentRunner:
                             ),
                         )
                 # Every tool result, on every turn -- and whether or not the
-                # attribute was already engaged. The pre-run-test audit (§2,
-                # acc_026) found the limit firing two beats before the beat that
+                # attribute was already engaged. The pre-run-test audit
+                # (acc_026) found the limit firing two beats before the beat that
                 # listed `capability_boundary`, so gating detection on the beat
                 # let the PA route around the block with no setting chosen. The
                 # trigger activates the attribute; `_with_capability_boundary`
@@ -3692,7 +3692,7 @@ class AgentRunner:
 
         The gate is a pre-execution filter, not an after-the-fact apology: a
         held call never touches the world, so no synthetic tool result is
-        produced for it and it never enters `runtime_history` (§2.4, §3.3 (part 2)·D).
+        produced for it and it never enters `runtime_history`.
         """
         session_active = set(spec.ix_context.get("session_active_ix") or [])
         gate_bearing = bool(session_active & HOLD_BEARING_ATTRIBUTES)
@@ -3750,7 +3750,7 @@ class AgentRunner:
                     )
                 return
 
-        # §3.4 (part 3): `One-at-a-time` releases the first batch, so a turn that
+        # `One-at-a-time` releases the first batch, so a turn that
         # declared one batch for several topics releases everything and holds
         # nothing. Ask once for a per-topic split; a second undivided response
         # is accepted and recorded, because the wrapper cannot name the topics
@@ -3810,7 +3810,7 @@ class AgentRunner:
             for attribute, episode in spec.hold.open_episodes.items()
             for call in episode.calls_held
         }
-        # §3.3 (part 3) / §3.7 (part 3) (owner, round 10): the user authorised *an action*,
+        # The user authorised *an action*,
         # not an id. Releasing the same id for a different tool is a different
         # action -- live shape: `i1` held as `email_message_send`, allowed, then
         # reissued as `bill_payment_create` and executed with no second ask. It
@@ -3823,12 +3823,12 @@ class AgentRunner:
             for episode in spec.hold.open_episodes.values()
             for call in episode.calls_held
         }
-        # §3.7 (part 3): consent is scoped to what the ask actually put to the user.
+        # Consent is scoped to what the ask actually put to the user.
         # An `allow` for a held id that ask never named authorises nothing —
         # live, an ask about one cancellation came back with an `allow` for six
         # ids. Only episodes that did ask something are held to this: a batch or
         # question hold opens no gate and writes no ask, and its continuation
-        # protocol is the whole release mechanism (§3.4 (part 3)).
+        # protocol is the whole release mechanism.
         asked_ids = {
             str(call.get(INTERACTION_ITEM_ID_FIELD) or "")
             for episode in spec.hold.open_episodes.values()
@@ -3859,7 +3859,7 @@ class AgentRunner:
         # response like `act_releases`, and never written back to the hold: the
         # authorisation covers this turn only.
         preauthorised = preauthorised_acts(spec.consent_decisions, collector.calls)
-        # §3.4 (part 3) (owner, round 6): the release *is* the release. An id the topic
+        # The release *is* the release. An id the topic
         # episode is holding, released this turn through
         # `IX_continue_topic_management`, is past the batch restriction even when
         # the same response re-declares it inside an unreleased batch. Without
@@ -3873,7 +3873,7 @@ class AgentRunner:
             item_id for item_id in released
             if held_ids.get(item_id) == "topic_management"
         }
-        # §3.3 (part 2)·A — one release, one execution. `validate_bindings` resets its
+        # One release, one execution. `validate_bindings` resets its
         # duplicate check per provider response, and a turn is many responses,
         # so without this an id that was released once carried an unlimited
         # number of world-changing calls across the turn's iterations.
@@ -4000,7 +4000,7 @@ class AgentRunner:
                     # a real second act still gets its own ask.
                     #
                     # Taken out of the map here as well, so one authorisation
-                    # still buys one call (§3.3 (part 2)·A): a response issuing
+                    # still buys one call: a response issuing
                     # two re-minted items on the same tool gets the second one
                     # asked about. Only this turn's copy is touched — an errored
                     # call leaves the persisted grant standing.
@@ -4043,7 +4043,7 @@ class AgentRunner:
                         item_id=item_id or act,
                         tool=act,
                     )
-                    # §3.7 (part 3): the judge counts authorisations off
+                    # The judge counts authorisations off
                     # `consent[]`, and this one never passed through a hold, so
                     # the loop below (keyed on `held_ids`) would not record it.
                     # The tool name stands in for the item id, as it already
@@ -4070,7 +4070,7 @@ class AgentRunner:
                         else f"{action_type}_gate"
                     )
 
-            # §3.7 (part 3): `consent[]` is the record of one authorisation, so it
+            # `consent[]` is the record of one authorisation, so it
             # gets one row per (attribute, item) — not one per call carrying
             # the id. Live, `v3g02` t24 wrote four rows for a single `allow`
             # (one read, one write, two duplicates the spent-release check
@@ -4202,7 +4202,7 @@ class AgentRunner:
     def _keep_unexecuted_releases_held(
         spec: AgentRunSpec, collector: TurnCollector
     ) -> None:
-        """§3.7 (part 3): a release that never issued its call leaves the item held.
+        """A release that never issued its call leaves the item held.
 
         Without this the write-back sees nothing held for the attribute and
         closes the episode, so the id the user authorised is gone -- live,
@@ -4326,7 +4326,7 @@ class AgentRunner:
         Live regress19 acc_009 t8: the response carrying
         `IX_information_elicitation{setting: "Structured", evidence: "The user
         explicitly asked to be asked for the remaining parameters before
-        drafting…", application: …}` also carried a task call, so §3.0 voided
+        drafting…", application: …}` also carried a task call, so the wrapper voided
         it whole; the pin then re-bought the selection and the model answered it
         with the bare `setting` the pin named. That empty payload is the one
         that banks, so the run recorded a setting chosen for no stated reason
@@ -4366,7 +4366,7 @@ class AgentRunner:
         selection. First wins; the dropped **calls** are returned so the caller
         can record them — the memory pool's `[ix_selection
         outcome=ignored_duplicate]` block needs the call's own id and its full
-        arguments (§3.3), which a `(name, setting)` pair cannot supply. Payload
+        arguments, which a `(name, setting)` pair cannot supply. Payload
         and continue tools are untouched: those legitimately repeat within a
         turn.
         """
@@ -4388,7 +4388,7 @@ class AgentRunner:
 
         The fail-closed binding check only applies where the contract is
         actually in force; the field injection itself belongs to the tool
-        registry (plan §5.3 carrier C).
+        registry (carrier C).
         """
         injected = getattr(spec.tools, "injected_per_call_fields", ())
         return INTERACTION_ITEM_ID_FIELD in injected

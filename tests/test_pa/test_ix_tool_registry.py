@@ -91,7 +91,7 @@ def _hold(attribute: str, **held) -> IXHold:
 
 
 def test_render_tools_are_offered_for_every_session_active_attribute() -> None:
-    """§3.0 — keyed on `session_active_ix`, so they survive the turn the setting was chosen."""
+    """Keyed on `session_active_ix`, so they survive the turn the setting was chosen."""
     base, _ = _base()
     turn = TurnToolRegistry(
         base,
@@ -143,7 +143,7 @@ def test_selection_tools_are_the_always_required_tier() -> None:
 
 
 def test_continue_tool_is_offered_but_only_required_while_holding() -> None:
-    """§7.1 — "offered but conditionally required": shown with a hold, forced with a hold."""
+    """Offered but conditionally required: shown with a hold, forced with a hold."""
     base, _ = _base()
     hold = _hold("topic_management", batches_held=[Batch("b2", "Hotel", "body")])
     turn = TurnToolRegistry(base, [], ix_context={"session_active_ix": ["topic_management"], "hold": hold})
@@ -208,7 +208,7 @@ def test_continue_tool_is_offered_but_only_required_while_holding() -> None:
     ],
 )
 def test_render_tool_required_predicates(attribute: str, context: RequiredContext, expected: bool) -> None:
-    """§3.0's required/optional table, one case per row."""
+    """The required/optional table, one case per row."""
     tool = IXPerTurnTool(IX_RENDER_TOOL_SPECS[attribute])
     assert tool.is_required(context) is expected
 
@@ -277,7 +277,7 @@ def test_interaction_item_id_says_which_payloads_may_declare_an_id() -> None:
 
 
 def test_confirmation_message_is_required_for_actions_and_optional_for_reads() -> None:
-    """§3.3 (part 2)·C — a pure read may leave the ask empty."""
+    """A pure read may leave the ask empty."""
     base, _ = _base()
     turn = TurnToolRegistry(base, [], ix_context={"session_active_ix": ["autonomy_level"]})
 
@@ -290,7 +290,7 @@ def test_confirmation_message_is_required_for_actions_and_optional_for_reads() -
 
 
 def test_injection_keys_on_session_active_ix_not_on_this_turn_s_selection() -> None:
-    """§3.0 — `turn_active_ix` drops an attribute once chosen; injection must not."""
+    """`turn_active_ix` drops an attribute once chosen; injection must not."""
     base, _ = _base()
     turn = TurnToolRegistry(
         base,
@@ -385,7 +385,7 @@ def test_the_certainty_carrier_asks_for_a_claim_it_will_write() -> None:
     `certainties` list and zero markers. Committing to a span instead did not
     fix the ordering either: round 3's three `Express` claims were paraphrases
     of markdown the model had not written yet, `0/3` located. So the carrier
-    now points at the trailing block (§5.3 carrier F) — written *after* the
+    now points at the trailing block (carrier F) — written *after* the
     prose, quoting text that already exists — and keeps the arguments as the
     fallback. It still reads the same under every setting.
     """
@@ -412,7 +412,7 @@ def test_the_certainty_carrier_asks_for_a_claim_it_will_write() -> None:
 
 
 def test_the_block_makes_the_certainty_tool_optional_but_never_the_payload() -> None:
-    """§3.0 — one of the two carriers is owed on every visible-message turn.
+    """One of the two carriers is owed on every visible-message turn.
 
     Requiredness is still setting-blind: it turns on whether the response
     carries a block, which every setting is asked for identically.
@@ -532,7 +532,7 @@ def test_the_rationale_field_is_second_person_reasons_and_not_owed_every_turn() 
 
 
 def test_batch_carriers_tell_the_pa_its_unmarked_closing_line_still_ships() -> None:
-    """§8 item 2 option A — the promise has to be in the tool text the PA reads."""
+    """The promise has to be in the tool text the PA reads."""
     for attribute in ("topic_management", "information_elicitation"):
         description = IX_RENDER_TOOL_SPECS[attribute].description
         assert "delivered every turn" in description
@@ -571,7 +571,7 @@ def test_every_selection_enum_is_exactly_its_taxonomy_settings() -> None:
         ), attribute
 
 
-# --- §3.6 restatement -------------------------------------------------------
+# --- per-turn restatement -------------------------------------------------------
 
 
 def _selections(**settings: str) -> list[IXSelection]:
@@ -627,7 +627,7 @@ def test_the_restatement_closes_on_the_wrapper_talk_rule() -> None:
 
 
 def test_autonomy_gate_settings_are_not_restated() -> None:
-    """§3.6 — Reactive / Self-directed are enforced by the gate, so restating them
+    """Reactive / Self-directed are enforced by the gate, so restating them
     would give the model two voices on the same rule."""
     assert turn_reminder_message(_selections(autonomy_level="Reactive")) == ""
     assert turn_reminder_message(_selections(autonomy_level="Self-directed")) == ""

@@ -5,12 +5,12 @@ There is **one text per attribute x setting**. It lives in
 `pa/agent/ix/settings_table.py`) and reaches the runtime as
 `IXToolSpec.setting_descriptions` here, attributes in the document order. The IX
 selection tool descriptions (`pa/agent/ix/tools.py`) and the per-turn restatement
-(§3.6, `collector.turn_reminder_message`) read the same dict; `pa/agent/ix/policy.py`'s
+(`collector.turn_reminder_message`) read the same dict; `pa/agent/ix/policy.py`'s
 six directive texts are retired by P2.
 
 The prose answers "what does this setting look like *after* the renderer" for the
-eight rendered attributes (§3.1 / `render_types.RENDERED_ATTRIBUTES`) and
-"how must you write this turn" for the six pass-through ones (§3.6).
+eight rendered attributes (`render_types.RENDERED_ATTRIBUTES`) and
+"how must you write this turn" for the six pass-through ones.
 """
 
 from __future__ import annotations
@@ -63,7 +63,7 @@ SETTING_COMMITMENT_NOTE = (
     + NO_WRAPPER_TALK
 )
 
-#: §5.1 — the wrapper notice appended to the `## nanobot Guidelines` block in
+#: The wrapper notice appended to the `## nanobot Guidelines` block in
 #: `pa/agent/context.py`. It tells the model that a renderer sits between its
 #: turn and the user, and that the renderer selects and orders but never rewrites.
 WRAPPER_NOTICE = (
@@ -106,7 +106,7 @@ OUTWARD_MESSAGE_NOTE = (
     "the user and let them decide who else hears about it."
 )
 
-#: The one sentence §8 item 2 (owner decision, option A) requires on both batch
+#: The one sentence required on both batch
 #: carriers: prose you leave unmarked ships every turn, held batches or not.
 UNMARKED_PROSE_NOTE = (
     "Prose you write before your first marker carries no batch or question id, "
@@ -120,8 +120,8 @@ UNMARKED_PROSE_NOTE = (
 class IXToolSpec:
     """One passive interaction preference selection tool.
 
-    `required` is the P0 "response-evaluated conditionally-required" slot
-    (§7.1): `always` (the selection tools), `never`, or `predicate` plus a named
+    `required` is the P0 "response-evaluated conditionally-required" slot:
+    `always` (the selection tools), `never`, or `predicate` plus a named
     `required_predicate` evaluated against a `RequiredContext` once this turn's
     provider response is in hand.
     """
@@ -171,7 +171,7 @@ def ix_tool_names_for(active_preferences: list[str] | tuple[str, ...] | None) ->
     ]
 
 
-#: §3.6 — the attributes whose runtime effect is carried by the per-turn
+#: The attributes whose runtime effect is carried by the per-turn
 #: restatement rather than by the renderer: the six pass-through ones, plus
 #: `autonomy_level` when the chosen setting is the one gate-off setting (a
 #: gating setting carries itself, so restating it would only leak the gate).

@@ -536,7 +536,7 @@ class SessionScript(BaseModel):
 
     # Ground-truth facts the simulator (as character) knows. PA's outputs are checked
     # against these; violations get logged in <factual_check> per turn. PA never
-    # sees this block — see Simulator Design § Access Boundary.
+    # sees this block.
     task_facts: dict[str, Any] = Field(default_factory=dict)
     # Information gating: `task_facts` key -> the beat id at which the user
     # first reveals it. Before that beat the fact is withheld from the
@@ -807,7 +807,7 @@ def authored_session_to_session_script(
     probe's active beat declares the attribute, and the setting is not in the
     draft (the GT lives in `resolved_gt.yaml`), so the simulator plays the
     persona's own setting for it. A `proactive_outreach` probe does carry a
-    `proactive_trigger` (design §2.1.2b): its beats are the two openings, so it
+    `proactive_trigger`: its beats are the two openings, so it
     runs as `triggered_interaction` and `compressed`, exactly as the
     accumulation side's triggered session does.
 

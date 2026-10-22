@@ -6,7 +6,7 @@ The cross-session defects stay per-rule in the catalogue, because they were each
 added after a regression showed the simulator making a mistake nobody could have
 foreseen while writing the beat, and the beat's `avoid` has no such grain.
 
-Three things the measurement forced (§11):
+Three things the measurement forced:
 
 - `avoid` is split into one question per sentence, each traceable on its own. A
   whole `avoid` in one question loses which half broke.
@@ -98,8 +98,8 @@ def build_general_groups(ctx: TurnContext) -> list[QuestionGroup]:
     `avoid` clauses.
 
     `must_ask` and `beat_position` go in as blocks, never as questions:
-    `carries_an_ask` keeps its own per-rule call (§9 is the authority on the
-    per-rule set), and the judge is told where the turn sits rather than asked.
+    `carries_an_ask` keeps its own per-rule call,
+    and the judge is told where the turn sits rather than asked.
 
     The head call carries the beat's `user_instruction` on the turn that binds
     it and, on the cue beat's opening turn, the cue; it is omitted when the turn

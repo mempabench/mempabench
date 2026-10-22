@@ -353,7 +353,7 @@ def test_proactive_send_plays_the_send_opening_and_skips_the_other() -> None:
 
 
 def test_a_session_that_cannot_fit_its_envelope_is_refused_before_the_first_turn() -> None:
-    # §3.3 part 6: the worst case is costed at construction, so an envelope that
+    # The worst case is costed at construction, so an envelope that
     # cannot hold it fails here rather than halfway through the session.
     with pytest.raises(RuntimeError, match="cannot fit its in-world envelope"):
         _clocked_loop(

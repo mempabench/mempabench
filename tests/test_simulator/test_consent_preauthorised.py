@@ -1,4 +1,4 @@
-"""The pre-authorisation entry on the consent sideband (§10 floor pre-auth).
+"""The pre-authorisation entry on the consent sideband.
 
 The floor must not ask again for an act the user handed over in the turn
 immediately before. Live regress19 `acc_039`: t40 gives the go-ahead for the

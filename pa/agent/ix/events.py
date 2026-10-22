@@ -41,7 +41,7 @@ class IXDirective:
     runtime effect of the pass-through attributes, and it was injected only on
     turns that already had tool calls. Both are gone: the wording now has a
     single home in ``specs.py`` and reaches the model through the per-turn
-    restatement (plan §3.6). What stays here are the **policy codes** the gates
+    restatement. What stays here are the **policy codes** the gates
     read.
     """
 

@@ -446,7 +446,7 @@ def test_inherited_process_visibility_directive_applies_without_reselecting_ix()
 
 
 # ---------------------------------------------------------------------------
-# IX wrapper gates (plan §3.3 (part 2), §3.4 (parts 2/3), §3.5 (part 6))
+# IX wrapper gates
 # ---------------------------------------------------------------------------
 
 
@@ -691,7 +691,7 @@ def test_a_missing_interaction_item_id_stops_the_whole_batch() -> None:  # T7
                 ),
                 bad,
             ]),
-            # §3.4 (part 5) runs on this exit too; this model has nothing to add.
+            # The closing iteration runs on this exit too; this model has nothing to add.
             LLMResponse(content=None),
         ])
         base = ToolRegistry()
@@ -784,7 +784,7 @@ def test_an_unbound_read_runs_and_an_unbound_write_is_still_refused() -> None:
 
 
 def test_the_wrapper_fields_are_not_part_of_the_task_call() -> None:
-    """§5.3 carrier C — stripped from the call *and* from what the run records.
+    """Carrier C — stripped from the call *and* from what the run records.
 
     Live `acc_039` P12 logged `calendar_event_create` with an empty
     `_ix_confirmation_message` sitting among its real arguments: the registry
@@ -1022,7 +1022,7 @@ def _capability_run(second: LLMResponse, provider_box: list | None = None):
             ),
         ]),
         # Reminder, forced `tool_choice`, and the response that still owes the
-        # payload: §3.5 (part 4) spends a third attempt before the contract failure.
+        # payload: the boundary declaration spends a third attempt before the contract failure.
         second,
         second,
         second,
@@ -1217,7 +1217,7 @@ def test_selection_only_still_requires_valid_arguments_with_three_attempt_limit(
 
 
 def test_capability_resolve_missing_after_a_forced_call_is_a_contract_failure() -> None:  # T21a
-    """A reminder, then `tool_choice`, and only then the failure (§3.5 (part 4))."""
+    """A reminder, then `tool_choice`, and only then the failure."""
     async def run():
         box: list[ScriptedProvider] = []
         result = await _capability_run(
@@ -1622,7 +1622,7 @@ def test_a_strike_stops_one_tool_and_leaves_the_others_running() -> None:
 
 
 def test_a_capability_limit_is_never_counted_as_a_strike() -> None:
-    """§3.5 owns the blocked-capability case; the strike must not take it."""
+    """The capability-boundary protocol owns the blocked-capability case; the strike must not take it."""
     async def run():
         provider = ScriptedProvider([
             LLMResponse(content="Fetching them.", tool_calls=[
@@ -2085,7 +2085,7 @@ def test_a_capability_limit_in_the_capped_iteration_keeps_the_boundary_contract(
 
     A `capability_limit` landing on the iteration the cap would end declares no
     boundary and emits no `ix_boundary_unresolved`: the turn shipped
-    `completed` with the block unresolved. §3.5 outranks the cap.
+    `completed` with the block unresolved. The boundary declaration outranks the cap.
     """
     async def run():
         _, coro = _cap_ladder_run(
@@ -2241,7 +2241,7 @@ def test_a_gate_in_the_capped_iteration_still_ends_at_the_gate() -> None:
 
 
 def test_a_repeated_capability_limit_never_reaches_the_retry_cap() -> None:
-    """§3.5 owns the blocked capability; the cap must not cut its repair short."""
+    """The capability-boundary protocol owns the blocked capability; the cap must not cut its repair short."""
     async def run():
         provider = ScriptedProvider([
             LLMResponse(content="Fetching it.", tool_calls=[
@@ -2838,7 +2838,7 @@ def test_an_unknown_task_tool_is_named_wrong_not_withheld() -> None:
     """qwen / acc_082: `mcp_state_calendar_list` does not exist.
 
     The wrapper put the invented name in the business-call list, `tool_action_type`
-    read it as `external_action` (§3.8's fail-closed floor) and Self-directed
+    read it as `external_action` (the fail-closed floor) and Self-directed
     withheld it for a confirmation -- so the registry's "Tool ... not found"
     never reached the model and the turn ended with no ask on the record. The
     name is resolved first now: not found, not run, not gated.
@@ -2882,7 +2882,7 @@ def test_an_unknown_task_tool_is_named_wrong_not_withheld() -> None:
 
 
 def test_an_unknown_task_tool_with_no_binding_is_also_just_not_found() -> None:
-    """The §3.3 binding refusal is for calls that could have run: an unknown
+    """The binding refusal is for calls that could have run: an unknown
     name has nothing to bind to, and the whole batch must not go with it."""
     async def run():
         _, coro = _qwen_run([
@@ -3148,7 +3148,7 @@ def _failing_dinner_iterations(count: int) -> list[LLMResponse]:
     """`count` responses, one refused `recurrence: '>TBD'` call each.
 
     One call per response, because the binding contract refuses two calls
-    carrying the same `interaction_item_id` inside one response (§3.3 (part 2)·A)
+    carrying the same `interaction_item_id` inside one response
     -- so a burst of identical calls on one authorised item cannot reach the
     store in the first place.
     """
@@ -3190,7 +3190,7 @@ def test_a_struck_calendar_call_gets_one_repair_and_creates_one_event() -> None:
         events = [event.get("name") for event in result.tool_events]
         assert events.count("tool_failure_strike") == 1
         assert events.count("tool_recurrence_repair_allowed") == 1
-        # §3 step 5: the repair prompt is reachable -- the per-iteration cap
+        # The repair prompt is reachable -- the per-iteration cap
         # (one above the strike limit) exists so the extra request happens.
         assert TOOL_RETRY_CAP == TOOL_FAILURE_STRIKE_LIMIT + 1
         assert "tool_retry_cap_reached" not in events
@@ -3211,7 +3211,7 @@ def test_a_struck_calendar_call_gets_one_repair_and_creates_one_event() -> None:
 
 
 def test_nothing_is_created_twice_once_the_repair_has_run() -> None:
-    """§5: one confirmation, one record. The repair spends its one attempt, and
+    """One confirmation, one record. The repair spends its one attempt, and
     the id it ran on is a spent release, so a second corrected call is held
     before the strike is even consulted -- the duplicate guard that already
     existed, reached because the repair was allowed to run at all."""
@@ -3244,7 +3244,7 @@ def test_a_still_illegal_value_is_not_a_repair_and_ends_the_turn() -> None:
 
     It never runs, and the iteration it spent is counted: the per-iteration
     retry cap ends the turn there rather than letting the model go round again.
-    That is the bound §3's acceptance asks for -- the one attempt is an
+    That is the required bound -- the one attempt is an
     exception, not an open loop.
     """
     async def run():
@@ -3271,7 +3271,7 @@ def test_a_still_illegal_value_is_not_a_repair_and_ends_the_turn() -> None:
 
 
 def test_a_changed_arrangement_under_the_same_id_is_not_the_repair() -> None:
-    """§4: a different evening is a different act, id or no id."""
+    """A different evening is a different act, id or no id."""
     async def run():
         _, calendar, coro = _dinner_run([
             *_failing_dinner_iterations(3),
@@ -3292,7 +3292,7 @@ def test_a_changed_arrangement_under_the_same_id_is_not_the_repair() -> None:
 
 
 def test_the_repair_under_a_new_id_is_sent_back_to_the_authorised_one() -> None:
-    """§4: the model minted `create-corrected-jason-dinner` live. The binding is
+    """The model minted `create-corrected-jason-dinner` live. The binding is
     the model's to repair -- rewriting the id here would move the user's
     authorisation onto a call they never saw -- and the budget stays unspent."""
     async def run():
@@ -3333,7 +3333,7 @@ def test_the_repair_under_a_new_id_is_sent_back_to_the_authorised_one() -> None:
 
 
 def test_a_refused_recurrence_leaves_the_authorisation_in_place() -> None:
-    """§4: nothing was written, so the item is still "authorised, not done".
+    """Nothing was written, so the item is still "authorised, not done".
 
     Checked here rather than assumed: the consent and release paths only
     discard a grant for a call that executed with `status == "ok"`.

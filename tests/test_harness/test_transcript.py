@@ -404,7 +404,7 @@ def test_write_pa_toolcalls_extracts_grouped_judge_ready_records(tmp_path: Path)
 
 
 def _ix_render_blob(**overrides) -> dict:
-    """A §4.4 `ix_render` blob: one released batch, one held one, a gate."""
+    """An `ix_render` blob: one released batch, one held one, a gate."""
     blob = {
         "schema_version": IX_RENDER_SCHEMA_VERSION,
         "ix_contract_version": IX_CONTRACT_VERSION,
@@ -576,7 +576,7 @@ def test_identical_held_call_rows_collapse_to_one_line(tmp_path: Path) -> None:
 
 
 def test_eval_block_shows_the_consent_sideband(tmp_path: Path) -> None:
-    """§7 #53 ②: the gate's ground truth belongs on the IX face's main read."""
+    """The gate's ground truth belongs on the IX face's main read."""
     run_dir = tmp_path / "session"
     events = _synthetic_session_events()
     events[2]["consent_decisions"] = [
@@ -631,7 +631,7 @@ def test_ix_tools_are_never_counted_as_task_tool_calls(tmp_path: Path) -> None:
 
 
 def test_ix_calls_keep_the_payload_type_tj_selects_b2_by(tmp_path: Path) -> None:
-    """TJ §4.1: `selections[]` takes only `payload_type == "ix_preference_selection"`.
+    """`selections[]` takes only `payload_type == "ix_preference_selection"`.
 
     The per-turn payload tools are `type == "ix"` too and their `setting` is the
     empty string, so with `payload_type` dropped the documented selector had
@@ -685,7 +685,7 @@ def test_ix_calls_keep_the_payload_type_tj_selects_b2_by(tmp_path: Path) -> None
 def test_ix_control_records_keep_the_ids_tj_correlates_them_by(
     tmp_path: Path,
 ) -> None:
-    """TJ §4.3 table 1.4: cancellations and false claims are correlated through
+    """Cancellations and false claims are correlated through
     each control record's own `item_id` / `item_ids`.
 
     The derived view rebuilt a fixed field set, so an `ix_consent_denied` row
@@ -733,7 +733,7 @@ def test_ix_control_records_keep_the_ids_tj_correlates_them_by(
     denied = control["ix_consent_denied"]
     assert denied["type"] == "ix"
     assert denied["sideband_decision"] == "deny"
-    # The join TJ §4.3 describes: the refused call is findable by that same id.
+    # The join: the refused call is findable by that same id.
     assert [
         call["name"] for call in calls
         if call["args"].get("interaction_item_id") == denied["item_id"]

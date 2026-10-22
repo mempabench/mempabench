@@ -9,7 +9,7 @@ coroutine's in-flight HTTP unread for its whole length — a 60 s deadline floor
 doubled by one timeout failover, against a 600 s PA request budget. In a thread
 the lock still serialises the calls, which is what one local judge box wants;
 what it stops doing is freezing the loop. It matters from the moment more than
-one session runs at a time (probe parallel runner plan §9, risk (f)).
+one session runs at a time.
 """
 
 from __future__ import annotations
@@ -57,7 +57,7 @@ from simulator.reply_facts import ReplyFacts
 from simulator.schemas import OPENING_BEATS, Beat, PreferenceMatrix, SessionScript
 
 
-#: The two findings the general form produces (§3). `user_instruction` and
+#: The two findings the general form produces. `user_instruction` and
 #: `avoid` are what the draft's own author wrote down as this beat's "must" and
 #: "must not", so a violation is hard (owner ruling 2026-09-09: a rule that is
 #: only recorded is not a rule).
@@ -97,7 +97,7 @@ PLAYED_AFTER_BUDGET: frozenset[str] = frozenset(
 # blocking again.
 RECORD_ONLY_FINDINGS: frozenset[str] = frozenset(
     {
-        # The general form (§3): the beat's own instruction, its `avoid`
+        # The general form: the beat's own instruction, its `avoid`
         # clauses, and the cue.
         BEAT_INSTRUCTION_NOT_FOLLOWED,
         BEAT_AVOID_VIOLATED,
@@ -388,7 +388,7 @@ def _judge_general(
     first_turn_in_beat: bool,
     must_ask: bool,
 ) -> dict[str, str]:
-    """The beat's own direction text, judged over one call per chunk (§3).
+    """The beat's own direction text, judged over one call per chunk.
 
     Three things and no more: the beat's `user_instruction` on the turn that
     binds it, each `avoid` clause on its own, and — on the cue beat's opening
@@ -404,7 +404,7 @@ def _judge_general(
 
     An instruction covers a beat and a beat runs over several turns, so it is
     judged only on the turn it binds: `first_turn_in_beat`, which is also the
-    only turn of a one-turn beat. Eight of the 28 false alarms the §11
+    only turn of a one-turn beat. Eight of the 28 false alarms a
     measurement counted were the judge reading a beat-wide instruction as owed
     by every turn of the beat.
 
@@ -719,7 +719,7 @@ class SimulatorAgentLoop:
         model: str | None = None,
         first_turn_in_beat: bool = True,
         # The harness already decided whether this turn owes an ask
-        # (`SimulatorLoop.require_ask`); the judge is told, never asked (§2).
+        # (`SimulatorLoop.require_ask`); the judge is told, never asked.
         must_ask: bool = False,
         benchmark_timestamp: str | None = None,
         held_items: Iterable[dict[str, str]] = (),
@@ -798,7 +798,7 @@ class SimulatorAgentLoop:
         selected_model = model or self.get_default_model()
         for attempt in range(1, self.output_contract_retries + 2):
             if judge is not None and judge.enabled:
-                # One candidate generation, one question-group budget (§4(3)).
+                # One candidate generation, one question-group budget.
                 judge.begin_generation(
                     f"{session.session_id}:{beat.beat}:a{attempt}", beat=beat.beat
                 )
@@ -965,7 +965,7 @@ class SimulatorAgentLoop:
             # alone for one round; over regress12-19 the three uncompressed hits
             # are all true (regress14c `acc_039` t17, regress18 `acc_009` t13,
             # regress18 `acc_039` t23), so it is armed on all of them.
-            # The judge is the only decider on both (Phase 3 §B): the semantic
+            # The judge is the only decider on both: the semantic
             # patterns they used to run on are gone, so with `MEMPA_JUDGE=off`
             # the reception beat is not judged at all. The second of them is
             # still narrowed by the beat's own `avoid` — where the draft says
@@ -1010,8 +1010,8 @@ class SimulatorAgentLoop:
                         findings.append(rule)
             # Armed wider than the check above, because these need no tool
             # record — only the assistant's own turns — so every reception
-            # beat gets them. The judge is the only decider on both (Phase 3
-            # §B, §C step 2), so with `MEMPA_JUDGE=off` the reaction beat is
+            # beat gets them. The judge is the only decider on both,
+            # so with `MEMPA_JUDGE=off` the reaction beat is
             # not judged. One of them changed standing with the wiring:
             # `reaction_states_future_policy` is hard (裁定 vi) and leaves the
             # diagnostics list below.
@@ -1092,7 +1092,7 @@ class SimulatorAgentLoop:
                 output.diagnostics_detail.setdefault(
                     "withheld_fact_before_ask", ["key_terms_delivered"]
                 )
-            # `probe_fact_missing` is the judge's alone (contract §9): with the
+            # `probe_fact_missing` is the judge's alone: with the
             # judge off the rule is simply not checked. The detail list is the
             # keys it named, so a reader gets them without the draft.
             #

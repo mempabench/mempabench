@@ -1,6 +1,6 @@
 """T11, T12 — the two projections that must not carry the wrapper across.
 
-Plan §7.2 P7. `tests/test_harness/test_judge_pack.py` covers one worked session
+`tests/test_harness/test_judge_pack.py` covers one worked session
 for T11; here the same scan runs once per rendered attribute, so no attribute's
 own vocabulary can slip through on a session that happened not to be the
 example. T12 puts a normal exchange and a forced-event exchange side by side and
@@ -172,7 +172,7 @@ ATTRIBUTE_SETTINGS = [
 def test_the_text_pack_leaks_no_attribute_and_no_setting(
     attribute: str, setting: str
 ) -> None:
-    """T11 (§2.4 projection 4, §4.4) once per rendered attribute and setting."""
+    """T11 (projection 4) once per rendered attribute and setting."""
     events = _session_events(attribute, setting)
 
     pack = build_text_judge_pack(events)
@@ -273,7 +273,7 @@ def test_the_text_pack_carries_no_wrapper_control_event(loop_factory) -> None:
 
     A row named `beat_gate_turn` or `ix_consent_denied` in the task tool list
     tells the setting-blind judge that a gate fired and that consent was
-    refused — the two facts §2.4 projection 4 exists to withhold. The names
+    refused — the two facts projection 4 exists to withhold. The names
     carry no attribute string, so the vocabulary scan cannot see them; the
     filter has to.
     """
@@ -349,7 +349,7 @@ FORCED_EXCHANGE = [
 def test_normal_and_forced_event_exchanges_write_the_same_memory_schema(
     loop_factory,
 ) -> None:
-    """T12 (§2.4 projection 3): one memory schema on both paths.
+    """T12 (projection 3): one memory schema on both paths.
 
     Both paths go through `build_turn_pool()`, so a persona's memory must not
     show two different kinds of turn. The pool carries the PA's own experience
@@ -438,7 +438,7 @@ def test_normal_and_forced_event_exchanges_write_the_same_memory_schema(
             payload = _blob({
                 key: value for key, value in record.items()
                 # `audit_only_labels` is the audit plane's own row and carries
-                # the beat's active attribute list by design (§2.4).
+                # the beat's active attribute list by design.
                 if key != "audit_only_labels"
             })
             for banned in (
@@ -451,7 +451,7 @@ def test_normal_and_forced_event_exchanges_write_the_same_memory_schema(
 
 
 # ---------------------------------------------------------------------------
-# §4.4 · `held` and `released` describe *this* turn
+# `held` and `released` describe *this* turn
 # ---------------------------------------------------------------------------
 
 ACTION_TYPES = {"task_send": "external_action"}
@@ -460,7 +460,7 @@ ACTION_TYPES = {"task_send": "external_action"}
 def test_held_reports_open_episodes_and_released_gets_its_writers(
     loop_factory,
 ) -> None:
-    """The two halves of the §4.4 blob have to agree about the same turn.
+    """The two halves of the `ix_render` blob have to agree about the same turn.
 
     `_held_json` read `open_episodes` **and** `finished_episodes`, and a
     closing episode is filed with its `plan_remaining` intact — so live, a

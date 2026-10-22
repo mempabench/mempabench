@@ -165,7 +165,7 @@ class SessionExecutor:
             events = load_events(transcript)
         # The simulator emits `pa_turn` without the PA's metadata, so the
         # wrapper's render block reaches no artifact on its own. Put it back
-        # before anything reads the transcript (§4.4).
+        # before anything reads the transcript.
         merge_report = merge_ix_render_into_transcript(
             transcript,
             ix_render_records_from_loop(loop),

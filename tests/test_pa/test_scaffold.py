@@ -397,7 +397,7 @@ def test_ix_tool_descriptions_preserve_operational_boundaries():
 
 
 def test_the_certainty_block_is_asked_for_on_both_carrier_surfaces():
-    """§5.3 carrier F — the per-turn tool AND the per-turn reminder.
+    """Carrier F — the per-turn tool AND the per-turn reminder.
 
     A carrier that has to survive to the very last line of the answer is asked
     for twice: once where the payload used to live, once in the reminder that
@@ -442,7 +442,7 @@ def test_the_pre_turn_directive_says_where_a_claim_is_copied_from():
 
 
 def test_ix_setting_descriptions_say_what_the_renderer_does():
-    """Since 2026-09-05 there is one text per attribute x setting (plan §5.2), and
+    """Since 2026-09-05 there is one text per attribute x setting, and
     for a rendered attribute it describes the shape after the renderer, not advice."""
     descriptions = {
         attribute: spec.setting_descriptions
@@ -459,7 +459,7 @@ def test_ix_setting_descriptions_say_what_the_renderer_does():
     assert "Only the first `[[batch:...]]` block" in descriptions["topic_management"]["One-at-a-time"]
     assert "released at once" in descriptions["information_elicitation"]["Structured"]
 
-    # the gate boundaries the wrapper actually enforces (plan §3.3 (part 2)·B)
+    # the gate boundaries the wrapper actually enforces
     assert "every draft, internal write and external action" in descriptions["autonomy_level"]["Reactive"]
     assert "never stops the turn even if you mark" in descriptions["autonomy_level"]["Self-directed"]
     assert "always stops the turn" in descriptions["autonomy_level"]["Self-directed"]
@@ -475,14 +475,14 @@ def test_ix_setting_descriptions_say_what_the_renderer_does():
     assert "No gate at all" in descriptions["autonomy_level"]["Autonomous"]
     assert "does not hold this line for you" in descriptions["autonomy_level"]["Autonomous"]
 
-    # every setting text is written out, not a one-liner (plan §5.2 round 5 unified wording)
+    # every setting text is written out, not a one-liner
     for attribute, per_setting in descriptions.items():
         for setting, text in per_setting.items():
             assert len(text) >= 110, f"{attribute}/{setting} description is too thin"
 
 
 def test_wrapper_notice_reaches_the_system_prompt():
-    """Plan §5.1 — the model is told a renderer selects and orders but never rewrites."""
+    """The model is told a renderer selects and orders but never rewrites."""
     from pa.agent.ix.specs import WRAPPER_NOTICE
 
     with tempfile.TemporaryDirectory() as td:

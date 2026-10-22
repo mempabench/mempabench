@@ -293,9 +293,9 @@ def _chatty_session(key: str, turns: int, chars: int) -> Session:
 def _seed_journal(workspace: Path, session: Session, *, stride: int = 2) -> None:
     """One journal record per turn, as the loop would have written them.
 
-    After §9 step 7 the file condition consolidates journal records, not
+    The file condition consolidates journal records, not
     `session.messages` -- the persisted slice cannot re-derive the pool
-    (§6.1 (b)) -- so a session built by hand has to carry its own journal or
+    -- so a session built by hand has to carry its own journal or
     there is nothing for compaction to hand the LM.
     """
     journal = turn_journal_for(SessionManager(workspace), session.key)
@@ -310,7 +310,7 @@ def _seed_journal(workspace: Path, session: Session, *, stride: int = 2) -> None
 
 
 def test_snap_pulls_a_cut_inside_a_record_back_to_the_last_whole_one():
-    """The consolidated prefix is a union of whole journal records (§6.1 (e)).
+    """The consolidated prefix is a union of whole journal records.
 
     `select_compaction_end_index` cuts at any `role: user` message, and a record
     can own more than one, so the cut can land inside one record's span. The
@@ -537,8 +537,8 @@ async def test_over_budget_writes_both_files_and_advances_indices():
 async def test_auto_compaction_consolidates_the_pool_and_not_held_prose():
     """R2, restated for step 7: both file entry points read the same journal.
 
-    The shape is no longer the two-message projection. §7 rules the PA's own
-    IX call and the world traffic IN -- they are the PA's experience, and a
+    The shape is no longer the two-message projection. The PA's own
+    IX call and the world traffic are ruled IN -- they are the PA's experience, and a
     wrong guess is remembered as a wrong guess -- while a held question is
     still OUT, because it reached nobody.
     """
@@ -603,7 +603,7 @@ async def test_auto_compaction_consolidates_the_pool_and_not_held_prose():
             for call in provider.calls
             for message in call["messages"]
         )
-        # The PA's own selection and the world traffic are experience (§7).
+        # The PA's own selection and the world traffic are experience.
         assert "IX_autonomy_level" in prompts
         assert "[ix_selection" in prompts or "[tool_call" in prompts
         # A held question reached nobody, so it is still not a memory.
@@ -1046,15 +1046,15 @@ async def test_committed_current_turn_still_respects_model_capacity(tmp_path, mo
 
 
 # ---------------------------------------------------------------------------
-# §9 step 5 · `[no_reply]` is the one item whose only content is delimiters
+# `[no_reply]` is the one item whose only content is delimiters
 # ---------------------------------------------------------------------------
 
 def test_no_reply_block_survives_format_messages() -> None:
     """A suppressed outreach must reach the consolidation LM, not vanish.
 
     `_format_messages` skips any message whose content is falsy
-    (`pa/agent/memory.py:123-124`), and `[no_reply]`'s body is empty by design
-    (§3.3). The always-emit-delimiters rule is what saves it: the content is
+    (`pa/agent/memory.py:123-124`), and `[no_reply]`'s body is empty by design.
+    The always-emit-delimiters rule is what saves it: the content is
     the delimiter pair, never `""`. Without that rule the file condition would
     drop a scored interaction choice — `proactive_outreach` is scored on
     exactly the decision to stay silent — silently.

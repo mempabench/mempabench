@@ -1,4 +1,4 @@
-"""One typed vocabulary for why a run step died (survey §2.3, R3).
+"""One typed vocabulary for why a run step died.
 
 The ledger has always kept the exception's ``str()`` and nothing else, so a run
 that died because the PA ended a step still holding a confirmation and a run

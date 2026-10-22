@@ -1,4 +1,4 @@
-"""The append-only per-session journal of pool writes (plan §6.1 (b), (c), (e))."""
+"""The append-only per-session journal of pool writes."""
 
 from __future__ import annotations
 

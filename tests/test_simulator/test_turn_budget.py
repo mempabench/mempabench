@@ -1,4 +1,4 @@
-"""Per-beat turn budget and the in-world envelope pre-check (IX wrapper §3.3 parts 5/6).
+"""Per-beat turn budget and the in-world envelope pre-check.
 
 The budget formula and its four constants live in `pa/agent/ix/render_types.py`
 and are injected by the harness at construction; `simulator/` never imports

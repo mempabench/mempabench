@@ -101,7 +101,7 @@ from pa.agent.ix.specs import IX_PASSIVE_SPECS
 
 # --- worked examples ---------------------------------------------------------
 
-# §3.3 (part 1) · IX_render_autonomy_level(plan_id="p1", plan=[a1, a2, a3], done=False)
+# IX_render_autonomy_level(plan_id="p1", plan=[a1, a2, a3], done=False)
 PLAN_A1_A3 = [
     PlanItem(
         id="a1",
@@ -123,7 +123,7 @@ PLAN_A1_A3 = [
     ),
 ]
 
-# §3.4 (part 3) · one batch each for the calendar, hotel and invoice topics in a
+# One batch each for the calendar, hotel and invoice topics in a
 # single turn, each bound to its own interaction_item_id
 BATCHES_B1_B3 = [
     Batch(
@@ -140,7 +140,7 @@ BATCHES_B1_B3 = [
     ),
 ]
 
-# §4.4 · OutboundMessage.metadata["ix_render"]
+# OutboundMessage.metadata["ix_render"]
 IX_RENDER_EXAMPLE = {
     "schema_version": "ix_render/1.1.0",
     "ix_contract_version": "ix-wrapper/2.1.0",
@@ -257,7 +257,7 @@ def test_five_projection_names() -> None:
     )
 
 
-# --- turn_budget (§3.3 (part 5)) ---------------------------------------------------
+# --- turn_budget ---------------------------------------------------
 
 
 def test_turn_budget_worked_cases() -> None:
@@ -322,7 +322,7 @@ def test_plan_items_a1_a3_from_section_3_3() -> None:
 
 
 def test_the_real_call_carries_binding_id_and_confirmation_message() -> None:
-    """§3.3 (part 1): email_message_send(..., interaction_item_id="i3", _ix_confirmation_message=...)"""
+    """email_message_send(..., interaction_item_id="i3", _ix_confirmation_message=...)"""
     call = ToolCallRecord(
         order=2,
         tool_name="email_message_send",
@@ -408,9 +408,9 @@ def test_boundary_state_question_and_consent_shapes() -> None:
     question = Question(id="q1", text="What is the budget ceiling?", about="budget")
     assert question.id == "q1"
 
-    # §3.7 (part 3): the sideband carries only {interaction_item_id, decision}
+    # The sideband carries only {interaction_item_id, decision}
     assert ConsentDecision(interaction_item_id="i3", decision="allow").decision == "allow"
-    # §5.3 carrier D: the PA's verdict + user_evidence for the audit
+    # Carrier D: the PA's verdict + user_evidence for the audit
     assert ReleaseDecision(
         id="a3", decision="release", user_evidence="go ahead and send it"
     ).decision == "release"
@@ -481,7 +481,7 @@ def test_render_input_and_rendered_turn_round_trip_the_gate_round() -> None:
         held_call_ids=["call_2"],
         trace=["autonomy_level=Self-directed -> gate a3 (external_action_floor)"],
     )
-    # §2.4 mixed tool calls: the two lists are disjoint, and together they are
+    # Mixed tool calls: the two lists are disjoint, and together they are
     # every call this turn declared
     assert set(rendered.executed_call_ids) & set(rendered.held_call_ids) == set()
     assert set(rendered.executed_call_ids) | set(rendered.held_call_ids) == {
@@ -508,7 +508,7 @@ def test_required_context_slot_shape() -> None:
     assert ctx.hold.open_episodes["autonomy_level"].plan_remaining[0].id == "a3"
 
 
-# --- projections (§2.4) ------------------------------------------------------
+# --- projections ------------------------------------------------------
 
 
 def test_projection_containers_hold_the_turn_envelope() -> None:
@@ -584,7 +584,7 @@ def test_text_judge_projection_builder_is_deferred_to_p4() -> None:
         text_judge_projection(RenderedTurn(message="x"), IXRenderInput())
 
 
-# --- §4.4 JSON --------------------------------------------------------------
+# --- `ix_render` JSON --------------------------------------------------------------
 
 
 def test_text_judge_banned_keys_cover_every_section_4_4_key() -> None:
@@ -668,7 +668,7 @@ def test_ix_render_metadata_json_round_trip() -> None:
 
 def test_the_stop_reason_and_the_closing_round_are_optional_audit_keys() -> None:
     """`ix_hold` had no record in any artefact: `pa_turn` carries no
-    `stop_reason`, and §3.4 (part 5)'s closing request wrote no field, no event and
+    `stop_reason`, and the closing request wrote no field, no event and
     no trace line — it was visible only as an extra provider call."""
     blob = to_ix_render_metadata(
         RenderedTurn(message="x", trace=["topic_management episode bs1 -> held, round 1"]),
@@ -685,7 +685,7 @@ def test_the_stop_reason_and_the_closing_round_are_optional_audit_keys() -> None
     assert empty["trace"] == ["closing iteration empty"]
 
     # Neither key is written by a turn that had neither, and both are banned
-    # from the text face like every other §4.4 key.
+    # from the text face like every other `ix_render` key.
     plain = to_ix_render_metadata(RenderedTurn(message="x"))
     assert "stop_reason" not in plain and "closing_iteration" not in plain
     assert {"stop_reason", "closing_iteration"} <= TEXT_JUDGE_BANNED_KEYS
@@ -840,13 +840,13 @@ def test_enumerations_freeze_their_value_sets() -> None:
         "ix_reselection_ignored",
     )
     assert len(set(IX_EVENT_NAMES)) == len(IX_EVENT_NAMES)
-    # §3.5 (part 4), step 6: `ix_boundary_unresolved` is a failure diagnostic,
+    # `ix_boundary_unresolved` is a failure diagnostic,
     # and its reason has only two values
     assert BOUNDARY_FAILURE_REASONS == ("missing", "invalid_payload")
     assert "ix_boundary_unresolved" in IX_EVENT_NAMES
 
 
-# --- how the tool names are derived (§3.0) -------------------------------------
+# --- how the tool names are derived -------------------------------------
 
 
 def test_render_tools_cover_six_of_the_eight_rendered_attributes() -> None:
@@ -856,9 +856,9 @@ def test_render_tools_cover_six_of_the_eight_rendered_attributes() -> None:
     # the other two rendered attributes each have their own carrier and do not
     # go through IX_render_*
     assert RENDERED_ATTRIBUTES - set(IX_RENDER_TOOL_NAMES) == {
-        # carrier E: the forced IX_capability_resolve (§3.5 (part 1))
+        # carrier E: the forced IX_capability_resolve
         "capability_boundary",
-        # stays on IX_proactive_outreach, re-offered on every event turn (§3.0)
+        # stays on IX_proactive_outreach, re-offered on every event turn
         "proactive_outreach",
     }
     for names in (
@@ -895,7 +895,7 @@ def test_render_payload_fields_map_every_tool_to_real_turn_payload_fields() -> N
     }
 
 
-# --- contract 5 · the capability_limit result shape (§3.5 (part 3)) ------------
+# --- contract 5 · the capability_limit result shape ------------
 
 
 def test_capability_limit_result_shape() -> None:
@@ -939,7 +939,7 @@ def test_capability_limit_result_shape() -> None:
     assert set(minimal) == set(CAPABILITY_LIMIT_RESULT_KEYS)
 
 
-# --- contract 1 · RequiredContext's marker input (§3.0) ------------------------
+# --- contract 1 · RequiredContext's marker input ------------------------
 
 
 def test_required_context_carries_response_text_and_markers() -> None:
@@ -963,7 +963,7 @@ def test_required_context_carries_response_text_and_markers() -> None:
         ),
     )
     assert ctx.response_markers == ("batch:b1", "batch:b2", "q:q1", "c:c1")
-    # §3.0: a [[batch:…]] in the prose makes IX_render_topic_management required,
+    # A [[batch:…]] in the prose makes IX_render_topic_management required,
     # even on a turn with no task call
     assert ctx.response_tool_names == ()
     assert any(marker.startswith("batch:") for marker in ctx.response_markers)
@@ -1016,7 +1016,7 @@ def test_a_marker_shape_nobody_recognises_is_still_a_marker() -> None:
     ]
 
 
-# --- contract 10 · the fail-closed action type default (§3.8) ------------------
+# --- contract 10 · the fail-closed action type default ------------------
 
 
 def test_action_type_defaults_are_fail_closed() -> None:
@@ -1029,7 +1029,7 @@ def test_action_type_defaults_are_fail_closed() -> None:
     assert set(typing.get_args(ToolResultStatus)) == {"ok", "error", "capability_limit"}
 
 
-# --- contract 9 · TURN_BUDGET_PARAMS (§3.3 (part 5)) ---------------------------
+# --- contract 9 · TURN_BUDGET_PARAMS ---------------------------
 
 
 def test_turn_budget_params_reproduce_turn_budget() -> None:
@@ -1121,7 +1121,7 @@ def test_a_hold_that_asks_nothing_is_never_held_for_confirmation(
 
 
 def test_a_gate_reason_still_gets_its_gates_status() -> None:
-    """The reason map must not swallow the four real gates (§3.3 (part 2)·D)."""
+    """The reason map must not swallow the four real gates."""
     assert held_status("autonomy_level", "external_action_floor") == "held_for_confirmation"
     assert held_status("capability_boundary", "handoff") == "held_for_handoff"
     assert held_status("autonomy_level", "consent_deny") == "held_for_confirmation"
@@ -1131,13 +1131,13 @@ def test_a_gate_reason_still_gets_its_gates_status() -> None:
 
 
 def test_hold_rounds_hard_cap_is_reachable_under_the_beat_budget() -> None:
-    """§3.7 (part 4)'s round-4 forced close has to fall inside the budget §3.3 (part 5) computes."""
+    """The round-4 forced close has to fall inside the beat budget."""
     assert HOLD_ROUNDS_HARD_CAP == 4
     for attribute in sorted(HOLD_BEARING_ATTRIBUTES):
         assert turn_budget([attribute]) >= HOLD_ROUNDS_HARD_CAP, attribute
 
 
-# --- contract 8 · the sideband's input value domain (§3.7 (part 3)) ------------
+# --- contract 8 · the sideband's input value domain ------------
 
 
 def test_sideband_input_excludes_the_audit_only_missing_value() -> None:

@@ -1,9 +1,9 @@
-"""Judge input packer — test doc §4.2 / §4.3 (rows 18, 24–27 of §7).
+"""Judge input packer.
 
 Pure file movement plus extraction. No LLM, idempotent: running it twice over
 the same run writes the same bytes. One finished probe step directory
 (`steps/<probe_id>/`) becomes one `judge_input/<probe_id>/` directory holding
-the two faces (§0-B2) and the files both faces share:
+the two faces and the files both faces share:
 
     meta.json               meta.yaml as JSON (carries the two IX version stamps)
     transcript.jsonl / .md  copied — IX face only (they carry `ix_render`)
@@ -15,10 +15,10 @@ the two faces (§0-B2) and the files both faces share:
 
 `index.json` at `judge_input/` lists every packed probe, says which files
 belong to which reader (text face / IX face / aggregation), and carries the run
-identity a score must trace back to (§4.2 "index.json").
+identity a score must trace back to.
 
-The GT setting is read through `setting_for` and nothing else (§4.2 "取值只走
-一个 helper"); the packer reads the frozen copy inside the run directory, never
+The GT setting is read through `setting_for` and nothing else;
+the packer reads the frozen copy inside the run directory, never
 the Authoring original.
 """
 
@@ -49,7 +49,7 @@ PROBE_STEP_KINDS = ("pre_event_probe", "final_probe")
 #: RunStep.kind → the `kind` argument `setting_for` takes.
 PROBE_KIND_BY_STEP_KIND = {"pre_event_probe": "pre_event", "final_probe": "final"}
 
-#: Which reader gets which file (§4.2 "输入包分两层"). The packer only writes
+#: Which reader gets which file. The packer only writes
 #: what it derives; `rubric.md`, `render.html` and the `baseline_*` files are
 #: other components' outputs and are not listed until they exist.
 FILE_GROUPS: dict[str, tuple[str, ...]] = {
@@ -91,7 +91,7 @@ def _load_yaml(path: Path) -> dict[str, Any]:
 
 
 def build_meta(meta: Mapping[str, Any]) -> dict[str, Any]:
-    """meta.yaml → meta.json. The two IX version stamps must be present (§4.2)."""
+    """meta.yaml → meta.json. The two IX version stamps must be present."""
     for key in ("ix_render_schema_version", "ix_contract_version"):
         if not meta.get(key):
             raise ValueError(f"meta.yaml lacks {key}; a probe without a rendered turn cannot be judged")
@@ -104,7 +104,7 @@ def build_meta(meta: Mapping[str, Any]) -> dict[str, Any]:
 def build_ix_selection(
     pa_toolcalls: Mapping[str, Any], *, probe_id: str, target_attribute: str, context: str
 ) -> dict[str, Any]:
-    """The explicit-selection face's raw material (§4.2 "ix_selection.json").
+    """The explicit-selection face's raw material (`ix_selection.json`).
 
     Filters first, then takes: only `type == "ix"` calls whose `payload_type`
     is `ix_preference_selection` and whose `attribute` is the target count. The
@@ -161,7 +161,7 @@ def build_ground_truth(
     step_kind: str,
     source_path: str,
 ) -> dict[str, Any]:
-    """The cell's GT (§4.2 "ground_truth.json").
+    """The cell's GT (`ground_truth.json`).
 
     `setting` is `setting_for(kind, record)` on the frozen record; the
     `evolving` block is read straight off the record's shape. `confidence` /
@@ -255,7 +255,7 @@ def _world_records(
     """Outline ingredients of `role`, resolved at scene start, markers stripped.
 
     A record marked `unavailable: true` is excluded from the list outright
-    (§7 row 24: it must not be in the denominator, and its `unavailable_reason`
+    (it must not be in the denominator, and its `unavailable_reason`
     is something the PA never saw).
     """
     resolved: list[dict[str, Any]] = []
@@ -299,7 +299,7 @@ def _withheld_required_facts(ingredients: Iterable[Mapping[str, Any]]) -> list[d
 
 
 def turn_index(events: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
-    """Number the `pa_turn` events by ascending `t` (§7 row 26: no `exchange` on probes)."""
+    """Number the `pa_turn` events by ascending `t` (no `exchange` on probes)."""
     pa_turns = sorted(
         (event for event in events if event.get("kind") == "pa_turn"),
         key=lambda event: int(event["t"]),
@@ -311,7 +311,7 @@ def turn_index(events: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
 
 
 def outreach_events(events: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
-    """`outreach_action` / `outreach_message` from the transcript's `tool_events[]` (§7 row 27)."""
+    """`outreach_action` / `outreach_message` from the transcript's `tool_events[]`."""
     found: list[dict[str, Any]] = []
     for event in events:
         if event.get("kind") != "pa_turn":
@@ -333,7 +333,7 @@ def outreach_events(events: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]
 
 
 def tool_actions(tool_log: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
-    """Each `tool_log` row classified with `tool_action_type` (§7 row 25)."""
+    """Each `tool_log` row classified with `tool_action_type`."""
     return [
         {"t": row.get("t"), "tool": row.get("tool"), "action_type": tool_action_type(str(row.get("tool")))}
         for row in tool_log
@@ -349,21 +349,21 @@ def build_scene(
     events: list[dict[str, Any]],
     tool_log: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    """scene.json (§4.2 "scene.json 形状与来源").
+    """scene.json.
 
     (a) `triggers[]` from the draft's `proactive_trigger`; (b) `core_task` from
     the active beat's `user_instruction` (the one beat carrying
-    `active_skills`, §2.1.3); (c) `world_state` from the outline's
+    `active_skills`); (c) `world_state` from the outline's
     `candidate` / `unresolved` ingredients resolved against the scene-start
     world; (d) `withheld_required_facts` from the outline's `missing_field`
     ingredients — the author's list of required facts the ask withholds (the
     records hold candidate values for each, never the answer), the coverage
     reference `information_elicitation`'s `Structured` row is judged
     against; (e) `familiarity_signals` from that same beat, `null` unless set.
-    The three derived views the §7 rows ask the packer for — turn numbers,
+    The three derived views — turn numbers,
     outreach events, tool action types — ride along under their own keys.
 
-    A triggered probe (`proactive_outreach`, §2.1.2b) is the one shape with two
+    A triggered probe (`proactive_outreach`) is the one shape with two
     active beats: its beats are the two openings and the runtime plays whichever
     the PA's own decision selects. There is no user question on it, so the task
     the PA acted on is the arrival — `core_task` is the trigger's `detail`.

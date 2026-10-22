@@ -13,7 +13,7 @@ a different route. The environment-event turn inherits no settings by design
 it is the only carrier of `outreach_message`, and dropping it would leave the
 PA no way to write the candidate contact at all. The seed instead survives as
 `IXSelection.forced`, which `_remember_ix_selections` refuses to overwrite, so
-the renderer reads the forced setting and applies §3.1's override (`Low` ->
+the renderer reads the forced setting and applies its override (`Low` ->
 suppress with the message held, `High` -> send).
 """
 

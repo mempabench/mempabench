@@ -167,7 +167,7 @@ def _open(attribute: str = "autonomy_level", episode_id: str = "p1") -> dict:
 
 
 def test_only_the_ids_the_ask_named_are_offered_for_consent() -> None:
-    """§3.7 part 3: the criterion is "shown to the user", not "still held".
+    """The criterion is "shown to the user", not "still held".
 
     Live, an ask that named one cancellation came back with an `allow` for six
     ids. `ix_render.held` still lists every held call for the judge; the
@@ -573,14 +573,14 @@ async def test_the_direct_message_prompt_carries_no_run_id(tmp_path: Path) -> No
 
 
 # ---------------------------------------------------------------------------
-# `triggered_skills` — an attribute a runtime trigger activated (audit §2)
+# `triggered_skills` — an attribute a runtime trigger activated
 # ---------------------------------------------------------------------------
 
 SCRIPT_SESSION = "acc_026"
 
 
 class _BlockedReadTool(Tool):
-    """A read whose record the fixture marks as unobtainable (§3.5 part 3)."""
+    """A read whose record the fixture marks as unobtainable."""
 
     @property
     def name(self) -> str:
@@ -628,7 +628,7 @@ async def _beat(pa: RecordingPA, message: str) -> Any:
 async def test_triggered_skills_is_written_every_turn_and_sticks_from_the_trigger(
     tmp_path: Path,
 ) -> None:
-    """Audit §2 (acc_026): the capability limit fires on a beat that lists nothing.
+    """The capability limit fires on a beat that lists nothing.
 
     The simulator cannot read `ix_render`, so this is how it learns that
     `capability_boundary` is live on a beat whose script never named it. Written

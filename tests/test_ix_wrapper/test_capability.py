@@ -1,6 +1,6 @@
 """T21 — the two-stage capability boundary, end to end and fail-closed.
 
-Plan §7.2 P7, §3.5. `tests/test_pa/test_runner_ix.py` owns the runner-level
+`tests/test_pa/test_runner_ix.py` owns the runner-level
 pair (missing, invalid -- each fails on the third response charged to the
 shared IX repair budget). What is here is the whole path: a task
 tool returning the `capability_limit` code, the resolve tool appearing and
@@ -66,7 +66,7 @@ def _first_turn(setting: str) -> LLMResponse:
 def test_a_capability_limit_forces_the_resolve_tool_and_ends_with_the_handoff(
     loop_factory,
 ) -> None:
-    """§3.5 (parts 1/4): declare the boundary against the real result, then hand off."""
+    """Declare the boundary against the real result, then hand off."""
     async def scenario() -> None:
         provider = ScriptProvider([
             _first_turn("Find and hand off"),
@@ -108,7 +108,7 @@ def test_a_capability_limit_forces_the_resolve_tool_and_ends_with_the_handoff(
 def test_suggest_alternatives_declares_the_boundary_without_handing_off(
     loop_factory,
 ) -> None:
-    """§3.5 (part 3): the other setting keeps going, so nothing is held and no gate opens."""
+    """The other setting keeps going, so nothing is held and no gate opens."""
     async def scenario() -> None:
         provider = ScriptProvider([
             _first_turn("Suggest alternatives"),
@@ -291,7 +291,7 @@ def test_two_misses_fail_the_step_and_leave_nothing_behind(
 def test_the_stop_reason_of_a_capability_contract_failure_is_its_own(
     loop_factory,
 ) -> None:
-    """§3.5 (part 6): this failure is not `error` and not `max_iterations`.
+    """This failure is not `error` and not `max_iterations`.
 
     A step that failed the contract has to be distinguishable from a provider
     error, because only one of the two is worth retrying unchanged.
@@ -411,7 +411,7 @@ def test_suggest_alternatives_stays_open_on_the_same_off_beat(loop_factory) -> N
 
 
 # ---------------------------------------------------------------------------
-# pre-run-test audit §2 (acc_026) · the trigger activates the attribute
+# the trigger activates the attribute
 # ---------------------------------------------------------------------------
 
 def _limit_read() -> LLMResponse:
@@ -466,7 +466,7 @@ def test_mixed_boundary_selection_is_progress_but_work_waits_for_resolve(
 def test_a_capability_limit_activates_the_attribute_on_a_session_that_never_lists_it(
     loop_factory,
 ) -> None:
-    """Audit §2 (acc_026): `capability_boundary` follows the trigger, not the beat.
+    """`capability_boundary` follows the trigger, not the beat.
 
     Live, the `capability_limit` fired on `b1` while the beat carrying the
     attribute in `active_skills` was `b3`. The PA substituted two other papers

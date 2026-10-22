@@ -1,4 +1,4 @@
-"""The canonical tagged rendering of one turn's experience (plan §3.3, §3.6)."""
+"""The canonical tagged rendering of one turn's experience."""
 
 from __future__ import annotations
 

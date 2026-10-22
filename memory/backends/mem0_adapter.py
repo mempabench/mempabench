@@ -609,7 +609,7 @@ class Mem0Adapter:
         # Off the event loop: `search` is a synchronous client call, and on the
         # loop it left every other coroutine's in-flight HTTP unread for its
         # whole length -- which at more than one session at a time spends
-        # another session's request budget (probe parallel runner plan §9).
+        # another session's request budget.
         result = await asyncio.to_thread(self._client.search, **native_request)
         latency = (time.monotonic() - t0) * 1000
 

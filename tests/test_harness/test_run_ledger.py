@@ -259,7 +259,7 @@ def test_forget_drops_a_step_and_reloads(tmp_path: Path):
 
 
 def test_a_stopped_probe_is_rerun_not_refused(tmp_path: Path):
-    """§2.4.2: a probe's start point is an immutable pin, so a probe left at
+    """A probe's start point is an immutable pin, so a probe left at
     `running` / `failed` is nothing to roll back — it is simply run again.
     Only a timeline step makes the ledger refuse.
     """

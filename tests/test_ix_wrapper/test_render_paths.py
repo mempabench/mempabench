@@ -1,6 +1,6 @@
 """T5–T8, T10 and one end-to-end render path per rendered attribute.
 
-Plan §7.2 P7. `tests/test_pa/test_ix_render.py` proves the renderer is a
+`tests/test_pa/test_ix_render.py` proves the renderer is a
 correct pure function; `tests/test_pa/test_runner_ix.py` proves the gate stops
 the right calls. What is missing between them is the whole path: a scripted
 provider response going through `AgentLoop.process_direct_message` and coming
@@ -58,7 +58,7 @@ def _provider_requests(loop: Any) -> list[dict]:
 def test_one_plan_item_that_expands_into_three_calls_is_gated_as_one(
     loop_factory,
 ) -> None:
-    """T5 (§3.3 (part 2)·A): the gate is on the item, so all three of its calls stop."""
+    """T5: the gate is on the item, so all three of its calls stop."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content="Filing all three.", tool_calls=[
@@ -90,7 +90,7 @@ def test_one_plan_item_that_expands_into_three_calls_is_gated_as_one(
 # ---------------------------------------------------------------------------
 
 def test_one_call_is_claimed_by_exactly_one_plan_item(loop_factory) -> None:
-    """T6 (§3.3 (part 2)·A): a call carries one id, so it settles one plan item only.
+    """T6: a call carries one id, so it settles one plan item only.
 
     The two plan items nobody called are neither executed nor held — they are
     still outstanding, and the next turn has to come back to them.
@@ -129,13 +129,13 @@ def test_one_call_is_claimed_by_exactly_one_plan_item(loop_factory) -> None:
 # ---------------------------------------------------------------------------
 
 def test_a_second_invalid_binding_delivers_text_and_runs_nothing(loop_factory) -> None:
-    """T7 (§3.3 (part 2)·A, §3.4 (part 3)) at loop level, with only `topic_management` on.
+    """T7 at loop level, with only `topic_management` on.
 
     The runner-level case in `tests/test_pa/test_runner_ix.py` shows the repair
     prompt. This one shows what the *user* gets when the repair does not take:
     a tool log with no task call in it, and **not** the prose — `Doing the
     hotel.` was written in the same response as the calls that never ran, so it
-    is held narration (§3.3 (part 2)·D addendum) and lives only on the audit plane.
+    is held narration and lives only on the audit plane.
     """
     async def scenario() -> None:
         unbound = task_call("w1", "task_echo", "")
@@ -151,7 +151,7 @@ def test_a_second_invalid_binding_delivers_text_and_runs_nothing(loop_factory) -
                 selection("topic_management", "Organize"), payload, unbound,
             ]),
             LLMResponse(content="Doing the hotel.", tool_calls=[payload, unbound]),
-            # §3.4 (part 5) now runs on this exit too, and this model writes nothing
+            # The closing iteration now runs on this exit too, and this model writes nothing
             # when it is asked -- which is what left `v7r06` t18 with no message.
             LLMResponse(content=None),
         ])
@@ -282,7 +282,7 @@ def test_the_same_batch_id_with_the_same_binding_is_a_resend(loop_factory) -> No
 
 
 def test_a_binding_refusal_gets_its_closing_iteration(loop_factory) -> None:
-    """Item 6 (§3.4 (part 5) extended to §3.3 (part 2)·A's fail-closed exit).
+    """Item 6 (the closing iteration extended to the binding refusal's fail-closed exit).
 
     Live `v7r06` t18: a `binding_invalid` hold took all six calls, the closing
     iteration was never run on this path, `last_segment` was empty, and the
@@ -676,7 +676,7 @@ def test_a_reply_that_is_only_wrapper_talk_is_asked_again(loop_factory) -> None:
 # ---------------------------------------------------------------------------
 
 def test_the_reads_after_an_open_gate_are_not_run_either(loop_factory) -> None:
-    """T8 (§3.3 (part 2)·D) on the tool log: the turn ends at the gate."""
+    """T8 on the tool log: the turn ends at the gate."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content="Working.", tool_calls=[
@@ -719,7 +719,7 @@ def test_the_reads_after_an_open_gate_are_not_run_either(loop_factory) -> None:
 # ---------------------------------------------------------------------------
 
 def test_questions_and_a_task_call_in_one_response_run_no_task(loop_factory) -> None:
-    """T10 (§3.4 (part 2)): under `Structured` the asking turn does no work."""
+    """T10: under `Structured` the asking turn does no work."""
     async def scenario() -> None:
         # The gate ends the turn, so the question prose has to ride along with
         # the response that carried the task call.
@@ -769,7 +769,7 @@ def test_questions_and_a_task_call_in_one_response_run_no_task(loop_factory) -> 
 def test_process_visibility_notices_and_completion_end_to_end(
     loop_factory, setting: str, notices: int, completion: bool
 ) -> None:
-    """§3.1 process row through the loop: the notices are the PA's own fields."""
+    """process_visibility through the loop: the notices are the PA's own fields."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content=None, tool_calls=[
@@ -984,7 +984,7 @@ COMPLETION_GATE_ASK = "Shall I send Dale the invitation?"
 def test_completion_released_reports_what_the_reply_carried(
     loop_factory, setting: str, gated: bool
 ) -> None:
-    """§4.4 — `completion.released` is a statement about the delivered reply.
+    """`completion.released` is a statement about the delivered reply.
 
     `loop.py` used to re-derive it from the setting plus a non-empty
     `completion_message`, while the renderer writes the closing line only in the
@@ -1046,7 +1046,7 @@ def test_completion_released_reports_what_the_reply_carried(
 
 
 def test_a_render_payload_missing_after_a_forced_call_fails_the_step(loop_factory) -> None:
-    """§3.0 fail-closed: an unrenderable turn must not be delivered anyway.
+    """Fail-closed: an unrenderable turn must not be delivered anyway.
 
     Before this rule the wrapper reminded once and then shipped the turn with
     `completion.released == false`, so under `Bookend` the closing sentence
@@ -1173,7 +1173,7 @@ def test_a_render_payload_missing_once_then_supplied_releases_the_completion(
 
 
 # ---------------------------------------------------------------------------
-# §3.0 · the selection tools ride the same ladder as the render payloads
+# the selection tools ride the same ladder as the render payloads
 #
 # `tone_formality` is a pass-through attribute, so the turn owes exactly one IX
 # tool: the selection. Before this the ladder skipped `IX_<attribute>` at both
@@ -1351,7 +1351,7 @@ def test_a_rationale_written_to_the_user_is_left_alone(loop_factory) -> None:
     "setting,shown", [("Show", True), ("Hide", False)],
 )
 def test_reasoning_visibility_end_to_end(loop_factory, setting: str, shown: bool) -> None:
-    """§3.2: only the PA's own `user_facing_rationale` can ever be released."""
+    """Only the PA's own `user_facing_rationale` can ever be released."""
     async def scenario() -> None:
         rationale = "Only em_0100 mentions 4B: its stack id matches the batch you gave me."
         provider = ScriptProvider([
@@ -1391,7 +1391,7 @@ def test_reasoning_visibility_end_to_end(loop_factory, setting: str, shown: bool
 def test_uncertainty_expression_end_to_end(
     loop_factory, setting: str, expected: list[str]
 ) -> None:
-    """§3.1 uncertainty row: the parenthesis is the renderer's, not the prose's."""
+    """uncertainty_expression: the parenthesis is the renderer's, not the prose's."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content=None, tool_calls=[
@@ -1511,7 +1511,7 @@ def test_a_claim_the_reply_never_makes_is_traced_not_rendered(loop_factory) -> N
 
 
 # ---------------------------------------------------------------------------
-# §5.3 carrier F · the trailing `<certainties>` block
+# carrier F · the trailing `<certainties>` block
 # ---------------------------------------------------------------------------
 
 BLOCK_REPLY = (
@@ -1628,7 +1628,7 @@ def test_hide_withholds_a_located_block_claim_and_says_which(loop_factory) -> No
             assert f"certainty ref {ref}: located (exact), withheld (Hide)" in blob["trace"]
         assert not [line for line in blob["trace"] if "claim not found" in line]
         # …and the row itself says so, not only the trace: `strategy` is how the
-        # claim was located, `claim` is what was committed to (§4.4 certainties[]).
+        # claim was located, `claim` is what was committed to (certainties[]).
         assert [(row["claim"], row["strategy"]) for row in blob["certainties"]] == [
             ("The invoice is unpaid", "exact"),
             ("the flight is confirmed", "exact"),
@@ -1638,7 +1638,7 @@ def test_hide_withholds_a_located_block_claim_and_says_which(loop_factory) -> No
 
 
 def test_the_block_itself_is_kept_verbatim_on_the_audit_plane(loop_factory) -> None:
-    """§4.4 `raw_blocks`: the carrier the renderer strips has to survive somewhere.
+    """`raw_blocks`: the carrier the renderer strips has to survive somewhere.
 
     Every delivered surface drops the block, so without this the only record of
     what the model committed to would be gone — and `AuditTrace.segments`, the
@@ -1768,7 +1768,7 @@ def test_the_tool_payload_still_carries_a_turn_that_writes_no_block(loop_factory
 
 
 def test_neither_carrier_on_an_active_turn_still_fails_the_contract(loop_factory) -> None:
-    """§3.0: one reminder, one forced call, then no scorable answer at all."""
+    """One reminder, one forced call, then no scorable answer at all."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content=None, tool_calls=[
@@ -1800,7 +1800,7 @@ def test_neither_carrier_on_an_active_turn_still_fails_the_contract(loop_factory
 
 
 def test_the_per_turn_reminder_asks_for_the_block_setting_blind(loop_factory) -> None:
-    """§3.6 — the carrier has to survive to the last line of the answer, so it
+    """The carrier has to survive to the last line of the answer, so it
 
     is stated twice: once on the tool, once in the per-turn reminder. The text
     is the same one under every setting.
@@ -1834,7 +1834,7 @@ def test_the_per_turn_reminder_asks_for_the_block_setting_blind(loop_factory) ->
 def test_topic_management_across_two_turns(
     loop_factory, setting: str, first_turn: list[str], second_turn: list[str]
 ) -> None:
-    """§3.4: `Organize` finishes in one turn, `One-at-a-time` takes the next one."""
+    """`Organize` finishes in one turn, `One-at-a-time` takes the next one."""
     async def scenario() -> None:
         def payload(*batch_ids: str):
             return ix(
@@ -1900,7 +1900,7 @@ def test_topic_management_across_two_turns(
 def test_information_elicitation_release_and_questions_gate(
     loop_factory, setting: str, released: list[str], gated: bool
 ) -> None:
-    """§3.4 (part 2): which questions ship, and whether the turn may also do work.
+    """Which questions ship, and whether the turn may also do work.
 
     The gate is on `Structured` / `Iterative` — the two settings that put a
     question in front of the user this turn. `Infer` asks nothing, and the
@@ -1980,7 +1980,7 @@ def test_an_exposed_attribute_that_is_never_selected_never_renders(loop_factory)
 def test_proactive_outreach_end_to_end(
     loop_factory, setting: str, action: str, delivered: bool
 ) -> None:
-    """§3.1 proactive row: the rendered decision is what leaves the PA."""
+    """The rendered decision is what leaves the PA."""
     from datetime import datetime, timezone
 
     async def scenario() -> None:
@@ -2019,7 +2019,7 @@ def test_proactive_outreach_end_to_end(
 
 
 # ---------------------------------------------------------------------------
-# §3.4 (parts 2/4) · the elicitation carrier can actually be reached
+# the elicitation carrier can actually be reached
 # ---------------------------------------------------------------------------
 
 def _questions_payload(*questions: dict[str, str], elicitation_id: str = "el1") -> Any:
@@ -2045,7 +2045,7 @@ QUESTIONS = (
 def test_asking_turn_does_no_work_and_the_next_turn_proceeds(
     loop_factory, setting: str, delivered: list[str], held_questions: list[str]
 ) -> None:
-    """The questions gate has to be reachable before it can be a gate (§3.4 (part 2)).
+    """The questions gate has to be reachable before it can be a gate.
 
     `IX_render_information_elicitation` used to be required only while an
     elicitation episode was open, and only that tool can open one. Nothing
@@ -2388,7 +2388,7 @@ def _gate_turn(prose: str) -> ScriptProvider:
     """acc_039 idx 24's shape: the plan and its prose, then the call the gate stops.
 
     The prose has to arrive in an *earlier* iteration than the held call —
-    §3.3 (part 2)·D withholds anything written in the same assistant message as
+    the wrapper withholds anything written in the same assistant message as
     a held call, which is why the leak needed two iterations to happen at all.
     """
     return ScriptProvider([
@@ -2632,7 +2632,7 @@ def test_a_dropped_claim_under_hide_is_never_re_asked(loop_factory) -> None:
 
     Spending a request there would buy a difference the user cannot see -- and
     would put the setting into the request pattern, which the carrier is written
-    to be blind to (§5.3 carrier F).
+    to be blind to (carrier F).
     """
     async def scenario() -> None:
         provider = ScriptProvider([

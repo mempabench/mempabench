@@ -151,7 +151,7 @@ class _FakeCall:
 
 
 def test_self_directed_gates_key_writes_and_every_external_action() -> None:
-    """§3.3 (part 2)·B — since 2026-09-05 the merged middle setting carries the gate that
+    """Since 2026-09-05 the merged middle setting carries the gate that
     used to belong to the removed fourth setting: reads and drafts run, a key
     internal write stops the turn, and an external action always stops it."""
     directive = directive_for([

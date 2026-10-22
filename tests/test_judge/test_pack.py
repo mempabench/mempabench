@@ -1,4 +1,4 @@
-"""judge/pack.py — test doc §4.2 / §4.3, §7 rows 18, 24–27.
+"""judge/pack.py.
 
 Pure file movement, no LLM. The step artifacts are the real acc_001 run under
 `tests/fixtures/judge/acc_001/` (deepseek-v4-flash × nanobot_file_memory ×
@@ -100,7 +100,7 @@ def _draft() -> dict:
     }
 
 
-#: A `proactive_outreach` probe (design §2.1.2b): the two openings, both active,
+#: A `proactive_outreach` probe: the two openings, both active,
 #: and the arrival the PA decides about in `proactive_trigger`.
 TRIGGER = {
     "trigger_id": "poster_print_deadline_email",
@@ -206,7 +206,7 @@ def test_pack_run_writes_every_file_and_the_index(probe_run: Path) -> None:
     assert probe["probe_id"] == PROBE_ID
     assert probe["ix_contract_version"] == "ix-wrapper/2.0.0"
     assert probe["files"] == {group: list(names) for group, names in FILE_GROUPS.items()}
-    # Two-layer split (§4.2): the text face never gets the raw transcript or
+    # Two-layer split: the text face never gets the raw transcript or
     # the selection file; the IX face never gets the text pack.
     assert "transcript.jsonl" not in FILE_GROUPS["text_face"]
     assert "ix_selection.json" not in FILE_GROUPS["text_face"] + FILE_GROUPS["ix_face"]
@@ -247,7 +247,7 @@ def test_ix_selection_takes_only_selection_payloads_for_the_target(probe_run: Pa
 
 
 def test_ix_selection_filters_by_payload_type_before_taking() -> None:
-    """§4.1: a per-turn payload entry has an empty `setting`; without the
+    """A per-turn payload entry has an empty `setting`; without the
     `payload_type` filter it would be read as a selection of ""."""
     toolcalls = {
         "beats": [
@@ -412,7 +412,7 @@ def test_scene_requires_exactly_one_active_beat(probe_run: Path) -> None:
 
 
 def test_a_triggered_probe_has_two_active_beats_and_the_arrival_as_core_task(probe_run: Path) -> None:
-    """§2.1.2b: the two openings are both active and the PA acted on the arrival,
+    """The two openings are both active and the PA acted on the arrival,
     so `core_task` is the trigger's detail, not any user question."""
     world = probe_run / "steps" / PROBE_ID / "scene_start" / "world"
     entry = {**OUTLINE["probes"][0], "cell": "work_proactive_outreach", "world": []}

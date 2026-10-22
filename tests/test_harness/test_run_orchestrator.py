@@ -662,7 +662,7 @@ async def test_forced_event_overrides_reach_the_script_as_patches(
 
 
 def test_only_steps_parses_a_comma_list_and_rejects_an_empty_one():
-    """`--only-steps` (test doc §2.4.2) names probe ids; whether they are
+    """`--only-steps` names probe ids; whether they are
     probes of the plan is the orchestrator's check once the plan is loaded."""
     assert run_orchestrator._parse_only_steps(None) is None
     assert run_orchestrator._parse_only_steps("fin_02, pre_01,") == frozenset(
@@ -1287,7 +1287,7 @@ async def test_mem0_extraction_counts_into_the_runs_provider_avoidance(
 async def test_a_simple_rag_plan_frozen_without_the_field_still_resumes(
     tmp_path, monkeypatch, authoring_root
 ):
-    """§2.C: the `infer=False` path is unchanged, and its old plans must load.
+    """The `infer=False` path is unchanged, and its old plans must load.
 
     simple_rag does its own raw-record splitting and never reads the strategy,
     but it shares `Mem0RuntimeConfig` -- so the new default would have failed
@@ -2921,7 +2921,7 @@ def _freeze_record(run_dir):
 async def test_a_fresh_plan_freezes_the_persona_probe_line_and_its_gt_copy(
     tmp_path, monkeypatch
 ):
-    """§2.4.1 + §7 row 8: a persona with a probe outline and resolved GT gets
+    """A persona with a probe outline and resolved GT gets
     its probes frozen into the plan, and the GT copy lands beside it."""
     from test_harness.test_run_plan_builder_probes import ACC_COUNT, PERSONA
 
@@ -2963,7 +2963,7 @@ async def test_a_short_range_freezes_only_its_probes_and_records_them(
     assert freeze["probe_step_ids"] == ["pre_01", "pre_02"]
 
 
-# --- §2.4: attaching a probe plan to a finished accumulation run -------------
+# --- attaching a probe plan to a finished accumulation run -------------
 
 _ATTACH_RUN_ID = "attach_probes"
 
@@ -3037,7 +3037,7 @@ def _mark_timeline_done(run_dir, acc_count) -> None:
 async def test_regenerating_a_plan_over_a_recorded_ledger_resumes_that_run(
     tmp_path, monkeypatch
 ):
-    """§2.4: a run executes its timeline now and gets its probes attached later.
+    """A run executes its timeline now and gets its probes attached later.
 
     `--regenerate-plan` on a directory whose ledger already records steps is a
     resume of that run, so the Qdrant collection and the history db those steps
@@ -3148,7 +3148,7 @@ def _memos_attach_args(persona_id, acc_count, *, regenerate_plan):
 async def test_re_freezing_a_finished_memos_plan_keeps_its_cube_id(
     tmp_path, monkeypatch
 ):
-    """§2.4.6: the attach writes into the cube the timeline already filled.
+    """The attach writes into the cube the timeline already filled.
 
     `memos_cube_id` is minted per plan, so re-freezing used to point the
     mainline at a brand-new, empty cube while the checkpoints still named the

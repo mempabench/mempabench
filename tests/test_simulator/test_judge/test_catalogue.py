@@ -1,4 +1,4 @@
-"""The §9 catalogue: shape, question ids, and the composes."""
+"""The rule catalogue: shape, question ids, and the composes."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from simulator.judge.guards import (
     check_evidence,
 )
 
-#: Every rule §9 hands to the judge.
+#: Every rule handed to the judge.
 EXPECTED_RULES = {
     "carries_an_ask",
     "reaction_asserts_unexecuted_pa_action",
@@ -52,7 +52,7 @@ def test_every_section_nine_rule_is_in_the_catalogue():
 
 
 def test_no_rule_the_contract_leaves_in_code_is_in_the_catalogue():
-    """§8 keeps these mechanical or style, and §12 deletes those three."""
+    """These stay mechanical or style checks in code, or were deleted."""
     for rule in (
         "grades_pa_before_acting",
         "reviewer_voice_in_message",
@@ -222,7 +222,7 @@ def test_every_rule_declares_where_its_prompt_came_from():
 
 
 def test_the_measured_prompts_carry_the_conditions_the_one_liners_dropped():
-    """§9's English column is a gloss; these are the sentences that earned the
+    """The English summary is a gloss; these are the sentences that earned the
     numbers and that the phase-1 one-liners lost."""
     ask = cat.RULE_PROMPTS["carries_an_ask"]
     assert "reacts to what the assistant did" in ask.preamble
@@ -418,7 +418,7 @@ def test_withheld_is_told_the_key_term_count_rather_than_asked_for_it():
 
 
 def test_no_persona_or_attribute_name_reaches_the_prompt():
-    """§2: two verbatim blocks plus the catalogue's own context, nothing else."""
+    """Two verbatim blocks plus the catalogue's own context, nothing else."""
     ctx = cat.TurnContext(
         candidate_turn="Book it.",
         pa_previous_turn="Shall I book it?",
@@ -928,7 +928,7 @@ def test_a_group_with_questions_is_not_empty():
 
 
 def test_the_off_attribute_rule_is_told_which_attribute_is_the_target():
-    """§2 gives the judge no attribute name; this one question cannot be put
+    """The judge gets no attribute name; this one question cannot be put
     without it, so the exception is a block and is written down as one."""
     group = cat.build_reaction_beat_off_attribute(
         cat.TurnContext(

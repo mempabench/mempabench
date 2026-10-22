@@ -176,7 +176,7 @@ def test_seven_blocks_put_evidence_before_criteria(tmp_path: Path) -> None:
     assert "ix_selection" not in user and "selected_setting" not in user
 
 
-# ------------------------------------------------- §4.4 per-attribute block drops
+# ------------------------------------------------- per-attribute block drops
 
 
 def test_unused_blocks_covers_the_taxonomy_and_only_droppable_blocks() -> None:
@@ -186,7 +186,7 @@ def test_unused_blocks_covers_the_taxonomy_and_only_droppable_blocks() -> None:
 
 
 def test_attribute_that_drops_the_tool_trajectory(tmp_path: Path) -> None:
-    """§4.4 `uncertainty_expression` row, 用不到的文件: tool_log、state_diff、pa_toolcalls、scene."""
+    """`uncertainty_expression` row, 用不到的文件: tool_log、state_diff、pa_toolcalls、scene."""
     probe = write_judge_input(tmp_path, attribute="uncertainty_expression")
     _, user = assemble_prompt(load_judge_input(probe))
     assert omitted_blocks("uncertainty_expression") == (BLOCK_SCENE, BLOCK_TOOL_TRAJECTORY)
@@ -204,7 +204,7 @@ def test_attribute_that_drops_the_tool_trajectory(tmp_path: Path) -> None:
 
 
 def test_attribute_that_keeps_every_block(tmp_path: Path) -> None:
-    """§4.4 `task_expansion` row, 用不到的文件: pa_toolcalls（仅备查）— no prompt block."""
+    """`task_expansion` row, 用不到的文件: pa_toolcalls（仅备查）— no prompt block."""
     probe = write_judge_input(tmp_path, attribute="task_expansion")
     _, user = assemble_prompt(load_judge_input(probe))
     assert omitted_blocks("task_expansion") == ()

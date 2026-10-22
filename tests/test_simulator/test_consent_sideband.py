@@ -1,4 +1,4 @@
-"""The PA-blind `<consent_decisions>` sideband — simulator half of T18 (§3.7 part 3).
+"""The PA-blind `<consent_decisions>` sideband — simulator half of T18.
 
 The simulated user knows whether this turn agreed or refused; the wrapper reads
 that as gate state. It is a fourth private block, parsed like `<factual_check>`

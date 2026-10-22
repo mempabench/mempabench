@@ -1,18 +1,18 @@
-"""LLM judge runner for the text face of one probe (design §0-B8/B11/B12, §4.5, §4.6).
+"""LLM judge runner for the text face of one probe.
 
 One probe, one judge, one file: `judge_output/<judge_id>/<probe_id>.json` under
 the run directory. The runner reads only the *judge input* group of
 `judge_input/<probe_id>/` (`meta.json`, `text_judge_pack.json`, `tool_log.jsonl`,
 `ground_truth.json`, `scene.json`) plus `ix_selection.json` for the code-computed
-`ix_face` block — the selection never reaches the prompt (§0-B2).
+`ix_face` block — the selection never reaches the prompt.
 
-The prompt is seven blocks in the §4.5 order, evidence before criteria:
+The prompt is seven blocks in this order, evidence before criteria:
 ① role + universal anchors (`prompts/system.md` + `prompts/anchors.md`),
 ② probe info, ③ scene, ④ transcript, ⑤ tool trajectory,
 ⑥ attribute rubric (`prompts/features/<attribute>.md`), ⑦ output schema
 (`prompts/user.md`). Block ⑥ carries only the judge-facing half of the feature
 file (everything above `## 备注（不进 judge prompt）`), and ③ / ⑤ shrink to a
-one-line by-design note for the attributes whose §4.4 row rules them out
+one-line by-design note for the attributes whose criteria do not use them
 (`UNUSED_BLOCKS`); every block keeps its heading and its place in the order.
 
 Provider/model are parameters; every call goes through OpenRouter with the same
@@ -93,7 +93,7 @@ FEATURES_DIR = PROMPTS_DIR / "features"
 JUDGE_OUTPUT_SCHEMA_VERSION = 1
 JUDGE_KIND = "llm"
 SCORE_DOMAIN = [1, 2, 3, 4, 5]
-#: Files of the judge-input group the text face reads (§4.2 table, row 1).
+#: Files of the judge-input group the text face reads.
 TEXT_FACE_INPUT_FILES = (
     "meta.json",
     "text_judge_pack.json",
@@ -105,10 +105,10 @@ TEXT_FACE_INPUT_FILES = (
 #: provenance, literature line references, open design questions) and stays out of
 #: block ⑥. A feature file without the heading is used whole.
 COMMENTARY_HEADING = "## 备注（不进 judge prompt）"
-#: The two §4.5 prompt blocks an attribute's §4.4 row can rule out.
+#: The two prompt blocks an attribute's row can rule out.
 BLOCK_SCENE = "scene"
 BLOCK_TOOL_TRAJECTORY = "tool_trajectory"
-#: §4.4「每属性用到的字段与可见面」, column 「用不到的文件」, one entry per row (the
+#: Column 「用不到的文件」 (files an attribute does not use), one entry per row (the
 #: comment quotes that row's cell). `state_diff` / `pa_toolcalls` are named in that
 #: column too but are not prompt blocks, so they leave nothing here; ② probe info,
 #: ④ transcript, ⑥ rubric and ⑦ output are never dropped. A row that rules a block
@@ -140,7 +140,7 @@ UNUSED_BLOCKS: dict[str, frozenset[str]] = {
     # state_diff、pa_toolcalls；`scene.triggers[]` 明确不参与 → scene 保留
     "capability_boundary": frozenset(),
     # state_diff；scene 保留 —— judge 要拿到 `withheld_required_facts` 清单判
-    # `Structured` 问没问全（主人裁定 2026-09-17，设计 §4.4 输入边界第 1 条）
+    # `Structured` 问没问全（主人裁定 2026-09-17）
     "information_elicitation": frozenset(),
     # state_diff、pa_toolcalls、scene
     "topic_management": frozenset({BLOCK_SCENE}),
@@ -282,7 +282,7 @@ def _scene(inp: JudgeInput) -> str:
     lines += [f"  - {json.dumps(item, ensure_ascii=False)}" for item in world["feasible_options"]] or ["  （无）"]
     lines.append(f"- 待处理事项 pending_items（{len(world['pending_items'])} 项）：")
     lines += [f"  - {json.dumps(item, ensure_ascii=False)}" for item in world["pending_items"]] or ["  （无）"]
-    # 主人裁定 2026-09-17（设计 §4.4 输入边界第 1 条；assumptions 第 53 条 (a)）：作者故意从
+    # 主人裁定 2026-09-17：作者故意从
     # 用户请求里抽掉的必需事实清单只进 `information_elicitation` 的 judge prompt（`Structured`
     # 覆盖度的对照物）；别的带场景块的属性不渲染它。被测 PA 拿不到 scene.json。
     if inp.attribute == "information_elicitation":
@@ -305,7 +305,7 @@ def _transcript(inp: JudgeInput) -> str:
         if turn["kind"] == "user_message":
             lines.append(f"[{number} · 用户 · t={turn['t']}] {turn['text']}")
         elif turn["kind"] == "environment_trigger":
-            # §5.5 主动联系例外：联系机会（PA 收到的触发事件）。
+            # 主动联系例外：联系机会（PA 收到的触发事件）。
             lines.append(
                 f"[{number} · 联系机会 · t={turn['t']}] trigger_id=`{turn.get('trigger_id')}` "
                 f"source_type={turn.get('source_type')} / prior_thread: {turn.get('prior_thread')}"
@@ -313,7 +313,7 @@ def _transcript(inp: JudgeInput) -> str:
             )
         else:
             if turn.get("proactive_event"):
-                # §5.5：决定、投递情况、投递内容——只在 proactive 轮。
+                # 决定、投递情况、投递内容——只在 proactive 轮。
                 delivered = bool(turn.get("outreach_delivered"))
                 lines.append(
                     f"[{number} · PA 主动联系轮 · t={turn['t']}] proactive_event=true "
@@ -340,7 +340,7 @@ def _summarize_args(args: Mapping[str, Any]) -> str:
 
 
 def _tool_trajectory(inp: JudgeInput) -> str:
-    # §5.4：业务结果与错误信息过滤后给——行、`result_summary` 走 `harness/judge_pack.py`
+    # 业务结果与错误信息过滤后给——行、`result_summary` 走 `harness/judge_pack.py`
     # 的 allow-list，闸门 / 扣留 / 选档一类的控制字段不进来。
     lead = "按时间排序的世界工具调用（`t` 为轨迹序号；`result` 为该调用的业务结果摘要）。"
     rows = [
@@ -371,15 +371,15 @@ OUTPUT_SCHEMA = """```json
 
 
 def omitted_blocks(attribute: str) -> tuple[str, ...]:
-    """The §4.5 blocks §4.4 rules out for this attribute, in prompt order."""
+    """The prompt blocks ruled out for this attribute, in prompt order."""
     unused = UNUSED_BLOCKS[attribute]
     return tuple(block for block in (BLOCK_SCENE, BLOCK_TOOL_TRAJECTORY) if block in unused)
 
 
 def assemble_prompt(inp: JudgeInput) -> tuple[str, str]:
-    """(system, user) — the seven §4.5 blocks in order.
+    """(system, user) — the seven prompt blocks in order.
 
-    A block this attribute's §4.4 row rules out keeps its heading and carries
+    A block ruled out for this attribute keeps its heading and carries
     `OMITTED_NOTE` instead of its content, so the order stays the same for every
     attribute and a dropped block never reads as a missing one.
     """
@@ -409,7 +409,7 @@ def assemble_prompt(inp: JudgeInput) -> tuple[str, str]:
 
 
 def parse_reply(text: str) -> dict[str, Any]:
-    """The model's JSON, checked against the strict §4.6 text-face shape.
+    """The model's JSON, checked against the strict text-face shape.
 
     Raises `JudgeOutputInvalid` with the first violation found.
     """
@@ -596,7 +596,7 @@ def _reask_user(user: str, previous: str, reasons: list[str]) -> str:
 def judge_probe(inp: JudgeInput, client: JudgeClient, *, model: str) -> dict[str, Any]:
     """Ask once, re-ask once on a schema or evidence failure, else raise.
 
-    Returns the §4.6 record; `cost` sums both calls when a re-ask happened.
+    Returns the judge record; `cost` sums both calls when a re-ask happened.
     """
     system, user = assemble_prompt(inp)
     cost = {"model": model, "prompt_tokens": 0, "completion_tokens": 0, "usd": 0.0}
@@ -654,7 +654,7 @@ def judge_output_path(run_dir: Path, judge_id: str, probe_id: str) -> Path:
 
 
 def run_judge(probe_dir: Path, client: JudgeClient, *, model: str, run_dir: Path | None = None) -> Path:
-    """Judge one `judge_input/<probe_id>/` and write its §4.6 record."""
+    """Judge one `judge_input/<probe_id>/` and write its judge record."""
     probe_dir = Path(probe_dir)
     inp = load_judge_input(probe_dir)
     record = judge_probe(inp, client, model=model)

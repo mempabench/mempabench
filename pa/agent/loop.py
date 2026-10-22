@@ -105,7 +105,7 @@ class ProactiveDecisionMissingError(RuntimeError):
     its IX `proactive_outreach` send/suppress decision."""
 
 
-#: §3.5 (part 6): `IX_capability_resolve` still missing or malformed on the third
+#: `IX_capability_resolve` still missing or malformed on the third
 #: response charged to the turn's shared IX repair budget ends the turn
 #: with no scorable answer at all. The step fails and can be retried from a
 #: clean state -- it must not degrade into an ordinary reply that a judge would
@@ -115,7 +115,7 @@ IX_CAPABILITY_CONTRACT_FAILURE_DETAIL = (
     "once a tool reported a capability limit"
 )
 
-#: §3.0: the same three-invalid-response budget for the per-turn render
+#: The same three-invalid-response budget for the per-turn render
 #: payload. Without it the turn is shipped missing the one field the setting
 #: shapes, which reads to a judge as the PA choosing not to say it.
 IX_RENDER_CONTRACT_FAILURE_DETAIL = (
@@ -198,7 +198,7 @@ _IX_CONTRACT_FAILURE_DETAILS: dict[str, str] = {
     IX_CONTRACT_GATE_MESSAGE: f"gate contract: {IX_GATE_CONTRACT_FAILURE_DETAIL}",
 }
 
-#: §3.5: the attribute whose *detection* is already session-scoped. The runner
+#: The attribute whose *detection* is already session-scoped. The runner
 #: turns `capability_limit_seen` on from the tool result alone, whatever the
 #: beat lists -- so a `capability_limit` on a beat that does not list the
 #: attribute still forces `IX_capability_resolve` (stage 2). Stage 3 applies the
@@ -212,7 +212,7 @@ _IX_CONTRACT_FAILURE_DETAILS: dict[str, str] = {
 #: reads the whole cache (`_render_turn`); this makes the directive agree.
 _SESSION_SCOPED_IX = ("capability_boundary",)
 
-#: §3.5 / pre-run-test audit §2 (acc_026): the attribute whose *activation*
+#: The attribute whose *activation*
 #: follows the trigger rather than the beat. A capability limit can land on any
 #: turn -- live, `acc_026` hit it on `b1` while the beat that listed
 #: `capability_boundary` in `active_skills` was `b3`, so the PA substituted two
@@ -671,7 +671,7 @@ class AgentLoop:
         The pool is built by the caller, not here: only the caller holds the
         raw provider slice (`result.messages`), the turn's IX call records and
         its `ix_payload_status`, and the persisted `session.messages` slice
-        carries none of the three (§6.1 (b)).
+        carries none of the three.
         """
         if self.memory_adapter is None:
             return None
@@ -756,7 +756,7 @@ class AgentLoop:
     def _pool_ix_selections(result: AgentRunResult) -> list[dict[str, Any]]:
         """Every `IX_<attribute>` selection of the turn, with its `outcome=`.
 
-        §3.3: the block is built from the executed request and its tool event,
+        The block is built from the executed request and its tool event,
         never from the assistant message's serialized `tool_calls` — that copy
         is written at `pa/agent/runner.py:1413-1421`, before
         `_dedupe_ix_selections` and `_restore_voided_selection_fields` run at
@@ -802,7 +802,7 @@ class AgentLoop:
         rendered: RenderedTurn,
         environment_event: dict[str, str] | None = None,
     ) -> TurnPool:
-        """The PA's whole first-person experience of one turn (§3.4)."""
+        """The PA's whole first-person experience of one turn."""
         released, held_not_released, cancelled = self._ix_payload_ids(rendered, result)
         return build_turn_pool(
             self._pool_input(result.messages[1 + history_length:]),
@@ -820,7 +820,7 @@ class AgentLoop:
     def _turn_id(metadata: dict[str, Any]) -> str:
         """One id per turn, shared by the adapter event and the journal record.
 
-        §6.1 (c) makes the record the resume authority and matches it to the
+        The record is the resume authority and is matched to the
         receipt by `turn_id`, so the adapter event and the journal record must
         carry the same string — which they cannot if each site derives its own.
         """
@@ -831,7 +831,7 @@ class AgentLoop:
         )
 
     def turn_journal(self, session_key: str):
-        """This session's append-only pool journal (§6.1 (b)).
+        """This session's append-only pool journal.
 
         Built fresh each time rather than cached -- `TurnJournal.__init__`
         reads the file -- because the forced-event executor holds its own
@@ -1011,7 +1011,7 @@ class AgentLoop:
             if ix_context.get("proactive_event")
             else tuple(self._ix_selection_cache.get(ix_cache_key) or ())
         )
-        # §3.7 (part 3): a verdict is only consent when it answers an ask the user was
+        # A verdict is only consent when it answers an ask the user was
         # actually shown. Ids that no open episode holds are dropped here, so a
         # stale `allow` cannot release anything that later reuses that id.
         held_now = {
@@ -1209,7 +1209,7 @@ class AgentLoop:
             rendered = replace(
                 rendered, message=clean_delivered_text(result.final_content)
             )
-        # §3.7 (part 4): reaching the round cap cancels; it never releases. The user
+        # Reaching the round cap cancels; it never releases. The user
         # still has to be told, and that line is the PA's to write -- the
         # renderer's template line underneath it does not make the miss go away.
         # `cancelled_now`, not `finished_episodes`: the latter accumulates for
@@ -1288,7 +1288,7 @@ class AgentLoop:
                     "ix_event": True, "name": "ix_close_no_message",
                     "attribute": episode.attribute, "episode_id": episode.episode_id,
                 })
-        # §4.3, owner decision 2026-09-06: a carried question the PA released
+        # Owner decision 2026-09-06: a carried question the PA released
         # without re-marking it is folded into this reply's prose -- released,
         # settled, nothing carried over. That is the rule the hold reminder
         # states, so it is not a failure; the record is what lets the batch
@@ -1304,7 +1304,7 @@ class AgentLoop:
         # is a flag for the IX judge to read the prose against the tool log --
         # it is structural, and it does not claim the PA said anything false.
         #
-        # What the turn delivered decides it. §3.4 (part 5) put prose back on exactly
+        # What the turn delivered decides it. The closing iteration put prose back on exactly
         # the hold turns this reads, so on a batch hold the flag fired by
         # construction (`v5g01` = 3, two of them honest) until the three things
         # a hold turn may legitimately deliver were excluded: the gate's ask,
@@ -1482,7 +1482,7 @@ class AgentLoop:
                 if response is not None:
                     await self.bus.publish_outbound(response)
                 elif msg.channel == "cli":
-                    # Trivial branch of §2.3: nothing was rendered, so the
+                    # Trivial branch: nothing was rendered, so the
                     # empty CLI reply carries an empty rendered turn.
                     await self.bus.publish_outbound(self._outbound(
                         channel=msg.channel, chat_id=msg.chat_id,
@@ -1911,7 +1911,7 @@ class AgentLoop:
         # The pool is the raw provider slice, not this: projection 2 blanks an
         # intermediate iteration's prose and rebuilds the final assistant
         # message without its reasoning, so the persisted slice cannot
-        # re-derive the turn's experience (§6.1 (b)).
+        # re-derive the turn's experience.
         pool = self._build_turn_pool(
             result=result,
             history_length=len(history),
@@ -1921,7 +1921,7 @@ class AgentLoop:
         turn_id = self._turn_id(msg.metadata or {})
         journal = self.turn_journal(key)
         self._save_turn(session, runtime_history.messages, 0, msg.timestamp)
-        # Durable before the session file it describes (§6.1 (b)): a crash
+        # Durable before the session file it describes: a crash
         # between the two loses the turn's prose and reasoning otherwise, and
         # `session.messages` cannot re-derive them.
         event_writer.record_turn_journal(
@@ -2028,8 +2028,8 @@ class AgentLoop:
                 ]
             ),
             # `released` is read off the renderer's own output, never
-            # re-derived here from the setting: on a gate turn §4.4 gives the
-            # closing line no place after the ask, and setting+message said
+            # re-derived here from the setting: on a gate turn the
+            # closing line has no place after the ask, and setting+message said
             # `released: true` for a reply that carried none. `text` still
             # records the sentence the PA wrote, delivered or not.
             completion=(
@@ -2056,7 +2056,7 @@ class AgentLoop:
                     provider_reasoning_present=bool(collector.provider_reasoning),
                 ).reasoning
             ),
-            # §4.4 `raw_blocks`: the carrier the renderer strips out of every
+            # `raw_blocks`: the carrier the renderer strips out of every
             # delivered surface. Without it the audit plane has no record of
             # what the model actually committed to, which is what makes a
             # located-but-withheld claim indistinguishable from one never found.
@@ -2082,7 +2082,7 @@ class AgentLoop:
                     collector.payloads.certainties,
                 ).rows
             ),
-            # §4.4 — how the turn ended and whether §3.4 (part 5)'s closing request
+            # How the turn ended and whether the closing request
             # ran. Neither had any record in any artefact: `ix_hold` had to be
             # derived from held statuses and provider prompt sizes.
             stop_reason="" if result is None else (result.stop_reason or ""),
@@ -2095,7 +2095,7 @@ class AgentLoop:
 
     @staticmethod
     def _cancelled_items(rendered: RenderedTurn) -> list[dict[str, Any]]:
-        """§4.4 `cancelled_items`: every item this session cancelled, id + intent.
+        """`cancelled_items`: every item this session cancelled, id + intent.
 
         Read off `finished_episodes`, which accumulates, precisely because the
         judge needs it on the turns *after* the cancellation: those turns
@@ -2124,11 +2124,11 @@ class AgentLoop:
     def _ix_payload_ids(
         rendered: RenderedTurn, result: AgentRunResult
     ) -> tuple[list[str], list[str], list[str]]:
-        """The three id lists §2.4's persisted IX payload result states.
+        """The three id lists the persisted IX payload result states.
 
         `released` is what this turn actually let out; `held_not_released` is
         what the hold still carries after it; `cancelled` is what this turn's
-        forced close dropped for good (§3.7 (part 4)) — read off
+        forced close dropped for good — read off
         `cancelled_now` rather than `finished_episodes`, because the status is
         per turn and a cancellation must not repeat on every later turn. Ids
         only — the whole point of replacing the payload echo is that the held
@@ -2174,7 +2174,7 @@ class AgentLoop:
 
     @staticmethod
     def _held_json(rendered: RenderedTurn, collector: Any) -> dict[str, Any]:
-        """§4.4 `held`: the held bodies verbatim. Audit plane only.
+        """`held`: the held bodies verbatim. Audit plane only.
 
         Open episodes only. `finished_episodes` accumulates for the whole
         session and a closing episode is filed with its `plan_remaining`
@@ -2185,7 +2185,7 @@ class AgentLoop:
         written on the episode that was cancelled.
 
         `narration` is the prose written in the same assistant message as a held
-        call (§3.3 (part 2)·D addendum), plus the sentences the wrapper-vocabulary filter
+        call, plus the sentences the wrapper-vocabulary filter
         withheld (round 9 item 3, `item_id: "wrapper_vocabulary"`). The key is
         absent when there is none, so a 1.1.0 record stays a valid 1.1.x record.
 

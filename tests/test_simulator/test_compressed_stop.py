@@ -155,7 +155,7 @@ _INVENTION_ANSWERS = {
 
 
 #: The one turn in this file that puts nothing to the assistant. The ask gate
-#: is the judge's alone (contract §9), so a test about the gate has to say so.
+#: is the judge's alone, so a test about the gate has to say so.
 _ACKNOWLEDGEMENT = ("Fine. That is more than I needed.",)
 
 
@@ -266,7 +266,7 @@ def test_the_flag_is_derived_from_the_drafts_target_attribute() -> None:
 
 
 def test_a_triggered_probe_converts_to_a_triggered_compressed_script() -> None:
-    """A `proactive_outreach` probe (design §2.1.2b) is the one probe with a
+    """A `proactive_outreach` probe is the one probe with a
     trigger: the probe IS the PA's trigger turn, so the script it converts to
     carries the trigger, runs under the triggered contract and stops after the
     single opening that played -- the same shape the accumulation side runs.
@@ -882,7 +882,7 @@ class _SilentJudgeClient:
 
 @pytest.mark.parametrize("decision", ["send", "suppress"])
 def test_the_played_opening_arms_the_reception_beat_checks(decision: str) -> None:
-    """The other half of the same hole (§4, 2026-09-09).
+    """The other half of the same hole (2026-09-09).
 
     `_is_reaction_beat` had already been taught to read the stamp; the
     `reception_beat` line still asked for a carried attribute the played
@@ -955,7 +955,7 @@ def test_an_invention_on_the_played_opening_no_longer_voids(
 
 def test_the_triggered_arming_calls_no_judge_with_the_judge_off(monkeypatch) -> None:
     """This is the one commit of the Phase 3 ladder that changes behaviour
-    with the judge off (§8), so the mode-off case asserts only that the judge
+    with the judge off, so the mode-off case asserts only that the judge
     was not called — acc_007's findings are meant to change."""
     monkeypatch.delenv("MEMPA_JUDGE", raising=False)
     client = _SilentJudgeClient()

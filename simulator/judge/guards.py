@@ -1,4 +1,4 @@
-"""The mechanical guards around an untrusted judge (contract §4).
+"""The mechanical guards around an untrusted judge.
 
 Four failure events, four exceptions, each carrying its event dict. This module
 decides nothing about what happens next: the ladder (Phase 2) maps every one of
@@ -18,12 +18,12 @@ import unicodedata
 from dataclasses import dataclass, replace
 from typing import Any, Mapping, Sequence
 
-#: The verdict values of the contract's §3 schema, for a rule that returns one
+#: The verdict values of the judge reply schema, for a rule that returns one
 #: verdict of its own.
 VERDICT_VALUES = ("obeyed", "violated", "not_applicable")
 
 #: The ask gate is a branch of its own: the turn either puts something to the
-#: assistant or it does not (§3, "ask 闸的形状").
+#: assistant or it does not.
 ASK_GATE_VALUES = ("ask", "not_applicable")
 
 #: Sub-questions — the ones whose answers a compose function reads — answer in
@@ -67,12 +67,12 @@ PRESENCE_ANSWERS = ("yes", "violated", "ask")
 #: resolution below puts the sentence text back on the verdict, so nothing
 #: downstream has to learn what a reference is.
 
-#: One call gets at most three requests: the first plus the bounded re-asks of
-#: §4(1). Evidence gets exactly one retry inside that same cap (§4(2)).
+#: One call gets at most three requests: the first plus the bounded re-asks.
+#: Evidence gets exactly one retry inside that same cap.
 MAX_REQUESTS_PER_CALL = 3
 MAX_EVIDENCE_RETRIES = 1
 
-#: What the one evidence re-ask carries (owner ruling 2026-09-09, contract §4).
+#: What the one evidence re-ask carries (owner ruling 2026-09-09).
 #: The re-ask used to be the identical request sent again, and in the live batch
 #: of that day every one of the three evidence failures came back with the same
 #: wrong answer. So it names the question, shows the reference the judge gave
@@ -108,7 +108,7 @@ EVIDENCE_FEEDBACK = (
 MAX_NUM_PREDICT = 4096
 
 #: Question groups (calls) per candidate generation, not requests: the parse and
-#: evidence retries above are bounded separately (§4(3)).
+#: evidence retries above are bounded separately.
 #: Worst case measured on the Phase 3 shapes is 13 (a beat that is both a
 #: read-back first turn and a compressed reaction beat, after the two
 #: diagnostics became live questions), plus one. A placeholder until regress22
@@ -124,7 +124,7 @@ _FENCE_RE = re.compile(r"^\s*```[A-Za-z0-9_+-]*\s*\n?|\n?\s*```\s*$")
 
 
 class JudgeFailure(RuntimeError):
-    """Base for the four events that void a session (contract §4, §13 i).
+    """Base for the four events that void a session.
 
     Every subclass carries the event dict the record wants under `.event`. The
     module never falls back to a regex and never silently accepts a verdict.
@@ -134,7 +134,7 @@ class JudgeFailure(RuntimeError):
 
 
 class JudgeUnparseable(JudgeFailure):
-    """The requests ran out and the reply never satisfied the §3 schema.
+    """The requests ran out and the reply never satisfied the schema.
 
     Two ways to get here, and the read has to be able to tell them apart:
     three replies that were malformed, or two that were cut off at the token
@@ -262,7 +262,7 @@ class JudgeBudgetExhausted(JudgeFailure):
 
 
 class JudgeSchemaError(ValueError):
-    """Internal: one reply failed the §3 schema. Retried, then re-raised as
+    """Internal: one reply failed the schema. Retried, then re-raised as
     `JudgeUnparseable`."""
 
 
@@ -301,7 +301,7 @@ def strip_fences(raw: str) -> str:
 
 
 def normalise(text: str) -> str:
-    """The §4(2) comparison form: whitespace collapsed, case folded, curly
+    """The evidence comparison form: whitespace collapsed, case folded, curly
     quotes straightened, accented letters folded to their base letter (NFKD)."""
     decomposed = unicodedata.normalize("NFKD", (text or "").translate(_CURLY_QUOTES))
     folded = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
@@ -414,7 +414,7 @@ def parse_verdicts(
 
     `allowed` maps each question's id to the values that question may answer in.
     Its keys are the id set, which must match exactly — too many, too few, or a
-    wrong one is a schema failure (§3) — and its values are checked per
+    wrong one is a schema failure — and its values are checked per
     question, so a sub-question answering `obeyed` is as much a schema failure
     as one answering nonsense.
     """
@@ -477,8 +477,8 @@ def check_evidence(
     `blocks_by_name` maps block name -> its text, the same blocks the prompt
     printed. `question_blocks` maps question_id -> the block names that
     question may point at: the candidate turn by default, the named context
-    block for a two-step q2, and both of a multi-block question's names
-    (§4(2), §9). `quotes_on` maps question_id -> the answers that question
+    block for a two-step q2, and both of a multi-block question's names.
+    `quotes_on` maps question_id -> the answers that question
     requires a reference on; an answer outside that set asserts something is
     NOT in the text, so there is nothing to point at and its evidence is
     neither required nor read.
@@ -529,7 +529,7 @@ def check_evidence(
 
 
 class TurnBudget:
-    """Question groups spent on one candidate generation (§4(3))."""
+    """Question groups spent on one candidate generation."""
 
     def __init__(self, turn_uid: str, limit: int | None = None) -> None:
         self.turn_uid = turn_uid
@@ -588,7 +588,7 @@ def ask(
     `truncated` and both `completion_tokens` so the read sees why.
     """
     if not allowed:
-        # No questions, so no question group and no call (§2). Most beats owe no
+        # No questions, so no question group and no call. Most beats owe no
         # required facts at all: 413 of the 546 corpus records build an empty
         # `probe_fact_missing` group, and a call for one would ask Ollama to
         # sample against an empty enum.

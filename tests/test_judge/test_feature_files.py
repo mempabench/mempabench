@@ -2,7 +2,7 @@
 
 Retired middle settings (feedback_no_ambiguous_middle_settings) and struck-through
 prose must not reach the judge prompt, and neither does the human commentary each
-file keeps below `COMMENTARY_HEADING` (§4.5 block ⑥). Run:
+file keeps below `COMMENTARY_HEADING` (block ⑥). Run:
     python -m pytest tests/test_judge/test_feature_files.py -q
 """
 

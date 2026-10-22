@@ -159,7 +159,7 @@ DROPPED_PENDING_TURNS_KEY = "dropped_pending_turns"
 SCENE_ATTEMPTS_FILE = "scene_attempts.json"
 SCENE_START_INDEX = "scene_start.json"
 #: `meta.yaml` key a probe writes when its step boundary found a hold still
-#: open. A probe never fails for it (§2.4.2): the finding is recorded here.
+#: open. A probe never fails for it: the finding is recorded here.
 OPEN_IX_EPISODES_KEY = "open_ix_episodes"
 
 
@@ -167,7 +167,7 @@ class ProbeRunConfigurationError(RuntimeError):
     """The run cannot branch a probe at all, whichever probe asked.
 
     The line `_run_probe_batch` draws: a probe's own failure is recorded and
-    the batch moves on (§2.4.2), but a defect in what every branch is cut from
+    the batch moves on, but a defect in what every branch is cut from
     — no checkpoint manager, no adapter on an external backend — would fail all
     33 of them identically. Recording that 33 times would report a probe line
     that ran and measured nothing, so it stops the run instead.
@@ -200,7 +200,7 @@ class PACheckpointHandle(Protocol):
     async def drain_background_tasks(self) -> None: ...
     def checkpoint_session(self) -> Any: ...
     def turn_journal(self) -> Any:
-        """This session's pool journal (§6.1 (b)), freshly read.
+        """This session's pool journal, freshly read.
 
         The pinned flush consumes journal records, not `session.messages`, so
         the handle has to hand one over: the orchestrator holds a `Session`
@@ -216,7 +216,7 @@ class PACheckpointHandle(Protocol):
     def close_ix_session(
         self, script_session_id: str
     ) -> list[tuple[str, str]]:
-        """Clear this step's IX state; return the episodes still open (§4.2).
+        """Clear this step's IX state; return the episodes still open.
 
         Optional: a handle that predates the wrapper simply does not define it,
         and the orchestrator then closes nothing. Probe branches never bind
@@ -238,7 +238,7 @@ def resume_or_restore(
     and rerun from there. With no snapshot there is nothing to go back to, so
     the original refusal stands.
 
-    Only a timeline step counts as "mid-step" (§2.4.2): the ledger classifies
+    Only a timeline step counts as "mid-step": the ledger classifies
     by the plan's step kinds, so a probe left at `running` / `failed` is rerun
     from its immutable pin with no rollback, and a probe-only baseline run
     passes with no local checkpoint at all.
@@ -484,7 +484,7 @@ def probe_preference_overlay(
 
 
 class ProbePAHandle:
-    """The narrow handle a probe branch keeps on its own PA (§2.4.2).
+    """The narrow handle a probe branch keeps on its own PA.
 
     Three jobs and no more: seed the `--force-ix` selections into the branch
     PA when the loop factory binds it, close the step's IX session at the
@@ -605,7 +605,7 @@ class Orchestrator:
         # The rollback puts the run back on its snapshot; the journal is what
         # says which turns died with a pool the adapter never received. Q5 is
         # at-least-once and declared, so this is the one place a run replays
-        # them, before any step of it runs again (§6.1 (a), (c)).
+        # them, before any step of it runs again.
         if not self.config.probe_only:
             await self._replay_pending_turns()
         self._reap_orphan_branches()
@@ -677,7 +677,7 @@ class Orchestrator:
         )
         self._require_only_steps_are_probes()
 
-        # §2.4.2: the timeline runs to the end first; every probe is a job of
+        # The timeline runs to the end first; every probe is a job of
         # its own, collected here and run as one batch afterwards.
         probes: list[tuple[int, RunStep]] = []
         stopped = False
@@ -791,7 +791,7 @@ class Orchestrator:
                         extra_meta=extra_meta,
                     )
                 finally:
-                    # §4.2: success, exception, cancel and same-step retry all
+                    # Success, exception, cancel and same-step retry all
                     # clear the IX state. The close itself never masks the
                     # step's own error — what it found is acted on below.
                     open_episodes = self._close_step_ix_session(step)
@@ -888,7 +888,7 @@ class Orchestrator:
                     # The same exception, said in one word: an open hold, a
                     # contract boundary, the provider and a memory backend all
                     # read as `non_resumable(<step>)` without it, and they are
-                    # handled four different ways (§2.3).
+                    # handled four different ways.
                     kind=classify_failure(exc),
                 )
                 # Read by `mempabench run` for its stop line.
@@ -896,7 +896,7 @@ class Orchestrator:
                 result.failed.append(step.step_id)
                 raise
         # A stop taken at a timeline boundary ends the run there. The probe
-        # batch is a phase of its own (§2.4.2) and belongs to the resume, not
+        # batch is a phase of its own and belongs to the resume, not
         # to the stop: `probes` stops being the whole list the moment the loop
         # breaks, and every probe left unrecorded is picked up next time.
         if not stopped:
@@ -936,7 +936,7 @@ class Orchestrator:
             )
 
     def _reap_orphan_branches(self, active: frozenset[str] = frozenset()) -> None:
-        """Remove `branches/<step>/NN` a hard death left behind (§2.4.2).
+        """Remove `branches/<step>/NN` a hard death left behind.
 
         A branch is deleted by the probe that made it, so at run start any
         that exists belongs to no live probe. `active` names the probes whose
@@ -1159,7 +1159,7 @@ class Orchestrator:
             return
         first_step_id = runnable[0][1].step_id
         if checkpoint_manager is None:
-            # §2.4.2: a probe runs only in a branch cut from a pin. There is no
+            # A probe runs only in a branch cut from a pin. There is no
             # mainline fallback, and it is one defect for the whole batch, not
             # 33 failures, so it is raised once here — before the mainline
             # runtime below is touched.
@@ -1337,7 +1337,7 @@ class Orchestrator:
                     if (
                         retryable
                         and attempt < last_attempt
-                        # §5.4's two gates once more: a retry is a new start,
+                        # The two start gates once more: a retry is a new start,
                         # and nothing new starts after a stopper or a signal.
                         # The failure is then recorded as it was before D5.
                         and not (abort.is_set() or self._stop_requested())
@@ -1361,7 +1361,7 @@ class Orchestrator:
                         )
                         # Its own line kind: the retry prints this probe's real
                         # step line, so this one must not read as either of the
-                        # two the runbook greps (§10.3). The `probe void`
+                        # two the runbook greps. The `probe void`
                         # prefix predates `ix_runtime` joining the retried
                         # kinds and is kept so those greps keep matching; the
                         # `kind=` field is what says which failure it was.
@@ -1509,7 +1509,7 @@ class Orchestrator:
         # external backend, a blocking restore call. Left inline it would hold
         # the loop for its whole length, and the other probes' in-flight HTTP
         # requests — whose timeouts are wall clock — would be reading nothing
-        # while it ran. This is the overlap §9 of the plan claims for it.
+        # while it ran.
         owner = self.config.shared_probe_memory_owner
         shared_adapter = None
         if owner is None:
@@ -1549,7 +1549,7 @@ class Orchestrator:
                 step.target_cell, step.target_setting
             )
         else:
-            # §9 step 12: an external backend keeps its memory outside the
+            # An external backend keeps its memory outside the
             # branch directory, so the directory copy leaves the probe with
             # nothing to read. `branch_from` has just restored the snapshot
             # into a namespace of this branch's own; the adapter that reads it
@@ -1569,7 +1569,7 @@ class Orchestrator:
                 branch_condition
                 and branch_condition not in LOCAL_MEMORY_CONDITIONS
             ):
-                # Silence here is the defect §9 step 12 fixed: a probe with no
+                # Silence here would be a defect: a probe with no
                 # adapter retrieves nothing and reads exactly like the
                 # no_memory baseline, and every memory-vs-no-memory comparison
                 # on this condition would be null without saying so.
@@ -1652,7 +1652,7 @@ class Orchestrator:
             extra_meta["borrow_start_from"] = step.borrow_start_from
         # This probe's own overlay, as of its own cut point — never the
         # run-level object, which carries every flip the run has made by the
-        # time the probe batch runs (§2.4.2: the timeline finishes first).
+        # time the probe batch runs (the timeline finishes first).
         # The mainline object is left untouched.
         probe_overlay = probe_preference_overlay(
             self.plan,
@@ -1713,7 +1713,7 @@ class Orchestrator:
         except BaseException as probe_error:
             if attempt_started and not isinstance(probe_error, asyncio.CancelledError):
                 attempt_record.finish(error=probe_error)
-            # §7 #49: the probe that failed is the one that most needs an audit
+            # The probe that failed is the one that most needs an audit
             # trail. `session_executor` already wrote the transcript, the
             # `pa_toolcalls.json` and a `meta.yaml` carrying `failure_reason`
             # into the branch, but the `finally` below removes the branch — so
@@ -1753,7 +1753,7 @@ class Orchestrator:
 
         The mainline fails a step that leaves a hold open (contract 7); a
         probe is a job whose only output is evidence, so the finding is
-        recorded beside the transcript and the probe is still done (§2.4.2).
+        recorded beside the transcript and the probe is still done.
         Runs before the evidence is copied out, on success and on failure.
         """
         import yaml
@@ -1913,7 +1913,7 @@ class Orchestrator:
 
         The branch is discarded once the evidence is out, so this copy is the
         only record of what the probe faced. Deriving `feasible_options` and
-        `pending_items` from it is the packer's job (test doc §7 #13).
+        `pending_items` from it is the packer's job.
         """
         step_dir = branch_steps_dir / step.step_id
         target = step_dir / SCENE_START_DIRNAME
@@ -2072,9 +2072,9 @@ class Orchestrator:
 
         Run-start only, and once: a `pending` journal record is a turn whose
         pool never reached the backend, and no message index can tell one from
-        a turn that never happened — a suppressed outreach's span is `[n, n)`
-        (§6.1 (c)). The replay logs every turn id it rewrites, which is the
-        at-least-once declaration of §6.1 (a).
+        a turn that never happened — a suppressed outreach's span is `[n, n)`.
+        The replay logs every turn id it rewrites, which is the
+        at-least-once declaration.
         """
         from memory.turn_journal import replay_pending_turns
 
@@ -2141,8 +2141,8 @@ class Orchestrator:
         session = handle.checkpoint_session()
         # Every record the journal still owes the memory files, zero-span ones
         # included -- so this runs even when `session.messages` has no tail
-        # left, which is exactly the shape a suppressed outreach leaves behind
-        # (§6.1 (e)). The old message-slice version archived `[]` there and the
+        # left, which is exactly the shape a suppressed outreach leaves behind.
+        # The old message-slice version archived `[]` there and the
         # probe branched from a memory that had never heard of the turn.
         journal = handle.turn_journal()
         owed = records_owed_to_files(journal.records())

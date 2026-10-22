@@ -1,4 +1,4 @@
-"""The typed failure vocabulary: one word per way a step can die (R3, §2.3)."""
+"""The typed failure vocabulary: one word per way a step can die."""
 
 from __future__ import annotations
 

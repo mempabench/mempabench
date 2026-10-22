@@ -444,11 +444,11 @@ def test_record_adapter_write_commit_advances_only_on_commit() -> None:
 
 
 # ---------------------------------------------------------------------------
-# §9 step 4 · `outcome=` on `[ix_selection]`, and F1's payload-argument rule
+# `outcome=` on `[ix_selection]`, and F1's payload-argument rule
 # ---------------------------------------------------------------------------
 
 def test_ix_selection_outcome_comes_from_the_call_record() -> None:
-    # §3.3: the block is built from the executed request and its tool event,
+    # The block is built from the executed request and its tool event,
     # not from the assistant message's serialized copy — which is written
     # before dedupe and before the voided fields are restored, so it can carry
     # an ignored duplicate or a blank `evidence` the registry never saw.
@@ -594,8 +594,8 @@ def test_a_payload_call_is_blanked_while_the_turn_still_holds_something() -> Non
 def test_a_cancelled_payload_is_blanked_even_though_nothing_is_still_held() -> None:
     """F1(c): an empty `held_not_released` does not mean "delivered".
 
-    A forced close *empties* the hold by cancelling what was in it (§3.7
-    (part 4)), so on the cancelling turn the status reads `held_not_released:
+    A forced close *empties* the hold by cancelling what was in it,
+    so on the cancelling turn the status reads `held_not_released:
     []` while the cancelled section reached nobody. Reading that list alone
     would write the wording of a question the PA never asked into memory as if
     it had been asked.
@@ -688,7 +688,7 @@ def test_the_wrapper_carrier_fields_never_reach_a_tool_call_block() -> None:
 
 
 # ---------------------------------------------------------------------------
-# §9 step 5 · the environment branch, the delivered reply, `[no_reply]`
+# the environment branch, the delivered reply, `[no_reply]`
 # ---------------------------------------------------------------------------
 
 _ENVIRONMENT_BODY = (
