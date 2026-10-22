@@ -1,0 +1,146 @@
+# A synthetic preference matrix in the persona shape, used only to exercise
+# preference patch behaviour (tests/test_simulator/test_preferences.py).
+character: fixture_persona
+matrix:
+  work:
+    tone_formality:
+      setting: Casual
+      source: extractor_high
+      confidence: High
+      notes: null
+    verbosity:
+      setting: Terse
+      source: extractor_high
+      confidence: High
+      notes: null
+    emotional_engagement:
+      setting: Task-focused
+      source: extractor_high
+      confidence: High
+      notes: null
+    guidance_level:
+      setting: Guided
+      source: hitl_override
+      confidence: null
+      notes: null
+    reasoning_visibility:
+      setting: Hide
+      source: extractor_high
+      confidence: High
+      notes: null
+    uncertainty_expression:
+      setting: Express
+      source: extractor_accepted
+      confidence: Medium
+      notes: null
+    process_visibility:
+      setting: Silent
+      source: extractor_accepted
+      confidence: Medium
+      notes: null
+    autonomy_level:
+      setting: Self-directed
+      source: extractor_accepted
+      confidence: Medium-High
+      notes: null
+    proactive_outreach:
+      setting: Low
+      source: extractor_accepted
+      confidence: Medium
+      notes: null
+    task_expansion:
+      setting: Low
+      source: extractor_high
+      confidence: High
+      notes: null
+    solution_breadth:
+      setting: High
+      source: hitl_override
+      confidence: null
+      notes: null
+    capability_boundary:
+      setting: Suggest alternatives
+      source: extractor_accepted
+      confidence: Medium-High
+      notes: null
+    information_elicitation:
+      setting: Iterative
+      source: extractor_accepted
+      confidence: Medium-High
+      notes: null
+    topic_management:
+      setting: Organize
+      source: extractor_accepted
+      confidence: Medium-High
+      notes: null
+  personal:
+    tone_formality:
+      setting: Casual
+      source: extractor_high
+      confidence: High
+      notes: null
+    verbosity:
+      setting: Terse
+      source: extractor_high
+      confidence: High
+      notes: null
+    emotional_engagement:
+      setting: Relationship-focused
+      source: extractor_high
+      confidence: High
+      notes: null
+    guidance_level:
+      setting: Guided
+      source: extractor_high
+      confidence: High
+      notes: null
+    reasoning_visibility:
+      setting: Show
+      source: hitl_override
+      confidence: null
+      notes: null
+    uncertainty_expression:
+      setting: Express
+      source: extractor_high
+      confidence: High
+      notes: null
+    process_visibility:
+      setting: Bookend
+      source: extractor_high
+      confidence: High
+      notes: null
+    autonomy_level:
+      setting: Self-directed
+      source: extractor_high
+      confidence: High
+      notes: null
+    proactive_outreach:
+      setting: Low
+      source: extractor_high
+      confidence: High
+      notes: null
+    task_expansion:
+      setting: Low
+      source: hitl_override
+      confidence: High
+      notes: null
+    solution_breadth:
+      setting: Low
+      source: extractor_high
+      confidence: High
+      notes: null
+    capability_boundary:
+      setting: Find and hand off
+      source: extractor_accepted
+      confidence: Medium-High
+      notes: null
+    information_elicitation:
+      setting: Iterative
+      source: extractor_high
+      confidence: High
+      notes: null
+    topic_management:
+      setting: Organize
+      source: extractor_high
+      confidence: High
+      notes: null

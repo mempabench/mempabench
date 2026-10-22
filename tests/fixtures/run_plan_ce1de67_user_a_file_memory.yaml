@@ -1,0 +1,96 @@
+run_id: old_plan_ce1de67
+persona_id: user_a
+memory_condition: nanobot_file_memory
+memory_retrieval_max_tokens: 4000
+memory_retrieval_max_items: 10
+pa_session_key: old_plan_ce1de67_main
+checkpoint_rolling_window: 3
+assistant_llm_provider_name: openrouter
+assistant_llm_api_base: https://openrouter.ai/api/v1
+run_config_sha256: 9b4f7a0f31c0b7eab1371ea9f6e78899d957539ef3cfbb02aa8387d8d47a6663
+pa_model: deepseek/deepseek-v4-flash
+pa_max_tokens: 8192
+pa_request_policy:
+  provider_name: openrouter
+  model: deepseek/deepseek-v4-flash
+  temperature: send
+  completion_tokens_parameter: max_tokens
+  reasoning_effort: send
+  supports_tools: true
+  supports_forced_tool_choice: true
+  validated_roles:
+  - pa
+  - memory_extraction
+  - consolidation
+  policy_source: model
+pa_request_policy_sha256: bd6f77b797e4c43f79606724ea7daeef842598b20261f472808f745a17169a8d
+consolidation_model: deepseek/deepseek-v4-flash
+consolidation_request_policy:
+  provider_name: openrouter
+  model: deepseek/deepseek-v4-flash
+  temperature: send
+  completion_tokens_parameter: max_tokens
+  reasoning_effort: send
+  supports_tools: true
+  supports_forced_tool_choice: true
+  validated_roles:
+  - pa
+  - memory_extraction
+  - consolidation
+  policy_source: model
+consolidation_request_policy_sha256: bd6f77b797e4c43f79606724ea7daeef842598b20261f472808f745a17169a8d
+memory_side_model: ''
+memory_side_request_policy: null
+memory_side_request_policy_sha256: ''
+embedding_provider: ''
+embedding_model: ''
+embedding_dimensions: 0
+qdrant_host: ''
+qdrant_port: 0
+mem0_runtime_config: null
+memos_runtime_config: null
+memos_cube_id: ''
+graphiti_runtime_config: null
+simulator_runtime:
+  output_contract_retries: 3
+  self_report_contract_retries: 5
+  simulator_model: google/gemini-3.8-flash
+generated_from:
+  timeline_path: manual real PA run
+  outline_path: Authoring/outline/drafts/user_a/outline.yaml
+  generated_at: '2026-10-19T18:44:23+00:00'
+resolved_gt:
+  path: resolved_gt.yaml
+  sha256: e693329e37c8b4cc3b05639569730f09f358533caacd7b080470ce39e2ba3bd0
+ix_contract_version: ix-wrapper/2.1.0
+ix_identity:
+  setting_universe_sha256: 3d0bad5a9669609dd9034e075ea51ad3df17f98613fddc3bbfab24c35d577d97
+  spec_sha256: e7997c305eb1bf61e4fb5ff09b33718880c04237f73de8c7eab7e7c7b6e3d1a6
+  renderer_contract_sha256: c108034aa56b916be87e4c2018c2505cb6cdb2eba08a9a6f9165600e58f5739b
+memory_pool_version: memory-pool/1.0.0
+steps:
+- step_id: acc_001
+  kind: accumulation
+  persona_id: user_a
+  script_path: Authoring/sessions/normal/drafts/user_a/acc_001.yaml
+  transcript_sha256: null
+  draft_sha256: null
+  outline_sha256: null
+  probe_overlay: null
+  context: work
+  target_cell: work_verbosity
+  target_attribute: verbosity
+  target_setting: Detailed
+  acc_num: 1
+  before_acc_num: null
+  session_type: stable
+  domain: literature_and_citations
+  story_id: source_name_mismatch
+  timeline_slot: cycle1_work
+  time_position: early_oct
+  benchmark_session_timestamp: '2026-10-01T14:00:00Z'
+  memory_mode: read_write
+  stage_policy: commit
+  placeholder: false
+  borrow_start_from: null
+  skip_consolidation: false

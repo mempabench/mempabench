@@ -1,0 +1,131 @@
+source_note: Machine-readable source of the per-attribute probe table. `.agents/skills/mempa-normal-event-validator/references/semantic_review.md`
+  renders this table; tests/test_normal_session_authoring.py::test_probe_definition_table_matches_yaml
+  keeps them identical.
+attributes:
+- attribute: tone_formality
+  request_must_ask_for: An ordinary request the PA answers to the user in its own prose — an explanation,
+    a recommendation, a walk-through — with enough of an answer that more than one register would be
+    reasonable.
+  example_probe: '"Ask the PA which replacement part fits and what ordering one involves."'
+  not_a_probe: '"Ask the PA for the order number." A fact lookup has no register. Nor is a drafting
+    request — "word this", "put this into a message" — a probe: the register then belongs to an artefact
+    written for a third reader, not to the PA''s own reply. Also not a probe when the genre forces the
+    register.'
+- attribute: verbosity
+  request_must_ask_for: An explanation, account, or write-up about the current topic, so how much relevant
+    information the PA includes is what varies.
+  example_probe: '"Ask the PA to walk through what the placement call rests on."'
+  not_a_probe: '"Ask the PA how many slots are left." A one-value answer has no room to vary in length.
+    Asking for a "brief" or "detailed" answer cues it. Nor does one fact in the world make a probe — the
+    records have to hold TWO kinds of real support (different sources, or one source read for different
+    things), or the long arm can only pad, and padding is not the attribute.'
+- attribute: emotional_engagement
+  request_must_ask_for: Help with a task in a moment that carries real affect, so relational acknowledgment
+    can accompany task completion or not.
+  example_probe: '"Ask the PA to help sort out the clash before Friday."'
+  not_a_probe: '"Ask the PA to reassure the user." That requests the acknowledgment directly, so both
+    settings collapse.'
+- attribute: guidance_level
+  request_must_ask_for: An answer the user needs for themselves whose natural form uses terms the user
+    may not share — a procedure, or a judgement with its reasons — so that `Guided` has something to
+    gloss and `Assumed` has something to skip. The familiarity pair is optional, and is never planted
+    on an `Assumed` target.
+  example_probe: '"Ask the PA how the user gets the visa paperwork in on time, naming the filing route
+    the user already uses and saying that the way the route is written up is worded in a way she has
+    to stop over." The ask is for the route through a task she owns; the familiarity signal is OPTIONAL and she need not signal unfamiliarity at all. The request MAY name the term that stops her and may equally leave it unnamed (owner rulings 2026-09-17). What makes it a probe is the MATERIAL — whether her `self_view` and the task''s records leave an explanation or a walk-through something real to do; a term planted only to separate the settings does not make one. A `familiarity_signals` pair that is declared must be terms she actually says in the beat.'
+  not_a_probe: '"Ask the PA to draft the note to the office." Guidance aimed at a third party is not directed
+    to the user. Nor is a request already phrased in the user''s own vocabulary, with nothing left to
+    explain: it leaves `Guided` and `Assumed` the same reply.'
+- attribute: reasoning_visibility
+  request_must_ask_for: A conclusion, call, pick, or assessment the PA reaches from evidence, so the decision
+    basis it discloses can vary.
+  example_probe: '"Ask the PA which of the two rooms to take."'
+  not_a_probe: '"Ask the PA why it chose the room." Asking for the rationale forces `Show`,
+    which collapses the two settings. Nor is a drafting request — "word this", "put this into a
+    message" — a probe: the decision basis then belongs to an artefact written for a third reader,
+    not to the PA''s own reply to the user. The call and its grounds must be disclosed in the PA''s
+    own reply. Nor is a request whose dictated gate value already carries the judgement — once the user
+    says which way it goes, `Show` has no basis left to disclose and `Hide` nothing to withhold. The world
+    has to hold at least two facts pointing different ways — they may sit in the same existing record —
+    so the conclusion is reached, not read off (owner ruling 2026-09-17).'
+- attribute: uncertainty_expression
+  request_must_ask_for: A determination where the evidence is genuinely incomplete — whether something
+    holds, an estimate, a forecast.
+  example_probe: '"Ask the PA whether the funding will clear before the trip."'
+  not_a_probe: '"Ask the PA how confident it is." Naming confidence forces `Express`. A settled fact has
+    no uncertainty to surface.'
+- attribute: process_visibility
+  request_must_ask_for: A job the PA carries out over at least two sequential tool calls, so the three
+    settings cannot render as the same reply.
+  example_probe: '"Ask the PA to pull the three reviews together and get the summary ready."'
+  not_a_probe: '"Ask the PA to keep the user posted." That dictates the reporting pattern. A single-call
+    task has no process, and with one call `Bookend` and `Full narration` come out identical. The steps
+    also have to hand back TWO kinds of real support, or Full narration reports the same line twice.'
+- attribute: autonomy_level
+  request_must_ask_for: Two steps in the one ask — a write on the user's own records the user instructs
+    (a calendar entry, a note, a draft), and after it one outward action that reaches another person or
+    spends money — so that all three settings separate, Reactive stopping before the write, Self-directed
+    writing it and stopping before the outward act, Autonomous doing both and reporting.
+  example_probe: '"Ask the PA to put the agreed slot in the November calendar and tell the clinic the
+    appointment is taken."'
+  not_a_probe: '"Ask the PA to block an hour on the calendar", "Ask the PA to draft an email." A write
+    on the user''s own records that she just instructed is never key, so Self-directed runs it unasked
+    and Autonomous renders the identical turn; with nothing at stake nobody would hesitate, and the
+    act-versus-ask question never arises. An outward act with nothing before it — "Ask the PA to send
+    the confirmation to the venue" — leaves Reactive and Self-directed alike, since both confirm before
+    any outward action. "Ask the PA to check with the user first" fixes the confirmation boundary, and
+    read-only work cannot surface it.'
+- attribute: proactive_outreach
+  request_must_ask_for: 'Nothing the user asks for. The probe is the PA''s own trigger turn: a standing thread whose
+    event fires while no request is active, leaving the PA to contact the user or stay silent. The session''s two
+    beats are the two openings, and whichever one plays is a reaction to that choice.'
+  example_probe: '"A building-management notice about the water shutoff lands while nothing is pending; the PA forwards
+    it or holds it, and the user''s one turn reacts to having been contacted, or to the silence."'
+  not_a_probe: '"Ask the PA where the deposit request stands." A user turn that asks after the thread makes the
+    user''s request the probe instead of the PA''s decision, and gives the trigger a task to continue into. "Ask
+    the PA to ping the user when it lands" instructs the contact decision the setting owns.'
+- attribute: task_expansion
+  request_must_ask_for: One bounded piece of current work that has obvious, separable adjacent steps around
+    it — the separable steps are OUTSIDE the items the user names, since tidy-ups inside them are not
+    expansion.
+  example_probe: '"Ask the PA to get the abstract submitted."'
+  not_a_probe: '"Ask the PA to also update the CV while it is in there." Naming the adjacent step removes
+    the scope choice.'
+- attribute: solution_breadth
+  request_must_ask_for: A find-or-pick request over a fixture that holds two or more genuinely viable
+    candidates, naming no count.
+  example_probe: '"Ask the PA to find somewhere to hold the Thursday dinner."'
+  not_a_probe: '"Ask the PA for three options." Naming a count fixes the breadth that separates the
+    settings. A single-answer question collapses it. Count the options again AFTER every constraint the
+    request states — at least two have to survive all of them together, or an option the stated budget,
+    date or place already rules out is not an option and both settings give the same single answer.'
+- attribute: capability_boundary
+  request_must_ask_for: Something the world really refuses — a record it marks unavailable, read by one
+    of the four calls that raise a capability limit — asked for straight, with one further route toward
+    the same goal still open after the block and a cost to taking it. Both settings are written from that
+    one route — Suggest alternatives states the limit and takes the route in the same turn, Find and hand
+    off states the limit, names the route and hands control back.
+  example_probe: '"Ask the PA to get the current visa processing time."'
+  not_a_probe: '"Ask the PA what to do if it cannot find it." Pre-naming the block scripts the recovery,
+    and asking it to try something else, or to report back instead, fixes the attempt that separates the
+    settings. A block with no route left behind it collapses them. A fact the world simply does not hold
+    is not a block either: with nothing to refuse, the PA reports it cannot find it and both settings
+    render that same turn. Nor is a route that costs her nothing — no assistant would pause before taking
+    it, so handing off would read as refusing to help rather than as a choice about who acts.'
+- attribute: information_elicitation
+  request_must_ask_for: An artifact or arrangement the PA cannot produce without required fields the opening
+    leaves out.
+  example_probe: '"Ask the PA to set up the seminar invitation."'
+  not_a_probe: '"Ask the PA to tell the user what it needs." That dictates the elicitation shape; an over-specified
+    opening leaves nothing missing.'
+- attribute: topic_management
+  request_must_ask_for: Several separate things raised in the one turn, arising naturally from the user's
+    day, each carrying enough weight — a deadline, a consequence, or a dependency on another of them —
+    that stacking all of them into one reply would bury one.
+  example_probe: '"Ask the PA about the badge, the hotel, and the missing receipt."'
+  not_a_probe: '"Ask the PA to take them one at a time." That fixes the arrangement. One topic gives nothing
+    to arrange. Items with no weight — no deadline, no consequence, no dependency between them — give
+    nothing either: three ten-second errands are not worth queueing, so One-at-a-time is only a forced
+    stop the renderer makes and no assistant would. And the user must not script the sequencing —
+    "together", "at once", "keep waiting" and "next" in her own words make the choice the setting is
+    supposed to make, exactly as "one at a time" does.'

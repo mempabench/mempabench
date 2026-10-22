@@ -1,0 +1,86 @@
+# The same synthetic forced event, gated: the PA composes the draft body before
+# the user has dictated it, the gate stops that call, and the call the user's
+# own words carry runs once the gate is open. Written for the executor tests;
+# not an authored benchmark artifact.
+event:
+  event_id: evolv_05
+  persona_id: user_a
+  tool_status: world_toolbox
+  source_event_path: tests/fixtures/authoring/forced_event_evolv_01.yaml
+  source_acc_num: 75
+  context: personal
+  target_cell: personal_uncertainty_expression
+  target_attribute: uncertainty_expression
+  pre_setting: Flag
+  post_setting: Commit
+preconditions:
+  required_fixtures:
+  - path: email/inbox.jsonl
+    expectation: present
+task_facts:
+  entrance_question: Ask which entrance stays open and say I am walking the lower loop
+    that afternoon.
+reveal_at:
+  entrance_question: b3_probe_dictate_note
+exchanges:
+- items:
+  - type: message
+    offset_seconds: 0
+    source: user
+    visibility: both
+    content: Write back to the trail office about the fourteenth.
+- items:
+  - type: pa_tool_call
+    offset_seconds: 30
+    call_id: call_gated_early
+    name: mcp_state_email_draft_create
+    held: true
+    arguments:
+      to: trails@glenmont.example
+      subject: The fourteenth
+      body: Please confirm the arrangements for the fourteenth.
+  - type: message
+    offset_seconds: 45
+    source: pa
+    visibility: both
+    content: Before I write it, what do you want the note to say?
+- items:
+  - type: message
+    offset_seconds: 60
+    source: user
+    visibility: both
+    reveals:
+    - entrance_question
+    content: Ask which entrance stays open and say I am walking the lower loop that afternoon.
+- items:
+  - type: pa_tool_call
+    offset_seconds: 90
+    call_id: call_gated_release
+    name: mcp_state_email_draft_create
+    arguments:
+      to: trails@glenmont.example
+      subject: The fourteenth
+      body: Which entrance stays open? I am walking the lower loop that afternoon.
+  - type: message
+    offset_seconds: 105
+    source: pa
+    visibility: both
+    content: Drafted in those terms and waiting for you.
+- items:
+  - type: message
+    offset_seconds: 120
+    source: user
+    visibility: both
+    content: Good. I will look at it later.
+assertions:
+  required_tool_calls:
+  - call_gated_release
+  held_tool_calls:
+  - call_gated_early
+  expected_persistent_state_diff:
+    changed_paths:
+    - email/drafts.jsonl
+    state_diff_count: 1
+  expected_environment_actions: []
+user_memory_seed: |-
+  I asked for a note to the trail office and was asked what it should say before anything was written. I gave the wording myself. The draft is sitting there in my own terms for me to look at later.

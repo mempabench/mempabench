@@ -1,0 +1,259 @@
+schema_version: 1
+
+# Providers listed here have one uniform OpenAI-compatible request contract.
+# Provider/model exceptions belong in `models` and take precedence.
+provider_defaults:
+  - provider_name: anthropic
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa, consolidation]
+
+  - provider_name: openrouter
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: []
+
+  - provider_name: custom
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa, consolidation]
+
+  - provider_name: openai
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa, consolidation]
+
+  - provider_name: deepseek
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa, consolidation]
+
+  - provider_name: gemini
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa, consolidation]
+
+  - provider_name: dashscope
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa, consolidation]
+
+  - provider_name: ollama
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa, consolidation]
+
+models:
+  - provider_name: openrouter
+    model: openai/gpt-5.5
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa, memory_extraction, consolidation]
+
+  - provider_name: openrouter
+    model: anthropic/claude-opus-4.7
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  - provider_name: openrouter
+    model: anthropic/claude-sonnet-4.6
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  - provider_name: openrouter
+    model: google/gemini-3.1-pro-preview-customtools
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  - provider_name: openrouter
+    model: minimax/minimax-m2.7
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  - provider_name: openrouter
+    model: moonshotai/kimi-k2.6
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  - provider_name: openrouter
+    model: qwen/qwen3.6-35b-a3b
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  - provider_name: openrouter
+    model: deepseek/deepseek-v4-pro
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  - provider_name: openrouter
+    model: deepseek/deepseek-v4-flash
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa, memory_extraction, consolidation]
+
+  # validated 2026-09-11 by probe (the regress23 PA model probe)
+  - provider_name: openrouter
+    model: z-ai/glm-5.3-flash
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  # validated 2026-09-11 by probe (the regress23 PA model probe)
+  - provider_name: openrouter
+    model: openai/gpt-5.6-sol
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  # validated 2026-09-11 by probe (the regress23 PA model probe)
+  # reasoning model: needs pa_max_tokens >= 2048 (at 256 it returns finish_reason=length
+  # with no tool call); benchmark runs use 24576.
+  - provider_name: openrouter
+    model: qwen/qwen3.7-flash
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  # validated 2026-09-11 by probe (the regress23 PA model probe)
+  - provider_name: openrouter
+    model: qwen/qwen3.8-27b
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  # validated 2026-09-11 by probe (the regress23 PA model probe)
+  - provider_name: openrouter
+    model: minimax/minimax-m3
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  # validated 2026-09-18 by scripts/diagnostics/validate_model_policy.py --online
+  - provider_name: openrouter
+    model: google/gemini-3.8-flash
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  # validated 2026-09-18 by scripts/diagnostics/validate_model_policy.py --online
+  # free channel: probes saw no 429 and no rate-limit signal, but one call took 15s
+  - provider_name: openrouter
+    model: nvidia/nemotron-3-ultra-550b-a55b:free
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  # validated 2026-09-18 by scripts/diagnostics/validate_model_policy.py --online
+  - provider_name: openrouter
+    model: deepseek/deepseek-v4.1-flash
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+  # validated 2026-09-18 by scripts/diagnostics/validate_model_policy.py --online
+  # also probed: tool_choice "auto", the proactive trailing-`system` shape, the
+  # trailing-`tool` shape, and 3+3 stability reps (no 429, no empty choices)
+  - provider_name: openrouter
+    model: tencent/hy4-preview
+    temperature: send
+    completion_tokens_parameter: max_tokens
+    reasoning_effort: send
+    supports_tools: true
+    supports_forced_tool_choice: true
+    validated_roles: [pa]
+
+# Upstream routing for a provider/model pair, sent as the request body's
+# `provider` field (OpenRouter provider preferences). Kept apart from the
+# policies above, so it never changes a policy snapshot or its sha256.
+provider_routing:
+  # Owner decision 2026-09-24: tencent/hy4-preview runs only on SiliconFlow,
+  # which honors named/required tool_choice; no fallback to another upstream.
+  # raw_response_log_dir (logging only): every PA call's raw upstream response
+  # is appended to <workspace>/<dir>/<run_id>/raw_pa_responses.jsonl.
+  - provider_name: openrouter
+    model: tencent/hy4-preview
+    order: [SiliconFlow]
+    allow_fallbacks: false
+    raw_response_log_dir: logs/raw_pa

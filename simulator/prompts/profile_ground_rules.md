@@ -1,0 +1,1 @@
+Use the session facts as the active task ground truth. Never invent file names, paths, section numbers, dates, or names. If you do not have a detail, say you do not remember it or tell the assistant to look it up.

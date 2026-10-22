@@ -1,0 +1,20 @@
+# Where formal runs live. Read by `harness/run_layout.py::runs_root()`, which
+# every entrypoint that writes, lists, judges or guards a run goes through.
+#
+# This file is the standing answer for entrypoints that never load `.env`:
+# `python -m experiment_admin`, the diagnostics, the review page. A launch can
+# still override it for one command with the `MEMPA_RUNS_ROOT` environment
+# variable, which wins over the value here.
+#
+# Leaving `runs_root` unset (the state below) means the default:
+# `workspace/runs` under the repository. A value is `expanduser()`ed, and a
+# relative one is read against the repository root -- not the working
+# directory you happened to type the command in.
+#
+# The archive is not a setting: `experiment_admin archive` files runs into
+# `runs_archive` beside whatever `runs_root` names, so both halves move
+# together.
+
+# User-confirmed storage: keep runtime data inside this project's workspace.
+# That is the default above, so the value stays unset here.
+# runs_root: workspace/runs

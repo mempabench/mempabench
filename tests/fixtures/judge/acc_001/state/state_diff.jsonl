@@ -1,0 +1,2 @@
+{"t": 1, "timestamp": "2026-10-01T12:00:00+00:00", "run_id": "acc001_simgemini_005", "user_id": "user_a", "session_id": "acc_001", "namespace": "documents", "op": "write", "id": "memory/MEMORY.md", "summary": "Created document: memory/MEMORY.md"}
+{"t": 2, "timestamp": "2026-10-01T12:00:00+00:00", "run_id": "acc001_simgemini_005", "user_id": "user_a", "session_id": "acc_001", "namespace": "documents", "op": "write", "id": "memory/MEMORY.md", "summary": "Updated document: memory/MEMORY.md"}

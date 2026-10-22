@@ -1,0 +1,107 @@
+# A synthetic forced-event transcript, written for the executor tests.
+#
+# It is not an authored benchmark artifact and no persona outline backs it: it
+# exists so `harness/forced_event_executor.py` can be exercised end to end
+# against the real `user_a` L0 world without a committed transcript. It stays
+# deliberately small -- one pinned read, one third-party delivery, one write --
+# while keeping every shape the executor has to handle.
+event:
+  event_id: evolv_05
+  persona_id: user_a
+  tool_status: world_toolbox
+  source_event_path: tests/fixtures/authoring/forced_event_evolv_01.yaml
+  source_acc_num: 75
+  context: personal
+  target_cell: personal_uncertainty_expression
+  target_attribute: uncertainty_expression
+  pre_setting: Flag
+  post_setting: Commit
+preconditions:
+  required_fixtures:
+  - path: email/inbox.jsonl
+    expectation: present
+exchanges:
+- items:
+  - type: message
+    offset_seconds: 0
+    source: user
+    visibility: both
+    content: I want to settle the Glenmont walk for the fourteenth before the day runs away from me.
+- items:
+  - type: message
+    offset_seconds: 30
+    source: pa
+    visibility: both
+    content: Let me check the afternoon window for that date first.
+  - type: pa_tool_call
+    offset_seconds: 45
+    call_id: call_fixture_01
+    name: mcp_state_weather_forecast_read
+    arguments:
+      location: Glenmont, CA
+      date: '2026-10-14'
+      time_window: 12:00-17:00
+    expected_contains:
+      date: '2026-10-14'
+- items:
+  - type: message
+    offset_seconds: 60
+    source: pa
+    visibility: both
+    content: The afternoon is dry and warm, so the walk holds as planned.
+- items:
+  - type: environment_action
+    offset_seconds: 90
+    action_id: act_fixture_01
+    action: deliver_message
+    source:
+      kind: third_party
+      id: Glenmont Trail Office
+    visibility: both
+    channel: email
+    sender: trails@glenmont.example
+    subject: Trail closure notice
+    content: The Glenmont Trail Office is closing the lower loop on the fourteenth for resurfacing.
+  # The delivery shares its exchange with the line the user says about it.
+  # Owner ruling DC1 keeps environment-action content out of memory, so an
+  # exchange whose only PA-visible item is a delivery would project to no
+  # memory record and leave the adapter commit index behind
+  # `len(session.messages)` -- `Exchange._require_pa_visible_text` refuses that
+  # shape.
+  - type: message
+    offset_seconds: 120
+    source: user
+    visibility: both
+    content: Then write back and ask them which entrance stays open.
+- items:
+  - type: pa_tool_call
+    offset_seconds: 150
+    call_id: call_fixture_02
+    name: mcp_state_email_draft_create
+    arguments:
+      to: trails@glenmont.example
+      subject: Which entrance stays open on the fourteenth
+      body: Which entrance stays open while the lower loop is resurfaced on the fourteenth?
+  - type: message
+    offset_seconds: 165
+    source: pa
+    visibility: both
+    content: The reply is drafted and waiting for you.
+- items:
+  - type: message
+    offset_seconds: 180
+    source: user
+    visibility: both
+    content: Good. Leave it there and I will send it once I have looked at it.
+assertions:
+  required_tool_calls:
+  - call_fixture_01
+  - call_fixture_02
+  expected_persistent_state_diff:
+    changed_paths:
+    - email/drafts.jsonl
+    state_diff_count: 1
+  expected_environment_actions:
+  - act_fixture_01
+user_memory_seed: |-
+  I pinned the Glenmont walk to the fourteenth afternoon and the forecast came back dry. The trail office wrote to say the lower loop is closed that day, so I had a reply drafted asking which entrance stays open. I left it sitting unsent until I have read it myself.

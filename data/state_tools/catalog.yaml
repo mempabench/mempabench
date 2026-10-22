@@ -1,0 +1,2517 @@
+schema_version: 3
+scope: project
+resource_scope: current_run
+# World Toolbox
+# - layer: core = persona-independent Layer 1; persona:<id> = Layer 2 extension
+# - every handler is a real function over the run-local stores in backing_stores
+# - no scripted cases, no call-count logic; writes persist, readbacks read real state
+tools:
+  email_message_search:
+    domain: email
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:email_message_search
+    backing_stores: [email/inbox.jsonl]
+    description: Search the run-local email inbox by keyword. Use this when the task asks the PA to find an email or recover details from email.
+    parameters:
+      query:
+        type: string
+        required: true
+        description: Free-text keywords matched against sender, subject and body; an unmatched word returns no results rather than an error.
+    returns:
+      description: Matching email identifiers, metadata, and snippets.
+      fields:
+      - matches[].date
+      - matches[].from
+      - matches[].id
+      - matches[].snippet
+      - matches[].subject
+      - query
+  email_message_read:
+    domain: email
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:email_message_read
+    backing_stores: [email/inbox.jsonl]
+    description: Read the full body of an inbox email by id after email_message_search returns a match.
+    parameters:
+      email_id:
+        type: string
+        required: true
+        description: Inbox email id as returned by email_message_search, em_NNNN.
+    returns:
+      description: Full email metadata and body.
+      fields:
+      - body
+      - date
+      - from
+      - id
+      - subject
+      - to
+  email_draft_create:
+    domain: email
+    layer: core
+    status: implemented
+    allowed_effects: [internal_write]
+    implementation: state_server.server:email_draft_create
+    backing_stores: [email/drafts.jsonl]
+    description: Save a PA-authored email draft. Pass draft_id to revise an existing draft in place; omit it to create a new draft. Optional attachments must be run-state-relative paths.
+    parameters:
+      to:
+        type: string
+        required: true
+        description: One recipient, or multiple recipients separated by commas, each as an email address or a name; stored verbatim and never resolved against the address book.
+      subject:
+        type: string
+        required: true
+        description: Subject line.
+      body:
+        type: string
+        required: true
+        description: Full body text of the draft. When this is something the user must dictate, pass their own words; if the user has not given them, ask the user instead of composing it.
+      attachments:
+        type: array
+        items: {type: string}
+        required: false
+        description: Document paths relative to the task state.
+      draft_id:
+        type: string
+        required: false
+        description: Draft id as returned by an earlier email_draft_create, draft_NNNN; omit to create a new draft.
+    returns:
+      description: Draft identifier and saved or updated status.
+      fields:
+      - draft_id
+      - status
+  email_draft_read:
+    domain: email
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:email_draft_read
+    backing_stores: [email/drafts.jsonl]
+    description: Read one saved email draft by identifier.
+    parameters:
+      draft_id:
+        type: string
+        required: true
+        description: Draft id as returned by email_draft_create, draft_NNNN.
+    returns:
+      description: Full draft content and metadata.
+      fields:
+      - attachments[]
+      - body
+      - draft_id
+      - subject
+      - to
+  email_message_send:
+    domain: email
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:email_message_send
+    backing_stores: [email/sent.jsonl]
+    description: 'Send an email from the current MemPABench run state. This is an external action: use it only when the user has authorized sending. Optional attachments must be run-state-relative paths.'
+    parameters:
+      to:
+        type: string
+        required: true
+        description: Recipient, as an email address or a name; stored verbatim and never resolved against the address book.
+      subject:
+        type: string
+        required: true
+        description: Subject line.
+      body:
+        type: string
+        required: true
+        description: Full body text of the email. When this is something the user must dictate, pass their own words; if the user has not given them, ask the user instead of composing it.
+      attachments:
+        type: array
+        items: {type: string}
+        required: false
+        description: Document paths relative to the task state.
+    returns:
+      description: Sent-message identifier and status.
+      fields:
+      - sent_id
+      - status
+  email_sent_read:
+    domain: email
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:email_sent_read
+    backing_stores: [email/sent.jsonl]
+    description: Read one persisted sent-email record by identifier.
+    parameters:
+      sent_id:
+        type: string
+        required: true
+        description: Sent-email id as returned by email_message_send, sent_NNNN.
+    returns:
+      description: Full sent-email content and metadata.
+      fields:
+      - attachments[]
+      - body
+      - sent_at
+      - sent_id
+      - subject
+      - to
+  message_send:
+    domain: message
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:message_send
+    backing_stores: [message/threads.jsonl]
+    description: 'Send an informal text message to a personal contact. This is an external action: use it only when appropriate and authorized. Use email for formal or institutional correspondence.'
+    parameters:
+      to:
+        type: string
+        required: true
+        description: Contact name or handle; stored verbatim and never resolved against the address book.
+      body:
+        type: string
+        required: true
+        description: Message text. When this is something the user must dictate, pass their own words; if the user has not given them, ask the user instead of composing it.
+    returns:
+      description: Message identifier and sent status.
+      fields:
+      - message_id
+      - status
+  message_search:
+    domain: message
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:message_search
+    backing_stores: [message/threads.jsonl]
+    description: Search text-message history by keyword or contact.
+    parameters:
+      query:
+        type: string
+        required: true
+        description: Free-text keywords matched against the contact and the message text; an unmatched word returns no results rather than an error.
+    returns:
+      description: Matching message identifiers, contacts, dates, and snippets.
+      fields:
+      - matches[].date
+      - matches[].direction
+      - matches[].message_id
+      - matches[].snippet
+      - matches[].with
+      - query
+  message_read:
+    domain: message
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:message_read
+    backing_stores: [message/threads.jsonl]
+    description: Read one text message by identifier.
+    parameters:
+      message_id:
+        type: string
+        required: true
+        description: Message id as returned by message_search or message_send, msg_NNNN.
+    returns:
+      description: Full message record.
+      fields:
+      - body
+      - date
+      - direction
+      - message_id
+      - with
+  calendar_event_search:
+    domain: calendar
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:calendar_event_search
+    backing_stores: [calendar/events.json]
+    description: Search the current run calendar by task, participant, or purpose. Results include personal events and world events such as holidays.
+    parameters:
+      query:
+        type: string
+        required: true
+        description: Free-text keywords matched against title, location, notes and participants; an unmatched word returns no results rather than an error.
+      date:
+        type: string
+        required: false
+        description: Optional date filter, YYYY-MM-DD.
+    returns:
+      description: Matching calendar events with time, location, and participants.
+      fields:
+      - date
+      - matches[]
+      - matches[].created_date
+      - matches[].date
+      - matches[].end_date
+      - matches[].end_time
+      - matches[].event_id
+      - matches[].location
+      - matches[].notes
+      - matches[].participants[]
+      - matches[].recurrence
+      - matches[].scope
+      - matches[].start_time
+      - matches[].status
+      - matches[].title
+      - query
+  calendar_event_read:
+    domain: calendar
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:calendar_event_read
+    backing_stores: [calendar/events.json]
+    description: Read one calendar event by identifier.
+    parameters:
+      event_id:
+        type: string
+        required: true
+        description: Event id as returned by calendar_event_search, ev_NNNN.
+    returns:
+      description: Full event record.
+      fields:
+      - event.created_date
+      - event.date
+      - event.end_date
+      - event.end_time
+      - event.event_id
+      - event.location
+      - event.notes
+      - event.participants[]
+      - event.recurrence
+      - event.scope
+      - event.start_time
+      - event.status
+      - event.title
+  calendar_event_create:
+    domain: calendar
+    layer: core
+    status: implemented
+    allowed_effects: [internal_write]
+    implementation: state_server.server:calendar_event_create
+    backing_stores: [calendar/events.json]
+    description: Create one calendar event or recurring series.
+    parameters:
+      title:
+        type: string
+        required: true
+        description: Event title as it appears on the calendar.
+      date:
+        type: string
+        required: true
+        description: Event date, YYYY-MM-DD (first occurrence of a series).
+      start_time:
+        type: string
+        required: false
+        description: Start time, 24-hour HH:MM.
+      end_time:
+        type: string
+        required: false
+        description: End time, 24-hour HH:MM.
+      location:
+        type: string
+        required: false
+        description: Free-text place, such as a room or address.
+      participants:
+        type: array
+        items: {type: string}
+        required: false
+        description: Names or email addresses; stored verbatim and never resolved against the address book.
+      recurrence:
+        type: string
+        required: false
+        description: 'Recurrence phrase: ''daily'', ''yearly'', or ''weekly on <day names>'' such as ''weekly on Mondays and Wednesdays'', each optionally suffixed '' through YYYY-MM-DD''. For a one-off event omit this parameter or pass null.'
+    returns:
+      description: Created event identifier and status.
+      fields:
+      - event_id
+      - status
+  calendar_event_update:
+    domain: calendar
+    layer: core
+    status: implemented
+    allowed_effects: [internal_write]
+    implementation: state_server.server:calendar_event_update
+    backing_stores: [calendar/events.json]
+    description: Update or cancel one existing personal calendar event. World events such as holidays cannot be changed.
+    parameters:
+      event_id:
+        type: string
+        required: true
+        description: Event id as returned by calendar_event_search, ev_NNNN.
+      title:
+        type: string
+        required: false
+        description: New event title.
+      date:
+        type: string
+        required: false
+        description: New date, YYYY-MM-DD.
+      start_time:
+        type: string
+        required: false
+        description: New start time, 24-hour HH:MM.
+      end_time:
+        type: string
+        required: false
+        description: New end time, 24-hour HH:MM.
+      location:
+        type: string
+        required: false
+        description: New free-text place, such as a room or address.
+      participants:
+        type: array
+        items: {type: string}
+        required: false
+        description: Replacement list of names or email addresses; stored verbatim and never resolved against the address book.
+      status:
+        type: string
+        required: false
+        description: Either 'confirmed' or 'cancelled'.
+      notes:
+        type: string
+        required: false
+        description: New free-text note kept on the event, such as what changed and why; omitted leaves the existing note in place.
+    returns:
+      description: Updated event identifier and status.
+      fields:
+      - event_id
+      - status
+  copier_entitlement_read:
+    domain: documents
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:copier_entitlement_read
+    backing_stores: [copier/entitlements.json]
+    description: Read one copier-contract entitlement by contract and component. A schedule the provider keeps in its portal returns the standard capability-limit shape.
+    parameters:
+      contract_id:
+        type: string
+        required: true
+        description: Copier service contract id, ctr_*.
+      component:
+        type: string
+        required: true
+        description: Covered component, such as imaging drum.
+    returns:
+      description: The entitlement record, or the standard capability-limit shape when protected.
+      fields:
+      - entitlement.component
+      - entitlement.contract_id
+      - entitlement.coverage
+  corporate_reporting_submit:
+    domain: documents
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:corporate_reporting_submit
+    backing_stores: [corporate/reporting_accounts.json, corporate/reporting_submissions.jsonl]
+    description: Submit one ready run-state file through its configured corporate reporting account. This is an external action. A locked account returns the standard capability-limit shape and creates no submission.
+    parameters:
+      file_id:
+        type: string
+        required: true
+        description: Run-state-relative path, such as documents/branch/monthly.csv.
+    returns:
+      description: Submission identifier and submitted status, or the standard capability-limit shape.
+      fields:
+      - status
+      - submission_id
+  document_read:
+    domain: documents
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:document_read
+    backing_stores: [documents/, my_desktop/]
+    description: 'Read a document from the current MemPABench run state. Use this for task documents, not for interaction preferences. Paths are relative to the user''s task state: an empty path or ''.'' lists the top-level folders, a user reference like ''my desktop'' corresponds to the my_desktop/ folder, and the user''s working files (for example ''the research folder'' or ''the admin folder'') live under documents/. Use a path the user supplied or a prior task result surfaced. Do not browse unrelated directories to discover task inputs the user has not identified. This state holds only the user''s task documents; your own memory and skills files are not here, so paths like memory/MEMORY.md are not readable through this tool.'
+    parameters:
+      path:
+        type: string
+        required: true
+        description: Document path relative to the task state, such as 'documents/research/draft_intro.md' or 'my_desktop/notes.md'. Empty or '.' lists the top-level folders.
+    returns:
+      description: File content or a directory file listing with the resolved relative path.
+      fields:
+      - bytes
+      - content
+      - files[]
+      - path
+      - type
+  document_create:
+    domain: documents
+    layer: core
+    status: implemented
+    allowed_effects: [internal_write]
+    implementation: state_server.server:document_create
+    backing_stores: [documents/, my_desktop/]
+    description: Create a new document in the current MemPABench run state. Use this only when the task needs a file that does not exist yet. If the path already exists nothing is written and the result reports status 'exists'; edit that file with document_update instead.
+    parameters:
+      path:
+        type: string
+        required: true
+        description: Path for the new document, relative to the task state, including the file extension.
+      content:
+        type: string
+        required: true
+        description: Full text of the new document. When this is something the user must dictate, pass their own words; if the user has not given them, ask the user instead of composing it.
+    returns:
+      description: Resolved path, created or exists status, and byte count.
+      fields:
+      - bytes
+      - path
+      - status
+  document_update:
+    domain: documents
+    layer: core
+    status: implemented
+    allowed_effects: [internal_write]
+    implementation: state_server.server:document_update
+    backing_stores: [documents/, my_desktop/]
+    description: 'Edit an existing document in the current MemPABench run state. ''anchor'' is an exact substring of the document''s current text that must occur exactly once; it is replaced by ''replacement''. Read the document first and copy the anchor as plain text: document_read returns JSON, so the \n and \" sequences in its output are JSON escapes, not document text — send real newlines and plain quotes, never a backslash. Prefer a short single-line anchor, and do not let one span a blank line. The rest of the file is left untouched. Fails if the file does not exist or the anchor is missing or ambiguous. This state holds only the user''s task documents; your own memory and skills files are not here, so paths like memory/MEMORY.md are not writable through this tool.'
+    parameters:
+      path:
+        type: string
+        required: true
+        description: Path of the existing document to edit.
+      anchor:
+        type: string
+        required: true
+        description: 'Exact substring of the document''s current text, copied verbatim, occurring exactly once. Send it as plain text: real newlines and plain quotes, never the \n or \" JSON escapes that appear in document_read output. Keep it short, ideally a single line, and do not let it span a blank line. Never a bare heading line on its own — anchor on a content line under the heading, or on the heading plus its first content line.'
+      replacement:
+        type: string
+        required: true
+        description: Text that replaces the anchor. When this is something the user must dictate, pass their own words; if the user has not given them, ask the user instead of composing it. An empty string deletes the anchored text; use it only to remove a whole entry or line you have read back, and never leave an unmatched fence or heading behind.
+    returns:
+      description: Resolved path, updated status, resulting byte count, and
+        match_tier — which rung of the anchor ladder matched the span (exact,
+        unescaped, or whitespace).
+      fields:
+      - bytes
+      - match_tier
+      - note
+      - path
+      - status
+  document_delete:
+    domain: documents
+    layer: core
+    status: implemented
+    allowed_effects: [internal_write]
+    implementation: state_server.server:document_delete
+    backing_stores: [documents/, my_desktop/]
+    description: Delete an existing document from the current MemPABench run state. Use this only when the user's task calls for removing a file. Fails if it is missing.
+    parameters:
+      path:
+        type: string
+        required: true
+        description: Path of the existing document to delete.
+    returns:
+      description: Resolved path and deleted status.
+      fields:
+      - path
+      - status
+  contact_search:
+    domain: contacts
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:contact_search
+    backing_stores: [contacts.json]
+    description: Look up contacts or external handoff channels by query. Use this when a task needs the right person, office, or channel to continue.
+    parameters:
+      query:
+        type: string
+        required: true
+        description: Free-text keywords matched against name, organization, relation and notes; an unmatched word returns no results rather than an error.
+    returns:
+      description: Ranked matching contact records.
+      fields:
+      - matches[].contact_id
+      - matches[].email
+      - matches[].name
+      - matches[].notes
+      - matches[].organization
+      - matches[].phone
+      - matches[].relation
+      - matches[].tags[]
+      - query
+  contact_read:
+    domain: contacts
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:contact_read
+    backing_stores: [contacts.json]
+    description: 'Read one contact by identifier. A contact the address book lists but cannot serve returns {"ok": false, "error_code": "capability_limit", "boundary_kind": ...} instead of the record; an identifier that matches no contact is still an error.'
+    parameters:
+      contact_id:
+        type: string
+        required: true
+        description: Contact id as returned by contact_search, ct_NNNN.
+    returns:
+      description: Full contact record. A contact the fixture marks unavailable
+        returns the capability-limit shape instead — ok=false, error_code=capability_limit,
+        boundary_kind (missing_data / missing_capability / action_not_permitted /
+        external_dependency) and an optional detail — logged with status=capability_limit.
+        Those alternative fields are not listed below; fields records the record
+        shape the sandbox probe observes.
+      fields:
+      - contact.contact_id
+      - contact.email
+      - contact.name
+      - contact.notes
+      - contact.organization
+      - contact.phone
+      - contact.relation
+      - contact.tags[]
+  contact_create:
+    domain: contacts
+    layer: core
+    status: implemented
+    allowed_effects: [internal_write]
+    implementation: state_server.server:contact_create
+    backing_stores: [contacts.json]
+    description: Save a new contact in the current run state.
+    parameters:
+      name:
+        type: string
+        required: true
+        description: Full name of the contact.
+      email:
+        type: string
+        required: false
+        description: Email address.
+      phone:
+        type: string
+        required: false
+        description: Phone number.
+      organization:
+        type: string
+        required: false
+        description: Employer, department or institution.
+      relation:
+        type: string
+        required: false
+        description: How the user knows them, such as 'collaborator' or 'landlord'.
+      notes:
+        type: string
+        required: false
+        description: Free-text notes.
+    returns:
+      description: Created contact identifier and status.
+      fields:
+      - contact_id
+      - status
+  contact_update:
+    domain: contacts
+    layer: core
+    status: implemented
+    allowed_effects: [internal_write]
+    implementation: state_server.server:contact_update
+    backing_stores: [contacts.json]
+    description: Update one existing contact by identifier.
+    parameters:
+      contact_id:
+        type: string
+        required: true
+        description: Contact id as returned by contact_search, ct_NNNN.
+      name:
+        type: string
+        required: false
+        description: New full name.
+      email:
+        type: string
+        required: false
+        description: New email address.
+      phone:
+        type: string
+        required: false
+        description: New phone number.
+      organization:
+        type: string
+        required: false
+        description: New employer, department or institution.
+      relation:
+        type: string
+        required: false
+        description: New relationship, such as 'collaborator' or 'landlord'.
+      notes:
+        type: string
+        required: false
+        description: New free-text notes.
+    returns:
+      description: Updated contact identifier and status.
+      fields:
+      - contact_id
+      - status
+  phone_call_dial:
+    domain: phone
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:phone_call_dial
+    backing_stores: [phone/calls.jsonl, contacts.json, places/nearby.json]
+    description: 'Place a phone call to a number this world lists, for a contact or a place. This is an external action: use it only when appropriate and authorized. Get the number from contact_read or place_search first and pass it back as the listing writes it. A line the world cannot put through returns {"ok": false, "error_code": "capability_limit", "boundary_kind": ...} instead of a call; a number no listing carries is an error. When the line answers, the result reports who answered and what they said.'
+    parameters:
+      number:
+        type: string
+        required: true
+        description: The number to dial, as the contact or place listing writes it; punctuation and spacing are ignored, so '(555) 026-2200' and '555-026-2200' reach the same line. A number no listing in this world carries is an error, not an unanswered call.
+      purpose:
+        type: string
+        required: true
+        description: What this call is about, said to whoever answers. When this is something the user must dictate, pass their own words; if the user has not given them, ask the user instead of composing it.
+    returns:
+      description: Call identifier, answered status, who answered, and what the line
+        said when it has an answer on file. A number whose listing the fixture marks
+        unavailable returns the capability-limit shape instead — ok=false,
+        error_code=capability_limit, boundary_kind (missing_data / missing_capability
+        / action_not_permitted / external_dependency) and an optional detail — logged
+        with status=capability_limit. Those alternative fields are not listed below.
+      fields:
+      - answer
+      - answered_by
+      - call_id
+      - number
+      - status
+  phone_call_read:
+    domain: phone
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:phone_call_read
+    backing_stores: [phone/calls.jsonl]
+    description: Read one call this run placed, by identifier.
+    parameters:
+      call_id:
+        type: string
+        required: true
+        description: Call id as returned by phone_call_dial, call_NNNN.
+    returns:
+      description: Full record of one call this run placed.
+      fields:
+      - call.answer
+      - call.answered_by
+      - call.call_id
+      - call.date
+      - call.number
+      - call.purpose
+      - call.status
+  club_closure_calendar_read:
+    domain: maps_places
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:club_closure_calendar_read
+    backing_stores: [places/closure_calendars.json]
+    description: Read a club's dated closure calendar. A member-only calendar returns the standard capability-limit shape; ordinary weekly hours remain available through place_search.
+    parameters:
+      place_id:
+        type: string
+        required: true
+        description: Stable place identifier from the world record, place_*.
+      date_range:
+        type: string
+        required: true
+        description: Requested date range, YYYY-MM-DD/YYYY-MM-DD.
+    returns:
+      description: The dated closure calendar, or the standard capability-limit shape when protected.
+      fields:
+      - calendar.closures[].date
+      - calendar.closures[].status
+      - calendar.date_range
+      - calendar.place_id
+  map_route_search:
+    domain: maps_places
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:map_route_search
+    backing_stores: [maps/route_options.json]
+    description: Return route options with travel time and estimated price for a trip, optionally through an intermediate stop.
+    parameters:
+      origin:
+        type: string
+        required: true
+        description: Start of the trip as a place name or address; matched against the route fixture by text, so use a name a place_search result or the user gave.
+      destination:
+        type: string
+        required: true
+        description: End of the trip, named the same way as origin.
+      stop:
+        type: string
+        required: false
+        default: ''
+        description: Optional intermediate stop, named the same way; '' for none.
+    returns:
+      description: Matching route options with mode, travel time, and estimated price.
+      fields:
+      - destination
+      - options[].duration_minutes
+      - options[].estimated_price_usd
+      - options[].mode
+      - options[].summary
+      - origin
+      - stop
+  place_search:
+    domain: maps_places
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:place_search
+    backing_stores: [places/nearby.json]
+    description: Return nearby place options by location, category or name. Give at least one of them; they combine. Place records carry their own business hours, including dated holiday notices.
+    parameters:
+      location:
+        type: string
+        required: false
+        description: Optional street or landmark near the user as the world names it, such as 'Civic Plaza' or 'Alder St', never a business or person name; an unknown value is a tool error that lists the known ones.
+      category:
+        type: string
+        required: false
+        description: Optional kind of place, matched against each record's category and tags. A category is one lowercase word, such as restaurant, cafe, grocery, cinema, exhibition, clinic or pharmacy; a world lists only the categories it actually contains, and an unknown value is a tool error that lists the known ones.
+      query:
+        type: string
+        required: false
+        description: Optional business or place name, such as 'Glenmont Pharmacy'; every whitespace-separated word has to appear in the listing's own name, case-insensitively. Use this when the user named the place; a name the world does not list simply returns no matches.
+      limit:
+        type: integer
+        required: false
+        default: 3
+        description: Maximum number of places to return.
+    returns:
+      description: Matching nearby place records up to the requested limit.
+      fields:
+      - category
+      - limit
+      - location
+      - matches[].address
+      - matches[].category
+      - matches[].hours.fri
+      - matches[].hours.mon
+      - matches[].hours.sat
+      - matches[].hours.sun
+      - matches[].hours.thu
+      - matches[].hours.tue
+      - matches[].hours.wed
+      - matches[].name
+      - matches[].near
+      - matches[].notes
+      - matches[].phone
+      - matches[].place_id
+      - matches[].price_band
+      - matches[].published_date
+      - matches[].tags[]
+      - query
+  weather_forecast_read:
+    domain: weather
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:weather_forecast_read
+    backing_stores: [weather/forecasts.json]
+    description: Read the forecast for one location, date, and time window from the current run state.
+    parameters:
+      location:
+        type: string
+        required: true
+        description: City or neighbourhood the forecast records name, such as 'Glenmont, CA'; an unknown value is a tool error that lists the known ones.
+      date:
+        type: string
+        required: true
+        description: Forecast date, YYYY-MM-DD.
+      time_window:
+        type: string
+        required: true
+        description: Window as HH:MM-HH:MM, or one of morning / midday / afternoon / evening / tonight / night.
+    returns:
+      description: Matching forecast details.
+      fields:
+      - date
+      - forecast.action_stability
+      - forecast.call_time_exposure
+      - forecast.citywide_rain_confidence
+      - forecast.dinner_window_exposure
+      - forecast.neighborhood_onset
+      - forecast.precip_probability_pct
+      - forecast.recommendation
+      - forecast.summary
+      - forecast.temp_f_range
+      - forecast.visibility
+      - forecast.wind
+      - location
+      - time_window
+  shopping_product_search:
+    domain: shopping
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:shopping_product_search
+    backing_stores: [shopping/products.json]
+    description: Search the product catalog by item, with optional price and delivery constraints. Out-of-stock products are listed too, with in_stock false, so a sold-out item can be told apart from one the shop does not carry.
+    parameters:
+      query:
+        type: string
+        required: true
+        description: Free-text keywords matched against product name, brand and tags; an unmatched word returns no results rather than an error.
+      max_price:
+        type: number
+        required: false
+        description: Optional price ceiling in dollars.
+      delivery_method:
+        type: string
+        required: false
+        description: Either 'home_delivery' or 'pickup'.
+    returns:
+      description: Matching products with price, availability, and delivery methods.
+      fields:
+      - currency
+      - delivery_method
+      - matches[].assembly
+      - matches[].delivery_methods[]
+      - matches[].description
+      - matches[].in_stock
+      - matches[].item_type
+      - matches[].lead_time_weeks
+      - matches[].name
+      - matches[].price
+      - matches[].product_id
+      - max_price
+      - query
+  shopping_order_create:
+    domain: shopping
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:shopping_order_create
+    backing_stores: [shopping/order_store.json, shopping/products.json, shipping/addresses.json, finance/payment_methods.json]
+    description: Place an authorized product order using a saved delivery address and payment method. A product that is out of stock cannot be ordered. This is an external action.
+    parameters:
+      product_id:
+        type: string
+        required: true
+        description: Product id as returned by shopping_product_search, shp_*.
+      quantity:
+        type: integer
+        required: true
+        description: Number of units to order, at least 1.
+      delivery_address_id:
+        type: string
+        required: true
+        description: Saved delivery address id from delivery_address_read, addr_*.
+      payment_method_id:
+        type: string
+        required: true
+        description: Saved payment method id from payment_method_read, pm_*.
+    returns:
+      description: Stable order identifier and placed status.
+      fields:
+      - order_id
+      - status
+  shopping_order_read:
+    domain: shopping
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:shopping_order_read
+    backing_stores: [shopping/order_store.json]
+    description: Read one persisted product order for verification.
+    parameters:
+      order_id:
+        type: string
+        required: true
+        description: 'Order id in the merchant''s own format: a two-letter merchant code, a hyphen, six digits, such as AB-118427. Returned by shopping_order_create and shown on every order in the history.'
+    returns:
+      description: Stable order facts including item, price, quantity, delivery, and status.
+      fields:
+      - order.currency
+      - order.delivery_method
+      - order.item_type
+      - order.order_id
+      - order.payment_method_id
+      - order.product_id
+      - order.product_name
+      - order.quantity
+      - order.status
+      - order.tax
+      - order.total
+      - order.tracking_id
+      - order.unit_price
+  shopping_order_update:
+    domain: shopping
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:shopping_order_update
+    backing_stores: [shopping/order_store.json]
+    description: Change or cancel one existing order that has not shipped. This is an external action.
+    parameters:
+      order_id:
+        type: string
+        required: true
+        description: 'Order id in the merchant''s own format: a two-letter merchant code, a hyphen, six digits, such as AB-118427. Returned by shopping_order_create and shown on every order in the history.'
+      status:
+        type: string
+        required: false
+        description: Either 'placed' or 'cancelled'.
+      quantity:
+        type: integer
+        required: false
+        description: New number of units, at least 1.
+      delivery_address_id:
+        type: string
+        required: false
+        description: New saved delivery address id from delivery_address_read, addr_*.
+    returns:
+      description: Updated order identifier and status.
+      fields:
+      - order_id
+      - status
+  shopping_return_case_read:
+    domain: shopping
+    layer: persona:user_c
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:shopping_return_case_read
+    backing_stores: [shopping/return_cases.jsonl]
+    description: Read one persisted retailer return case for verification.
+    parameters:
+      case_id:
+        type: string
+        required: true
+        description: Return case id in the form rcase_NNNN, such as rcase_0001.
+    returns:
+      description: The persisted retailer return-case state.
+      fields:
+      - case.case_id
+      - case.filing
+      - case.note_draft_id
+      - case.order_id
+      - case.retailer
+      - case.route
+      - case.status
+      - case.updated_at
+  shopping_return_case_update:
+    domain: shopping
+    layer: persona:user_c
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:shopping_return_case_update
+    backing_stores: [shopping/return_cases.jsonl]
+    description: Add the selected route, filing target, and prepared note to an existing open retailer return case. This is an external action.
+    parameters:
+      case_id:
+        type: string
+        required: true
+        description: Return case id in the form rcase_NNNN, such as rcase_0001.
+      route:
+        type: string
+        required: true
+        description: Non-empty route selected for the case.
+      filing:
+        type: string
+        required: true
+        description: Non-empty filing target selected for the case.
+      note_draft_id:
+        type: string
+        required: true
+        description: Existing prepared email draft id, such as draft_0001.
+    returns:
+      description: The updated retailer return-case state, including its unchanged open/on-hold status.
+      fields:
+      - case.case_id
+      - case.filing
+      - case.note_draft_id
+      - case.order_id
+      - case.retailer
+      - case.route
+      - case.status
+      - case.updated_at
+  delivery_address_read:
+    domain: shipping
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:delivery_address_read
+    backing_stores: [shipping/addresses.json]
+    description: Read the user's saved delivery addresses, or one address by identifier.
+    parameters:
+      address_id:
+        type: string
+        required: false
+        description: Saved delivery address id, addr_*; omit to list every saved address.
+    returns:
+      description: Saved delivery-address records, each with its own identifier and the label the user files it under.
+      fields:
+      - addresses[].address_id
+      - addresses[].city
+      - addresses[].default
+      - addresses[].label
+      - addresses[].recipient
+      - addresses[].state
+      - addresses[].street
+      - addresses[].zip
+  package_delivery_proof_read:
+    domain: shipping
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:package_delivery_proof_read
+    backing_stores: [shipping/delivery_proofs.json]
+    description: Read protected delivery proof for one resolved tracking number. Identity-gated GPS or photo proof returns the standard capability-limit shape.
+    parameters:
+      tracking_id:
+        type: string
+        required: true
+        description: Carrier tracking number, such as GLX820447.
+    returns:
+      description: Protected proof metadata, or the standard capability-limit shape.
+      fields:
+      - proof.delivered_at
+      - proof.gps
+      - proof.photo_reference
+      - proof.tracking_id
+  package_tracking_read:
+    domain: shipping
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:package_tracking_read
+    backing_stores: [shipping/tracking.json]
+    description: 'Read the scan-event history and latest status for one package. A package the carrier lists but cannot serve returns {"ok": false, "error_code": "capability_limit", "boundary_kind": ...} instead of the record; a tracking number that matches no package is still an error.'
+    parameters:
+      tracking_id:
+        type: string
+        required: true
+        description: Carrier tracking number as printed in the shipping email or on the order record, such as GLX722480.
+    returns:
+      description: Carrier, scan events, and current status for the package. A package
+        the fixture marks unavailable returns the capability-limit shape instead —
+        ok=false, error_code=capability_limit, boundary_kind (missing_data / missing_capability
+        / action_not_permitted / external_dependency) and an optional detail — logged
+        with status=capability_limit. Those alternative fields are not listed below;
+        fields records the record shape the sandbox probe observes.
+      fields:
+      - carrier
+      - events[].date
+      - events[].location
+      - events[].status
+      - events[].time
+      - status
+      - tracking_id
+  utility_account_holder_update:
+    domain: finance
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:utility_account_holder_update
+    backing_stores: [finance/utility_accounts.json]
+    description: Remove one named holder from a utility account. This is an external action. An account requiring a signed identity-release route returns the standard capability-limit shape and leaves its holders unchanged.
+    parameters:
+      account_id:
+        type: string
+        required: true
+        description: Utility account identifier, util_*.
+      remove_holder:
+        type: string
+        required: true
+        description: Current holder whose own name is removed.
+    returns:
+      description: Updated account holder list, or the standard capability-limit shape.
+      fields:
+      - account_id
+      - holders[]
+      - status
+  utility_bill_read:
+    domain: finance
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:utility_bill_read
+    backing_stores: [finance/bills.json]
+    description: Read the bills for a household account, found by provider or account name. Returns every bill matching the account or provider, narrowed to one period when a period is given. A card statement and the minimum due on it both come back, as do several accounts billed by one provider.
+    parameters:
+      account:
+        type: string
+        required: true
+        description: Utility account or provider name, matched case-insensitively as a substring of either the provider or the account on the bill; the provider name as the bill gives it is enough.
+      period:
+        type: string
+        required: false
+        description: Optional billing period, YYYY-MM; omit for every period on the account.
+    returns:
+      description: Every matching bill, with line items, totals, and payment
+        status.
+      fields:
+      - account
+      - bills[].account
+      - bills[].bill_id
+      - bills[].due_date
+      - bills[].issued_date
+      - bills[].line_items[].amount
+      - bills[].line_items[].label
+      - bills[].notes
+      - bills[].paid_by
+      - bills[].period
+      - bills[].provider
+      - bills[].service_address
+      - bills[].status
+      - bills[].total
+      - period
+  payment_method_read:
+    domain: finance
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:payment_method_read
+    backing_stores: [finance/payment_methods.json]
+    description: Read the user's saved payment methods, or one method by identifier.
+    parameters:
+      method_id:
+        type: string
+        required: false
+        description: Saved payment method id, pm_*; omit to list every saved method.
+    returns:
+      description: Saved payment-method records with masked identifiers.
+      fields:
+      - payment_methods[].billing_name
+      - payment_methods[].float_usd
+      - payment_methods[].kind
+      - payment_methods[].label
+      - payment_methods[].masked
+      - payment_methods[].method_id
+      - payment_methods[].notes
+  bill_payment_create:
+    domain: finance
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:bill_payment_create
+    backing_stores: [finance/payments.jsonl, finance/bills.json, finance/payment_methods.json]
+    description: Pay one specific bill using a saved payment method; the amount must match the bill total. This is an external action.
+    parameters:
+      bill_id:
+        type: string
+        required: true
+        description: Bill id as it appears on the bill from utility_bill_read, such as GP-2026-09.
+      payment_method_id:
+        type: string
+        required: true
+        description: Saved payment method id from payment_method_read, pm_*.
+      amount:
+        type: number
+        required: false
+        description: Amount in dollars; must equal the bill total if given.
+    returns:
+      description: Payment identifier and status.
+      fields:
+      - payment_id
+      - status
+  bill_payment_read:
+    domain: finance
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:bill_payment_read
+    backing_stores: [finance/payments.jsonl]
+    description: Read one persisted bill payment by identifier.
+    parameters:
+      payment_id:
+        type: string
+        required: true
+        description: Payment id as returned by bill_payment_create, pay_NNNN.
+    returns:
+      description: Full payment record.
+      fields:
+      - payment.account
+      - payment.amount
+      - payment.bill_id
+      - payment.currency
+      - payment.date
+      - payment.kind
+      - payment.merchant
+      - payment.method_id
+      - payment.notes
+      - payment.paid_at
+      - payment.payment_id
+      - payment.payment_method_id
+      - payment.status
+  appointment_search:
+    domain: appointment
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:appointment_search
+    backing_stores: [appointment/availability.json]
+    description: Search clinic or service providers and their open appointment slots.
+    parameters:
+      service:
+        type: string
+        required: true
+        description: Free-text keywords matched against the whole provider record — clinic name, speciality or service — not a fixed vocabulary.
+      date:
+        type: string
+        required: false
+        description: Optional date filter, YYYY-MM-DD.
+    returns:
+      description: Matching providers with their open slots.
+      fields:
+      - date
+      - matches[].booking_routes[].availability
+      - matches[].booking_routes[].channel
+      - matches[].booking_routes[].confirmation
+      - matches[].booking_routes[].contact_id
+      - matches[].booking_routes[].role
+      - matches[].location
+      - matches[].name
+      - matches[].notes
+      - matches[].provider_id
+      - matches[].published_date
+      - matches[].slots[]
+      - matches[].slots[].date
+      - matches[].slots[].time
+      - matches[].specialty
+      - query
+  appointment_create:
+    domain: appointment
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:appointment_create
+    backing_stores: [appointment/appointments.jsonl, appointment/availability.json]
+    description: Book an authorized appointment slot with a provider found via appointment_search. This is an external action.
+    parameters:
+      provider_id:
+        type: string
+        required: true
+        description: Provider id as returned by appointment_search, prov_*.
+      date:
+        type: string
+        required: true
+        description: Slot date, YYYY-MM-DD; must match an open slot from appointment_search.
+      time:
+        type: string
+        required: true
+        description: Slot time, 24-hour HH:MM; must match an open slot from appointment_search.
+      patient:
+        type: string
+        required: true
+        description: Name the appointment is booked under.
+      reason:
+        type: string
+        required: true
+        description: Free-text reason for the visit, in the patient's own words. When this is something the user must dictate, pass their own words; if the user has not given them, ask the user instead of composing it.
+      booking_contact_id:
+        type: string
+        required: false
+        description: Optional contact id such as ct_0001 from the provider's published booking_routes. Providers that publish routes require one.
+    returns:
+      description: Appointment identifier and confirmed status.
+      fields:
+      - appointment_id
+      - booking_contact_id
+      - booking_role
+      - status
+  appointment_read:
+    domain: appointment
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:appointment_read
+    backing_stores: [appointment/appointments.jsonl]
+    description: Read one persisted appointment by identifier.
+    parameters:
+      appointment_id:
+        type: string
+        required: true
+        description: Appointment id as returned by appointment_create or found in the appointment history, apt_NNNN.
+    returns:
+      description: Full appointment record.
+      fields:
+      - appointment.appointment_id
+      - appointment.booking_contact_id
+      - appointment.booking_role
+      - appointment.created_at
+      - appointment.date
+      - appointment.location
+      - appointment.note
+      - appointment.notes
+      - appointment.patient
+      - appointment.provider_id
+      - appointment.provider_name
+      - appointment.reason
+      - appointment.specialty
+      - appointment.status
+      - appointment.time
+      - appointment.updated_at
+  appointment_update:
+    domain: appointment
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:appointment_update
+    backing_stores: [appointment/appointments.jsonl, appointment/availability.json]
+    description: Reschedule or cancel one existing appointment. This is an external action.
+    parameters:
+      appointment_id:
+        type: string
+        required: true
+        description: Appointment id as returned by appointment_create or found in the appointment history, apt_NNNN.
+      status:
+        type: string
+        required: false
+        description: Either 'confirmed' or 'cancelled'.
+      date:
+        type: string
+        required: false
+        description: New slot date, YYYY-MM-DD.
+      time:
+        type: string
+        required: false
+        description: New slot time, 24-hour HH:MM.
+    returns:
+      description: Updated appointment identifier and status.
+      fields:
+      - appointment_id
+      - status
+  restaurant_reservation_search:
+    domain: restaurant
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:restaurant_reservation_search
+    backing_stores: [restaurant/slots.json]
+    description: Search restaurants and their open table slots by name or cuisine.
+    parameters:
+      query:
+        type: string
+        required: true
+        description: Free-text keywords matched against the whole restaurant record — name, cuisine or neighbourhood.
+      date:
+        type: string
+        required: false
+        description: Optional date filter, YYYY-MM-DD.
+      party_size:
+        type: integer
+        required: false
+        description: Optional party size; drops slots that cannot seat it.
+    returns:
+      description: Matching restaurants with their open table slots.
+      fields:
+      - date
+      - matches[].cuisine
+      - matches[].name
+      - matches[].notes
+      - matches[].restaurant_id
+      - matches[].slots[]
+      - matches[].slots[].date
+      - matches[].slots[].max_party
+      - matches[].slots[].time
+      - party_size
+      - query
+  restaurant_reservation_create:
+    domain: restaurant
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:restaurant_reservation_create
+    backing_stores: [restaurant/reservations.jsonl, restaurant/slots.json]
+    description: Reserve an authorized table slot at a restaurant. This is an external action.
+    parameters:
+      restaurant_id:
+        type: string
+        required: true
+        description: Restaurant id as returned by restaurant_reservation_search, rest_*.
+      date:
+        type: string
+        required: true
+        description: Slot date, YYYY-MM-DD; must match an open slot from restaurant_reservation_search.
+      time:
+        type: string
+        required: true
+        description: Slot time, 24-hour HH:MM; must match an open slot from restaurant_reservation_search.
+      party_size:
+        type: integer
+        required: true
+        description: Number of diners.
+      contact_phone:
+        type: string
+        required: true
+        description: Phone number the restaurant may call about this booking, digits with optional spaces, dashes or parentheses, such as (555) 014-3388. Supplied by the user for this booking; it is not on record in any contact, document or calendar entry.
+      note:
+        type: string
+        required: false
+        description: Free-text note for the restaurant, such as an access need.
+    returns:
+      description: Reservation identifier and confirmed status.
+      fields:
+      - reservation_id
+      - status
+  restaurant_reservation_read:
+    domain: restaurant
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:restaurant_reservation_read
+    backing_stores: [restaurant/reservations.jsonl]
+    description: Read one persisted restaurant reservation by identifier.
+    parameters:
+      reservation_id:
+        type: string
+        required: true
+        description: Reservation id as returned by restaurant_reservation_create or found in the reservation history, res_NNNN.
+    returns:
+      description: Full reservation record.
+      fields:
+      - reservation.contact_phone
+      - reservation.created_at
+      - reservation.date
+      - reservation.note
+      - reservation.party_size
+      - reservation.reservation_id
+      - reservation.restaurant_id
+      - reservation.restaurant_name
+      - reservation.status
+      - reservation.time
+  restaurant_reservation_update:
+    domain: restaurant
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:restaurant_reservation_update
+    backing_stores: [restaurant/reservations.jsonl, restaurant/slots.json]
+    description: Reschedule or cancel one existing restaurant reservation. This is an external action.
+    parameters:
+      reservation_id:
+        type: string
+        required: true
+        description: Reservation id as returned by restaurant_reservation_create or found in the reservation history, res_NNNN.
+      status:
+        type: string
+        required: false
+        description: Either 'confirmed' or 'cancelled'.
+      date:
+        type: string
+        required: false
+        description: New slot date, YYYY-MM-DD.
+      time:
+        type: string
+        required: false
+        description: New slot time, 24-hour HH:MM.
+      party_size:
+        type: integer
+        required: false
+        description: New number of diners.
+    returns:
+      description: Updated reservation identifier and status.
+      fields:
+      - reservation_id
+      - status
+  room_booking_search:
+    domain: room
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:room_booking_search
+    backing_stores: [room/rooms.json]
+    description: Search bookable workplace rooms and their open slots by name, building, or feature.
+    parameters:
+      query:
+        type: string
+        required: true
+        description: Free-text keywords matched against the whole room record — room name, building or feature such as 'projector'.
+      date:
+        type: string
+        required: false
+        description: Optional date filter, YYYY-MM-DD.
+    returns:
+      description: Matching rooms with their open slots.
+      fields:
+      - date
+      - matches[].building
+      - matches[].capacity
+      - matches[].features[]
+      - matches[].name
+      - matches[].notes
+      - matches[].room_id
+      - matches[].slots[]
+      - matches[].slots[].date
+      - matches[].slots[].time
+      - query
+  room_booking_create:
+    domain: room
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:room_booking_create
+    backing_stores: [room/bookings.jsonl, room/rooms.json]
+    description: Book an authorized workplace room slot. This is an external action.
+    parameters:
+      room_id:
+        type: string
+        required: true
+        description: Room id as returned by room_booking_search, such as A101.
+      date:
+        type: string
+        required: true
+        description: Slot date, YYYY-MM-DD; must match an open slot from room_booking_search.
+      time:
+        type: string
+        required: true
+        description: Slot start time, 24-hour HH:MM; must match an open slot from room_booking_search.
+      end_time:
+        type: string
+        required: false
+        description: Optional end time, 24-hour HH:MM.
+      purpose:
+        type: string
+        required: false
+        description: Free-text reason the room is booked.
+    returns:
+      description: Room booking identifier and confirmed status.
+      fields:
+      - booking_id
+      - status
+  room_booking_read:
+    domain: room
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:room_booking_read
+    backing_stores: [room/bookings.jsonl]
+    description: Read one persisted room booking by identifier.
+    parameters:
+      booking_id:
+        type: string
+        required: true
+        description: Room booking id as returned by room_booking_create or found in the booking history, rb_NNNN.
+    returns:
+      description: Full room booking record.
+      fields:
+      - booking.booking_id
+      - booking.created_at
+      - booking.date
+      - booking.end_time
+      - booking.notes
+      - booking.purpose
+      - booking.room_id
+      - booking.room_name
+      - booking.status
+      - booking.time
+  room_booking_update:
+    domain: room
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:room_booking_update
+    backing_stores: [room/bookings.jsonl, room/rooms.json]
+    description: Reschedule or cancel one existing room booking. This is an external action.
+    parameters:
+      booking_id:
+        type: string
+        required: true
+        description: Room booking id as returned by room_booking_create or found in the booking history, rb_NNNN.
+      status:
+        type: string
+        required: false
+        description: Either 'confirmed' or 'cancelled'.
+      date:
+        type: string
+        required: false
+        description: New slot date, YYYY-MM-DD.
+      time:
+        type: string
+        required: false
+        description: New slot start time, 24-hour HH:MM.
+    returns:
+      description: Updated room booking identifier and status.
+      fields:
+      - booking_id
+      - status
+  hotel_search:
+    domain: hotel
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:hotel_search
+    backing_stores: [hotel/hotels.json]
+    description: Search hotels in a city for a stay window, with room types and nightly rates.
+    parameters:
+      city:
+        type: string
+        required: true
+        description: City name, matched against each hotel's city, such as 'Chicago'; an unknown value is a tool error that lists the known ones.
+      check_in:
+        type: string
+        required: true
+        description: Check-in date, YYYY-MM-DD.
+      check_out:
+        type: string
+        required: true
+        description: Check-out date, YYYY-MM-DD, after check_in.
+    returns:
+      description: Matching hotels with room types, nightly rates, and location.
+      fields:
+      - check_in
+      - check_out
+      - city
+      - matches[].address
+      - matches[].amenities[]
+      - matches[].city
+      - matches[].hotel_id
+      - matches[].name
+      - matches[].nightly_rates.deluxe
+      - matches[].nightly_rates.double
+      - matches[].nightly_rates.queen
+      - matches[].nightly_rates.standard
+      - matches[].nightly_rates.twin
+      - matches[].notes
+      - matches[].published_date
+      - matches[].walk_minutes_to_venue
+  hotel_book:
+    domain: hotel
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:hotel_book
+    backing_stores: [hotel/bookings.jsonl, hotel/hotels.json, finance/payment_methods.json]
+    description: Book an authorized hotel stay using a saved payment method. This is an external action.
+    parameters:
+      hotel_id:
+        type: string
+        required: true
+        description: Hotel id as returned by hotel_search, ht_*.
+      check_in:
+        type: string
+        required: true
+        description: Check-in date, YYYY-MM-DD.
+      check_out:
+        type: string
+        required: true
+        description: Check-out date, YYYY-MM-DD, after check_in.
+      room_type:
+        type: string
+        required: true
+        description: A room type this hotel's nightly_rates lists.
+      guest:
+        type: string
+        required: true
+        description: Name the room is booked under.
+      payment_method_id:
+        type: string
+        required: true
+        description: Saved payment method id from payment_method_read, pm_*.
+    returns:
+      description: Hotel booking identifier and booked status.
+      fields:
+      - booking_id
+      - status
+  hotel_booking_read:
+    domain: hotel
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:hotel_booking_read
+    backing_stores: [hotel/bookings.jsonl]
+    description: Read one persisted hotel booking by identifier.
+    parameters:
+      booking_id:
+        type: string
+        required: true
+        description: Hotel booking id as returned by hotel_book or found in the booking history, hb_NNNN.
+    returns:
+      description: Full hotel booking record.
+      fields:
+      - booking.booked_at
+      - booking.booking_id
+      - booking.check_in
+      - booking.check_out
+      - booking.city
+      - booking.guest
+      - booking.hotel_id
+      - booking.hotel_name
+      - booking.nightly_rate
+      - booking.nights
+      - booking.payment_method_id
+      - booking.room_type
+      - booking.status
+      - booking.total
+  hotel_booking_update:
+    domain: hotel
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:hotel_booking_update
+    backing_stores: [hotel/bookings.jsonl, hotel/hotels.json]
+    description: Change dates or room type, or cancel one existing hotel booking. This is an external action.
+    parameters:
+      booking_id:
+        type: string
+        required: true
+        description: Hotel booking id as returned by hotel_book or found in the booking history, hb_NNNN.
+      status:
+        type: string
+        required: false
+        description: Either 'booked' or 'cancelled'.
+      check_in:
+        type: string
+        required: false
+        description: New check-in date, YYYY-MM-DD.
+      check_out:
+        type: string
+        required: false
+        description: New check-out date, YYYY-MM-DD, after check_in.
+      room_type:
+        type: string
+        required: false
+        description: A room type this hotel's nightly_rates lists.
+    returns:
+      description: Updated hotel booking identifier and status.
+      fields:
+      - booking_id
+      - status
+  reimbursement_submission_create:
+    domain: reimbursement
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:reimbursement_submission_create
+    backing_stores: [reimbursement/submissions.jsonl]
+    description: File an authorized expense reimbursement through the department portal. This is an external action.
+    parameters:
+      purpose:
+        type: string
+        required: true
+        description: What the expense was for, as free text.
+      amount:
+        type: number
+        required: true
+        description: Total claimed, in dollars.
+      attachments:
+        type: array
+        items: {type: string}
+        required: false
+        description: Receipt document paths relative to the task state.
+      notes:
+        type: string
+        required: false
+        description: Free-text notes for the approver.
+    returns:
+      description: Submission identifier and submitted status.
+      fields:
+      - status
+      - submission_id
+  reimbursement_submission_read:
+    domain: reimbursement
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:reimbursement_submission_read
+    backing_stores: [reimbursement/submissions.jsonl]
+    description: Read one persisted reimbursement submission by identifier.
+    parameters:
+      submission_id:
+        type: string
+        required: true
+        description: Reimbursement id as returned by reimbursement_submission_create, rmb_NNNN.
+    returns:
+      description: Full submission record.
+      fields:
+      - submission.amount
+      - submission.attachments[]
+      - submission.notes
+      - submission.purpose
+      - submission.status
+      - submission.submission_id
+      - submission.submitted_at
+  conference_registration_create:
+    domain: conference_registration
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:conference_registration_create
+    backing_stores: [conference_registration/registrations.jsonl, finance/payment_methods.json]
+    description: Register for a conference and pay the fee with a saved payment method. This is an external action.
+    parameters:
+      conference:
+        type: string
+        required: true
+        description: Conference name or acronym as free text.
+      fee:
+        type: number
+        required: true
+        description: Registration fee to charge, in dollars.
+      payment_method_id:
+        type: string
+        required: true
+        description: Saved payment method id from payment_method_read, pm_*.
+      attendee:
+        type: string
+        required: false
+        description: Name to register; defaults to the user.
+    returns:
+      description: Registration identifier and registered status.
+      fields:
+      - registration_id
+      - status
+  conference_registration_read:
+    domain: conference_registration
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:conference_registration_read
+    backing_stores: [conference_registration/registrations.jsonl]
+    description: Read one persisted conference registration by identifier.
+    parameters:
+      registration_id:
+        type: string
+        required: true
+        description: Registration id as returned by conference_registration_create or found in the registration history, reg_NNNN.
+    returns:
+      description: Full registration record.
+      fields:
+      - registration.attendee
+      - registration.conference
+      - registration.fee
+      - registration.payment_method_id
+      - registration.registered_at
+      - registration.registration_id
+      - registration.status
+  grade_submission_create:
+    domain: grade_submission
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:grade_submission_create
+    backing_stores: [grade_submission/submissions.jsonl]
+    description: Submit an authorized final grade roster for a course. This is an external action.
+    parameters:
+      course:
+        type: string
+        required: true
+        description: Course code the roster belongs to, as the course listing gives it (a department abbreviation and a number).
+      roster:
+        type: object
+        required: true
+        description: Object mapping each student name or id to their final grade.
+      term:
+        type: string
+        required: false
+        description: Term label as free text, such as 'Fall 2026'; stored, not matched.
+    returns:
+      description: Submission identifier and submitted status.
+      fields:
+      - status
+      - submission_id
+  grade_submission_read:
+    domain: grade_submission
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:grade_submission_read
+    backing_stores: [grade_submission/submissions.jsonl]
+    description: Read one persisted grade submission by identifier.
+    parameters:
+      submission_id:
+        type: string
+        required: true
+        description: Grade submission id as returned by grade_submission_create, grd_NNNN.
+    returns:
+      description: Full submission record.
+      fields:
+      - submission.course
+      - submission.roster.*
+      - submission.status
+      - submission.submission_id
+      - submission.submitted_at
+      - submission.term
+  flight_search:
+    domain: flight
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:flight_search
+    backing_stores: [flight/flights.json]
+    description: Search available flights for a route and date.
+    parameters:
+      origin:
+        type: string
+        required: true
+        description: Departure airport code or city as the flight records name it, such as FAT; an unknown value is a tool error that lists the known ones.
+      destination:
+        type: string
+        required: true
+        description: Arrival airport code or city as the flight records name it, such as ORD; an unknown value is a tool error that lists the known ones.
+      date:
+        type: string
+        required: true
+        description: Departure date, YYYY-MM-DD.
+    returns:
+      description: Matching flight options with times, fares, and availability.
+      fields:
+      - date
+      - destination
+      - matches[].arrive_time
+      - matches[].carrier
+      - matches[].date
+      - matches[].depart_time
+      - matches[].destination
+      - matches[].destination_city
+      - matches[].duration
+      - matches[].fares.W
+      - matches[].fares.Y
+      - matches[].flight_id
+      - matches[].notes
+      - matches[].origin
+      - matches[].origin_city
+      - matches[].published_date
+      - matches[].seats_available
+      - matches[].stops
+      - origin
+  flight_read:
+    domain: flight
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:flight_read
+    backing_stores: [flight/flights.json]
+    description: Read current availability and fare details for one flight option.
+    parameters:
+      flight_id:
+        type: string
+        required: true
+        description: Flight number as returned by flight_search, such as PC1562.
+    returns:
+      description: Full flight option record.
+      fields:
+      - flight.arrive_time
+      - flight.carrier
+      - flight.date
+      - flight.depart_time
+      - flight.destination
+      - flight.destination_city
+      - flight.duration
+      - flight.fares.W
+      - flight.fares.Y
+      - flight.flight_id
+      - flight.notes
+      - flight.origin
+      - flight.origin_city
+      - flight.published_date
+      - flight.seats_available
+      - flight.stops
+  flight_book:
+    domain: flight
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:flight_book
+    backing_stores: [flight/bookings.jsonl, flight/flights.json, finance/payment_methods.json]
+    description: Book an authorized flight using a saved payment method. This is an external action.
+    parameters:
+      flight_id:
+        type: string
+        required: true
+        description: Flight number as returned by flight_search, such as PC1562.
+      passenger:
+        type: string
+        required: true
+        description: Name the ticket is booked under.
+      payment_method_id:
+        type: string
+        required: true
+        description: Saved payment method id from payment_method_read, pm_*.
+      fare_class:
+        type: string
+        required: false
+        description: A fare class this flight's fares lists.
+    returns:
+      description: Flight booking identifier and confirmed status.
+      fields:
+      - booking_id
+      - status
+  flight_booking_read:
+    domain: flight
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:flight_booking_read
+    backing_stores: [flight/bookings.jsonl]
+    description: Read one persisted flight booking by identifier.
+    parameters:
+      booking_id:
+        type: string
+        required: true
+        description: Flight booking id as returned by flight_book or found in the booking history, fb_NNNN.
+    returns:
+      description: Full flight booking record.
+      fields:
+      - booking.booked_at
+      - booking.booking_id
+      - booking.carrier
+      - booking.date
+      - booking.depart_time
+      - booking.destination
+      - booking.fare
+      - booking.fare_class
+      - booking.flight_id
+      - booking.notes
+      - booking.origin
+      - booking.passenger
+      - booking.payment_method_id
+      - booking.status
+  scholarly_paper_search:
+    domain: scholarly
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:scholarly_paper_search
+    backing_stores: [scholarly/papers.json]
+    description: Search for scholarly papers by citation, title, author, claim, or topic. Results include metadata and the abstract; read the full text with scholarly_paper_read.
+    parameters:
+      query:
+        type: string
+        required: true
+        description: Free-text keywords matched against citation key, title, authors and abstract; an unmatched word returns no results rather than an error.
+    returns:
+      description: Matching paper records with metadata and abstract. A query with
+        no hits is an ordinary empty matches list, never a capability_limit; papers
+        the fixture marks unavailable are still listed here so the identifier can
+        be resolved, and only scholarly_paper_read reports the limit.
+      fields:
+      - matches[].abstract
+      - matches[].arxiv_id
+      - matches[].authors[]
+      - matches[].paper_id
+      - matches[].published_date
+      - matches[].title
+      - matches[].topics[]
+      - matches[].venue
+      - matches[].year
+      - query
+  scholarly_paper_read:
+    domain: scholarly
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:scholarly_paper_read
+    backing_stores: [scholarly/papers.json]
+    description: 'Read one paper''s full record, including its readable text, by identifier. A paper the catalog lists but cannot serve returns {"ok": false, "error_code": "capability_limit", "boundary_kind": ...} instead of the record; an identifier that matches no paper is still an error.'
+    parameters:
+      paper_id:
+        type: string
+        required: true
+        description: 'Paper id as returned by scholarly_paper_search: the citation key, such as bergstrom2022floquet.'
+    returns:
+      description: Full paper record including readable text. A paper the fixture
+        marks unavailable returns the capability-limit shape instead — ok=false,
+        error_code=capability_limit, boundary_kind (missing_data / missing_capability
+        / action_not_permitted / external_dependency) and an optional detail —
+        logged with status=capability_limit. Those alternative fields are not listed
+        below; fields records the record shape the sandbox probe observes.
+      fields:
+      - paper.abstract
+      - paper.arxiv_id
+      - paper.authors[]
+      - paper.fulltext
+      - paper.paper_id
+      - paper.title
+      - paper.topics[]
+      - paper.venue
+      - paper.year
+  recipe_search:
+    domain: recipe
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:recipe_search
+    backing_stores: [recipe/recipes.json]
+    description: Search recipes by dish or ingredient, with optional time and dietary constraints.
+    parameters:
+      query:
+        type: string
+        required: true
+        description: Free-text dish name or ingredient matched against each recipe.
+      max_minutes:
+        type: integer
+        required: false
+        description: Optional ceiling on total cooking time, in minutes.
+      dietary:
+        type: string
+        required: false
+        description: Optional dietary tag matched as a substring of a recipe's tags, such as 'vegetarian' or 'gluten-free'.
+    returns:
+      description: Matching recipe records.
+      fields:
+      - dietary
+      - matches[].ingredients[]
+      - matches[].name
+      - matches[].steps[]
+      - matches[].tags[]
+      - matches[].total_minutes
+      - max_minutes
+      - query
+  comic_store_inventory_read:
+    domain: comic_store
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:comic_store_inventory_read
+    backing_stores: [comic_store/items.json]
+    description: Check item availability at the comic shop, including standing-order arrivals and holds.
+    parameters:
+      item:
+        type: string
+        required: true
+        description: Title or issue to look up, matched as free text against the shop's stock list; give the title and issue number as the pull list or the shop listing writes them.
+    returns:
+      description: Matching comic-store inventory records.
+      fields:
+      - item
+      - matches[]
+      - matches[].condition
+      - matches[].item
+      - matches[].notes
+      - matches[].price
+      - matches[].series
+      - matches[].status
+      - matches[].tags[]
+  cinema_showtime_search:
+    domain: cinema
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:cinema_showtime_search
+    backing_stores: [cinema/showtimes.json]
+    description: Check cinema showtimes for a movie on a date. This is a generic cinema lookup tool, not tied to a single scenario.
+    parameters:
+      cinema:
+        type: string
+        required: true
+        description: Cinema name as the place listing gives it, matched as a substring.
+      movie:
+        type: string
+        required: true
+        description: Film title, matched as a substring of the listing.
+      date:
+        type: string
+        required: true
+        description: Showtime date, YYYY-MM-DD.
+    returns:
+      description: Matching showtime records.
+      fields:
+      - cinema
+      - date
+      - matches[]
+      - matches[].cinema
+      - matches[].date
+      - matches[].format
+      - matches[].movie
+      - matches[].screen
+      - matches[].time
+      - movie
+  cinema_ticket_purchase:
+    domain: cinema
+    layer: core
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:cinema_ticket_purchase
+    backing_stores: [cinema/tickets.jsonl, cinema/showtimes.json, finance/payment_methods.json]
+    description: 'Buy cinema tickets using a saved payment method. This is an external action: use it only when the user has clearly authorized buying tickets.'
+    parameters:
+      cinema:
+        type: string
+        required: true
+        description: Cinema name, as given to cinema_showtime_search.
+      movie:
+        type: string
+        required: true
+        description: Film title, as given to cinema_showtime_search.
+      date:
+        type: string
+        required: true
+        description: Selected date, YYYY-MM-DD; must match a screening from cinema_showtime_search.
+      time:
+        type: string
+        required: true
+        description: Selected showtime, 24-hour HH:MM; must match a screening from cinema_showtime_search.
+      quantity:
+        type: integer
+        required: true
+        description: Number of tickets to buy, at least 1.
+      payment_method_id:
+        type: string
+        required: true
+        description: Saved payment method id from payment_method_read, pm_*.
+    returns:
+      description: Ticket identifier and purchased status.
+      fields:
+      - status
+      - ticket_id
+  cinema_ticket_read:
+    domain: cinema
+    layer: core
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:cinema_ticket_read
+    backing_stores: [cinema/tickets.jsonl]
+    description: Read one purchased ticket record by identifier.
+    parameters:
+      ticket_id:
+        type: string
+        required: true
+        description: Ticket id as returned by cinema_ticket_purchase, ticket_NNNN.
+    returns:
+      description: Full ticket record.
+      fields:
+      - ticket.cinema
+      - ticket.date
+      - ticket.movie
+      - ticket.payment_method_id
+      - ticket.purchased_at
+      - ticket.quantity
+      - ticket.ticket_id
+      - ticket.time
+  exhibition_search:
+    domain: exhibition
+    layer: persona:user_a
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:exhibition_search
+    backing_stores: [exhibition/exhibitions.json]
+    description: Find exhibitions and the days they are open, by name or by date. This is where exhibition_ticket_purchase's venue, exhibit and date are checked, so pass its results through rather than a place listing's hours.
+    parameters:
+      query:
+        type: string
+        required: false
+        description: Optional exhibition or venue name, such as 'model train'; every whitespace-separated word has to appear in the exhibition's own name or its venue, case-insensitively. Omit to list them all.
+      date:
+        type: string
+        required: false
+        description: Optional day to visit, YYYY-MM-DD; returns only exhibitions open that day, closures and non-run days excluded. Omit to see every open day of each match.
+    returns:
+      description: Matching exhibitions with their venue, notice and open days.
+      fields:
+      - date
+      - matches[].name
+      - matches[].note
+      - matches[].open_dates[]
+      - matches[].published_date
+      - matches[].venue
+      - query
+  exhibition_ticket_purchase:
+    domain: exhibition
+    layer: persona:user_a
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:exhibition_ticket_purchase
+    backing_stores: [exhibition/tickets.jsonl, exhibition/exhibitions.json, finance/payment_methods.json]
+    description: 'Buy exhibition or event admission using a saved payment method. This is an external action: use it only when the user has clearly authorized it.'
+    parameters:
+      venue:
+        type: string
+        required: true
+        description: Venue name as exhibition_search gives it, never the exhibit's own name; an unknown value is a tool error that lists the known ones.
+      exhibit:
+        type: string
+        required: true
+        description: Exhibit or event name as exhibition_search gives it.
+      date:
+        type: string
+        required: true
+        description: Visit date, YYYY-MM-DD; must be one of the exhibition's open days, as exhibition_search lists them.
+      quantity:
+        type: integer
+        required: true
+        description: Number of admissions to buy, at least 1.
+      payment_method_id:
+        type: string
+        required: true
+        description: Saved payment method id from payment_method_read, pm_*.
+    returns:
+      description: Admission ticket identifier and purchased status.
+      fields:
+      - status
+      - ticket_id
+  exhibition_ticket_read:
+    domain: exhibition
+    layer: persona:user_a
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:exhibition_ticket_read
+    backing_stores: [exhibition/tickets.jsonl]
+    description: Read one purchased exhibition admission record by identifier.
+    parameters:
+      ticket_id:
+        type: string
+        required: true
+        description: Admission id as returned by exhibition_ticket_purchase, exh_NNNN.
+    returns:
+      description: Full admission record.
+      fields:
+      - ticket.date
+      - ticket.exhibit
+      - ticket.payment_method_id
+      - ticket.purchased_at
+      - ticket.quantity
+      - ticket.ticket_id
+      - ticket.venue
+  media_transcode_service_search:
+    domain: media_transcode
+    layer: persona:user_c
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:media_transcode_service_search
+    backing_stores: [media_transcode/services.json]
+    description: Search published professional media-transcode offers that accept a source format, deliver the requested target format, and promise delivery by a date.
+    parameters:
+      source_format:
+        type: string
+        required: true
+        description: Source format as the source manifest names it.
+      target_format:
+        type: string
+        required: true
+        description: Required target format, such as mp4/H.264.
+      deliver_by:
+        type: string
+        required: true
+        description: Latest acceptable delivery date, YYYY-MM-DD.
+    returns:
+      description: Viable offers with their exact fee, promise, and source-locator requirement.
+      fields:
+      - deliver_by
+      - matches[].currency
+      - matches[].delivery_terms
+      - matches[].fee
+      - matches[].promised_delivery_at
+      - matches[].provider
+      - matches[].required_source_locator
+      - matches[].service_id
+      - matches[].source_manifest_path
+      - source_format
+      - target_format
+  media_transcode_job_create:
+    domain: media_transcode
+    layer: persona:user_c
+    status: implemented
+    allowed_effects: [external_write]
+    implementation: state_server.server:media_transcode_job_create
+    backing_stores: [media_transcode/jobs.jsonl, media_transcode/services.json, media_transcode/artifacts.json, finance/payment_methods.json]
+    description: Accept and pay for an authorized professional transcode commission. The service atomically validates the existing source and saved payment method, captures the published fee, and delivers its verified artifact. This is an external action.
+    parameters:
+      service_id:
+        type: string
+        required: true
+        description: Service id such as mts_rapidframe_realtime returned by media_transcode_service_search.
+      source_path:
+        type: string
+        required: true
+        description: Existing run-state-relative media path named by the source manifest; the service verifies its SHA-256.
+      target_format:
+        type: string
+        required: true
+        description: Target format offered by the service, such as mp4/H.264.
+      deliver_by:
+        type: string
+        required: true
+        description: Latest acceptable delivery date, YYYY-MM-DD.
+      payment_method_id:
+        type: string
+        required: true
+        description: Saved payment method id from payment_method_read, pm_*.
+    returns:
+      description: Accepted commission, captured charge, and delivered artifact binding.
+      fields:
+      - artifact.artifact_id
+      - artifact.container
+      - artifact.job_id
+      - artifact.path
+      - artifact.sha256
+      - artifact.size_bytes
+      - artifact.source_sha256
+      - artifact.video_codec
+      - charge.amount
+      - charge.charge_id
+      - charge.charged_at
+      - charge.currency
+      - charge.payment_method_id
+      - charge.status
+      - job_id
+      - status
+  media_transcode_job_read:
+    domain: media_transcode
+    layer: persona:user_c
+    status: implemented
+    allowed_effects: [read, verify]
+    implementation: state_server.server:media_transcode_job_read
+    backing_stores: [media_transcode/jobs.jsonl]
+    description: Read one persisted professional transcode commission, captured charge, and immutable delivered-artifact manifest. This call never advances a job.
+    parameters:
+      job_id:
+        type: string
+        required: true
+        description: Transcode job id returned by media_transcode_job_create, mtj_NNNN.
+    returns:
+      description: Full persisted job, charge, and artifact manifest.
+      fields:
+      - job.accepted_at
+      - job.artifact.artifact_id
+      - job.artifact.container
+      - job.artifact.job_id
+      - job.artifact.path
+      - job.artifact.sha256
+      - job.artifact.size_bytes
+      - job.artifact.source_sha256
+      - job.artifact.video_codec
+      - job.charge.amount
+      - job.charge.charge_id
+      - job.charge.charged_at
+      - job.charge.currency
+      - job.charge.payment_method_id
+      - job.charge.status
+      - job.deliver_by
+      - job.delivered_at
+      - job.job_id
+      - job.provider
+      - job.service_id
+      - job.source_format
+      - job.source_path
+      - job.status
+      - job.target_format
+  household_inventory_search:
+    domain: household
+    layer: core
+    status: implemented
+    allowed_effects: [read]
+    implementation: state_server.server:household_inventory_search
+    backing_stores: [household/inventory.json]
+    description: Check whether a household location contains a usable item.
+    parameters:
+      location:
+        type: string
+        required: true
+        description: Place in the home as the inventory names it, matched as a substring of the stored location, such as 'hall closet'; an unknown value is a tool error that lists the known ones.
+      item:
+        type: string
+        required: true
+        description: Item to look for, matched as free text.
+    returns:
+      description: Matching household inventory records and whether a usable item exists.
+      fields:
+      - item
+      - location
+      - matches[].id
+      - matches[].item
+      - matches[].location
+      - matches[].notes
+      - matches[].quantity
+      - matches[].usable
+      - usable_item_available

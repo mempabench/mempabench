@@ -1,0 +1,26 @@
+# OpenRouter PA backbone models for MemPABench runs.
+#
+# Update this list when adding/removing PA backbones. Run scripts still accept
+# PA_MODEL=... for one-off overrides.
+
+default: openai/gpt-5.5
+
+models:
+  - openai/gpt-5.5
+  - anthropic/claude-opus-4.7
+  - anthropic/claude-sonnet-4.6
+  - google/gemini-3.1-pro-preview-customtools
+  - minimax/minimax-m2.7
+  - moonshotai/kimi-k2.6
+  - qwen/qwen3.6-35b-a3b
+  - deepseek/deepseek-v4-pro
+  - deepseek/deepseek-v4-flash
+  - z-ai/glm-5.3-flash
+  - openai/gpt-5.6-sol
+  - qwen/qwen3.7-flash
+  - qwen/qwen3.8-27b
+  - minimax/minimax-m3
+  - google/gemini-3.8-flash
+  - nvidia/nemotron-3-ultra-550b-a55b:free
+  - deepseek/deepseek-v4.1-flash
+  - tencent/hy4-preview

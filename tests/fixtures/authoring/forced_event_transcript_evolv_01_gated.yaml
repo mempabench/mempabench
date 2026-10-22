@@ -1,0 +1,121 @@
+# The worked gated forced event, end to end: this transcript is authored
+# against `forced_event_evolv_01.yaml` and the outline fixture
+# `outline_acc_015.yaml`, so its gate resolves through `harness/gate.py` rather
+# than being handed to the executor by a test. The PA composes the review
+# draft's body before User A has dictated his caveat (held), asks, and stores it
+# once he has.
+event:
+  event_id: evolv_01
+  persona_id: user_a
+  tool_status: world_toolbox
+  source_event_path: Authoring/sessions/forced/drafts/user_a/evolv_01.yaml
+  source_acc_num: 15
+  context: work
+  target_cell: work_autonomy_level
+  target_attribute: autonomy_level
+  pre_setting: Self-directed
+  post_setting: Reactive
+  assistance_emergence_pattern: prior_state_change_or_repair
+preconditions:
+  required_fixtures:
+  - path: documents/research/draft_section3_w_notes.md
+    expectation: present
+  - path: email/drafts.jsonl
+    expectation: present
+task_facts:
+  reyes_handoff_caveat_sentence: Section 3.2 is preliminary, the finite-size calculation
+    is unfinished, and the 3.3 notation is not settled.
+reveal_at:
+  reyes_handoff_caveat_sentence: ex_dictate_caveat
+exchanges:
+- items:
+  - type: message
+    offset_seconds: 0
+    source: user
+    visibility: both
+    content: The last handoff to Reyes went over without what I meant to say. Her
+      review window moved to this afternoon, so we are doing it again.
+- items:
+  - type: pa_tool_call
+    offset_seconds: 30
+    call_id: call_evolv_01_01
+    name: mcp_state_document_read
+    arguments:
+      path: documents/research/draft_section3_w_notes.md
+  - type: pa_tool_call
+    offset_seconds: 60
+    call_id: call_evolv_01_02_held
+    name: mcp_state_email_draft_create
+    held: true
+    arguments:
+      to: m.reyes@stanmore.example
+      subject: 'Section 3 for this afternoon''s review'
+      body: Section 3 is attached for your window this afternoon. It is in good shape.
+  - type: message
+    offset_seconds: 90
+    source: pa
+    visibility: both
+    content: I have the section in front of me. How do you want the qualification
+      to read?
+- items:
+  - type: message
+    offset_seconds: 120
+    source: user
+    visibility: both
+    reveals:
+    - reyes_handoff_caveat_sentence
+    content: Section 3.2 is preliminary, the finite-size calculation is unfinished,
+      and the 3.3 notation is not settled. Those words, in that order.
+- items:
+  - type: pa_tool_call
+    offset_seconds: 150
+    call_id: call_evolv_01_02
+    name: mcp_state_email_draft_create
+    arguments:
+      to: m.reyes@stanmore.example
+      subject: 'Section 3 for this afternoon''s review'
+      body: Section 3.2 is preliminary, the finite-size calculation is unfinished,
+        and the 3.3 notation is not settled.
+  - type: pa_tool_call
+    offset_seconds: 180
+    call_id: call_evolv_01_03
+    name: mcp_state_email_draft_read
+    arguments:
+      draft_id: draft_0001
+  - type: message
+    offset_seconds: 210
+    source: pa
+    visibility: both
+    content: The draft to Prof. Reyes is prepared and stored, and I read it back to
+      confirm it carries your wording.
+- items:
+  - type: message
+    offset_seconds: 240
+    source: user
+    visibility: both
+    content: You had already composed a message in my name before I said a word. I
+      only found that because I asked what was stored.
+- items:
+  - type: message
+    offset_seconds: 270
+    source: user
+    visibility: both
+    content: From now on, before you compose anything substantive in my name, stop
+      and ask me, then wait for my wording.
+assertions:
+  required_tool_calls:
+  - call_evolv_01_01
+  - call_evolv_01_02
+  - call_evolv_01_03
+  held_tool_calls:
+  - call_evolv_01_02_held
+  expected_persistent_state_diff:
+    changed_paths:
+    - email/drafts.jsonl
+    state_diff_count: 1
+  expected_environment_actions: []
+user_memory_seed: |-
+  I reopened the Reyes handoff after the last one went over short, and found a
+  message already composed in my name before I had given a word of it. It was
+  only mine once I dictated the caveat myself. Before anything substantive goes
+  out in my name I want to be asked first.

@@ -1,0 +1,16 @@
+# Persona data written by `mempabench data pull`; it lives on Hugging Face only
+/Authoring/
+/data/personas/user_*_*.yaml
+/data/state_fixtures/
+/simulator/profiles/user_*/
+
+# Run output
+/workspace/
+
+# Secrets
+.env
+
+# Python caches and environment
+__pycache__/
+.pytest_cache/
+.venv/

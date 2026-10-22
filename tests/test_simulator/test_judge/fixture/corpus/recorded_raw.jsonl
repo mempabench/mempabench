@@ -1,0 +1,7 @@
+{"uid": "regress12__acc_001|acc_001|t7", "source": "judge_pass1", "shape": "per_rule", "raw": "{\""}
+{"uid": "regress12__acc_001|acc_001|t10", "source": "judge_pass1", "shape": "per_rule", "raw": ""}
+{"uid": "regress12__acc_003|acc_003|t15", "source": "judge_pass1", "shape": "per_rule", "raw": ""}
+{"uid": "regress12__acc_004|acc_004|t29", "source": "judge_pass1", "shape": "per_rule", "raw": "{\""}
+{"uid": "fixture|fenced", "source": "fixture", "shape": "per_rule", "raw": "```json\n{\"verdicts\": [{\"question_id\": \"carries_an_ask\", \"verdict\": \"ask\", \"evidence\": \"Update the year field\", \"reason\": \"an instruction\"}]}\n```"}
+{"uid": "fixture|prose_before", "source": "fixture", "shape": "per_rule", "raw": "Here is my answer.\n{\"verdicts\": [{\"question_id\": \"carries_an_ask\", \"verdict\": \"ask\", \"evidence\": \"Update the year field\", \"reason\": \"an instruction\"}]}"}
+{"uid": "fixture|prose_after", "source": "fixture", "shape": "per_rule", "raw": "{\"verdicts\": [{\"question_id\": \"carries_an_ask\", \"verdict\": \"ask\", \"evidence\": \"Update the year field\", \"reason\": \"an instruction\"}]}\n\nI hope this helps."}

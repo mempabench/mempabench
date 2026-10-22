@@ -1,0 +1,151 @@
+name: mempa-memos
+
+services:
+  memos:
+    build:
+      context: ../../memory_raw_repos/MemOS
+      dockerfile: docker/Dockerfile
+      # Required by the fork's docker/Dockerfile (verify_mempa_source.py), which
+      # refuses to build other source; update it together with the env below
+      # when the MemOS submodule moves.
+      args:
+        MEMPA_MEMOS_SOURCE_SHA256: "56fc72af3fa2f5045b7b32179c16d7a465ce8ed8f1506ae828b49a331ed642e8"
+    container_name: mempa-memos-api
+    restart: unless-stopped
+    command:
+      - sh
+      - -c
+      - >-
+        mkdir -p /var/lib/memos/files /var/lib/memos/cubes &&
+        exec uvicorn memos.api.server_api:app --host 0.0.0.0 --port 8000
+        --workers 1
+    ports:
+      - "127.0.0.1:${MEMOS_HOST_PORT:-8100}:8000"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Shanghai
+      FILE_LOCAL_PATH: /var/lib/memos/files
+      MOS_CUBE_PATH: /var/lib/memos/cubes
+      MEMOS_BASE_PATH: /var/lib/memos
+      MOS_ENABLE_DEFAULT_CUBE_CONFIG: "true"
+      MOS_ENABLE_REORGANIZE: "false"
+      MOS_TEXT_MEM_TYPE: general_text
+      ASYNC_MODE: sync
+      ENABLE_CHAT_API: "false"
+      ENABLE_INTERNET: "false"
+      ENABLE_ACTIVATION_MEMORY: "false"
+      ENABLE_PREFERENCE_MEMORY: "false"
+      MOS_ENABLE_SCHEDULER: "false"
+      API_SCHEDULER_ON: "false"
+      DEFAULT_USE_REDIS_QUEUE: "false"
+      MEMSCHEDULER_USE_REDIS_QUEUE: "false"
+      MEMPA_MODEL_REQUEST_POLICY_PATH: /etc/mempa/model_request_policies.yaml
+      # Reported in /health runtime_contract; recorded by MemPA, not compared.
+      MEMPA_MEMOS_SOURCE_COMMIT: "9a98793dd9486bc384f73ecb7e18cd6c9a01d7d9"
+      MEMPA_MEMOS_SOURCE_SHA256: "56fc72af3fa2f5045b7b32179c16d7a465ce8ed8f1506ae828b49a331ed642e8"
+      MEMPA_MEMORY_LM_PROVIDER_NAME: ${MEMOS_MEMORY_LM_PROVIDER_NAME:?set MEMOS_MEMORY_LM_PROVIDER_NAME}
+      MEMPA_MEMORY_LM_TASK_AFFINITY_REQUIRED: ${MEMOS_MEMORY_LM_TASK_AFFINITY_REQUIRED:?set MEMOS_MEMORY_LM_TASK_AFFINITY_REQUIRED}
+      MEMPA_MEMORY_LM_TASK_AFFINITY_NAMESPACE: ${MEMOS_MEMORY_LM_TASK_AFFINITY_NAMESPACE:-}
+      MOS_CHAT_MODEL_PROVIDER: openai
+      MOS_CHAT_MODEL: ${MEMOS_MEMORY_LM_MODEL:?set MEMOS_MEMORY_LM_MODEL}
+      OPENAI_API_KEY: ${MEMOS_MEMORY_LM_API_KEY:?set MEMOS_MEMORY_LM_API_KEY}
+      OPENAI_API_BASE: ${MEMOS_MEMORY_LM_API_BASE:?set MEMOS_MEMORY_LM_API_BASE}
+      MEMRADER_MODEL: ${MEMOS_MEMORY_LM_MODEL:?set MEMOS_MEMORY_LM_MODEL}
+      MEMRADER_API_KEY: ${MEMOS_MEMORY_LM_API_KEY:?set MEMOS_MEMORY_LM_API_KEY}
+      MEMRADER_API_BASE: ${MEMOS_MEMORY_LM_API_BASE:?set MEMOS_MEMORY_LM_API_BASE}
+      MEMREADER_GENERAL_MODEL: ${MEMOS_MEMORY_LM_MODEL:?set MEMOS_MEMORY_LM_MODEL}
+      MEMREADER_GENERAL_API_KEY: ${MEMOS_MEMORY_LM_API_KEY:?set MEMOS_MEMORY_LM_API_KEY}
+      MEMREADER_GENERAL_API_BASE: ${MEMOS_MEMORY_LM_API_BASE:?set MEMOS_MEMORY_LM_API_BASE}
+      MEMREADER_ENABLE_BACKUP: "false"
+      MEM_READER_BACKEND: simple_struct
+      MEM_READER_CHAT_CHUNK_TYPE: default
+      MEM_READER_CHAT_CHUNK_TOKEN_SIZE: "1600"
+      MEM_READER_CHAT_CHUNK_SESS_SIZE: "10"
+      MEM_READER_CHAT_CHUNK_OVERLAP: "2"
+      MEM_READER_SAVE_RAWFILENODE: "false"
+      MOS_EMBEDDER_BACKEND: universal_api
+      MOS_EMBEDDER_PROVIDER: openai
+      MOS_EMBEDDER_MODEL: text-embedding-3-small
+      MOS_EMBEDDER_API_BASE: ${OPENAI_EMB_API_BASE:-https://api.openai.com/v1}
+      MOS_EMBEDDER_API_KEY: ${OPENAI_EMB_API_KEY:?set OPENAI_EMB_API_KEY}
+      MOS_EMBEDDER_BACKUP_CLIENT: "false"
+      MOS_EMBEDDER_BACKUP_MODEL: text-embedding-3-small
+      EMBEDDING_DIMENSION: "1536"
+      MOS_RERANKER_BACKEND: cosine_local
+      GRAPH_DB_BACKEND: neo4j-community
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${MEMOS_NEO4J_PASSWORD:?set MEMOS_NEO4J_PASSWORD}
+      NEO4J_DB_NAME: neo4j
+      MOS_NEO4J_SHARED_DB: "false"
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: "6333"
+      MEMPA_QDRANT_IMAGE: qdrant/qdrant:v1.15.3
+      MEMPA_NEO4J_IMAGE: neo4j:5.26.6
+    volumes:
+      - memos_data:/var/lib/memos
+      - ../../configs/model_request_policies.yaml:/etc/mempa/model_request_policies.yaml:ro
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 60s
+    networks:
+      - memos_network
+
+  neo4j:
+    image: neo4j:5.26.6
+    container_name: mempa-memos-neo4j
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MEMOS_NEO4J_HTTP_PORT:-7574}:7474"
+      - "127.0.0.1:${MEMOS_NEO4J_BOLT_PORT:-7787}:7687"
+    environment:
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
+      NEO4J_AUTH: neo4j/${MEMOS_NEO4J_PASSWORD:?set MEMOS_NEO4J_PASSWORD}
+    volumes:
+      - memos_neo4j_data:/data
+      - memos_neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 20s
+    networks:
+      - memos_network
+
+  qdrant:
+    image: qdrant/qdrant:v1.15.3
+    container_name: mempa-memos-qdrant
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MEMOS_QDRANT_HTTP_PORT:-6433}:6333"
+      - "127.0.0.1:${MEMOS_QDRANT_GRPC_PORT:-6434}:6334"
+    volumes:
+      - memos_qdrant_data:/qdrant/storage
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c ': >/dev/tcp/127.0.0.1/6333'"
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 10s
+    networks:
+      - memos_network
+
+volumes:
+  memos_data:
+  memos_neo4j_data:
+  memos_neo4j_logs:
+  memos_qdrant_data:
+
+networks:
+  memos_network:
+    name: mempa-memos-network

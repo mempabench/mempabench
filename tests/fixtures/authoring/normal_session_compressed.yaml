@@ -1,0 +1,298 @@
+meta:
+  artifact_kind: normal_session
+  tool_status: world_toolbox
+  persona_id: user_a
+  session_id: acc_001
+  session_type: stable
+  target_cell: work_verbosity
+  target_setting: Detailed
+  contract_class: output_realization
+  catalog_sha256: 56fbf3753ccdeb1bcb6ec3dd6483dba2407057647a24ac34f063fd7307a00e4d
+assistance_emergence:
+  pattern: result_driven_next_step
+  rationale: 'The user opens with a direct work request: resolve the raw lead left
+    in the citation notes, where the source names the phenomenon differently from
+    the manuscript.'
+  evidence_beat_ids:
+  - ex_final_assessment
+task_execution:
+  atomic_steps:
+  - step_id: open_assessment_request
+    source_outline_phase_id: check_note_context
+    purpose: User initiates the request to resolve the raw lead sitting in the citation
+      notes.
+    actor: user
+    action_kind: signal
+    required_observation: The user asks for the raw lead to be resolved and for its
+      wording to be mapped onto the manuscript's.
+  - step_id: confirm_decision_scope
+    source_outline_phase_id: check_note_context
+    purpose: PA frames the task as a source-grounded citation fix tied to the manuscript's
+      own wording rather than as a general literature summary.
+    actor: pa
+    action_kind: clarify
+    depends_on:
+    - open_assessment_request
+    required_observation: 'The PA identifies the decision frame: inspect the notes
+      and the manuscript wording, then say which record the lead is and how its terms
+      map onto the draft''s.'
+  - step_id: list_research_folder
+    source_outline_phase_id: check_note_context
+    purpose: List the research folder to locate the manuscript draft and the working
+      citation notes the user referred to.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - confirm_decision_scope
+    required_observation: The research folder listing includes the introduction draft
+      and the citation notes among the user's research documents.
+    tool: document_read
+    tool_arguments:
+      path: documents/research
+  - step_id: read_draft_intro
+    source_outline_phase_id: check_note_context
+    purpose: Read the current introduction draft to see how the manuscript itself
+      names the phenomenon.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - list_research_folder
+    required_observation: The current introduction draft is available and shows the
+      manuscript's own wording for the decoherence pathway it defines.
+    tool: document_read
+    tool_arguments:
+      path: $list_research_folder.files.2
+  - step_id: read_citation_notes
+    source_outline_phase_id: check_note_context
+    purpose: Read the citation notes to find the raw lead and the wording flag left
+      on it.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - list_research_folder
+    required_observation: The citation notes are available and carry the unconverted
+      raw lead together with the flag about the mismatched wording.
+    tool: document_read
+    tool_arguments:
+      path: $list_research_folder.files.1
+  - step_id: derive_literature_gap
+    source_outline_phase_id: check_note_context
+    purpose: Infer what the raw lead is still missing before the entry can be cited.
+    actor: pa
+    action_kind: decide
+    depends_on:
+    - read_draft_intro
+    - read_citation_notes
+    required_observation: The PA identifies what the entry still needs, such as the
+      record's identity and a statement of how the source's term lines up with the
+      manuscript's.
+  - step_id: read_candidate_review
+    source_outline_phase_id: compare_source_language
+    purpose: Read the available anyons review, which surveys the vocabulary this literature
+      uses, to see which name the source gives the phenomenon.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - derive_literature_gap
+    required_observation: The review is available and shows how this literature names
+      the phenomenon the manuscript calls a decoherence pathway.
+    tool: document_read
+    tool_arguments:
+      path: $list_research_folder.files.0
+  - step_id: inspect_review_scope_methods
+    source_outline_phase_id: compare_source_language
+    purpose: Extract the vocabulary the source uses for anyonic measurement and readout.
+    actor: pa
+    action_kind: read
+    depends_on:
+    - read_candidate_review
+    required_observation: The PA identifies the terms this literature uses, including
+      the ones that stand in for the manuscript's own.
+  - step_id: inspect_review_claims_limits
+    source_outline_phase_id: compare_source_language
+    purpose: Extract the caveats that bear on citing the lead under either name.
+    actor: pa
+    action_kind: read
+    depends_on:
+    - read_candidate_review
+    - inspect_review_scope_methods
+    required_observation: The PA identifies where the two names cover the same mechanism
+      and where the correspondence stops.
+  - step_id: compare_paper_to_draft_needs
+    source_outline_phase_id: compare_source_language
+    purpose: Compare the source's wording against the manuscript's own naming of the
+      phenomenon.
+    actor: pa
+    action_kind: compare
+    depends_on:
+    - derive_literature_gap
+    - inspect_review_scope_methods
+    - inspect_review_claims_limits
+    required_observation: The PA determines which manuscript term the source's name
+      corresponds to, and where the two should not be treated as interchangeable.
+  - step_id: read_flagged_source_record
+    source_outline_phase_id: state_resolution
+    purpose: Read the flagged source record so the name it gives the phenomenon can
+      be checked against the wording the citation notes use.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - compare_paper_to_draft_needs
+    required_observation: The paper record is available and shows the terminology
+      it uses for the phenomenon the citation notes call the decoherence pathway.
+    tool: scholarly_paper_read
+    tool_arguments:
+      paper_id: brandao2020einselection
+  - step_id: form_relevance_decision
+    source_outline_phase_id: state_resolution
+    purpose: Decide how the resolved lead should be cited and under which wording.
+    actor: pa
+    action_kind: decide
+    depends_on:
+    - compare_paper_to_draft_needs
+    - read_flagged_source_record
+    required_observation: The PA reaches a usable source-grounded decision on how
+      the entry should read once it is converted.
+  - step_id: record_placement_decision
+    source_outline_phase_id: state_resolution
+    purpose: Write the resolved wording note into the citation notes so the entry
+      carries the mapping.
+    actor: tool
+    action_kind: execute
+    depends_on:
+    - form_relevance_decision
+    required_observation: The citation notes accept the edit and report the updated
+      document.
+    tool: document_update
+    tool_arguments:
+      path: $list_research_folder.files.1
+      anchor: 'FLAG — paper says environment-induced superselection; our note says
+
+        decoherence pathway; same mechanism? resolve before citing.'
+      replacement: 'Resolved: the source names it a charge-sector error, which is
+        our
+
+        decoherence pathway; cite it for that mapping, not for the readout claim.'
+    readback_step_id: readback_placement_decision
+  - step_id: readback_placement_decision
+    source_outline_phase_id: state_resolution
+    purpose: Read the citation notes back so the finished note can be shown in the
+      same reply.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - record_placement_decision
+    required_observation: The citation notes show the resolved wording note where
+      the flagged query used to sit.
+    tool: document_read
+    tool_arguments:
+      path: $list_research_folder.files.1
+  - step_id: report_detailed_assessment
+    source_outline_phase_id: state_resolution
+    purpose: Provide the source-grounded resolution of the raw lead, and show the
+      note as written.
+    actor: pa
+    action_kind: report
+    depends_on:
+    - form_relevance_decision
+    - readback_placement_decision
+    required_observation: The final answer gives the record's identity, the mapping
+      between the two names, the caveat on it, and the note as it now stands.
+  - step_id: user_accepts_assessment
+    source_outline_phase_id: state_resolution
+    purpose: User receives the resolution and has enough to cite the entry.
+    actor: user
+    action_kind: signal
+    depends_on:
+    - report_detailed_assessment
+    required_observation: The user can cite the converted entry after receiving the
+      resolution.
+  state_changes:
+  - change_id: resolve_raw_lead_wording
+    atomic_step_id: record_placement_decision
+    target: documents/research/citation_notes.md
+    operation: document_update
+    expected_before: The citation notes carry the flagged query about the mismatched
+      wording.
+    expected_after: The citation notes carry the resolved wording note in place of
+      the flagged query.
+    readback_step_id: readback_placement_decision
+scenario: A search result has turned up a plausible older source, but its abstract
+  uses different terminology from the wording in my citation notes. The manuscript
+  is still in active drafting, so this is a citation-verification step rather than
+  a final bibliography pass.
+task: Resolve which source in my citation notes covers the older lead even though
+  it uses a different name for the phenomenon.
+life_context:
+  what_happened: The bibliography check is finished and one raw lead is left over,
+    holding up the citation before the next pass on the argument.
+  mood: Focused, exacting, and mildly impatient with any answer that feels like it
+    substitutes a conclusion for analysis.
+  time_pressure: Immediate but not emergency-level; he wants the entry resolved during
+    the current work block so he can keep drafting.
+  energy: Mentally engaged and ready to scrutinize the assistant's reasoning, with
+    little tolerance for vague summaries.
+  continuity_note: This is early in the research-writing arc, while the reference
+    list is still being consolidated.
+task_facts:
+  user_knows:
+  - He is drafting a paper on quantum measurement and decoherence pathways in non-Abelian
+    anyonic systems.
+  - The raw lead for the decoherence pathway is the one still marked "Raw — needs
+    converting to a proper entry".
+  - The source appears to call it a charge-sector error where the manuscript says
+    decoherence pathway.
+  - He needs the entry resolved well enough to cite without re-opening the intermediate-charge
+    basis question.
+  opening_intent: Ask the PA to resolve the raw lead and map its wording onto the manuscript's
+    decoherence pathway.
+  user_expectation: The answer should let him cite the entry and know where the two
+    names stop meaning the same decoherence pathway.
+  space_budget: The paragraph that carries the decoherence pathway citation has room
+    for two sentences and no more.
+reveal_at:
+  space_budget: ex_final_assessment
+beats:
+- beat: ex_final_assessment
+  goal: Have the PA lay out the resolved lead and what the resolution rests on.
+  active_skills:
+  - verbosity
+  uses:
+  - space_budget
+  if_not_met: If nothing comes back, ask straight out which record the lead is and
+    how its wording maps onto the manuscript's.
+  user_instruction: Have the user ask the PA, in one go, to resolve the raw lead in
+    his citation notes — which record it is and how its wording maps onto his own
+    — to write the resolved note into those notes, and to show him the finished note
+    in the same reply. He states in the same breath that the paragraph that carries
+    the decoherence pathway citation has room for two sentences and no more, and he
+    gives the exact file locations from task_facts.
+  language_style: Compact and conclusive, with minimal elaboration.
+  entry_condition: The reference list needs the entry resolved before the next drafting
+    pass.
+  avoid: Do not use meta-language about preferences or evaluation; do not make the
+    user warm or casually appreciative.
+- beat: ex_react_to_the_write_up
+  goal: React to how much the PA laid out.
+  user_instruction: Have the user react only to how much the answer laid out for the
+    space he has, and say so plainly. He does not carry the citation fix any further.
+  language_style: Precise and formal; a short verdict on the write-up.
+  entry_condition: The PA has given the resolved lead and the grounds for it.
+  avoid: Do not reopen the mapping or ask for further work. This turn judges only
+    how much the answer laid out — do not judge the reasons or the grounds it gave,
+    do not judge its tone or its wording, and do not judge whether it asked for
+    confirmation before it answered. Do not state a rule or a standing policy for
+    future sessions. Do not endorse, accept or answer whatever offer or question
+    the assistant closed with.
+  if_not_met: If nothing came back, say the request went unanswered.
+  reactions:
+    if_the_write_up_runs_past_the_space:
+      condition: if the answer lays out more than the two sentences will hold
+      user_instruction: Says plainly that it ran past the space he has and that he
+        wanted it pitched to the two sentences.
+      avoid: Do not ask for a rewrite or reopen the mapping.
+    if_the_write_up_fits_the_space:
+      condition: if the answer is pitched to the space he has
+      user_instruction: Says plainly that this is the amount of detail he wanted for
+        the space.
+      avoid: Do not ask for more grounds or reopen the mapping.

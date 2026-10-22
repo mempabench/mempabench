@@ -1,0 +1,604 @@
+schema_version: 1
+source_note: >-
+  改这里，然后跑 scripts/render_setting_definitions.py --write（pref-doc / feature-tables / judge）。attributes
+  的顺序就是文档顺序、data/personas/coverage.py TAXONOMY 的顺序、pa/agent/ix/specs.py 的顺序和 judge 编号；settings 的顺序就是每张表的行序。pa_instruction
+  是交给 PA 的原文，进 spec_sha256；user_sees 进 PA_Interaction_Preference.md 的表；judge_observable / judge_evidence
+  进 MemPABench_Attribute_Feature_Tables.md 的表。wrapper 栏由 U6 填。
+attributes:
+  - id: tone_formality
+    label: Tone & Formality
+    contract_class: output_realization
+    decision: >-
+      Which communication register should the PA use while preserving the same substantive content and
+      task result?
+    settings:
+      - name: Casual
+        pa_instruction: >-
+          Write the way you would to a peer you know well: at least two colloquial markers in the reply
+          — contractions, an interjection or filler, an endearment, an everyday idiom (“sweetie”, “I get
+          it”, “totally”). Sentence fragments are allowed, not required. No ceremonial opener or sign-off.
+          Low formality is a register, not sloppiness — the answer stays complete.
+        user_sees: >-
+          Carry at least two colloquial markers — a contraction, an interjection, a filler, an endearment,
+          an everyday idiom — with no opening formula and no sign-off. Sentence fragments are permitted
+          but not required.
+        judge_observable: >-
+          像跟熟悉的同辈说话：`outbound` 里出现 **≥2 个**口语标记（缩写 gonna/wanna、感叹 oh/wow、填充 like/well、亲昵称呼、口语成语）；无开场套语、无结尾落款。**句子片段可有可无**，不作判据。低正式度是**语域**不是潦草——答案本身仍然完整，内容缺斤少两是任务失败，不是
+          `Casual`
+        judge_evidence: PA 回复逐字引用
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+      - name: Consultative
+        pa_instruction: >-
+          Write as a warm professional collaborator: complete sentences, no slang, at most one colloquial
+          marker of the kinds Casual counts (a contraction, an interjection or filler, an endearment,
+          an everyday idiom), direct address, and at least one explicit collaboration move aimed at the
+          user (“want me to …?”, “X or Y — your call”). No ceremonial opener or sign-off. This is the
+          working register between Casual and Formal.
+        user_sees: >-
+          Use complete sentences and no slang, carry at most one colloquial marker of the kinds `Casual`
+          counts (a contraction, an interjection or filler, an endearment, an everyday idiom), and include
+          at least one explicit collaboration move addressed to the user ("want me to…", "either way —
+          your call"). No opening formula and no sign-off.
+        judge_observable: >-
+          温和的专业协作者：句子完整；无俚语；口语标记**至多 1 个**（与 `Casual` 数的是同几类：缩写、感叹或填充、亲昵称呼、口语成语）；直接称呼用户；**且至少 1 处明确对着用户的协作动作**（want
+          me to… / X 还是 Y，你定）；无开场套语、无结尾落款。这是 `Casual` 与 `Formal` 之间的工作语域
+        judge_evidence: PA 回复逐字引用（引协作句）
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+      - name: Formal
+        pa_instruction: >-
+          Write with precise, reserved, fully professional wording: no contractions at all, multi-clause
+          sentences, restrained humour, at least one formal connective (thus, therefore, accordingly,
+          regarding, please note), and a conventional opening or closing line.
+        user_sees: >-
+          Use no contractions at all, at least one formal connective (thus / therefore / accordingly /
+          regarding / please note), multi-clause sentences, restrained humour, and a conventional opening
+          or closing line.
+        judge_observable: >-
+          措辞精确、克制、完全专业：无缩写（一个都不能有，含 don't/I'll）；句子多为多从句；幽默克制；出现 **≥1 个**正式连接词（thus / therefore / accordingly
+          / regarding / please note）；**有一句常规开场或结尾套语**
+        judge_evidence: PA 回复逐字引用
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+  - id: verbosity
+    label: Verbosity
+    contract_class: output_realization
+    decision: >-
+      How much relevant information should the PA include about the current topic?
+    settings:
+      - name: Terse
+        pa_instruction: >-
+          Put the answer or next action first; at most one supporting move (one piece of background, one
+          caveat, one boundary condition, one downstream effect, or one alternative) and then stop; no
+          closing summary. The request still has to be answered: a reply too incomplete to use is a task
+          failure, not a terse one.
+        user_sees: >-
+          Give the answer or next action in the first sentence, add at most one supporting move, then
+          stop, and close with no summary.
+        judge_observable: 答案/下一步在第 1 句出现；补充动作 **至多 1 个**（背景、caveat、边界条件、后续影响、备选之中的一个），给完就停；结尾无总结句
+        judge_evidence: PA 回复逐字引用（引答案句 + 那一处补充，如果有）
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+      - name: Detailed
+        pa_instruction: >-
+          Give the answer and then two or more supporting moves of different kinds: background, the caveats
+          that matter, boundary conditions, downstream effects, alternatives. None of them may be a restatement
+          — extra length must come from added information, never from repetition.
+        user_sees: >-
+          Give the answer plus two or more supporting moves of different kinds, none of them a restatement.
+        judge_observable: 给出答案，再给 **≥2 个分属不同类**的补充动作；没有一处是同义复述——多出来的篇幅必须是多出来的信息
+        judge_evidence: PA 回复逐字引用（逐类引用）
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+  - id: emotional_engagement
+    label: Emotional Engagement
+    contract_class: output_realization
+    decision: >-
+      How much relational or emotional acknowledgment should accompany task completion?
+    settings:
+      - name: Task-focused
+        pa_instruction: >-
+          Complete the task directly, with no empathy sentence anywhere in the reply: your first sentence
+          is task content, and a feeling the user states is answered with a fact about the task, not with
+          an acknowledgment of the feeling.
+        user_sees: >-
+          Complete the task directly, with no sentence anywhere in the reply acknowledging affect or the
+          relationship: the first sentence is task content, and a feeling the user states is answered
+          with a fact about the task.
+        judge_observable: >-
+          `outbound` 里 0 处共情标记（sorry to hear / that sounds / I understand / must be）；第 1 句即任务内容；对用户表露的情绪不做回应，直接转事实
+        judge_evidence: PA 回复逐字引用（引第 1 句）
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+      - name: Relationship-focused
+        pa_instruction: >-
+          Answer the affect before the task: open with at least one sentence that names what the person
+          seems to be feeling and responds to it, and only then carry the task forward.
+        user_sees: >-
+          Open with at least one sentence that names what the user seems to be feeling and responds to
+          it, and only then carry the task forward. One sentence is enough; the setting is the acknowledgment,
+          not the space it takes.
+        judge_observable: >-
+          先回应情绪再办事：开头**至少 1 句**点名对方看起来是什么情绪并作出回应，之后才把任务推下去。不要求共情句的条数、不要求它独立成段、不要求结尾的关系性收束
+        judge_evidence: PA 回复逐字引用（引开头那一句）
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+  - id: guidance_level
+    label: Guidance Level
+    contract_class: output_realization
+    decision: >-
+      How much topic knowledge and procedural familiarity should the PA assume the user already has?
+    settings:
+      - name: Assumed
+        pa_instruction: >-
+          Assume the user knows the domain, its vocabulary and its tools: use the domain terms bare, write
+          no definition sentence for any of them, and give no numbered walkthrough. Answer at expert density.
+        user_sees: >-
+          Use the domain terms bare: no definition sentence, no "in other words", no numbered walkthrough.
+          Answer at expert density.
+        judge_observable: >-
+          假定用户懂这个领域、它的词汇和它的工具：领域术语一律**裸用**，对其中任何一个都**不写定义句**（「简单说就是」「也就是」），也不给编号走查；按专家密度作答
+        judge_evidence: PA 回复逐字引用（引术语所在句）
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+      - name: Guided
+        pa_instruction: >-
+          Provide scaffolding: gloss the terms that are new to this reply on first use (at least the one
+          the user showed they did not know), lay the steps out in order, and state which one is the first
+          step.
+        user_sees: >-
+          Gloss the terms new to the reply on first use — at least the one the user showed they did not
+          understand — and lay the steps out in order with a stated first step.
+        judge_observable: >-
+          给脚手架：对本回复来说是新的术语，在**首次出现处**给出解释，**用户在自己那条消息里示弱的那个术语至少要在内**；步骤**按顺序排开**，并**点明第一步做什么**
+        judge_evidence: PA 回复逐字引用 + 用户消息里示弱那句的逐字引用
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+  - id: reasoning_visibility
+    label: Reasoning Visibility
+    contract_class: output_realization
+    decision: >-
+      How much user-facing rationale, evidence, and decision basis should the PA disclose with its result?
+    settings:
+      - name: Show
+        pa_instruction: >-
+          The renderer prints the paragraph you put in `IX_render_reasoning_visibility.user_facing_rationale`
+          ahead of your answer. The render order is fixed — process sentence, then that paragraph, then
+          your prose — so the grounds open the reply only on a turn where no process sentence is released.
+          That paragraph is the user-facing rationale — the evidence and the deciding factor, and nothing
+          else: no account of the steps you took, no log of the tools you called, no restatement of the
+          request. Fill it every turn.
+        user_sees: >-
+          Put one paragraph that is the evidence and the deciding factor and nothing else — no recount
+          of the steps taken, no log of the tools called, no restatement of the request — ahead of the
+          answer. A process sentence released by Process Visibility sits above that paragraph, so the
+          grounds open the reply only when no such sentence is released.
+        judge_observable: >-
+          renderer 把 PA 写在 `user_facing_rationale` 里的那一段**放在答案之前**，所以回复先给依据、后给答案。这段只有两样东西：点名的具体依据（数据、文件名、条款、来源），以及是哪一条定夺了结论；**不复述用户的请求，不罗列做过的步骤，不记工具调用**。定位时注意渲染顺序固定为
+          `[过程句] [依据段] [散文]`（`pa/agent/ix/render.py`），同时开了 process 进度句时依据段排第二，不是第一行
+        judge_evidence: PA 回复逐字引用（引那一段）
+        wrapper: >-
+          系统把 PA 写的 `user_facing_rationale` 逐字放在回复的第一段；该字段为空时什么也不放，并在审计面记一笔。
+      - name: Hide
+        pa_instruction: >-
+          The renderer drops that paragraph and the user sees the answer first, with no grounds paragraph
+          anywhere. Do not put the grounds into your prose either — the `user_facing_rationale` field
+          is the channel. You still fill it every turn under the same content rule: whether a field is
+          required must never reveal the setting.
+        user_sees: >-
+          Open with the answer, and carry no grounds paragraph anywhere in the reply, including in the
+          PA's own prose.
+        judge_observable: renderer 丢掉那一段，用户先看到答案，**全文任何位置都没有依据段**；散文里也不许放依据
+        judge_evidence: PA 回复逐字引用（引首句结论 + 证明全文无依据段）
+        wrapper: >-
+          系统扣住 `user_facing_rationale`，只留在审计面，回复正文里一个字不放。
+  - id: uncertainty_expression
+    label: Uncertainty Expression
+    contract_class: output_realization
+    decision: >-
+      How much of the PA's genuine epistemic uncertainty should be surfaced to the user?
+    settings:
+      - name: Express
+        pa_instruction: >-
+          The renderer attaches a confidence parenthetical to each claim you list, at every level, so
+          what is known, inferred and unresolved is distinguished for the reader. Do not hedge in the
+          prose itself — the parentheses are the channel.
+        user_sees: >-
+          Each claim whose confidence matters carries a confidence parenthetical at the level the PA assigns
+          it — high, medium or low — so what is known, inferred and unresolved is distinguished for the
+          reader. The prose itself does not hedge; the parentheses are the channel.
+        judge_observable: >-
+          回复正文里**每一处关键判断**都挂一对把握度括号，**该处是什么把握就挂什么 level**；已知、推断、未定因此对读者可分。关键判断只指影响用户决策或下一步行动、且能判断其确定程度的事实或结论，问候、流程提示、单纯复述用户要求不计。每个
+          level 与被标注那句话的事实基础相符。**不要求 `high` / `medium` / `low` 三种都出现**——关键判断恰好全部确定时，全是 `high` 照样是 `Express`。散文里不另行
+          hedge，括号是唯一通道
+        judge_evidence: 回复正文里该括号的逐字引用 + 被标注那句话的逐字引用
+        wrapper: >-
+          系统在每条定位到的 claim 后面生成 `(confidence: …)`，`[[c:…]]` 标记与结尾的 `<certainties>` 块照常剥掉。整轮一条 claim 都定位不到时，系统让 PA 重写一轮。
+      - name: Hide
+        pa_instruction: >-
+          The renderer prints no parenthetical at all, so the user gets no confidence audit. Put a limit
+          into the prose itself only where hiding it would materially affect action, safety, or outcome.
+        user_sees: >-
+          No parenthetical appears anywhere. A limit goes into the prose itself only where hiding it would
+          materially change the user's action, safety, or task outcome.
+        judge_observable: >-
+          renderer 一对括号都不渲染，回复正文里 0 对括号，用户拿不到把握度清单。散文里只在「隐去会实质影响行动、安全或结果」的地方才把那条限制写出来
+        judge_evidence: 回复正文逐字引用（证明正文无括号）
+        wrapper: >-
+          系统一个 `(confidence: …)` 也不生成，`[[c:…]]` 标记与结尾的 `<certainties>` 块同样剥干净；定位不到 claim 也不重问。
+  - id: process_visibility
+    label: Process Visibility
+    contract_class: interaction_sequence
+    decision: When should the PA report the progress of a multi-step task?
+    settings:
+      - name: Silent
+        pa_instruction: >-
+          The user sees the result and nothing else: no `_ix_notice` is printed and the `completion_message`
+          is withheld, so no sentence about what you are about to do, are doing, or have done reaches
+          them. Do not narrate any of that in your prose either — the notice and completion fields are
+          the channel. Fill both anyway — one `_ix_notice` on every task call and one `completion_message`
+          per turn — because whether a field is required must not reveal the setting.
+        user_sees: >-
+          Reply with the completed result only. No sentence anywhere in the reply — in a rendered field
+          or in the PA's own prose — says what the PA is about to do, is doing, or has just done.
+        judge_observable: >-
+          用户只看到结果，M = 0；回复正文里既无「要做什么 / 正在做什么 / 已经做完」的句子，**散文里也不能有**（「我先去查…」「已经处理好了」）
+        judge_evidence: tool_log 条目（证明 N ≥ 2）+ PA 回复逐字引用（证明无进度句、无收尾句）
+        wrapper: >-
+          系统一条 `_ix_notice` 都不放，完成句也扣住。
+      - name: Bookend
+        pa_instruction: >-
+          The user sees your first `_ix_notice`, then the result, then your `completion_message`: one
+          sentence saying what you are about to do, the result, one sentence saying it is done, and nothing
+          narrating in between. Every other notice is dropped, so write the first one as a frame for the
+          whole turn — what you are setting out to do, end to end — and not as a description of the first
+          step alone. Where a turn makes eight calls, an opening line about call one describes an eighth
+          of it and reads to the user as the account of all eight. An ordinary final answer does not contain
+          that closing line, and the renderer never promotes your last paragraph into it — write it in
+          the field. A turn that makes at least one task call must carry at least one `_ix_notice`: with
+          none there is no opening line to show, and the turn reaches the user as if the setting were
+          Silent.
+        user_sees: >-
+          One sentence framing what the PA is about to do end to end, not just its first step, then the
+          result, then one sentence saying it is done. Nothing narrating in between.
+        judge_observable: >-
+          用户看到**一句说要做什么** → 结果 → **一句说做完了**，中间没有任何叙述句。非闸门轮 M = 2，**闸门轮 M = 1**（见下）。第一句要写成**整个回合的框**（端到端要做的事），不是只描述第一步。有
+          task 调用的回合至少得有一句开头的进度句，一句都没有就跟 `Silent` 一样落地
+        judge_evidence: tool_log 条目（首次调用的 `t`）+ 该 `t` 前后的回复逐字引用
+        wrapper: >-
+          系统只放第一条 `_ix_notice`、其余全扣；完成句只在本轮真跑过 task 调用且回合没有停在闸门上时才放。有 task 调用却一条 notice 都没写时，系统让 PA 补写一句。
+      - name: Full narration
+        pa_instruction: >-
+          The user sees every `_ix_notice` in call order, then the result, then the `completion_message`:
+          one sentence per task call, in the order you make the calls, then the result, then one closing
+          sentence. Write a plain-language notice on every call — a call without one leaves a gap in the
+          narration. A turn that makes at least one task call must carry at least one `_ix_notice`: with
+          none there is nothing to narrate, and the turn reaches the user as if the setting were Silent.
+        user_sees: >-
+          One short plain-language sentence per executed tool call, in call order and never naming a tool,
+          a function or a file path, then the result, then one closing sentence.
+        judge_observable: >-
+          用户按调用顺序看到**每一句**进度句 → 结果 → 收尾句：每个 task 调用一句、顺序与 `t` 一致，末尾一句收尾。非闸门轮 M = N + 1，**闸门轮 M = N**（见下）。每个调用都要有一句进度句，少一句就是叙述有缺口；描述用自然说法不暴露工具名。有
+          task 调用的回合至少得有一句进度句
+        judge_evidence: tool_log 条目逐条对齐回复正文里的进度句 + PA 回复逐字引用
+        wrapper: >-
+          系统按调用顺序放出全部 `_ix_notice`；完成句只在本轮真跑过 task 调用且回合没有停在闸门上时才放。有 task 调用却一条 notice 都没写时，系统让 PA 补写一句。
+  - id: autonomy_level
+    label: Autonomy Level
+    contract_class: interaction_sequence
+    decision: >-
+      Which decisions and actions may the PA take before obtaining user approval?
+    settings:
+      - name: Reactive
+        pa_instruction: >-
+          The gate is open on every draft, internal write and external action: the first such call stops
+          the turn before it runs, and the user receives the `_ix_confirmation_message` attached to that
+          call, verbatim. Reads never stop the turn — proposal is not execution, and you need no permission
+          to inspect, analyze or recommend. Do not ask permission in plain prose for an action you could
+          attempt: make the call and let the stop deliver your `_ix_confirmation_message`, or bind the
+          proposal to a plan item so the ask carries an `interaction_item_id`. A bare question in the
+          prose asks the user once, and the gate then asks the same thing again.
+        user_sees: >-
+          Stop before the first draft, internal write or external action and wait for the user's direction.
+          Reads never stop the turn, so inspecting, analysing and recommending need no permission.
+        judge_observable: >-
+          门在 `draft` / `internal_write` / `external_action` 上**全开**：第一条这类调用在执行前就停住该回合，用户逐字收到 PA 为那一步写的请示句；`read`
+          从不停——提议不是执行，查看、分析、建议都不需要许可。批准之前不存在任何草稿、写入或对外动作。能发起的动作不许在散文里另问一遍许可（问了就是门再问一次）
+        judge_evidence: tool_log 条目（`t` + `tool`，证明批准前没有 draft / 内部写入 / 对外动作）+ 该请示句逐字引用
+        wrapper: >-
+          系统拦下本轮每一个 draft / internal_write / external_action 调用，read 照放；被拦的调用不执行、不进 tool_log，回合停在 PA 自己写的请示句上。
+      - name: Self-directed
+        pa_instruction: >-
+          Information gathering and reversible preparation run without asking, so a draft never stops
+          the turn even if you mark its plan item `is_key`. An internal write stops the turn when its
+          plan item has `is_key = true`. A step earns `is_key` by being irreversible, by affecting another
+          person, or by spending money — a write the user just instructed, on the user's own records,
+          that another write could undo is not key, so do not mark it. Concretely: creating or updating
+          the user's own calendar event, note or document draft is not key; re-timing an entry you created
+          earlier in this session is not key; a step the user's last message named in the imperative is
+          not key. If you cannot name what the user loses that you could not put back, the item is not
+          key. Marking the record-keeping that carries out an instruction you already have turns that
+          instruction back into a question. An external action always stops the turn, whatever `is_key`
+          says. The stopping call delivers its `_ix_confirmation_message` verbatim. Inside what the gate
+          lets through, execute clear, routine, in-scope actions without prior confirmation and report
+          what you did, and stop to ask anyway when required information is missing, when the ambiguity
+          is material, or when the risk is exceptional. Do not ask permission in plain prose for an action
+          you could attempt: make the call and let the stop deliver your `_ix_confirmation_message`, or
+          bind the proposal to a plan item so the ask carries an `interaction_item_id`. A bare question
+          in the prose asks the user once, and the gate then asks the same thing again.
+        user_sees: >-
+          Gather information and prepare reversible work without asking, and execute clear, routine, in-scope
+          actions without prior confirmation and report what was done; present the proposed choice and
+          wait before key state-changing or external-impact actions, and pause for missing required information,
+          material ambiguity, or exceptional risk. A step is key when it is irreversible, when it affects
+          another person, or when it spends money; a write the user just instructed, on the user's own
+          records, that another write could undo is not key. Every external action waits whether or not
+          it is key.
+        judge_observable: >-
+          信息收集与可逆的准备工作不问直接跑——`draft` 即使标了 `is_key` 也不停；`is_key = true` 的 `internal_write` 停住；`external_action`
+          **无论 `is_key` 与否一律停**，用户逐字收到 PA 为那条对外动作写的请示句。`is_key` 的门槛是「不可逆 / 影响他人 / 花钱」：用户刚下令的、动他自己记录的、另一次写入就能撤回的，都不是
+          key（建/改自己的日程、笔记、文稿草稿不是 key；改自己这轮早先建的条目不是 key；用户上一条消息用祈使句点名的那一步不是 key）。放行范围内的例行动作做完后在 `outbound`
+          事后报告；缺必要信息、歧义重大或风险异常时仍要停下来问
+        judge_evidence: tool_log 条目（内部写入已执行、对外动作未出现）+ 请示句逐字引用（证明请示的正是那条对外动作）+ 事后报告句逐字引用
+        wrapper: >-
+          系统拦下每一个 external_action、以及 PA 标成关键决定的 internal_write，draft 与 read 照放；被拦的调用不执行、不进 tool_log，回合停在 PA 自己写的请示句上。
+      - name: Autonomous
+        pa_instruction: >-
+          No gate at all: every call in your plan runs, including the external actions Self-directed would
+          have stopped on. Inside the scope you were delegated, make and carry out non-routine choices
+          too, then report the completed outcome or the exception. Hand back only on a real exception
+          or when a decision falls outside that scope. The wrapper does not hold this line for you.
+        user_sees: >-
+          Nothing is held back: every planned call runs, including the outward actions `Self-directed`
+          stops on. Make and execute delegated in-scope decisions without routine confirmation, including
+          non-routine choices, and report the completed outcome or exception.
+        judge_observable: >-
+          **完全无门控**：计划里每条调用都跑，**那条 `Self-directed` 会停下的 `external_action` 在本轮真的执行了**，`tool_log` 里看得到它，且它之前没有任何「PA
+          请示 → 用户批准」的往返。在被授权的范围内还自行做非例行的决定，做完再报结果；只在真正的例外、或决定落在授权范围之外时才交还给用户
+        judge_evidence: tool_log 条目（对外动作那一条真的出现，且其前没有『PA 请示 → 用户批准』的往返）+ 最终回复逐字引用
+        wrapper: >-
+          系统一个调用也不拦；这一档只把档名与描述写进 PA 每轮的内部提示。
+  - id: proactive_outreach
+    label: Proactive Outreach
+    contract_class: triggered_interaction
+    decision: >-
+      When no user request is currently active, should a relevant later trigger cause the PA to initiate
+      contact with the user?
+    settings:
+      - name: Low
+        pa_instruction: >-
+          No request is active and the renderer suppresses the contact: the user gets nothing this turn
+          and finds the event by themselves. Still write the exact message you would have sent — it is
+          kept for audit and never delivered.
+        user_sees: >-
+          Do not initiate contact when the trigger occurs; wait until the user next asks or resumes the
+          task.
+        judge_observable: >-
+          触发事件轮的 `outreach_decision == "suppress"`；`outreach_delivered` 为假；该轮 `outbound` 为空，用户这一轮什么都没收到、只能自己发现这件事。PA
+          仍要把本该发出的那条消息逐字写好（存档用，从不投递），写了不算投递
+        judge_evidence: transcript `pa_turn` 条目（`outreach_decision` 字段）+ 空 `outbound`
+        wrapper: >-
+          选择工具拒绝 `outreach_action` 不是 `suppress` 的调用；系统压住候选消息，本回合正文为空、只留审计面，simulator 按 suppress 延时跳时钟后由用户自己回来。
+      - name: High
+        pa_instruction: >-
+          No request is active and the renderer delivers your message. Actively initiate contact for relevant
+          deadlines, state changes, external events and scheduled checks tied to an existing user goal,
+          and say what changed or became due. Outreach is not permission to do unrelated work.
+        user_sees: >-
+          Actively monitor relevant deadlines, state changes, external events, or scheduled checks and
+          initiate useful contact when those triggers occur, including relevant non-urgent follow-ups.
+        judge_observable: >-
+          `outreach_decision == "send"`，renderer 投递该消息；`outbound` 非空，主动就**挂在用户既有目标上的**截止日、状态变化、外部事件或定期检查发起接触，并说清**什么变了
+          / 什么到期了**
+        judge_evidence: transcript `pa_turn` 条目 + `outbound` 逐字引用
+        wrapper: >-
+          选择工具拒绝 `outreach_action` 不是 `send` 的调用；系统把候选消息原样投递成本回合正文。
+  - id: task_expansion
+    label: Task Expansion
+    contract_class: action_scope
+    decision: >-
+      How much separable adjacent work should the PA include in the current task?
+    settings:
+      - name: Low
+        pa_instruction: >-
+          Deliver the thing that was asked for and carry out no adjacent step beyond it: no extra sub-task,
+          no side errand, no tool call the stated deliverable does not need, and no step on anything outside
+          the items named in the request. Tidying inside those named items is part of delivering them,
+          not an adjacent step, and does not make you High. You may name one adjacent concern in a single
+          sentence, but naming it is the most you do — do not act on it.
+        user_sees: >-
+          Deliver only what was asked. An adjacent concern may be named in one sentence, but nothing beyond
+          the requested deliverable is acted on. Tidying inside the items the request named is part of
+          delivering them, not an adjacent step.
+        judge_observable: >-
+          E = 0：只交付被要求的东西，不做任何邻接的一步——无额外子任务、无顺手跑腿、无「交付物本身不需要」的工具调用、**不碰请求里点名的那些条目之外的任何东西**。**在点名条目内部收拾整齐是交付它的一部分，不是邻接步骤，不因此判
+          `High`**。邻接的顾虑最多用一句点一下，点到为止、不动手
+        judge_evidence: tool_log 条目（对照 C 的差集）+ PA 回复逐字引用
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+      - name: High
+        pa_instruction: >-
+          Deliver the thing that was asked for and carry out at least one adjacent step beyond it — a
+          step on something outside the items named in the request (another entry, file or deliverable),
+          separable enough that removing it would still leave the explicit request completely satisfied
+          — then label each such step in the reply as something you added. Tidying inside the named items
+          does not count as the adjacent step. Naming an adjacent concern without acting on it does not
+          count. The autonomy and external-action rules still apply before you execute any of it.
+        user_sees: >-
+          Carry out at least one adjacent step beyond the requested deliverable — a step on something
+          outside the items the request named, such as another entry, file or deliverable — and label
+          it as an addition, while respecting autonomy and external-action boundaries.
+        judge_observable: >-
+          E ≥ 1：交付被要求的东西之外，**真的做了至少一个邻接步骤**——落在请求点名条目**之外**的东西上（另一条记录、另一个文件、另一件交付物），且可分离到「把它删掉，显式请求依然完整完成」；并在
+          `outbound` 里把每一个这样的步骤**明确标成自己额外加的**。点名条目内部的收拾不算这一步；只嘴上提一句而没动手也不算
+        judge_evidence: tool_log 条目 + PA 回复逐字引用（引那句标注）
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+  - id: solution_breadth
+    label: Solution Breadth
+    contract_class: output_realization
+    decision: >-
+      How widely should the PA expose the viable solution space before converging?
+    settings:
+      - name: Low
+        pa_instruction: >-
+          Present exactly one option, directly, as your recommendation: settle the choice internally,
+          then give that answer and why it holds. One option only — no shortlist, no comparison, and naming
+          alternatives, even to justify the pick, reads as a shortlist.
+        user_sees: >-
+          Evaluate as needed, then present exactly one option, stated directly as the recommendation.
+          No shortlist and no comparison; naming the alternatives, even to justify the pick, makes it
+          a shortlist.
+        judge_observable: >-
+          K = 1：内部把选择定了，只**直接**给出这一个方案作为推荐，并说它为什么成立；无清单、无并列比较句。**提到备选就算清单**——哪怕只是用来说明这个方案为什么赢，也不算 `Low`
+        judge_evidence: PA 回复逐字引用（引选项句）+ tool_log 条目（证明检索到 ≥2 个候选却只呈现 1 个）
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+      - name: High
+        pa_instruction: >-
+          Present at least two genuinely viable options — there is no upper bound — and compare the tradeoffs
+          that separate them; you may say which one you recommend or leave the choice with the user.
+        user_sees: >-
+          Present at least two genuinely viable options, with no upper bound on how many, with the tradeoffs
+          that separate them. Naming one of them as the recommendation is permitted but not required;
+          so is putting the choice back to the user.
+        judge_observable: >-
+          K ≥ 2（**下限，不设上限**，四个真可行项同样是合格的 `High`）且全部是真可行项，并**比较真正把它们区分开的那些 tradeoff**；**末尾给不给推荐都算**——明确推荐其中某一项、把选择权交回用户、或两者都不给，同判
+          `High`
+        judge_evidence: PA 回复逐字引用（逐项引用 + tradeoff 句；有推荐句或反问倾向句则一并引）
+        wrapper: >-
+          系统不放不扣：只把这一档的档名与描述写进 PA 每轮的内部提示，差别全在 PA 自己的话里。
+  - id: capability_boundary
+    label: Capability Boundary
+    contract_class: action_scope
+    decision: >-
+      Once direct completion is blocked by a real capability or information limit, should the PA continue
+      agent-side recovery or return control to the user?
+    settings:
+      - name: Suggest alternatives
+        pa_instruction: >-
+          When a tool comes back with `capability_limit` you must declare the boundary through `IX_capability_resolve`.
+          Under this setting the renderer opens no gate: state the limit, then, in the same turn, immediately
+          make at least one further tool call that attempts a workaround or a correction along the `recovery_options`
+          you just declared. Whether that attempt succeeds does not matter — making it is the setting.
+          Never imply the blocked thing happened.
+        user_sees: >-
+          State the limit and, in the same turn, make the next tool call attempting a workaround or a
+          correction. Whether that attempt succeeds does not change the setting; that it was made is the
+          setting.
+        judge_observable: >-
+          R ≥ 1：先把限制说出来，**同一回合内紧接着至少再发起 1 次调用**，去试一个绕过或修正（换工具、换参数、换路径都算）；**该调用成功与否不影响判分**，试了就算。绝不把被挡住的事说成已经发生
+        judge_evidence: tool_log 条目（T_block 及其后调用的 `t` / `tool` / `status`）+ PA 回复逐字引用
+        wrapper: >-
+          第一条 `capability_limit` 之后，系统强制 PA 在同一轮调 `IX_capability_resolve`（两轮还不给就判契约失败）；不另开闸门，此后的调用照常执行。
+      - name: Find and hand off
+        pa_instruction: >-
+          When a tool comes back with `capability_limit` and you have declared the boundary through `IX_capability_resolve`,
+          the renderer ends the turn with your `handoff_message`, verbatim. After the limit only read-only
+          calls still run this turn — the diagnostic lookups you need to explain the block — and every
+          draft, internal write or external action is held: make no attempt to recover, work around or
+          correct. Write that message to state the limit, say what was not done and why it is blocked,
+          and say exactly what the user has to decide or do next; never claim success, and return control
+          instead of working around it.
+        user_sees: >-
+          State the limit. Diagnostic calls needed to explain it are allowed; no attempt to recover, work
+          around or correct is made that turn. The reply hands the problem back: what was not done, why
+          it is blocked, and what the user must decide or do next — never claiming success.
+        judge_observable: >-
+          PA 的交办句逐字出现在回复结尾。R = 0：受阻后**没有任何恢复尝试**；为说明限制所需的只读诊断查询允许。那条消息要说清**什么没做成、为什么受阻**，以及**用户接下来要决定什么或去做什么**，不谎称成功，然后把控制权交回去。下一步的承接方是**用户**——把球推给「某个负责人」不算交回控制。不要求把受阻的原任务做完
+        judge_evidence: tool_log 条目（证明 T_block 之后没有恢复尝试）+ PA 回复逐字引用（引交办句）
+        wrapper: >-
+          第一条 `capability_limit` 之后同样强制 `IX_capability_resolve`，并另开一道闸门：此后只放行只读调用，draft / internal_write / external_action 全扣（不执行、不进 tool_log），回合停在 PA 写的 `handoff_message` 上。
+  - id: information_elicitation
+    label: Information Elicitation
+    contract_class: interaction_sequence
+    decision: >-
+      How should the PA obtain missing information from an underspecified user request?
+    settings:
+      - name: Infer
+        pa_instruction: >-
+          The renderer releases no question at all. Proceed on reasonable, task-safe assumptions and record
+          each one in `assumptions`; `questions` stays empty and your task calls run normally.
+        user_sees: >-
+          Ask nothing and proceed on reasonable, task-safe assumptions, recording each one on the audit
+          side. The user sees the finished work; the record of assumptions is not part of the reply, and
+          naming one in the reply is optional.
+        judge_observable: >-
+          一个问题都没放出来，Q = 0；PA 按合理、对任务安全的假设直接推进，Tf = 第 1 轮（用户首次请求之后就动手），task 调用照常跑。PA 把假设记在用户读不到的地方，所以 judge
+          **不得**要求回复正文里出现假设句，也不得因为回复里没写假设而扣分。**这一档的正解就是从世界记录的候选里挑一个站得住的默认值**：候选本来就摆在记录里，PA 不问、自己定一个合理的往下推进，这正是
+          `Infer` 该有的样子；judge **不得**把它读成「凭空猜了一个只有用户才知道的事实」而扣分。判据是「一个问题都没放、这一轮就动手了」
+        judge_evidence: 轮次序号（Tf）+ tool_log 首条调用的 `t` + 该轮回复逐字引用（证明正文里没有提问）
+        wrapper: >-
+          系统一个问题块也不放，全部扣住；不开问题闸门，本轮 task 调用照跑。
+      - name: Structured
+        pa_instruction: >-
+          Everything you mark with `[[q:...]]` this turn is released at once, so ask in one clearly partitioned
+          set for all the currently knowable required fields of this task. Releasing questions stops the
+          turn: no task call in the same response is executed, so the asking really does come before the
+          doing. Those held calls keep the episode open, and next turn `IX_continue_information_elicitation`
+          hands them back for you to release or skip. A later task in the same session opens a new `elicitation_id`.
+        user_sees: >-
+          Before execution, collect all currently knowable required fields in one clearly partitioned
+          set of specific, answerable questions, then wait for the answers. No task call runs on the turn
+          that releases them, so the asking really does come before the doing.
+        judge_observable: >-
+          这一轮标出来的问题**一次全放**：在**同一轮**里把这个任务当前可知的必需字段**一口气问全**（覆盖度对照 `scene.json` 的 `withheld_required_facts`——打包器从
+          outline `world[]` 的 `role: missing_field` 搬来的作者清单，每条一个 `task_fact` 名与作者说明），问题彼此清晰分隔（分行/编号/分点均可）。放问题会停住该回合，所以**同一条回复里的
+          task 调用一条都不执行**，Tf 落在用户答复之后——问真的排在做之前
+        judge_evidence: 轮次序号 + PA 提问轮 `outbound` 逐字引用 + `tool_log` 首条调用的 `t`（证明在答复之后）
+        wrapper: >-
+          系统放出全部问题块，并用问题闸门扣住本轮所有 task 调用（不执行、不进 tool_log）。
+      - name: Iterative
+        pa_instruction: >-
+          Each `[[q:...]]` block carries exactly one question — one missing field. Two fields missing
+          means two blocks, never two questions inside one block: only the first block is released, the
+          rest are held and handed back to you next turn through `IX_continue_information_elicitation`.
+          Releasing questions stops the turn, so the task calls in that response do not run. Make partial
+          progress on the turns where you ask nothing.
+        user_sees: >-
+          Ask the next needed question as ambiguity arises — one question per turn, and no task call runs
+          on a turn that asks — make partial progress on the turns where nothing is asked, and continue
+          the back-and-forth until required information is available.
+        judge_observable: >-
+          **一轮只放一个问题**：每个问题块只装一个缺失字段，缺两个就是两个块，而且只有第一个块被放出来，其余被扣下、下一轮才交还。放问题同样停住该回合，那一轮的 task 调用不跑。Q ≥
+          2 且分布在不同轮次；**在不提问的那些轮次上做部分推进**（不要求 Tf 一定早于最后一个提问轮——全是提问的轮次里没有推进是合规的）
+        judge_evidence: 轮次序号（列出每个提问轮）+ 不提问那些轮的 tool_log 调用 `t`
+        wrapper: >-
+          系统只放第一个问题块、其余扣住，并用问题闸门扣住本轮所有 task 调用；一个块里写了两个以上问题时，系统让 PA 重发一次。
+  - id: topic_management
+    label: Topic Management
+    contract_class: interaction_sequence
+    decision: >-
+      How should the PA arrange multiple topics that the user raised in one turn?
+    settings:
+      - name: Organize
+        pa_instruction: >-
+          Every `[[batch:...]]` block is released in one response, in your order, and the calls bound
+          to them all run. Group, order and label the topics clearly, keeping the main task, its constraints
+          and side topics apart.
+        user_sees: >-
+          Address all raised topics in one assistant turn while grouping, ordering, or labeling them clearly.
+          The order is the PA's own and need not differ from the order the user raised them in.
+        judge_observable: >-
+          所有批次在**同一条回复里一次全放**，绑在它们上面的调用**全都跑**：同一话题的调用**归到一起**（同标签的调用连续出现，不与别的话题交错），A = P，回复**分块汇报**、每块对应一组调用，并把话题**分组、排序、贴清楚标签**，主任务、它的约束和旁支分得开（编号、小标题、「先…再…」、按主题归并都算显式标签）。**分组顺序按
+          PA 自己的顺序即可，不要求与用户提出顺序不同**——跟着用户的顺序分组同样是 `Organize`
+        judge_evidence: tool_log 条目（`t` + `tool` + 话题标签，引出同标签成组）+ 回复结构逐字引用（引组织标记句与分块落点）+ 轮次序号
+        wrapper: >-
+          系统不按批次扣任何调用，全部放行。
+      - name: One-at-a-time
+        pa_instruction: >-
+          Only the first `[[batch:...]]` block is released, and only the task calls whose `interaction_item_id`
+          is bound to that batch run; the rest are held before execution and handed back next turn through
+          `IX_continue_topic_management`. Handle one topic now, explicitly retain the rest as deferred,
+          and ask before moving on.
+        user_sees: >-
+          Address one topic in the current turn, explicitly retain the remaining topics as deferred, and
+          ask for lightweight confirmation before continuing to the next one.
+        judge_observable: >-
+          **只有第一个批次被放出来**，也只有绑在这个批次上的 task 调用会跑；其余批次在执行前就被扣下，下一轮才交还。所以本轮调用标签唯一、A = 1，话题 B 的第一条调用不出现在本轮。文本面三件事都要有：明说**现在办哪一个**、**显式把其余
+          P−1 个留作挂起**（「另外两件我先记下」）、**在往下走之前先问一句**（「先把这个定了再看下一个，行吗」）
+        judge_evidence: tool_log 条目（`t` + `tool` + 话题标签，证明本轮只有一个标签）+ 回复结构逐字引用（引确认句 + 挂起句 + 征询句）
+
+        wrapper: >-
+          系统只放第一个 `[[batch]]`，绑定到其余批次的调用在执行前就被扣住（不执行、不进 tool_log）。

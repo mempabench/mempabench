@@ -1,0 +1,6 @@
+[submodule "memory_raw_repos/mem0"]
+	path = memory_raw_repos/mem0
+	url = https://github.com/mempabench/mem0.git
+[submodule "memory_raw_repos/MemOS"]
+	path = memory_raw_repos/MemOS
+	url = https://github.com/mempabench/MemOS.git

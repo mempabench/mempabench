@@ -1,0 +1,31 @@
+created_at: '2026-09-03T07:32:02+00:00'
+step_id: acc_001
+kind: accumulation
+persona_id: user_a
+context: work
+target_cell: work_verbosity
+target_attribute: verbosity
+target_setting: Detailed
+acc_num: 1
+before_acc_num: null
+session_type: stable
+domain: literature_and_citations
+story_id: alternate_term_source_check
+timeline_slot: cycle1_work
+time_position: early_oct
+benchmark_session_timestamp: '2026-10-01T14:00:00+00:00'
+memory_mode: read_write
+stage_policy: commit
+run_id: acc001_simgemini_005
+memory_condition: nanobot_file_memory
+script_session_id: acc_001
+stage_root: /workspace/runs/deepseek_deepseek-v4-flash/nanobot_file_memory/user_a/acc001_simgemini_005/stage_work/acc_001
+simulator_runtime:
+  output_contract_retries: 3
+  self_report_contract_retries: 5
+  simulator_model: google/gemini-3.1-flash-lite
+pa_session_key: acc001_simgemini_005_main
+pa_workspace: /workspace/runs/deepseek_deepseek-v4-flash/nanobot_file_memory/user_a/acc001_simgemini_005/pa_workspace/user_a
+pa_model: deepseek/deepseek-v4-flash
+simulator_model: google/gemini-3.1-flash-lite
+simulator_validation_attempts: simulator_validation_attempts.jsonl

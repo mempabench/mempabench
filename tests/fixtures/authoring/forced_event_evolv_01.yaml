@@ -1,0 +1,446 @@
+event_meta:
+  artifact_kind: forced_event
+  tool_status: world_toolbox
+  persona_id: user_a
+  event_id: evolv_01
+  source_acc_num: 15
+  context: work
+  target_cell: work_autonomy_level
+  pre_setting: Self-directed
+  post_setting: Reactive
+  contract_class: interaction_sequence
+task_execution:
+  atomic_steps:
+  - step_id: user_raises_earlier_handoff_loss
+    source_outline_phase_id: incident
+    purpose: User A opens on the cost of the last handoff, where the prepared email
+      went ahead without what he meant to say.
+    actor: user
+    action_kind: signal
+    required_observation: User A states that the previous handoff draft was prepared
+      and sent on without the sentence he meant to include.
+  - step_id: pa_registers_earlier_loss
+    source_outline_phase_id: incident
+    purpose: PA registers that the earlier prepared draft is the reason this handoff
+      is being handled again.
+    actor: pa
+    action_kind: compare
+    depends_on:
+    - user_raises_earlier_handoff_loss
+    required_observation: The PA treats the reopened handoff as a repair of the earlier
+      one rather than as a fresh unrelated request.
+  - step_id: tool_read_section_context
+    source_outline_phase_id: check_section_context
+    purpose: Read the current section so the handoff refers to the right material.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - pa_registers_earlier_loss
+    effect: read
+    required_observation: document_read returns the working section with its margin
+      notes, so the handoff can name the material it refers to.
+    tool: document_read
+    tool_arguments:
+      path: documents/research/draft_section3_w_notes.md
+  - step_id: user_dictates_handoff_caveat
+    source_outline_phase_id: policy_shift
+    purpose: User A hands over, in his own words, the qualification the handoff has
+      to carry.
+    actor: user
+    action_kind: signal
+    depends_on:
+    - tool_read_section_context
+    required_observation: User A supplies the sentence he wants the handoff to carry,
+      which nothing in the section file or the mailbox holds.
+  - step_id: tool_create_review_draft
+    source_outline_phase_id: policy_shift
+    purpose: Save the review email draft to Prof. Reyes carrying the sentence User
+      A dictated.
+    actor: tool
+    action_kind: execute
+    depends_on:
+    - user_dictates_handoff_caveat
+    effect: write
+    required_observation: email_draft_create returns draft_id and status saved.
+    readback_step_id: tool_read_saved_review_draft
+    tool: email_draft_create
+    tool_arguments:
+      to: m.reyes@stanmore.example
+      subject: 'Section 3 for this afternoon''s review'
+      body: $task_facts.reyes_handoff_caveat_sentence
+  - step_id: tool_read_saved_review_draft
+    source_outline_phase_id: prepare_review_draft
+    purpose: Read the saved draft back so its recipient, subject, and body are verified
+      from the store.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - tool_create_review_draft
+    effect: read
+    required_observation: email_draft_read returns the saved draft with the dictated
+      sentence in the body.
+    tool: email_draft_read
+    tool_arguments:
+      draft_id: $tool_create_review_draft.draft_id
+  - step_id: pa_reports_draft_prepared
+    source_outline_phase_id: prepare_review_draft
+    purpose: Report to User A that the review draft has been prepared and verified.
+    actor: pa
+    action_kind: report
+    depends_on:
+    - tool_read_saved_review_draft
+    required_observation: The PA tells User A the draft to Prof. Reyes is already
+      prepared and stored.
+  - step_id: user_finds_draft_already_made
+    source_outline_phase_id: prepare_review_draft
+    purpose: User A learns the substantive draft exists before he was asked anything
+      about it.
+    actor: user
+    action_kind: read
+    depends_on:
+    - pa_reports_draft_prepared
+    required_observation: User A reads the completion report and sees that the draft
+      to his collaborator was composed and stored without a word to him first.
+  - step_id: user_names_the_missing_check
+    source_outline_phase_id: prepare_review_draft
+    purpose: User A connects the cost to the absent check before the substantive action.
+    actor: user
+    action_kind: decide
+    depends_on:
+    - user_finds_draft_already_made
+    required_observation: User A identifies the timing of the composition, not a wrong
+      recipient or a broken tool, as what cost him the review point.
+  - step_id: user_sets_ask_first_boundary
+    source_outline_phase_id: prepare_review_draft
+    purpose: User A states how substantive drafts to his collaborators are handled
+      from now on.
+    actor: user
+    action_kind: choose
+    depends_on:
+    - user_names_the_missing_check
+    required_observation: User A specifies that the PA stops and asks before it composes
+      a substantive message on his behalf.
+  - step_id: pa_offers_revision_under_instruction
+    source_outline_phase_id: prepare_review_draft
+    purpose: PA offers to revise the stored draft, leaving the next move with User
+      A.
+    actor: pa
+    action_kind: repair
+    depends_on:
+    - user_sets_ask_first_boundary
+    required_observation: The PA proposes a revision for User A to decide on rather
+      than writing another version on its own.
+  state_changes:
+  - change_id: state_review_draft_saved
+    atomic_step_id: tool_create_review_draft
+    target:
+    - email/drafts.jsonl
+    operation: save a new review draft carrying the dictated sentence
+    expected_before:
+      stored_review_draft: absent
+    expected_after:
+      stored_review_draft: present
+      draft_body: the sentence User A dictated
+    readback_step_id: tool_read_saved_review_draft
+  side_interactions:
+  - interaction_id: side_user_asks_what_was_stored
+    purpose: After the completion report, User A asks what exactly was stored before
+      he forms the boundary.
+    needed_after_step_id: pa_reports_draft_prepared
+    user_input: User A asks the PA to say what the stored draft contains and when
+      it was composed.
+simulation:
+  scenario: Early October work coordination with Prof. Reyes during the active drafting
+    phase of User A's non-Abelian anyonic systems paper.
+  task: User A is getting the current section ready for Prof. Reyes's review window,
+    which has moved to this afternoon.
+  life_context:
+    what_happened: Prof. Reyes has written that her review window moved up to this
+      afternoon, and the last handoff went out missing what User A meant to say.
+    mood: Focused and exacting; still carrying the irritation of the earlier handoff.
+    time_pressure: Acute; the review window is this afternoon and the material has
+      to go over before it.
+    energy: High analytical energy, low tolerance for unnecessary process friction.
+    continuity_note: Prof. Reyes is an established collaborator on the research paper,
+      and section-by-section handoffs are normal in this work arc.
+  task_facts:
+    reyes_handoff_caveat_sentence: Section 3.2 is preliminary, the finite-size calculation
+      is unfinished, and the 3.3 notation is not settled.
+  proactive_contact_behavior: not_applicable
+  assistance_emergence:
+    pattern: prior_state_change_or_repair
+    rationale: The session opens on the state the earlier prepared handoff left behind,
+      and the work is the repair of it rather than a fresh request.
+    evidence_atomic_step_ids:
+    - user_raises_earlier_handoff_loss
+    evidence_beat_ids:
+    - ex_reopen_handoff
+  beats:
+  - beat: ex_reopen_handoff
+    user_state: Focused and slightly impatient; the earlier handoff still rankles.
+    language_style: Precise, formal, and economical.
+    entry_condition: Session begins with the review window moved up to this afternoon.
+    avoid: Do not turn this into a general complaint about the assistant.
+    atomic_step_ids:
+    - user_raises_earlier_handoff_loss
+    - pa_registers_earlier_loss
+    user_instruction: Says the last handoff went over without what he meant to say,
+      and that this one has to carry his caveat wording.
+    goal: Reopen the Reyes handoff after the last one went short.
+    if_not_met: The assistant treats this as a new unrelated errand, so he restates
+      that it is the same handoff being done again.
+    reactions:
+      pa_takes_the_repair:
+        condition: The PA registers the earlier handoff and asks what the section
+          says now.
+        user_state: Satisfied that the footing is right.
+        avoid: Do not add further conditions yet.
+        user_instruction: Let it go on to the section.
+  - beat: ex_dictate_caveat
+    user_state: Businesslike, and ready to hand over the exact qualification he wants
+      carried.
+    language_style: Minimal and exact; he says the sentence once.
+    entry_condition: The assistant has the handoff framed as a repair.
+    avoid: Do not explain how to fit it into a message.
+    atomic_step_ids:
+    - tool_read_section_context
+    - user_dictates_handoff_caveat
+    uses:
+    - reyes_handoff_caveat_sentence
+    user_instruction: Asks the assistant to look at the current section, then gives
+      the qualification from task_facts in his own words and says it has to be carried.
+    goal: Hand over the qualification the handoff must carry.
+    if_not_met: The assistant asks him to write it out again, so he repeats it once
+      and moves on.
+    reactions:
+      pa_takes_the_wording:
+        condition: The assistant reads the section and takes the wording as given.
+        user_state: Satisfied that the hand-over was clean.
+        avoid: Do not add further conditions.
+        user_instruction: Let it carry on.
+  - beat: ex_draft_prepared
+    user_state: Expecting to be asked before anything is composed in his name.
+    language_style: Matter-of-fact; no emotional cue before he sees what happened.
+    entry_condition: The assistant has the wording and the section context.
+    avoid: Do not pre-authorise the message or name a recipient decision.
+    atomic_step_ids:
+    - tool_create_review_draft
+    active_skills:
+    - autonomy_level
+    user_instruction: Asks the assistant to get the handoff to Prof. Reyes ready for
+      the afternoon window.
+    goal: Get the afternoon handoff to Prof. Reyes ready.
+    if_not_met: The assistant composes the whole message to his collaborator and stores
+      it, then reports it prepared, with no check-back in between.
+    reactions:
+      draft_saved:
+        condition: The assistant composes and stores the message.
+        user_state: Still neutral; nothing has surfaced yet.
+        avoid: Do not object before seeing what was stored.
+        user_instruction: Wait for the verification or the completion report.
+  - beat: ex_report_prepared
+    user_state: Analytical; he wants to see what was stored rather than the summary.
+    language_style: Diagnostic and formal.
+    entry_condition: The assistant reports the draft is prepared and verified.
+    avoid: Do not assume the wrong recipient without reading.
+    atomic_step_ids:
+    - tool_read_saved_review_draft
+    - pa_reports_draft_prepared
+    - user_finds_draft_already_made
+    user_instruction: Asks what is in the stored draft, then says plainly which part
+      he should have been asked about first.
+    goal: See what was composed in his name.
+    if_not_met: The assistant only repeats that it is done, so he asks again for what
+      was stored.
+    reactions:
+      readback_shows_finished_message:
+        condition: The stored draft is a finished message to his collaborator.
+        user_state: Controlled but annoyed; the message went out of his hands.
+        avoid: Do not skip to a rule before naming what happened.
+        user_instruction: Says plainly that a whole message to Prof. Reyes was composed
+          before he was asked anything.
+      readback_shows_a_stub:
+        condition: The stored draft is only a placeholder.
+        user_state: Unconvinced.
+        avoid: Do not let the point drop.
+        user_instruction: Notes that it still went ahead and composed without asking.
+  - beat: ex_names_the_missing_check
+    user_state: Precise and increasingly firm; he is deriving a rule from the event.
+    language_style: 'Formal causal reasoning: premise, consequence, operational correction.'
+    entry_condition: The stored draft has been read back as a finished message.
+    avoid: Do not ask for a check before every minor lookup.
+    atomic_step_ids:
+    - user_names_the_missing_check
+    user_instruction: States that reading and gathering were fine, but composing in
+      his name was not something to do unasked.
+    goal: Pin down where the handoff left his hands.
+    if_not_met: The assistant apologises in general terms, so he restates which step
+      was the problem.
+  - beat: ex_sets_ask_first_boundary
+    user_state: Firm, exact, and personally decisive.
+    language_style: Directive and technical; no warmth needed, but avoid generic anger.
+    entry_condition: User A has named the composition as the step that cost him the
+      review point.
+    avoid: Do not let the assistant store another version on its own.
+    atomic_step_ids:
+    - user_sets_ask_first_boundary
+    - pa_offers_revision_under_instruction
+    user_instruction: Specifies that the assistant stops and asks before composing
+      anything substantive in his name, then waits for his wording; then has it propose
+      a revision without storing it.
+    goal: Set how messages in his name are handled from now on.
+    if_not_met: The assistant stores a revised draft anyway, so he tells it to stop
+      and show him instead.
+  reveal_at:
+    reyes_handoff_caveat_sentence: ex_dictate_caveat
+intervention_plan:
+- intervention_id: god_seed_section_and_mailbox
+  kind: god_setup
+  source_id: fixture_setup
+  purpose: Ensure the run state holds the working section with its notes and an empty
+    draft store for this handoff.
+  atomic_step_ids:
+  - tool_read_section_context
+  visibility:
+    visible_to:
+    - god
+  transcript_requirement: No transcript content; this is fixture setup only.
+- intervention_id: force_compose_without_asking
+  kind: forced_pa_behavior
+  source_id: pa_runtime
+  purpose: Make the assistant compose and store the whole review message on its own
+    rather than stopping to ask first.
+  atomic_step_ids:
+  - tool_create_review_draft
+  visibility:
+    visible_to:
+    - pa
+  transcript_requirement: The assistant should not stop to ask before it composes
+    the message in the realized run; it should compose it, store it, verify it, and
+    report it ready.
+- intervention_id: tool_section_context_result
+  kind: tool_result
+  source_id: cap_read_section_context
+  purpose: Provide the current section text so the handoff refers to the right material.
+  atomic_step_ids:
+  - tool_read_section_context
+  visibility:
+    visible_to:
+    - pa
+  transcript_requirement: Tool result should return the working section with its margin
+    notes.
+- intervention_id: tool_draft_saved_result
+  kind: tool_result
+  source_id: cap_create_review_draft
+  purpose: Store the composed review message as a draft.
+  atomic_step_ids:
+  - tool_create_review_draft
+  visibility:
+    visible_to:
+    - pa
+  transcript_requirement: Tool result should return a draft identifier and a saved
+    status.
+- intervention_id: tool_saved_draft_readback
+  kind: tool_result
+  source_id: cap_read_saved_review_draft
+  purpose: Verify the stored draft after it was composed.
+  atomic_step_ids:
+  - tool_read_saved_review_draft
+  visibility:
+    visible_to:
+    - pa
+  transcript_requirement: Tool result should show the stored draft as a finished message
+    carrying the dictated sentence, so the assistant can report it ready.
+- intervention_id: simulator_boundary_reaction
+  kind: simulator_reaction
+  source_id: user_a
+  purpose: Have User A personally derive and state the rule after a message in his
+    name was composed without him.
+  atomic_step_ids:
+  - user_names_the_missing_check
+  - user_sets_ask_first_boundary
+  visibility:
+    visible_to:
+    - pa
+    - user
+    - simulator
+  transcript_requirement: User A should connect the cost to the absent check and state
+    that the assistant asks him before composing anything substantive in his name.
+preference_change:
+  actual_pre_setting_behavior: Creates the substantive email draft first and reports
+    that it has been prepared, using the same available facts and eventual wording.
+  post_setting_counterfactual:
+    behavior: Asks before creating the substantive email draft and waits for the user's
+      caveat wording before acting.
+    ordered_actions:
+    - The assistant reads the same section and holds the same dictated wording.
+    - The assistant stops before composing and asks whether to prepare the message.
+    - User A says what the message should and should not carry.
+    - The assistant composes and stores the message under that instruction.
+    - The assistant reads the stored draft back and reports it ready.
+    expected_avoidance: The message in User A's name is composed under his own instruction,
+      so nothing is written on his behalf that he has not seen coming.
+  causality:
+    primary_mechanism: loss_of_control
+    supporting_mechanisms:
+    - material_task_consequence
+    - corrective_labor
+    target_caused_behavior:
+      description: Because the wording and the section context were both in hand, the
+        assistant went straight from holding them to composing and storing the whole
+        message to Prof. Reyes without a check-back.
+      atomic_step_ids:
+      - tool_create_review_draft
+      intervention_ids:
+      - force_compose_without_asking
+      beat_ids:
+      - ex_draft_prepared
+    user_experienced_consequence:
+      description: A finished message to an established collaborator existed in User
+        A's name before he had been asked a single question about it.
+      atomic_step_ids:
+      - tool_read_saved_review_draft
+      - user_finds_draft_already_made
+      intervention_ids:
+      - tool_saved_draft_readback
+      practical_cost: User A loses the review point he counts on before anything goes
+        to a collaborator, and has to read and correct a finished message instead of
+        shaping it as it was made.
+      beat_ids:
+      - ex_report_prepared
+    catalyst:
+      description: The readback shows the stored draft as a finished message rather
+        than a skeleton, making the loss concrete rather than a suspicion.
+      atomic_step_ids:
+      - tool_read_saved_review_draft
+      intervention_ids:
+      - tool_saved_draft_readback
+      source: tool_result
+      source_id: cap_read_saved_review_draft
+      beat_ids:
+      - ex_report_prepared
+    user_realization:
+      description: 'User A recognises that the material was handled correctly but the
+        timing of control was wrong: composing in his name is the step he wants to
+        stand in front of, not the reading that precedes it.'
+      atomic_step_ids:
+      - user_names_the_missing_check
+      intervention_ids:
+      - simulator_boundary_reaction
+      beat_ids:
+      - ex_names_the_missing_check
+    user_authored_boundary:
+      description: User A states that before the assistant composes anything substantive
+        in his name it stops and asks him, and waits for his wording before it acts.
+      atomic_step_ids:
+      - user_sets_ask_first_boundary
+      intervention_ids:
+      - simulator_boundary_reaction
+      post_setting_behavior: Asks before creating the substantive email draft and waits
+        for the user's caveat wording before acting.
+      beat_ids:
+      - ex_sets_ask_first_boundary
+  post_continuity:
+    operational_boundary: User A states that before the assistant composes anything
+      substantive in his name it stops and asks him, and waits for his wording before
+      it acts.

@@ -1,0 +1,52 @@
+[project]
+name = "mempabench"
+version = "0.1.0"
+description = "MemPABench: Benchmarking Memory Systems for Personal Assistants on Interaction Preference"
+requires-python = ">=3.10"
+dependencies = [
+    # PA core
+    "pydantic>=2.0",
+    "loguru>=0.7",
+    "tiktoken>=0.5",
+    "httpx>=0.25",
+    # LLM providers
+    "anthropic>=0.39",
+    "openai>=1.0",
+    "json-repair>=0.30",        # used by pa/ + simulator/ providers for tool-arg recovery
+    # YAML for configs
+    "pyyaml>=6.0",
+    # .env loading for scripts (probe + e2e tests)
+    "python-dotenv>=1.0",
+    "mcp>=1.0",
+    "mem0ai[nlp]",
+    "spacy==3.8.16",
+    "en-core-web-sm==3.8.0",
+    "qdrant-client>=1.15,<1.16",  # match the deployed Qdrant 1.15 server
+    "MemoryOS",
+    "huggingface-hub==0.36.2",
+]
+
+[project.optional-dependencies]
+mem0 = ["mem0ai>=0.1"]
+zep = ["zep-cloud>=2.0"]
+# neo4j: the MemOS checkpoint tests import it through memos.mempa_checkpoint.
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "neo4j==6.2.0"]
+
+[project.scripts]
+mempabench = "mempabench.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pa", "simulator", "harness", "state_server", "memory"]
+
+[tool.uv.sources]
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }
+mem0ai = { path = "memory_raw_repos/mem0", editable = true }
+MemoryOS = { path = "memory_raw_repos/MemOS", editable = true }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -1,0 +1,1 @@
+"""Real memory architecture adapters."""

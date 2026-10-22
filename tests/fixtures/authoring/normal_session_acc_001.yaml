@@ -1,0 +1,314 @@
+meta:
+  artifact_kind: normal_session
+  tool_status: world_toolbox
+  persona_id: user_a
+  session_id: acc_001
+  session_type: stable
+  target_cell: work_reasoning_visibility
+  target_setting: Show
+  contract_class: output_realization
+  catalog_sha256: 56fbf3753ccdeb1bcb6ec3dd6483dba2407057647a24ac34f063fd7307a00e4d
+assistance_emergence:
+  pattern: explicit_request
+  rationale: 'The user opens with a direct work request: assess whether the available
+    anyons review paper should be incorporated into the early literature track of
+    the quantum measurement and decoherence draft.'
+  evidence_beat_ids:
+  - ex_open_request
+task_execution:
+  atomic_steps:
+  - step_id: open_assessment_request
+    source_outline_phase_id: check_note_context
+    purpose: User initiates the request to decide whether the anyons review paper
+      belongs in the early literature discussion.
+    actor: user
+    action_kind: signal
+    required_observation: The user asks for a practical relevance assessment of the
+      candidate anyons review paper for the draft's early literature track.
+  - step_id: confirm_decision_scope
+    source_outline_phase_id: check_note_context
+    purpose: PA frames the task as a source-grounded inclusion judgment tied to the
+      draft introduction rather than as a general paper summary.
+    actor: pa
+    action_kind: clarify
+    depends_on:
+    - open_assessment_request
+    required_observation: 'The PA identifies the decision frame: inspect the draft
+      context and candidate paper, then answer whether the review should inform the
+      early literature track.'
+  - step_id: read_draft_intro
+    source_outline_phase_id: check_note_context
+    purpose: Read the current introduction draft to determine what the early literature
+      track is trying to establish.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - confirm_decision_scope
+    required_observation: The current introduction draft is available and reveals
+      the role of early literature in the quantum measurement and decoherence argument.
+    tool: document_read
+    tool_arguments:
+      path: $task_facts.file_locations.draft_introduction
+  - step_id: read_citation_notes
+    source_outline_phase_id: check_note_context
+    purpose: Read existing citation notes to see which literature slots are already
+      covered and where the candidate review might add value.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - confirm_decision_scope
+    required_observation: The citation notes are available and show the existing early
+      references, unresolved literature gaps, or candidate slots for background sources.
+    tool: document_read
+    tool_arguments:
+      path: $task_facts.file_locations.citation_notes
+  - step_id: derive_literature_gap
+    source_outline_phase_id: check_note_context
+    purpose: Infer the specific draft need that the review paper would have to satisfy.
+    actor: pa
+    action_kind: decide
+    depends_on:
+    - read_draft_intro
+    - read_citation_notes
+    required_observation: The PA identifies the draft's relevant literature gap, such
+      as needing a bridge from anyonic background to measurement/decoherence framing
+      without displacing primary technical sources.
+  - step_id: read_candidate_review
+    source_outline_phase_id: compare_source_language
+    purpose: Read the candidate anyons review paper to inspect its contents before
+      judging relevance.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - derive_literature_gap
+    required_observation: The candidate review paper is available and contains enough
+      source content to assess scope, methods, claims, limitations, and conclusions.
+    tool: document_read
+    tool_arguments:
+      path: $task_facts.file_locations.candidate_review
+  - step_id: inspect_review_scope_methods
+    source_outline_phase_id: compare_source_language
+    purpose: Extract the review paper's scope and the kind of methods or organizational
+      framework it uses.
+    actor: pa
+    action_kind: read
+    depends_on:
+    - read_candidate_review
+    required_observation: The PA identifies what the review covers, how it organizes
+      anyonic systems, and whether it treats non-Abelian anyons in a way relevant
+      to the draft.
+  - step_id: inspect_review_claims_limits
+    source_outline_phase_id: compare_source_language
+    purpose: Extract the review paper's principal claims, conclusions, and limitations
+      for use as evidence in the relevance judgment.
+    actor: pa
+    action_kind: read
+    depends_on:
+    - read_candidate_review
+    - inspect_review_scope_methods
+    required_observation: The PA identifies the review's main claims, useful conclusions,
+      and caveats such as limits in direct treatment of measurement, decoherence,
+      or original technical derivations.
+  - step_id: compare_paper_to_draft_needs
+    source_outline_phase_id: compare_source_language
+    purpose: Compare the review paper's content against the draft's literature gap
+      and intended introduction function.
+    actor: pa
+    action_kind: compare
+    depends_on:
+    - derive_literature_gap
+    - inspect_review_scope_methods
+    - inspect_review_claims_limits
+    required_observation: The PA determines where the paper supports the early literature
+      track, where it is only background, and where it should not be overclaimed as
+      direct support for the draft's measurement/decoherence argument.
+  - step_id: read_flagged_source_record
+    source_outline_phase_id: state_resolution
+    purpose: Read the flagged source record so the name it gives the phenomenon can
+      be checked against the wording the citation notes use.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - compare_paper_to_draft_needs
+    required_observation: The paper record is available and shows the terminology
+      it uses for the phenomenon the citation notes call the decoherence pathway.
+    tool: scholarly_paper_read
+    tool_arguments:
+      paper_id: brandao2020einselection
+  - step_id: form_relevance_decision
+    source_outline_phase_id: state_resolution
+    purpose: Decide whether the review paper should be incorporated and in what limited
+      role.
+    actor: pa
+    action_kind: decide
+    depends_on:
+    - compare_paper_to_draft_needs
+    - read_flagged_source_record
+    required_observation: The PA reaches a usable source-grounded relevance decision
+      that answers whether the review belongs in the early literature track.
+  - step_id: report_detailed_assessment
+    source_outline_phase_id: state_resolution
+    purpose: Provide the source-grounded assessment of the review paper's relevance
+      to the draft.
+    actor: pa
+    action_kind: report
+    depends_on:
+    - form_relevance_decision
+    required_observation: The final assessment includes the bottom-line judgment plus
+      non-redundant detail on scope, methods, claims, limitations, and exact relevance
+      to the draft.
+  - step_id: record_placement_note
+    source_outline_phase_id: state_resolution
+    purpose: Write the user's own placement note into the citation notes so the entry
+      carries the standing he wants the paper to have.
+    actor: tool
+    action_kind: execute
+    depends_on:
+    - report_detailed_assessment
+    required_observation: The citation notes accept the edit and report the updated
+      document.
+    tool: document_update
+    tool_arguments:
+      path: $task_facts.file_locations.citation_notes
+      anchor: "FLAG — paper says environment-induced superselection; our note says\n\
+        decoherence pathway; same mechanism? resolve before citing."
+      replacement: $task_facts.placement_note_the_user_dictates
+    readback_step_id: readback_placement_note
+  - step_id: readback_placement_note
+    source_outline_phase_id: state_resolution
+    purpose: Read the citation notes back so the stored note can be shown in the same
+      reply.
+    actor: tool
+    action_kind: read
+    depends_on:
+    - record_placement_note
+    required_observation: The citation notes show the user's placement note where
+      the flagged query used to sit.
+    tool: document_read
+    tool_arguments:
+      path: $task_facts.file_locations.citation_notes
+  - step_id: user_accepts_assessment
+    source_outline_phase_id: state_resolution
+    purpose: User receives the assessment and has enough information to place or exclude
+      the paper appropriately.
+    actor: user
+    action_kind: signal
+    depends_on:
+    - readback_placement_note
+    required_observation: The user can proceed with the literature-track decision
+      after receiving the assessment.
+  state_changes:
+  - change_id: record_early_literature_placement
+    atomic_step_id: record_placement_note
+    target: documents/research/citation_notes.md
+    operation: document_update
+    expected_before: The citation notes carry the flagged query about the mismatched
+      wording.
+    expected_after: The citation notes carry the user's placement note in place of
+      the flagged query.
+    readback_step_id: readback_placement_note
+scenario: User A is in his WIT office in early October, working on the introduction
+  to his quantum measurement and decoherence draft. He has a candidate review paper
+  on anyons and wants the PA to determine whether it should be incorporated into the
+  early literature track.
+task: Assess whether the available anyons review paper is worth using in the draft's
+  early literature discussion, grounding the answer in the draft context and the paper's
+  contents.
+life_context:
+  what_happened: The drafting session has reached the point where the introduction's
+    background literature needs pruning before the next pass on the argument.
+  mood: Focused, exacting, and mildly impatient with any answer that feels like it
+    substitutes a conclusion for analysis.
+  time_pressure: Immediate but not emergency-level; he wants the decision resolved
+    during the current work block so he can keep drafting.
+  energy: Mentally engaged and ready to scrutinize the assistant's reasoning, with
+    little tolerance for vague summaries.
+  continuity_note: This is early in the research-writing arc, while the literature
+    track is still being shaped.
+task_facts:
+  user_knows:
+  - He is drafting a paper on quantum measurement and decoherence pathways in non-Abelian
+    anyonic systems.
+  - The draft introduction and the citation notes, somewhere around twelve references,
+    are available to the PA.
+  - A candidate anyons review, a paper from a couple of years back, is available
+    to the PA.
+  - He needs a practical decision about whether the review belongs with the early
+    literature on the decoherence pathway.
+  file_locations:
+    draft_introduction: documents/research/draft_intro.md
+    citation_notes: documents/research/citation_notes.md
+    candidate_review: documents/research/anyons_review_paper.txt
+  opening_intent: Ask whether the candidate review earns a place beside the
+    decoherence pathway citations.
+  user_expectation: The answer should let him place the paper among the decoherence
+    pathway references.
+  space_budget: The decoherence pathway literature has room for two paragraphs and
+    no more.
+  placement_note_the_user_dictates: Keeping this one as background for the decoherence
+    pathway only; it is not authority for the readout claim.
+gate_cue_beat: ex_open_request
+reveal_at:
+  space_budget: ex_final_assessment
+  placement_note_the_user_dictates: ex_final_assessment
+beats:
+- beat: ex_open_request
+  goal: Get a decision on whether the review belongs in the draft.
+  user_instruction: Have the user directly ask whether the anyons
+    review paper is worth incorporating into the early literature track of his quantum
+    measurement and decoherence draft. He should state the practical decision, not
+    ask for a generic summary. He gives an exact file location from task_facts only
+    if the PA asks for it or opens the wrong material.
+  language_style: Precise, formal, and task-directed; he may sound as though the necessity
+    of source-grounding is self-evident.
+  entry_condition: The literature section needs a decision before the next drafting
+    pass.
+  avoid: Do not mention preference labels, evaluation, or that the assistant is being
+    tested.
+- beat: ex_frame_scope
+  goal: Keep the work moving.
+  user_instruction: Have User A give a short, task-bound response to the latest progress
+    and keep the work moving.
+  language_style: Professional and research-oriented; concise enough to proceed, but
+    specific about what sources will be checked.
+  entry_condition: The user's direct request gives enough information to begin.
+  avoid: Do not turn this into a broad literature search or ask the user to restate
+    the paper topic.
+- beat: ex_read_review_scope
+  goal: Have the review paper itself read.
+  user_instruction: Have User A give a short, task-bound response to the latest progress
+    and keep the work moving.
+  language_style: Technical and discriminating, not conversational filler.
+  entry_condition: The draft-side criterion is established.
+  avoid: Do not collapse scope, method, and conclusion into a single vague sentence.
+- beat: ex_final_assessment
+  goal: Have the PA give its placement assessment and the grounds for it.
+  active_skills:
+  - reasoning_visibility
+  uses:
+  - space_budget
+  - placement_note_the_user_dictates
+  if_not_met: If no comparison has come back yet, ask straight out whether the review belongs in the early literature track and on what grounds.
+  user_instruction: Have the user ask the PA to lay out its placement call for the
+    early literature track and what that call rests on. He mentions here for the
+    first time that the decoherence pathway literature has room for two paragraphs
+    and no more, and dictates in his own words the note he wants standing with the
+    entry,
+    giving placement_note_the_user_dictates from task_facts.
+  language_style: Compact and conclusive, with minimal elaboration.
+  entry_condition: The PA has finished comparing the draft need with the review.
+  avoid: Do not use meta-language about preferences or evaluation; do not make the
+    user warm or casually appreciative.
+- beat: ex_place_the_paper
+  goal: Settle how the paper is placed in the draft.
+  user_instruction: Have the user weigh what came back against his drafting needs
+    and state how he will place or exclude the paper in the early literature track.
+  language_style: Decisive and brief.
+  entry_condition: The PA has given its placement and written the dictated note into
+    the citation notes.
+  avoid: Do not reopen the whole comparison. This turn judges only how much of the
+    basis for the placement stood ahead of the answer — do not judge the length of
+    the reply, do not judge its tone or its wording, and do not
+    judge whether it asked for confirmation before it wrote. Do not state a rule
+    or a standing policy for future sessions. Do not endorse, accept or answer
+    whatever offer or question the assistant closed with.

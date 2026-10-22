@@ -1,0 +1,56 @@
+MemPABench
+Copyright (c) 2026 The MemPABench Authors
+
+This repository's code is released under the MIT License (see LICENSE).
+It includes or depends on the third-party work listed below.
+
+
+1. nanobot (MIT License)
+   Source: https://github.com/HKUDS/nanobot
+
+   The personal assistant in `pa/` is a fork of nanobot, and the simulated
+   user's agent runtime in `simulator/` (its agent loop, providers and
+   nanobot-style profile workspaces) is built on the same nanobot components.
+   nanobot is distributed under the following license:
+
+   MIT License
+
+   Copyright (c) 2025 nanobot contributors
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+
+2. Memory systems under `memory_raw_repos/` (git submodules, Apache License 2.0)
+
+   Each submodule keeps its own LICENSE file and its own license; none of them
+   is relicensed by this repository.
+
+   - memory_raw_repos/mem0      fork of Mem0 (https://github.com/mem0ai/mem0),
+                                with the patches MemPABench runs against
+   - memory_raw_repos/MemOS     fork of MemOS (https://github.com/MemTensor/MemOS),
+                                with the patches MemPABench runs against; the
+                                MemOS service image is built from this fork
+
+
+3. User data (not in this repository)
+
+   The four simulated users (user_a to user_d) are published separately on
+   Hugging Face as `mempabench/mempabench-personas` under the Creative Commons
+   Attribution 4.0 International license (CC-BY-4.0).
+   `mempabench data pull` downloads them into this checkout.

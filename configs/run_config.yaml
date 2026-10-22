@@ -1,0 +1,62 @@
+# Run settings read by scripts/run_orchestrator.py (and the probe repeat /
+# probe-variance scripts). Loaded by harness/run_config.py; a missing key keeps
+# its default, and the defaults equal the values in this file. Every launch
+# records the values it used in <run_dir>/run_info.yaml.
+# Point MEMPA_RUN_CONFIG at another file to use it instead.
+
+# What a failed timeline step does. Defaults: the run stops on the first failure.
+# A single run can carry its own <run_dir>/failure_policy.yaml with these keys.
+failure_policy:
+  skip_steps: {}                     # {step_id: rollback | retain_partial}
+  auto_skip_on_ix_exhaustion: true   # an ACC whose IX repair failed 3 times is skipped, partial state kept; false: the run stops
+  max_scene_attempts: 1              # >1: the last attempt's failure is skipped, partial state kept
+  partial_skip_pending_memory: drop  # drop | replay: a skipped step's unwritten memory turns are left out / written now
+
+# Whole-probe attempt budget.
+probe:
+  attempt_limit: 3
+  total_attempt_limit: 6
+  network_failures_count: false
+
+# Probe-only repeat rounds of an existing run (round 1 is the run itself).
+# A reference arm (no_memory / oracle_preference) runs round 1 and these rounds.
+repeat:
+  rounds: [2, 3]
+
+# How many pre-event and final Probes a probe-variance round
+# (scripts/run_probe_variance.py) runs.
+probe_variance:
+  pre_event_probes: 5
+  final_probes: 28
+
+# Budgets frozen into a new run plan.
+budgets:
+  pa_max_tokens: 24576
+  memory_retrieval_max_tokens: 4000
+  memory_retrieval_max_items: 10
+  checkpoint_rolling_window: 3
+  mem0_extraction_max_output_tokens: 16000
+
+# OpenRouter provider routing for the probe phase only (null = the model's own
+# routing), e.g. {order: [SiliconFlow], allow_fallbacks: false}.
+providers:
+  probe_phase: null
+  # A run skips an OpenRouter upstream for a model once that model failed on
+  # it this many times (recorded in <run_dir>/provider_avoidance.json); 0 = off.
+  # Frozen into a new run plan.
+  avoid_after_failures: 3
+
+# Deployment values frozen into a new plan's backend runtime config.
+memory_backends:
+  memos:
+    qdrant_host: qdrant
+    qdrant_port: 6333
+    qdrant_image: qdrant/qdrant:v1.15.3
+    reranker_backend: cosine_local
+    neo4j_backend: neo4j-community
+    neo4j_uri: bolt://neo4j:7687
+    neo4j_database: neo4j
+    neo4j_image: neo4j:5.26.6
+  mem0:
+    entity_model: en_core_web_sm@3.8.0
+    spacy_version: 3.8.16
