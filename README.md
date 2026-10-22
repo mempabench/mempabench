@@ -2,8 +2,7 @@
   <img src="docs/assets/hero.gif" width="820" alt="A robot agent holds its notebook about the user, where &quot;Orders: just do it, don't ask&quot; is circled in red, yet it raises a sign asking &quot;Shall I proceed?&quot;. The user, shopping on a phone, face-palms and says &quot;Just do it!&quot;">
 </p>
 
-<h1 align="center">MemPABench</h1>
-<p align="center"><i>Why Bother Me Again? Benchmarking Personal Agent Memory for Interaction Preferences</i></p>
+<h1 align="center">MemPABench: Can Personal Agents Keep Up with Your Interaction Habits Across Contexts and Over Time?</h1>
 
 <!-- TODO(arXiv): once the arXiv ID exists, point the Paper badge at https://arxiv.org/abs/<id>
      and switch it to https://img.shields.io/badge/arXiv-<id>-B31B1B?style=flat-square&logo=arxiv&logoColor=white
