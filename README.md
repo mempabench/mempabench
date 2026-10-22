@@ -18,9 +18,8 @@
 </p>
 
 <p align="center">
-  <b>Jialin Li</b> · <b>Zhenhao Chen</b> · <b>Hanjun Luo</b> · <b>Hanan Salam</b><sup>*</sup><br>
-  New York University Abu Dhabi<br>
-  <sub><sup>*</sup>Corresponding author</sub>
+  <b>Jialin Li</b> · <b>Zhenhao Chen</b> · <b>Hanjun Luo</b> · <b>Hanan Salam</b><br>
+  New York University Abu Dhabi
 </p>
 
 **Does your personal agent remember how you want to be helped?** MemPABench is an interactive environment for on-policy evaluation of memory in personal agents (PAs). A PA works with four simulated users through four months of tasks at work and in their personal life. The users never state their interaction preferences. They react to what the PA does: a correction here, a shortcut tolerated there. Each user changes five preferences along the way. Probes then test whether the PA's memory lets it choose the right interaction setting (ask or act, explain or stay brief, reach out or wait) and carry it out.
