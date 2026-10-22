@@ -1,7 +1,6 @@
 """Per-turn IX tool registry wrapper.
 
-Three jobs (IX wrapper plan §3.0, §5.3 carrier C, §7.1;
-Obsidian `Plans/IX_Interaction_Tool_Development_Log.md`):
+Three jobs (IX wrapper plan §3.0, §5.3 carrier C, §7.1):
 
 1. show the right IX tools for this turn — per-session selection tools for the
    attributes still unchosen, per-turn payload tools for every rendered attribute

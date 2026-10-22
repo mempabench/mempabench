@@ -1,7 +1,6 @@
 """Oracle-preference controlled condition — the probe's true setting as memory.
 
-A realization ceiling, not a memory architecture (Obsidian
-`Plans/Oracle_Preference_Condition_20260925.md`). Writes are no-ops exactly as
+A realization ceiling, not a memory architecture. Writes are no-ops exactly as
 in `NoMemoryAdapter`. `retrieve()` returns one entry: the true setting of the
 probe's target cell plus that setting's `pa_instruction` from
 `configs/setting_definitions.yaml`, which the PA reads in its usual

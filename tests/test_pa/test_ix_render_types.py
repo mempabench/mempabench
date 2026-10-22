@@ -1,8 +1,7 @@
 """P0 contract tests for `pa.agent.ix.render_types`.
 
 Every construction below is taken from the plan's own examples in
-the IX wrapper plan (§3.3 a1-a3, §3.4 batches, §4.4 JSON;
-Obsidian `Plans/IX_Interaction_Tool_Development_Log.md`).
+the IX wrapper plan (§3.3 a1-a3, §3.4 batches, §4.4 JSON).
 """
 
 from __future__ import annotations

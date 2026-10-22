@@ -148,7 +148,7 @@ PROBE_ATTEMPTS = ATTEMPT_LIMIT
 #: replaced, and that follows from the condition alone: borrowing a start point
 #: from another run says where the probe begins, not whether it has memory.
 NO_MEMORY_CONDITION = "no_memory"
-#: The realization ceiling (Obsidian `Plans/Oracle_Preference_Condition_20260925.md`):
+#: The realization ceiling:
 #: the no_memory arm, with the probe cell's true setting as its only memory.
 ORACLE_PREFERENCE_CONDITION = "oracle_preference"
 SCENE_START_DIRNAME = "scene_start"

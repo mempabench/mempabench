@@ -1,7 +1,6 @@
 """P1 · which IX tools a turn shows, which it forces, and what it injects.
 
-IX wrapper plan (Obsidian `Plans/IX_Interaction_Tool_Development_Log.md`)
-§3.0 (the required/optional tiers and
+IX wrapper plan §3.0 (the required/optional tiers and
 "per-call injection is keyed on `session_active_ix`"), §5.3 carrier C (inject then
 strip), and §7.1's response-evaluated conditionally-required slot.
 """

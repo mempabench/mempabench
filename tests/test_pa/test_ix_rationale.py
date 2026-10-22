@@ -1,7 +1,6 @@
 """P3 · producing and rendering `user_facing_rationale` + appending the `certainties` parenthesis.
 
-IX wrapper plan §3.2 / §3.1 uncertainty row / §4.4
-(Obsidian `Plans/IX_Interaction_Tool_Development_Log.md`),
+IX wrapper plan §3.2 / §3.1 uncertainty row / §4.4,
 plus the unset fallback both entry points must have.
 """
 

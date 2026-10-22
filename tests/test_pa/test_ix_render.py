@@ -1,6 +1,6 @@
 """P1 · the pure renderer: one case per rendered attribute per setting.
 
-IX wrapper plan §3.1–§3.8 (Obsidian `Plans/IX_Interaction_Tool_Development_Log.md`),
+IX wrapper plan §3.1–§3.8,
 plus the unset fallback
 every rendered attribute must have. The worked examples are the plan's own:
 the three-batch travel turn (§3.4), the Dale plan with the email gate (§3.3),

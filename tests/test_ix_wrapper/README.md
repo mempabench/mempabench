@@ -1,7 +1,7 @@
 # `tests/test_ix_wrapper/` — the T1–T22 cross-package suite
 
-Package **P7** of the IX wrapper plan (§7.2; Obsidian `Plans/IX_Interaction_Tool_Development_Log.md`). Every
-case here asks the same question the plan's T-list asks: **not "does the
+Cross-package tests for the IX wrapper. Every
+case here asks the same question: **not "does the
 renderer format nicely", but "can this semantic boundary be walked around".**
 
 Run:

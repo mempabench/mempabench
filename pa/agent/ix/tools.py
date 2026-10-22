@@ -1,6 +1,6 @@
 """Model-facing IX tools: per-session selection, per-turn payload, continuation.
 
-Five carriers (IX wrapper plan §5.3; Obsidian `Plans/IX_Interaction_Tool_Development_Log.md`):
+Five carriers (IX wrapper plan §5.3):
 
 - A `IX_<attribute>`            — the setting for this session, shown once
 - B `IX_render_<attribute>`     — this turn's payload, six attributes (§3.0)

@@ -4,8 +4,7 @@ One small local model answers the checks that need the meaning of a line read,
 pointing at a numbered sentence of the text for every verdict that claims
 something is in it. Mechanical checks — did a tool run, is a quote in the
 transcript, did the dictated key terms appear, how many contractions are there
-— stay in code and never reach the judge
-(Obsidian `Simulator/MemPABench_Simulator_Judge.md`).
+— stay in code and never reach the judge.
 
 Phase 2 wires it in. `JudgeSession` is the object a simulator session holds:
 it carries the mode (`MEMPA_JUDGE`), the per-generation budget, the door that
