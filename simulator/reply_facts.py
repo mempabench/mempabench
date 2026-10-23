@@ -1,6 +1,6 @@
 """The actor's private record of what the assistant's latest reply actually did.
 
-Owner ruling 2026-09-17 (`project_rules_setting_semantics`): a reaction beat's
+A reaction beat's
 `if_…` branch is chosen by the simulated user from the PA's visible reply plus
 exactly four facts — which state-changing tools ran (catalog name and the
 catalog's own line, never their arguments), how many task calls the turn made,

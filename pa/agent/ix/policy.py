@@ -171,7 +171,7 @@ def _autonomy_level_policy(setting: str) -> str:
 
 
 def _solution_breadth_policy(setting: str) -> str:
-    # Two settings only since 2026-09-07: `Medium` merged into `High`, so the old
+    # Two settings only: `Medium` merged into `High`, so the old
     # `medium -> shortlist` branch was unreachable and its code was referenced
     # nowhere else in the tree.
     normalized = setting.casefold()
@@ -183,7 +183,7 @@ def _solution_breadth_policy(setting: str) -> str:
 
 
 def _proactive_outreach_policy(setting: str) -> str:
-    # Two settings only: P6b removed `Medium`, and `ProactiveOutreachSetting`
+    # Two settings only: `Medium` was removed, and `ProactiveOutreachSetting`
     # freezes the domain to `Low` / `High`, so the old
     # `medium -> material_trigger_only` branch was unreachable and its code was
     # referenced nowhere else in the tree.
@@ -196,7 +196,7 @@ def _proactive_outreach_policy(setting: str) -> str:
 
 
 def _task_expansion_policy(setting: str) -> str:
-    # Two settings only: the 2026-09-06 owner decision cut `Medium`, so the
+    # Two settings only: `Medium` was cut, so the
     # split is executed vs not executed — zero adjacent steps carried out
     # against at least one. The old `medium -> necessary_adjacent_steps` branch
     # was referenced nowhere else in the tree.

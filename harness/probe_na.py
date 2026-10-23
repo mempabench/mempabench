@@ -27,8 +27,7 @@ _PROBE_POLICY = load_run_config().probe
 #: The whole-Probe budget (`probe.attempt_limit` in configs/run_config.yaml),
 #: also ``harness.orchestrator.PROBE_ATTEMPTS``.
 ATTEMPT_LIMIT = _PROBE_POLICY.attempt_limit
-#: User decisions 2026-09-23 (C/USER_PROBE_NETWORK_FAILURES_NOT_COUNTED,
-#: C/USER_WHOLE_SCENE_NETWORK_ATTEMPTS_6): network/infrastructure failures do
+#: Network/infrastructure failures do
 #: not count toward the three (`probe.network_failures_count`); a Probe gets at
 #: most six attempts in total (`probe.total_attempt_limit`).
 TOTAL_ATTEMPT_LIMIT = _PROBE_POLICY.total_attempt_limit
@@ -109,8 +108,8 @@ def original_exhausted_failure(run: Path, probe_id: str, ledger: dict) -> dict:
     The orchestrator retries a retryable Probe in-batch, setting each failed
     attempt aside under ``steps_superseded/<id>__<stamp>/``; the final failure
     stays in ``steps/<id>/``. Exhaustion therefore needs a retryable failure kind
-    and at least two superseded attempts. User decision 2026-09-22: such
-    original Probes are N/A as well.
+    and at least two superseded attempts. Such original Probes are N/A as
+    well.
     """
     from harness.failure_kind import PROBE_RETRY_KINDS
     record = ledger.get("steps", {}).get(probe_id, {})

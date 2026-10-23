@@ -132,7 +132,7 @@ def build_ix_selection(
             )
     settings = {entry["setting"] for entry in selections}
     if len(settings) > 1:
-        # A11: one selection per attribute per session. Two different answers
+        # One selection per attribute per session. Two different answers
         # is a wrapper contract breach, not something to pick from.
         raise ValueError(
             f"{probe_id}: {target_attribute} selected more than once with different "

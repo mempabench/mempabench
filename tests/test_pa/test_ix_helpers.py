@@ -75,7 +75,7 @@ def test_ix_directive_has_control_directive() -> None:
     assert IXDirective(solution_breadth="High").has_control_directive is True
 
 
-# --- repair messages say not to answer them out loud (round-2 finding 5) -----
+# --- repair messages say not to answer them out loud -------------------------
 
 
 def test_every_repair_message_forbids_a_meta_acknowledgement() -> None:
@@ -96,7 +96,7 @@ def test_every_repair_message_forbids_a_meta_acknowledgement() -> None:
 
 
 def test_the_wrapper_talk_rule_also_bans_narrating_the_chosen_level() -> None:
-    """Round-2 `acc_019`: the PA explained its own guidance-level choice.
+    """`acc_019`: the PA explained its own guidance-level choice.
 
     Three replies said the explanation was pitched for someone unfamiliar with
     the method, or that one gloss was all that was needed. The setting has to
@@ -114,7 +114,7 @@ def test_the_wrapper_talk_rule_also_bans_narrating_the_chosen_level() -> None:
 
 
 def test_the_standing_texts_carry_the_wrapper_talk_rule_too() -> None:
-    """regress18 `acc_009` t=4 / `acc_006` t=7 — the rule reached neither turn.
+    """`acc_009` t=4 / `acc_006` t=7 — the rule reached neither turn.
 
     `NO_WRAPPER_TALK` rode only on the repair messages, so the one instruction
     written to stop the PA narrating the mechanism was delivered only on turns
@@ -151,7 +151,7 @@ class _FakeCall:
 
 
 def test_self_directed_gates_key_writes_and_every_external_action() -> None:
-    """Since 2026-09-05 the merged middle setting carries the gate that
+    """The merged middle setting carries the gate that
     used to belong to the removed fourth setting: reads and drafts run, a key
     internal write stops the turn, and an external action always stops it."""
     directive = directive_for([

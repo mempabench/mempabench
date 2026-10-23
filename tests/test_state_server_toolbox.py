@@ -1343,7 +1343,7 @@ def test_scholarly_paper_and_recipe_search(tmp_path: Path):
     assert [r["name"] for r in quick["matches"]] == ["Weeknight pad thai"]
 
 
-# Id allocation and order visibility (2026-09-02 follow-ups)
+# Id allocation and order visibility
 
 def test_new_ids_skip_gaps_left_by_deleted_rows(tmp_path: Path):
     state = tmp_path / "state"
@@ -1529,7 +1529,7 @@ def _seed_world_with_locations(state: Path) -> None:
     """A world whose location fields and whose named records both exist.
 
     `near` is the vocabulary `place_search.location` matches on; the place
-    *names* beside it are what the PA passed instead in regress16 acc_027.
+    *names* beside it are what the PA passed instead in acc_027.
     """
     _write(
         state,
@@ -1559,7 +1559,7 @@ def _seed_world_with_locations(state: Path) -> None:
 
 
 def test_a_restaurant_name_where_place_search_wants_a_street_is_refused(tmp_path: Path):
-    """regress16 acc_027: three searches, three empty results, no error.
+    """acc_027: three searches, three empty results, no error.
 
     The PA read "0 matches" as "nothing there" rather than "wrong kind of
     value", so the world now says which kind of thing it was handed.

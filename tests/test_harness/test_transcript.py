@@ -102,7 +102,7 @@ def test_writer_flushes_each_event(tmp_path: Path) -> None:
 def test_a_session_with_no_retries_still_writes_an_empty_attempts_file(
     tmp_path: Path,
 ) -> None:
-    """regress19 `acc_004`, `acc_007` and `acc_019` had no
+    """`acc_004`, `acc_007` and `acc_019` had no
     `simulator_validation_attempts.jsonl` at all, so a read could not tell an
     unretried session from an unrecorded one."""
     run_dir = tmp_path / "session"
@@ -543,7 +543,7 @@ def test_render_markdown_shows_held_content_gate_and_consent(tmp_path: Path) -> 
 
 
 def test_identical_held_call_rows_collapse_to_one_line(tmp_path: Path) -> None:
-    """regress21r acc_039 t19 printed 25 identical `held call` rows for one act.
+    """acc_039 t19 printed 25 identical `held call` rows for one act.
 
     Rendering only: the ledger keeps every row, so the audit plane still counts
     the refusals -- the page shows the run of them once, with how many.
@@ -741,7 +741,8 @@ def test_ix_control_records_keep_the_ids_tj_correlates_them_by(
     assert control["ix_claims_unexecuted_action"]["item_ids"] == ["i3"]
     assert control["ix_hold_forced_close"]["cancelled"] == 2
     # A control record is not a selection: the four IX payload fields belong to
-    # `tool_event["ix"]` entries only, and `payload_type` filters it out of B2.
+    # `tool_event["ix"]` entries only, and `payload_type` filters it out of the
+    # selections.
     assert "setting" not in denied
     assert denied.get("payload_type") is None
 

@@ -138,7 +138,7 @@ def parse_repeat(repeat: dict):
 def require_retryable(run: Path, args) -> None:
     """Before executing: a rerun Probe must have failed with attempts left.
 
-    User rule 2026-09-23: a failed Probe that has not used its three attempts is
+    A failed Probe that has not used its three attempts is
     retried normally; successful and exhausted Probes are never rerun.
     """
     ledger = read(run / "ledger.json", {}).get("steps", {})

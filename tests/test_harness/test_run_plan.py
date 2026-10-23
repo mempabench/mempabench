@@ -189,7 +189,7 @@ def test_run_plan_freezes_shared_memory_retrieval_budget() -> None:
 
 
 def test_run_plan_freezes_the_pa_completion_token_limit(tmp_path: Path) -> None:
-    """regress16 acc_006 hit the provider dataclass's 4096 six times in one
+    """acc_006 hit the provider dataclass's 4096 six times in one
     session, because nothing on the PA path ever set a limit. The plan sets it,
     and the frozen file records it so a run's meta shows the value."""
     plan = RunPlan(**_plan())
@@ -826,7 +826,7 @@ def test_pinned_step_ids_derive_from_step_order() -> None:
 
 
 def test_a_forced_event_step_is_never_pinned() -> None:
-    """No consolidation runs after a forced event (owner rule).
+    """No consolidation runs after a forced event.
 
     A pinned cut point flushes the never-compacted turns
     (`harness/orchestrator.py:_flush_uncompacted_turns`), so pinning a forced

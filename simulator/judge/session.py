@@ -1,6 +1,6 @@
 """One judge per simulator session: the client, the budget, and the void door.
 
-Phase 1 built the module; this is the piece the ladder holds. It owns three
+This is the piece the ladder holds. It owns three
 things the call sites should not each re-decide:
 
 - **the mode.** `MEMPA_JUDGE` is `off` (default — nothing changes for a run or
@@ -22,8 +22,8 @@ things the call sites should not each re-decide:
   emitted as `judge_advisory` and the rule returns its non-firing value. The
   header is the rule's own property, so promoting one means replaying it and
   re-stamping that file — no per-rule live list, no flag.
-- **the release door**, for the one failure that is not the instrument's
-  (owner ruling 2026-09-09, 用C). A reference that will not resolve twice — the
+- **the release door**, for the one failure that is not the instrument's.
+  A reference that will not resolve twice — the
   first ask and the one feedback re-ask — is an answer that was never
   substantiated, not an infrastructure fault: the event is recorded, the group
   returns no verdict, and the turn goes through. A timeout, an unparseable
@@ -68,7 +68,7 @@ SPECS: dict[str, RuleSpec] = dict(BY_RULE)
 #: compose but one returns a boolean, so `False` is the default; the one that
 #: does not is written down here, and so is the ask gate, whose non-firing value is
 #: the permissive one — a turn nobody could substantiate an objection to is
-#: played, not thrown away (owner ruling 2026-09-09).
+#: played, not thrown away.
 RELEASED_VALUE: dict[str, Any] = {
     "carries_an_ask": True,
     "probe_fact_missing": [],
@@ -243,8 +243,7 @@ class JudgeSession:
         Same event as the void door wrote, plus `released`, so a read can count
         how often the judge could not point at what it claimed. The session is
         not void — twice unable to give a valid reference is the judge failing
-        to prove its case, not the instrument failing to read (owner ruling
-        2026-09-09, "judge 判两次，都拦不住的话，直接放行").
+        to prove its case, not the instrument failing to read.
         """
         event = dict(exc.event)
         kind = str(event.pop("event"))
@@ -272,8 +271,7 @@ class JudgeSession:
         of the batch would run with no judge at all, recorded against another
         standard, so the `SessionInvalidError` carries the original as its
         cause and `SimulatorLoop.run_session` re-raises that instead of
-        letting the harness move to the next session. The owner's words for
-        this state: 模型不能用，这一轮跑不了.
+        letting the harness move to the next session.
         """
         self.emit(
             "judge_unavailable",

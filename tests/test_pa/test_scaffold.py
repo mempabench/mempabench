@@ -79,7 +79,7 @@ def test_context_uses_prompt_workspace_alias(monkeypatch, tmp_path: Path):
     prompt = ContextBuilder(workspace).build_system_prompt()
 
     # The memory files are named by basename only; a printed resolvable path is
-    # what the model copies into document_read (regress1/regress2 acc_004).
+    # what the model copies into document_read (acc_004).
     assert "MEMORY.md" not in prompt
     assert "/memory/" not in prompt
     assert "sensitive_provider_run" not in prompt
@@ -192,7 +192,7 @@ def test_prompt_never_sends_the_pa_to_a_tool_for_its_own_memory(
 def test_prompt_says_an_anchored_replace_is_the_only_way_to_edit_a_document(
     monkeypatch, tmp_path: Path
 ):
-    """Round-2 `acc_003` t=6: a 9.1 KB tool-call blob shipped as prose.
+    """`acc_003` t=6: a 9.1 KB tool-call blob shipped as prose.
 
     The model wrote out a whole rewritten file as an argument to
     `mcp_state_document_write`, a tool that does not exist, emitted it as text
@@ -354,8 +354,8 @@ def test_proactive_ix_tool_rejects_setting_action_contradictions():
             outreach_action="suppress",
             outreach_message="",
         )
-        # The taxonomy is two settings since 2026-09-05 and each pins one
-        # action; with the neutral option gone (2026-09-06) no selection is free
+        # The taxonomy is two settings and each pins one
+        # action; with the neutral option gone no selection is free
         # to choose either, so both contradictions are refused.
         high_send = await tool.execute(
             setting="High",
@@ -418,7 +418,7 @@ def test_the_certainty_block_is_asked_for_on_both_carrier_surfaces():
 
 
 def test_the_pre_turn_directive_says_where_a_claim_is_copied_from():
-    """regress14b acc_035 — the claims were sentences of the *previous* reply.
+    """acc_035 — the claims were sentences of the *previous* reply.
 
     The requirement is in `CERTAINTY_BLOCK_INSTRUCTION` and in the repair
     message, but the repair only goes out after the turn has already missed. It
@@ -442,7 +442,7 @@ def test_the_pre_turn_directive_says_where_a_claim_is_copied_from():
 
 
 def test_ix_setting_descriptions_say_what_the_renderer_does():
-    """Since 2026-09-05 there is one text per attribute x setting, and
+    """There is one text per attribute x setting, and
     for a rendered attribute it describes the shape after the renderer, not advice."""
     descriptions = {
         attribute: spec.setting_descriptions
@@ -493,7 +493,7 @@ def test_wrapper_notice_reaches_the_system_prompt():
 
 
 def test_the_prompt_says_a_withdrawn_selection_tool_is_not_called_again():
-    """Owner ruling 2026-09-08 (regress20 acc_027).
+    """acc_027.
 
     The PA re-sent `IX_emotional_engagement` on the beat after the one that
     offered it, read the registry's "not found" as a broken call, and re-sent it

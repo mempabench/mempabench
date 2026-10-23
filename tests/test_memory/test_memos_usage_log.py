@@ -2,7 +2,7 @@
 
 The fixture lines below were captured verbatim from the running container
 (`docker exec mempa-memos-api ... /var/lib/memos/.memos/logs/memos.log`) during
-the 2026-09-14 memos backend smoke.
+a memos backend smoke run.
 """
 
 from __future__ import annotations

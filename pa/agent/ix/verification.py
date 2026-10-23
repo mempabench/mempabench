@@ -1,6 +1,6 @@
 """Verification-only override of the proactive outreach branch.
 
-Owner-approved 2026-09-08, for one purpose: `acc_007` (`proactive_outreach`,
+This exists for one purpose: `acc_007` (`proactive_outreach`,
 triggered two-beat session) has run nine rounds and the PA chose `send` every
 time, so the draft's `opening_after_suppress` half has never been exercised
 live. `MEMPA_VERIFY_OUTREACH=suppress` forces that branch once.

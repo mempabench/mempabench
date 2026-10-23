@@ -1,7 +1,7 @@
 """The pre-authorisation entry on the consent sideband.
 
 The floor must not ask again for an act the user handed over in the turn
-immediately before. Live regress19 `acc_039`: t40 gives the go-ahead for the
+immediately before. Live `acc_039`: t40 gives the go-ahead for the
 booking, t41 holds it and asks again. A spoken go-ahead answers no held id, so
 nothing in the actor's own `<consent_decisions>` carries it; the loop appends
 one synthetic entry naming the tool instead, on the authorising beat only.

@@ -133,7 +133,7 @@ async def test_active_consumer_retains_sealed_view_without_owner_unlock(file_cas
 
 @pytest.mark.asyncio
 async def test_a_changed_view_is_still_released_and_source_bytes_stay(file_case):
-    """Plan R5: the view's contents are not compared at close; the source run's
+    """The view's contents are not compared at close; the source run's
     memory is never touched."""
     root, run, manager = file_case
     owner = SharedProbeMemoryOwner(root / "shared")

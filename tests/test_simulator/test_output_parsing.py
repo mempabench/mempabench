@@ -1,11 +1,11 @@
 """Test: simulator output parser handles three-block format + edge cases.
 
-Schema is 2026-08-31:
+Schema:
   <message>
   <factual_check>          (conditional content)
   <turn_assessment>        (only next_beat)
 
-The per-turn <emotion_event> block was removed 2026-08-31; the tag only
+The per-turn <emotion_event> block was removed; the tag only
 survives as a legacy leak guard in the missing-<message> fallback.
 
 No LLM calls — pure string parsing tests. Run:
@@ -114,12 +114,12 @@ TOKENIZED_TAG_ARTIFACTS = """\
 """
 
 
-# Real LLM drift seen 2026-05-01 (claude-sonnet-4.6 on session_01.close beat 3):
+# Real LLM drift (claude-sonnet-4.6 on session_01.close beat 3):
 # emitted message body without <message>...</message> wrapper but DID emit the
 # other eval-only blocks. Without the safety fallback this leaks eval blocks
 # into PA's input. Regression test for the access-boundary safety strip. The
-# <emotion_event> block below is a LEGACY tag (removed from the schema
-# 2026-08-31) kept here to prove the fallback's leak guard still strips it.
+# <emotion_event> block below is a LEGACY tag (removed from the schema) kept
+# here to prove the fallback's leak guard still strips it.
 MESSAGE_TAGS_MISSING_BUT_EVAL_BLOCKS_PRESENT = """\
 Good. Both corrections are incorporated. The draft is now internally consistent.
 
@@ -209,7 +209,7 @@ def test_multiple_violations() -> None:
 def test_message_tags_missing_strips_eval_blocks_from_fallback() -> None:
     """When LLM drops <message>...</message> tags but emits the other blocks,
     parser MUST strip those out of the message fallback (access-boundary safety).
-    Regression for 2026-05-01 issue: claude-sonnet-4.6 dropped <message> on long
+    Regression: claude-sonnet-4.6 dropped <message> on long
     beat-3 outputs, leaking eval blocks into PA's input. <emotion_event> is a
     legacy tag whose strip must keep working (leak guard, not schema)."""
     out = parse_simulator_output(MESSAGE_TAGS_MISSING_BUT_EVAL_BLOCKS_PRESENT)

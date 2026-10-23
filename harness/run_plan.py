@@ -57,7 +57,7 @@ FULL_TIMELINE_ACTIVE_COUNT = 99
 DEFAULT_MEMORY_RETRIEVAL_MAX_TOKENS = 4000
 DEFAULT_MEMORY_RETRIEVAL_MAX_ITEMS = 10
 #: Completion-token ceiling for every PA request in a run. The provider
-#: dataclass default (4096) cut six replies short in one regress16 session, so
+#: dataclass default (4096) cut six replies short in one session, so
 #: the limit is a frozen plan field rather than a library default nobody sets.
 #: A new plan freezes `budgets.pa_max_tokens` from configs/run_config.yaml;
 #: this value is what a plan file without the key loads with.
@@ -1149,7 +1149,7 @@ class RunPlan(BaseModel):
         A forced-event step is never pinned, structurally. The orchestrator
         flushes the never-compacted turns at a pinned cut point
         (`harness/orchestrator.py:_flush_uncompacted_turns`), and no
-        consolidation pass runs after a forced event (owner rule): its content
+        consolidation pass runs after a forced event: its content
         is swept up at the next accumulation turn end. So when the step before
         a probe is a forced event, the pin falls back to the last accumulation
         step before it rather than landing on the event.

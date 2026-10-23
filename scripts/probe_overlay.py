@@ -41,7 +41,7 @@ def _declared_pairing(draft_path: Path) -> tuple[str | None, str | None]:
     A draft that IS there and cannot be read or parsed raises. This used to be
     `except (OSError, yaml.YAMLError): return None, None`, inherited from
     `harness/orchestrator.py::_probe_pairs_with`, which
-    the 2026-09-08 exemption audit judged a hatch -- "the paired
+    an exemption audit judged a hatch -- "the paired
     fixture overlay silently dropped, so the two halves of an evolving pair face
     different conditions" -- with `raise` as the fix. Silence there is not "we do
     not know", it is the answer "no partner", under which a paired final resolves

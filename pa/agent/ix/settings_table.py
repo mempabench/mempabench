@@ -60,7 +60,7 @@ class SettingRow(BaseModel):
     user_sees: str
     judge_observable: str
     judge_evidence: str
-    #: What the wrapper releases or holds under this setting. Filled in U6.
+    #: What the wrapper releases or holds under this setting.
     wrapper: str | None = None
 
     @field_validator(

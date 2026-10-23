@@ -1,4 +1,4 @@
-"""Tests for M6: PA prompt-context memory adapter integration."""
+"""Tests for PA prompt-context memory adapter integration."""
 
 from __future__ import annotations
 

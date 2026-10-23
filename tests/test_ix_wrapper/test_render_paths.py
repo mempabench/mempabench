@@ -152,7 +152,7 @@ def test_a_second_invalid_binding_delivers_text_and_runs_nothing(loop_factory) -
             ]),
             LLMResponse(content="Doing the hotel.", tool_calls=[payload, unbound]),
             # The closing iteration now runs on this exit too, and this model writes nothing
-            # when it is asked -- which is what left `v7r06` t18 with no message.
+            # when it is asked -- which is what left live t18 with no message.
             LLMResponse(content=None),
         ])
         loop, adapter = loop_factory(provider)
@@ -282,18 +282,18 @@ def test_the_same_batch_id_with_the_same_binding_is_a_resend(loop_factory) -> No
 
 
 def test_a_binding_refusal_gets_its_closing_iteration(loop_factory) -> None:
-    """Item 6 (the closing iteration extended to the binding refusal's fail-closed exit).
+    """The closing iteration extended to the binding refusal's fail-closed exit.
 
-    Live `v7r06` t18: a `binding_invalid` hold took all six calls, the closing
+    Live t18: a `binding_invalid` hold took all six calls, the closing
     iteration was never run on this path, `last_segment` was empty, and the
     entire reply the user received was the loop's placeholder while three reads
     were silently dropped. The closing request now runs here too, with task
     tools gone and held results that name the real problem.
 
-    Round 9 item 2 changed what happens to the model's own closing text: the
-    template line is **appended** to it, never substituted for it. The two
+    The template line is **appended** to the model's own closing text, never
+    substituted for it. The two
     sentences are two different facts — what the PA has to say, and that the
-    steps did not run — and substituting one for the other is how `v8s02` t3
+    steps did not run — and substituting one for the other is how one live turn
     delivered a refusal instead of the four questions it had just declared.
     """
     async def scenario() -> None:
@@ -343,9 +343,9 @@ def test_a_binding_refusal_gets_its_closing_iteration(loop_factory) -> None:
 def test_the_sole_outstanding_item_is_not_written_in_for_an_unbound_call(
     loop_factory,
 ) -> None:
-    """Owner ruling 2026-09-08 — the binding check fails closed, with no hatch.
+    """The binding check fails closed, with no hatch.
 
-    `fa1a428` had the wrapper fill in the `interaction_item_id` the model
+    An earlier version had the wrapper fill in the `interaction_item_id` the model
     omitted whenever the plan left exactly one item outstanding, so a
     world-changing call executed under an id the wrapper picked and a check
     written to refuse it passed instead. One outstanding item is the easiest
@@ -379,7 +379,7 @@ def test_the_sole_outstanding_item_is_not_written_in_for_an_unbound_call(
 def test_the_close_line_is_dropped_when_the_prose_already_admits_the_step(
     loop_factory,
 ) -> None:
-    """acc_039 item 1b — t=22 told the user the same thing twice.
+    """acc_039 t=22 told the user the same thing twice.
 
     The PA's own closing paragraph said the notes update *"didn't complete"* and
     the wrapper appended *"I could not carry out those steps this turn; I will
@@ -423,16 +423,15 @@ def test_the_close_line_is_dropped_when_the_prose_already_admits_the_step(
 
 
 # ---------------------------------------------------------------------------
-# Round 9 item 1 · an empty reply is a miss, whatever emptied it
+# an empty reply is a miss, whatever emptied it
 # ---------------------------------------------------------------------------
 
 def test_the_loop_placeholder_string_is_gone_from_the_pa_package() -> None:
-    """Round 9 item 1, the structural half: the fallback itself was the defect.
+    """The structural half: the fallback itself was the defect.
 
     Three distinct routes to `I've completed processing but have no response to
-    give.` turned up in four rounds — round 5 had none, round 7 the
-    `binding_invalid` fail-closed exit, round 8 (`v8s01` t26) a provider
-    completion with no text and no tool calls at all. Guarding them one at a
+    give.` turned up in live runs, among them the `binding_invalid` fail-closed
+    exit and a provider completion with no text and no tool calls at all. Guarding them one at a
     time was not converging, so the string is not allowed to exist in `pa/`.
     """
     package = Path(__file__).resolve().parents[2] / "pa"
@@ -451,11 +450,11 @@ def test_the_loop_placeholder_string_is_gone_from_the_pa_package() -> None:
 def test_an_empty_provider_completion_buys_one_more_request_then_the_template(
     loop_factory,
 ) -> None:
-    """Round 9 item 1, the runtime half — `v8s01` t26's shape.
+    """The runtime half — the empty provider completion seen live.
 
     The PA returned an empty completion with no tool calls at all, answering a
     two-part instruction the user then heard nothing about: nothing was held, so
-    round 7's reason-specific guard could not fire and the loop's placeholder was
+    the reason-specific guard could not fire and the loop's placeholder was
     the whole reply. The rule now lives at the runner's single exit and is keyed
     on the emptiness, not on the reason: one more request with the task tools
     withdrawn, and the template line only if that comes back empty too.
@@ -519,13 +518,13 @@ def test_a_reply_the_model_writes_on_the_second_ask_is_delivered_as_is(
 
 
 # ---------------------------------------------------------------------------
-# Round 9 item 2 · questions survive a binding refusal
+# questions survive a binding refusal
 # ---------------------------------------------------------------------------
 
 def test_released_questions_survive_a_binding_refusal_on_the_same_turn(
     loop_factory,
 ) -> None:
-    """Round 9 item 2 — `v8s02` t3's shape, which cost the run its attribute.
+    """A live turn's shape, which cost the run its attribute.
 
     Under `Structured` the PA declared its questions *and* bound its task calls
     to the question ids. The binding check refused the batch, and the close line
@@ -602,13 +601,13 @@ def test_released_questions_survive_a_binding_refusal_on_the_same_turn(
 
 
 # ---------------------------------------------------------------------------
-# Round 9 item 3 · wrapper vocabulary never reaches the user
+# wrapper vocabulary never reaches the user
 # ---------------------------------------------------------------------------
 
 def test_a_sentence_that_names_the_wrapper_is_withheld_from_the_user(
     loop_factory,
 ) -> None:
-    """Round 9 item 3 — `v8s02` t5, the first meta leak in six rounds.
+    """The first meta leak seen live.
 
     The whole reply was the PA explaining the hold protocol to the person it is
     assisting, and explaining it wrong (`interaction_item_id` *is* accepted; the
@@ -648,8 +647,8 @@ def test_a_sentence_that_names_the_wrapper_is_withheld_from_the_user(
 def test_a_reply_that_is_only_wrapper_talk_is_asked_again(loop_factory) -> None:
     """The two rules meet: filtering a turn empty is an empty turn.
 
-    `v8s02` t5 had nothing else in it. Withholding the sentence leaves the turn
-    with no user-facing text, which is exactly the condition item 1 answers —
+    The live turn had nothing else in it. Withholding the sentence leaves the turn
+    with no user-facing text, which is exactly the condition the empty-reply rule answers —
     one more request, and the template line only if that fails too.
     """
     async def scenario() -> None:
@@ -834,7 +833,7 @@ def _internal_prompts(provider: ScriptProvider) -> list[str]:
 def test_a_narrating_turn_without_a_notice_is_asked_for_its_opening_line(
     loop_factory, setting: str
 ) -> None:
-    """Owner decision 2026-09-07 (regress5 acc_003 t=3).
+    """acc_003 t=3.
 
     The PA selected Bookend, made its lookups, wrote no `_ix_notice`, and the
     user read a reply with no opening line. The wrapper now asks for the line
@@ -944,10 +943,10 @@ def test_no_opening_line_is_asked_for_where_none_would_show(
 
 
 def test_a_zero_call_turn_holds_the_closing_line(loop_factory) -> None:
-    """Owner decision 2026-09-07 (regress5 acc_003): no task call, no closing line.
+    """acc_003: no task call, no closing line.
 
     Three text-only turns each shipped the PA's own closing prose and then the
-    `completion_message` again; a fourth (regress3 t=20) shipped the closing
+    `completion_message` again; a fourth (t=20) shipped the closing
     line over no work at all. The field is still recorded for the audit plane.
     """
     async def scenario() -> None:
@@ -1009,8 +1008,8 @@ def test_completion_released_reports_what_the_reply_carried(
             active_ix = ["autonomy_level", *active_ix]
             action_types["task_send"] = "external_action"
         else:
-            # The closing line is only released over a task call (owner
-            # decision 2026-09-07); the ungated turn does one read.
+            # The closing line is only released over a task call; the
+            # ungated turn does one read.
             calls = [
                 task_call("r1", "task_search", "", notice="Checking Monday first."),
                 *calls,
@@ -1306,7 +1305,7 @@ def test_a_rationale_written_about_the_user_is_asked_for_again(
 ) -> None:
     """acc_011 t=27 — the reply opened by talking about the reader.
 
-    Round 2 fixed this by wording, round 3 held, round 4 lost it, and no counter
+    Wording fixed this for a while and then lost it, and no counter
     could see it: the call was well-formed, so `ix_contract_failure` stayed 0.
     The wrapper asks; it never writes the reasons.
     """
@@ -1546,7 +1545,7 @@ def _block_provider(setting: str, reply: str = BLOCK_REPLY) -> ScriptProvider:
 def test_the_trailing_block_carries_the_certainties(
     loop_factory, setting: str, expected: list[str]
 ) -> None:
-    """round 3 finding 1/2: the tool call cannot quote prose that does not exist yet.
+    """The tool call cannot quote prose that does not exist yet.
 
     The block is written *after* the answer, so the span it names is text the
     model has already produced — which is what makes the claim locatable at all.
@@ -1609,7 +1608,7 @@ def test_the_block_reaches_no_projection_but_the_audit_one(loop_factory) -> None
 
 
 def test_hide_withholds_a_located_block_claim_and_says_which(loop_factory) -> None:
-    """round 3 finding 4: `Hide` has to be falsifiable from `ix_render` alone.
+    """`Hide` has to be falsifiable from `ix_render` alone.
 
     "Located every claim and suppressed it" and "found none" used to read the
     same — empty `rendered` on every row and a `0/N` summary line.
@@ -1950,7 +1949,7 @@ def test_information_elicitation_release_and_questions_gate(
 def test_an_exposed_attribute_that_is_never_selected_never_renders(loop_factory) -> None:
     """The unset fallback is unreachable for an attribute exposed this session.
 
-    2026-09-06 owner rule: with the neutral option gone the PA must commit to a
+    With the neutral option gone the PA must commit to a
     named setting, so "no selection" is not an answer the model may give — it is
     only the state of an attribute this session never exposed. `IX_<attribute>`
     is `required == "always"`, and a turn that keeps refusing it fails the render
@@ -2464,8 +2463,8 @@ def test_a_claim_the_locator_cannot_place_is_recorded(loop_factory) -> None:
 
     No hedge is inserted, so that claim ships flat; nothing counted it, which is
     how a `claim_end` gap ate the first `low` claim in four rounds without
-    anyone noticing until the read. regress13 made it one row per claim with the
-    `claim` head on it: the four drops of that session sat in two `refs` lists,
+    anyone noticing until the read. The trace is one row per claim with the
+    `claim` head on it: the four drops of one live session sat in two `refs` lists,
     and the head is what shows the read that three of them were sentences out of
     an *earlier* turn's reply rather than locator misses.
     """
@@ -2502,7 +2501,7 @@ def test_a_claim_the_locator_cannot_place_is_recorded(loop_factory) -> None:
 
 
 def test_every_declared_certainty_dropped_is_re_asked_once(loop_factory) -> None:
-    """regress13 acc_035 t=7 — three declared, `annotated 0/3`, a plain reply.
+    """acc_035 t=7 — three declared, `annotated 0/3`, a plain reply.
 
     The Express surface vanished from the very turn the reception beat reads,
     and the actor approved a reply with no hedges in it. The read says the
@@ -2553,10 +2552,10 @@ def test_every_declared_certainty_dropped_is_re_asked_once(loop_factory) -> None
 def test_a_second_all_dropped_turn_is_recorded_and_the_step_continues(
     loop_factory,
 ) -> None:
-    """Owner ruling 4 (2026-09-08) — the other half of the rule, softened.
+    """The other half of the rule, softened.
 
     The second all-drop used to raise out of the loop: no turn persisted, the
-    step failed and was retried, and regress14 spent a whole rerun of acc_035 on
+    step failed and was retried, and one run spent a whole rerun of acc_035 on
     one turn's slip. The reply now ships and the failure is an event, because
     the wrapper's own answer to an unplaced claim is to append nothing -- so
     what the abort bought was a lost run, not a different surface.
@@ -2662,7 +2661,7 @@ def test_a_dropped_claim_under_hide_is_never_re_asked(loop_factory) -> None:
 
 
 def test_a_dangling_lead_in_is_dropped_and_recorded(loop_factory) -> None:
-    """regress13 acc_009 t=10 — the whole delivered turn was a colon.
+    """acc_009 t=10 — the whole delivered turn was a colon.
 
     Under `Infer` the release is 0/2, so the questions the PA wrote came out and
     the sentence introducing them shipped alone; the user read *"…I need two
@@ -2712,7 +2711,7 @@ def test_a_turn_that_is_only_a_lead_in_is_re_asked_not_leaked(loop_factory) -> N
     message read the model's *raw* text, which still carries every excised
     section — so before `prose_held` a fully-held `Infer` turn with no framing
     handed the user both withheld questions verbatim. Now the turn takes the
-    round 9 item 1 re-ask and the PA writes what it can say without them.
+    empty-reply re-ask and the PA writes what it can say without them.
     """
     async def scenario() -> None:
         provider = ScriptProvider([
@@ -2748,7 +2747,7 @@ def test_a_turn_that_is_only_a_lead_in_is_re_asked_not_leaked(loop_factory) -> N
 
 
 def test_the_repair_prompt_s_own_words_never_reach_the_user(loop_factory) -> None:
-    """regress13 acc_009 t=17 — `Here's the corrected turn:` as the delivered message.
+    """acc_009 t=17 — `Here's the corrected turn:` as the delivered message.
 
     Nothing in the wrapper writes that sentence: it is the model reading
     `NO_META_ACKNOWLEDGEMENT` ("simply produce the corrected turn"), sent with
@@ -2893,7 +2892,7 @@ def test_a_reply_that_is_only_tool_call_markup_is_re_prompted(loop_factory) -> N
     run(scenario())
 
 
-#: regress5 acc_006 t13, verbatim — and it stops mid-JSON, mid-parameter, with no
+#: acc_006 t13, verbatim — and it stops mid-JSON, mid-parameter, with no
 #: closing tag of any kind: the model ran out of completion tokens inside its own
 #: argument list. Nothing here can be turned into a call.
 ACC_006_T13_TRUNCATED = (
@@ -2912,7 +2911,7 @@ ACC_006_T13_TRUNCATED = (
 def test_a_turn_that_typed_out_its_calls_never_ships_the_empty_reply_template(
     loop_factory,
 ) -> None:
-    """regress5 acc_006 t13/t16/t20/t26 — the defect this P0 is named after.
+    """acc_006 t13/t16/t20/t26 — the defect this test is named after.
 
     Four turns whose whole reply was tool-call syntax were stripped to nothing
     and then shipped `I have nothing further to report on that just now.` The PA
@@ -2984,7 +2983,7 @@ def test_a_turn_whose_calls_were_recovered_ships_no_template_either(
 def test_a_turn_with_no_markup_still_gets_the_template(loop_factory) -> None:
     """The guard on the rule above: an ordinary silent turn is unchanged.
 
-    `v8s01` t26's shape has no markup anywhere in it, and the template line is
+    The live empty completion has no markup anywhere in it, and the template line is
     the right answer there — the PA really did have nothing to say.
     """
     async def scenario() -> None:

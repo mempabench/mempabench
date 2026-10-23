@@ -6,7 +6,7 @@ There is **one text per attribute x setting**. It lives in
 `IXToolSpec.setting_descriptions` here, attributes in the document order. The IX
 selection tool descriptions (`pa/agent/ix/tools.py`) and the per-turn restatement
 (`collector.turn_reminder_message`) read the same dict; `pa/agent/ix/policy.py`'s
-six directive texts are retired by P2.
+six directive texts are retired.
 
 The prose answers "what does this setting look like *after* the renderer" for the
 eight rendered attributes (`render_types.RENDERED_ATTRIBUTES`) and
@@ -24,7 +24,7 @@ from pa.agent.ix.render_types import (
 )
 from pa.agent.ix.settings_table import load_setting_definitions
 
-#: Round 9 item 3 — the clause that keeps the wrapper's own vocabulary off the
+#: The clause that keeps the wrapper's own vocabulary off the
 #: user's screen. It lives here, beside the other shared model-facing notes,
 #: because two standing texts need it and `collector.py` — which re-exports it
 #: for the repair messages — imports this module, not the other way round.
@@ -33,7 +33,7 @@ from pa.agent.ix.settings_table import load_setting_definitions
 #: user-visible prose puts the PA in the position of apologising to something the
 #: user never said (live: `You're right — … Let me re-send that`). The collector
 #: drops such an opening if it appears anyway.
-#: The second clause is round-2 `acc_019`: three replies narrated the
+#: The second clause is `acc_019`: three replies narrated the
 #: guidance-level choice back to the user ("Glosses Gaussian process regression
 #: once on first use", "the one-gloss-once preference is satisfied", "No domain
 #: terms needed glossing here — you're deep in the physics"). The setting is
@@ -45,7 +45,7 @@ NO_WRAPPER_TALK = (
     "level for it."
 )
 
-#: regress18 `acc_009` t=4 and `acc_006` t=7 — two replies that narrated the
+#: `acc_009` t=4 and `acc_006` t=7 — two replies that narrated the
 #: mechanism to the user in the wrapper's own words: *"Great, all four questions
 #: have been released."* and *"so it stays within the Low boundary."* Neither
 #: turn carried `NO_WRAPPER_TALK`, because it rode only on the repair messages —
@@ -94,7 +94,7 @@ READINESS_QUESTION_NOTE = (
 #: immediately"* and the PA ran the reservation, the calendar update **and** a
 #: `message_send` telling Marcus the earlier options were void. Marcus got three
 #: texts in a session whose draft specifies one, and the thread contradicts
-#: itself. Round 4's readiness rule above closed the question route; this closes
+#: itself. The readiness rule above closed the question route; this closes
 #: the over-eagerness route, and it sits in the base guidelines for the same
 #: reason: no `autonomy_level` was cued, so the policy string was empty and the
 #: `external_action_floor` never armed. The floor itself is untouched.
@@ -120,7 +120,7 @@ UNMARKED_PROSE_NOTE = (
 class IXToolSpec:
     """One passive interaction preference selection tool.
 
-    `required` is the P0 "response-evaluated conditionally-required" slot:
+    `required` is the "response-evaluated conditionally-required" slot:
     `always` (the selection tools), `never`, or `predicate` plus a named
     `required_predicate` evaluated against a `RequiredContext` once this turn's
     provider response is in hand.
@@ -175,6 +175,6 @@ def ix_tool_names_for(active_preferences: list[str] | tuple[str, ...] | None) ->
 #: restatement rather than by the renderer: the six pass-through ones, plus
 #: `autonomy_level` when the chosen setting is the one gate-off setting (a
 #: gating setting carries itself, so restating it would only leak the gate).
-#: 2026-09-05: the middle setting was merged into `Self-directed`, which now
+#: The middle setting was merged into `Self-directed`, which now
 #: gates, so `Autonomous` is the only setting left with no carrier of its own.
 RESTATED_AUTONOMY_SETTINGS: frozenset[str] = frozenset({"Autonomous"})

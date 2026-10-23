@@ -60,7 +60,7 @@ def test_a_string_that_is_not_a_reference_attempt_is_left_alone(value: str):
     assert resolve_refs({"note": value}, {}) == {"note": value}
 
 
-# Owner, 2026-09-11: a dictated gate value may be EMBEDDED in a larger argument
+# A dictated gate value may be EMBEDDED in a larger argument
 # -- the body a draft writes around `$task_facts.<key>`. The reference stays
 # verbatim in the draft and resolves in place at run time.
 def test_an_embedded_task_fact_reference_is_read_and_substituted_in_place():
@@ -91,7 +91,7 @@ def test_an_embedded_task_fact_reference_is_read_and_substituted_in_place():
 def test_an_embedded_reference_at_the_head_of_a_template_is_not_a_broken_ref():
     from harness.tool_refs import resolve_task_fact_refs
 
-    # `REF_ATTEMPT_RE` matches this string, so before the ruling it raised.
+    # `REF_ATTEMPT_RE` matches this string, so it used to raise.
     arguments = {"content": "$task_facts.visit_note -- please file it."}
 
     assert refs_in(arguments) == {}
@@ -119,7 +119,7 @@ def test_a_nested_embedded_reference_resolves():
     ) == {"content": "See ~/Drafts/intro.md now."}
 
 
-# Owner, 2026-09-17 (ruling 22): a reference may also sit in a LIST element.
+# A reference may also sit in a LIST element.
 # `email_message_send.attachments` is an array of state-relative paths, and the
 # path an earlier read returns is the only non-brittle way to name the file --
 # writing the path out is what the draft path rules forbid. Before this, the
@@ -196,7 +196,7 @@ def test_resolving_a_list_ref_does_not_mutate_the_caller_s_list():
     assert original == ["$read_packet.path"]
 
 
-# Owner, 2026-09-20: `$<step>.files[<state-relative path>]`. A folder listing is
+# `$<step>.files[<state-relative path>]`. A folder listing is
 # the one place a fixed index is a STRUCTURAL error rather than an off-by-one.
 # The three worlds below are the same folder, `documents/bistro`, at three real
 # moments of user_b's arc, and `documents/bistro/tipout_and_paystubs.md` sits at
@@ -235,8 +235,7 @@ _WORLD_PLUS_TWO = sorted(
     ]
 )
 
-# Read off the live checkpoint at
-# MemPA-runs/.../ub_mem0_gpt_5_6_sol_20260919/checkpoints/acc_074/canonical_stage.
+# Read off the live run's acc_074 checkpoint (`canonical_stage`).
 _WORLD_LIVE = [
     "documents/bistro/allergen_sheet.md",
     "documents/bistro/bar_count_sheet.md",
@@ -310,7 +309,7 @@ def test_a_selector_that_names_no_returned_path_is_an_error_naming_the_list():
 
 
 def test_a_selector_matching_more_than_one_returned_path_is_ambiguous():
-    """Owner's third limit: a tie fails rather than picking one."""
+    """The selector's third limit: a tie fails rather than picking one."""
     doubled = _WORLD_L0 + [_TARGET]
 
     with pytest.raises(ToolRefError) as excinfo:
@@ -377,7 +376,7 @@ def test_a_selector_outside_the_grammar_is_a_hard_error_not_a_literal(value: str
     assert "reads as a reference but does not parse" in str(excinfo.value)
 
 
-# acc_089 adopts the selector on the same ruling, on a second folder. `my_desktop`
+# acc_089 adopts the same selector, on a second folder. `my_desktop`
 # holds five files in the L0 fixture with `expense_log.md` alphabetically first,
 # and acc_074 -- earlier in the arc -- creates `my_desktop/brian_gift_shortlist.md`,
 # which sorts ahead of it. So `files.0` names the expense log before acc_074 and

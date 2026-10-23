@@ -941,7 +941,7 @@ def _cued_script(cue_beat: str = "b2_clarify_context") -> SessionScript:
 
 
 def test_the_cue_moves_to_the_beat_the_jump_landed_on():
-    """Live regress19 `acc_003`: `b1` spent its turns, the jump skipped `b2` --
+    """Live `acc_003`: `b1` spent its turns, the jump skipped `b2` --
     the cue beat -- and the cue never reached the PA, which then asked for the
     year line instead of the note."""
     script = _cued_script()
@@ -990,10 +990,10 @@ def test_a_script_owing_its_cue_on_no_beat_gets_no_hook():
 
 
 # ── the marker that closes a compressed session to writes ─────────
-# Owner ruling 2026-09-09. A compressed session is the probe beat plus one
+# A compressed session is the probe beat plus one
 # reaction and ends with the PA's reply to the reaction, so the PA's final turn
-# must not write: rule E says the reaction beat never asks for a product, and
-# nothing scores that turn anyway. Live regress19 `acc_035` t8 executed an
+# must not write: the reaction beat never asks for a product, and
+# nothing scores that turn anyway. Live `acc_035` t8 executed an
 # offer the user never answered there. The harness arms it the same way it
 # opens a gate -- a marker file in the state root -- on the `simulator_turn`
 # that carries the reaction beat's message, which the loop emits before it
@@ -1093,8 +1093,8 @@ def test_the_triggered_openings_played_beat_closes_the_session(tmp_path: Path):
     """`acc_007`: the outreach turn emits `pa_turn` and no `beat_enter`.
 
     So the played opening is still the first beat entered, and the PA's reply
-    to it -- the turn regress19 would have let write -- runs closed. The PA's
-    own outreach turn, before any beat, is not.
+    to it -- the turn an earlier version would have let write -- runs closed.
+    The PA's own outreach turn, before any beat, is not.
     """
     step = _compressed_step(tmp_path, 1)
     hook = session_closing_hook(step)

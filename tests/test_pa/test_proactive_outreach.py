@@ -149,7 +149,7 @@ def test_environment_event_can_be_suppressed_without_user_message(tmp_path: Path
             for message in persisted
         )
         assert persisted == []
-        # Q2 = A: journal-only. The suppressed turn writes one pool and no
+        # Journal-only: the suppressed turn writes one pool and no
         # session message, so nothing synthetic re-enters the PA's prompt --
         # but the decision to stay silent is recorded, because
         # `proactive_outreach` is scored on exactly that decision.
@@ -246,7 +246,7 @@ def test_each_environment_trigger_requires_a_fresh_outreach_decision(tmp_path: P
 
 
 # --- MEMPA_VERIFY_OUTREACH ---------------------------------------------------
-# Owner-approved verification aid (2026-09-08): acc_007 has run nine rounds and
+# A verification aid: acc_007 has run nine rounds and
 # the PA chose `send` every time, so `opening_after_suppress` has never been
 # exercised. The knob forces the branch; these tests are what keep it from
 # being usable by accident.

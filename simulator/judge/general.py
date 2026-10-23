@@ -42,8 +42,8 @@ from simulator.judge.guards import VERDICT_VALUES
 #: quoted back to the author in the words the author wrote.
 _CLAUSE_SPLIT_RE = re.compile(r"(?<=[.!?])\s*")
 
-#: `avoid` clauses per call. Measured on 主-解读's step-0 gate_cue replay
-#: 2026-09-09 (deadline 60, load average 11-14): one question 7.6 s mean, five
+#: `avoid` clauses per call. Measured on a gate_cue replay
+#: (deadline 60, load average 11-14): one question 7.6 s mean, five
 #: 26.0 s, ten 32.1 s, and 13 of ~50 rows failed — on quote and JSON length,
 #: not on time, with one bad quote voiding and re-asking all ten answers. At
 #: most four per call is about 15 s, and a bad quote re-asks only its chunk;
@@ -55,20 +55,20 @@ _AVOID_LEAD = (
     "The line must not do what this clause describes. The clause is the "
     "author's summary, not words to look for or quote. "
     # The ban read as a requirement: the judge answered `violated` because the
-    # line did NOT do the banned thing (9 of 24 avoid FPs, memos r2 live round,
-    # 2026-09-15 — e.g. acc_031 `beat_4_probe_order_and_settle`, reason "does
+    # line did NOT do the banned thing (9 of 24 avoid FPs in a live run
+    # — e.g. acc_031 `beat_4_probe_order_and_settle`, reason "does
     # not authorize … which is exactly what the avoid clause describes").
     "The clause describes what the line must not do: a line that refrains "
     "from it, or does the opposite, has obeyed it, and obeying the clause is "
     "never a violation. "
-    # Commented out, owner ruling 2026-09-14: a scope-note clause is a draft defect.
+    # Commented out: a scope-note clause is a draft defect.
     # "Some clauses only say "
     # "what this turn is about, judges, or evaluates: a clause like that forbids "
     # "nothing, so answer obeyed with empty evidence. "
     "<beat_goal> names the "
     "thing the line is there to evaluate, and saying how that thing landed — "
     "its reasons and its wording included — is obeyed. "
-    # Commented out, owner ruling 2026-09-14: read as a standalone ban (32/33 FP).
+    # Commented out: read as a standalone ban (32/33 FP).
     # "Every other act this "
     # "clause bans is still violated even where the goal touches it: telling "
     # "the assistant to proceed or what to do next, prescribing length or "
@@ -124,8 +124,7 @@ def build_general_groups(ctx: TurnContext) -> list[QuestionGroup]:
         head.append(
             # `obeyed` quotes: the turn did the thing, so the words are in it.
             # `violated` is the absence — the instruction was not followed and
-            # there is nothing in the turn to point at (owner ruling
-            # 2026-09-09, "没违反不引用").
+            # there is nothing in the turn to point at.
             Question(
                 "user_instruction",
                 f"{_INSTRUCTION_LEAD} {ctx.beat_user_instruction}",
@@ -155,7 +154,7 @@ def build_general_groups(ctx: TurnContext) -> list[QuestionGroup]:
     # validator which beat measures the attribute's surface
     # (`_REACTION_SCOPE_SENTENCE`, scripts/validate_normal_event.py). It is not
     # a ban, but the judge read it as one and answered `violated` on the very
-    # behaviour the beat measures (20 of 28 residual avoid FPs, 2026-09-14 live
+    # behaviour the beat measures (20 of 28 residual avoid FPs in a live
     # round). It is dropped here; the kept clauses hold their global index so
     # diagnostics and replays stay comparable.
     kept = [
@@ -168,8 +167,8 @@ def build_general_groups(ctx: TurnContext) -> list[QuestionGroup]:
         # What the beat is FOR, once per chunk. Without it the judge fired
         # `violated` on the very behaviour the beat exists to measure —
         # reacting to confidence tagging read as commenting on derivations,
-        # saying how an unprompted message landed read as judging tone (owner
-        # labels, 2026-09-12). At runtime `beat_intent` is the beat's
+        # saying how an unprompted message landed read as judging tone.
+        # At runtime `beat_intent` is the beat's
         # `user_instruction` (schemas.py:832,850; agent/loop.py:370-373); the
         # second name is only for contexts built without an intent.
         goal = (ctx.beat_intent or ctx.beat_user_instruction).strip()

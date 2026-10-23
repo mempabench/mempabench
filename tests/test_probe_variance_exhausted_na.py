@@ -1,4 +1,4 @@
-"""Exhausted-attempt Probes: not judged, scored at the floor (owner 2026-10-16)."""
+"""Exhausted-attempt Probes: not judged, scored at the floor."""
 import fcntl
 import json
 from pathlib import Path

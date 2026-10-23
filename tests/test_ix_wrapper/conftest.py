@@ -72,7 +72,7 @@ class RefusingTool(EchoTool):
     """A tool the world refuses: the call runs, the act does not happen.
 
     The shape live `appointment_create` returns when the store gate rejects an
-    argument (regress15/16 acc_039) -- `ok: false`, which `_tool_result_error`
+    argument (acc_039) -- `ok: false`, which `_tool_result_error`
     reads as `status="error"`.
     """
 

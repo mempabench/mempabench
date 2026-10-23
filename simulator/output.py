@@ -3,21 +3,21 @@
 Decoupled module — knows nothing about prompt templates, LLM providers, or schemas.
 Pure string-in / dataclass-out.
 
-Under the "Factual Reporter / dual-assessment architecture" (2026-08-31 schema):
+Under the "Factual Reporter / dual-assessment architecture":
   <message>            — PA-visible dialog (always present)
   <factual_check>      — eval-only, conditional (empty when no PA fact errors)
   <turn_assessment>    — eval-only, every turn — next_beat + goal_already_met
-  <consent_decisions>  — eval-only, conditional (2026-09-05):
+  <consent_decisions>  — eval-only, conditional:
                          the PA-blind consent sideband. One entry per held item
                          the PA's last message asked this user to approve.
 
 Access boundary (PA blindness for the latter three) is enforced in harness/,
 not here. This module just parses; downstream decides who sees what.
 
-The per-turn <emotion_event> block was removed 2026-08-31 — the session-end
-self-report is the only emotion/experience source. Earlier (2026-05-01) the
+The per-turn <emotion_event> block was removed — the session-end
+self-report is the only emotion/experience source. Earlier the
 per-turn eval fields preference_met / attitude_delta / trust_delta moved to
-session end for the same reason. See MemPABench_Evaluation_Metrics.md.
+session end for the same reason.
 """
 
 from __future__ import annotations
@@ -137,7 +137,7 @@ class SimulatorOutput:
     diagnostics: list[str] = field(default_factory=list)
     # What a diagnostic fired on, keyed by its name — the part of the verdict
     # a bare name loses. `probe_fact_missing` is the case it was added for:
-    # regress21 `acc_027` recorded it twice with no key, and both reads had to
+    # `acc_027` recorded it twice with no key, and both reads had to
     # re-derive the keys against the draft by hand.
     diagnostics_detail: dict[str, list[str]] = field(default_factory=dict)
 
@@ -166,8 +166,8 @@ class SimulatorOutputContractError(RuntimeError):
         )
 
 
-#: The simulator-side rules that end a session as invalid (owner ruling
-#: 2026-09-08). The first two were play-anyway hatches:
+#: The simulator-side rules that end a session as invalid.
+#: The first two were play-anyway hatches:
 #: the beat whose scripted ask never reached the PA, and the three-block output
 #: that never parsed and was played on a defaulted `next_beat`. The third is the
 #: same failure one step further on: the dictation the session gate is keyed on,
@@ -202,7 +202,7 @@ class SessionInvalidError(RuntimeError):
     budget is spent, nothing is delivered to the PA, and the session ends on
     `session_invalid` rather than `session_end`. The PA's own contract failures
     are the other way round — the PA is the subject, so those stay
-    continue-and-record (ruling 4).
+    continue-and-record.
     """
 
     def __init__(self, rule: str, *, beat: str, attempts: int) -> None:

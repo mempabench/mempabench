@@ -1,4 +1,4 @@
-"""Text-face judge packing — P7 T11 (banned-field / banned-string).
+"""Text-face judge packing — T11 (banned-field / banned-string).
 
 Pure data, no LLM. Run:
     PYTHONPATH=. python -m pytest tests/test_harness/test_judge_pack.py
@@ -192,7 +192,7 @@ def test_pack_never_carries_the_consent_sideband() -> None:
     PA-blind like `factual_check` and `turn_assessment`. The whitelist is what
     keeps it out — a `simulator_turn` contributes its `t` / `beat` / `text` and
     nothing else — and this test is what keeps that true when the whitelist is
-    next edited. R10 added the key to `TEXT_JUDGE_BANNED_KEYS` as well, so the
+    next edited. The key is in `TEXT_JUDGE_BANNED_KEYS` as well, so the
     assembly scan now catches it on any path the whitelist does not cover.
     """
     events = _session_events()
@@ -216,7 +216,7 @@ def test_pack_never_carries_the_consent_sideband() -> None:
 
 
 def test_meta_is_reduced_to_the_text_face_allow_list() -> None:
-    """R10: `meta` was copied verbatim, so the caller's whole metadata dict rode in.
+    """`meta` was copied verbatim, so the caller's whole metadata dict rode in.
 
     `thinking_blocks` is the fourth provider-reasoning path, `consent_decisions`
     is the gate's PA-blind ground truth (and `id` is an alias
@@ -254,7 +254,7 @@ def test_meta_is_reduced_to_the_text_face_allow_list() -> None:
 
 
 def test_the_assembly_scan_refuses_a_leak_the_whitelists_missed() -> None:
-    """R10: the two scans now run on the finished object, every time.
+    """The two scans now run on the finished object, every time.
 
     A banned key nested inside a tool argument survives `_strip_injected_fields`
     (which only looks at the top level of `args`), so it is exactly the case the
@@ -327,9 +327,7 @@ def test_free_text_is_only_scanned_for_the_needles_it_is_given() -> None:
 
 
 def test_a_document_the_pa_wrote_is_prose_not_a_setting_leak() -> None:
-    """`measurements_render.md` Finding 6.
-
-    Both acc_011 runs reported one structural hit on a `document_create` whose
+    """Both acc_011 runs reported one structural hit on a `document_create` whose
     body said "Low priority". The argument is PA prose in exactly the sense
     `public_turn` is, so the vocabulary scan has no business there.
     """
@@ -531,7 +529,7 @@ def test_audit_event_names_are_control_vocabulary_but_ix_is_not_a_prefix() -> No
 
 
 def test_text_judge_projection_keeps_executed_calls_only() -> None:
-    """The P0 stub's contract, implemented in P4."""
+    """The contract of the `render_types` stub, as the packer implements it."""
     rendered = RenderedTurn(
         message="I read your note. Shall I send it?",
         executed_call_ids=["call_read"],
@@ -835,7 +833,7 @@ def test_a_simulator_turn_contributes_only_t_beat_and_text() -> None:
 
 
 # ------------------------------------------------------------------------------
-# 2026-09-17 input boundary — tool_log allow-list, proactive exception
+# Input boundary — tool_log allow-list, proactive exception
 # ------------------------------------------------------------------------------
 
 from harness.judge_pack import (  # noqa: E402

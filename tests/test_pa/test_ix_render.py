@@ -1,4 +1,4 @@
-"""P1 · the pure renderer: one case per rendered attribute per setting.
+"""The pure renderer: one case per rendered attribute per setting.
 
 Also covers the unset fallback every rendered attribute must have. The worked
 examples are the three-batch travel turn, the Dale plan with the email gate,
@@ -88,8 +88,8 @@ def _input(**kwargs) -> IXRenderInput:
     return IXRenderInput(**kwargs)
 
 
-#: One executed task call: the closing line is only released over one (owner
-#: decision 2026-09-07), so the completion tests below give their turn some work.
+#: One executed task call: the closing line is only released over one, so the
+#: completion tests below give their turn some work.
 _TASK_CALL = ToolCallRecord(
     order=0, tool_name="document_update", tool_call_id="c1",
     action_type="internal_write", executed=True,
@@ -270,9 +270,9 @@ def test_completion_message_is_never_taken_from_the_prose() -> None:
 
 @pytest.mark.parametrize("setting", ["Bookend", "Full narration"])
 def test_a_completion_the_prose_already_ends_with_is_not_repeated(setting: str) -> None:
-    """Round-7 finding: the completion sentence shipped twice.
+    """The completion sentence shipped twice.
 
-    Live `v7r01` t13 and t22 under `Full narration` — the model wrote the
+    Live t13 and t22 under `Full narration` — the model wrote the
     sentence as its own closing prose *and* put the same sentence in
     `completion_message`, and the renderer appended the field without looking at
     what the prose already ended with. Three of the five turns were clean, so it
@@ -371,7 +371,7 @@ def test_a_gate_turn_skips_the_completion_line_and_records_why(setting: str) -> 
 
 @pytest.mark.parametrize("in_prose", [False, True])
 def test_a_completion_the_wrapper_filter_strips_is_not_delivered(in_prose: bool) -> None:
-    """The residual after 8edf352 — the flag was set before the filter ran.
+    """The flag was set before the filter ran.
 
     `completion_delivered` is decided while the parts are being assembled, and
     `strip_wrapper_vocabulary` runs afterwards on the joined message. A closing
@@ -608,7 +608,7 @@ def test_information_elicitation_question_release(
     assert [question.id for question in (episode.questions_held if episode else [])] == held
 
 
-#: regress13 acc_009 t=10 verbatim: a sentence that stands on its own, then the
+#: acc_009 t=10 verbatim: a sentence that stands on its own, then the
 #: sentence whose object is the block `Infer` is about to hold.
 LEADIN_QUESTIONS = (
     "Happy to hear the draft structure is acceptable! "
@@ -619,7 +619,7 @@ LEADIN_QUESTIONS = (
 
 
 def test_infer_drops_the_lead_in_the_held_questions_leave_dangling() -> None:
-    """regress13 acc_009 — three turns reached the user as a colon with nothing after it."""
+    """acc_009 — three turns reached the user as a colon with nothing after it."""
     rendered = render(
         _input(segments=[LEADIN_QUESTIONS], payloads=QUESTION_PAYLOADS),
         {"information_elicitation": "Infer"},
@@ -672,7 +672,7 @@ def test_a_lead_in_without_a_colon_goes_on_its_object() -> None:
     assert rendered.leadin_dropped == "I need two details from you."
 
 
-#: regress15 acc_009 t7 verbatim shape: the model wrote its questions as a
+#: acc_009 t7 verbatim shape: the model wrote its questions as a
 #: markdown list and put each `[[q:…]]` marker *inside* the list item, so every
 #: section carries the next item's `- ` on its tail.
 BULLETED_QUESTIONS = (
@@ -685,7 +685,7 @@ BULLETED_QUESTIONS = (
 
 
 def test_a_bulleted_question_list_leaves_no_orphan_bullet_behind() -> None:
-    """regress15 acc_009 t7 — the turn shipped a lead-in and a lone `-`.
+    """acc_009 t7 — the turn shipped a lead-in and a lone `-`.
 
     The excised item's own bullet stayed on the framing, so the lead-in rule
     read the last "sentence" as `-`, matched neither of its two shapes, and left
@@ -933,7 +933,7 @@ def test_a_batch_id_keeps_the_binding_it_was_first_declared_with() -> None:
 
 
 def test_a_new_batch_set_may_re_use_the_item_ids_of_a_closed_one() -> None:
-    """acc_023 t18 — `report_2026_02` opened with `b1`, and round 4 refused it.
+    """acc_023 t18 — `report_2026_02` opened with `b1`, and the wrapper refused it.
 
     A batch id is a handle inside its set, and the `batch_set_id` description
     tells the PA to open a new id once the set has closed. Keying the binding by
@@ -1111,7 +1111,7 @@ def test_a_carried_item_reaches_the_hard_cap_and_is_cancelled() -> None:
 
 
 def test_a_cancelled_call_hold_says_which_call_it_dropped() -> None:
-    """regress15 acc_039 t27 — `ix_hold_forced_close` reported `cancelled: 0`.
+    """acc_039 t27 — `ix_hold_forced_close` reported `cancelled: 0`.
 
     The episode was holding one thing, the held call `apt_book_001`, and
     `_cancelled_entries` only ever looked at batches, questions and plan items.
@@ -1151,7 +1151,7 @@ _HELD_QUESTIONS = [
 
 
 def test_carried_questions_survive_a_turn_with_no_continuation() -> None:
-    """Live `v11s02` acc_009: `q2` / `q3` held on t3 were simply gone on t8.
+    """Live acc_009: `q2` / `q3` held on t3 were simply gone on t8.
 
     The episode was closed with `cancelled: null` and no close line, because
     the questions were read off this turn's holds alone.
@@ -1208,7 +1208,7 @@ def test_a_continuation_that_releases_one_question_leaves_the_other_held() -> No
 
 
 def test_carried_questions_reach_the_cap_and_are_cancelled() -> None:
-    """Owner decision 2026-09-06 — the cap writes no close line.
+    """The cap writes no close line.
 
     The reply is the PA's prose and nothing else. The cancellation is a fact of
     the audit plane: the ids are on the finished episode, `close_line_source` is
@@ -1230,9 +1230,9 @@ def test_carried_questions_reach_the_cap_and_are_cancelled() -> None:
 
 
 def test_a_cap_closed_turn_delivers_the_pa_prose_and_nothing_else() -> None:
-    """Owner decision 2026-09-06: no template text on the force-close.
+    """No template text on the force-close.
 
-    Live `v11s02` t11 answered the held question in prose and the renderer then
+    Live t11 answered the held question in prose and the renderer then
     appended "I have not done meeting_duration; it is on hold." underneath it:
     the reply contradicted itself, and a snake_case intent id reached the user.
     Neither the label, the id, nor the held wording may appear now.
@@ -1311,7 +1311,7 @@ def test_a_fresh_hold_joins_the_carried_ones_without_duplicating_them() -> None:
 
 
 def test_a_bare_release_folds_the_carried_questions_into_the_reply() -> None:
-    """Owner decision 2026-09-06 — `release` alone settles a question.
+    """`release` alone settles a question.
 
     The hold reminder tells the PA that "a reply carrying none of them is
     released whole", so a released question with no `[[q:…]]` marker was asked
@@ -1518,7 +1518,7 @@ def test_trivial_turn_passes_the_final_segment_through() -> None:
     assert rendered.trace  # the audit trail exists even on a trivial turn
 
 
-# --- prose hygiene on a turn that stopped early (round-2 findings 2/4/5) -----
+# --- prose hygiene on a turn that stopped early ------------------------------
 
 
 def test_an_unrecognised_marker_never_reaches_the_user() -> None:
@@ -1535,9 +1535,9 @@ def test_an_unrecognised_marker_never_reaches_the_user() -> None:
 
 
 def test_a_stripped_marker_leaves_no_orphaned_emphasis() -> None:
-    """Round-3 finding 3: the delivered ask was three stray `**` lines.
+    """The delivered ask was three stray `**` lines.
 
-    `v3g05` t3. The model wrote `**[[q1]]** What is …`; the section split takes
+    Live t3. The model wrote `**[[q1]]** What is …`; the section split takes
     the marker *and* the prose after it, so the opening `**` stayed on the
     framing part and the closing `**` opened the question's. Joined back
     together they became emphasis around nothing.
@@ -1563,10 +1563,10 @@ def test_a_stripped_marker_leaves_no_orphaned_emphasis() -> None:
 
 
 def test_a_marker_inside_the_bold_leaves_no_half_delimiter() -> None:
-    """Round-7 finding: round 3's repair does not cover this shape.
+    """The orphan-emphasis repair above does not cover this shape.
 
-    Round 3's case was `**[[q1]]** text` — bold *around the marker*, so both
-    halves ended up adjacent and the empty-pair pass closed them. `v7r07` t3
+    Its case is `**[[q1]]** text` — bold *around the marker*, so both
+    halves ended up adjacent and the empty-pair pass closed them. One live t3
     wrote `**[[q:q1]] Who is Prof. Reyes?**` — bold *spanning the question* —
     so the opening `**` stays on the framing part (removed as an emphasis-only
     line) and the closing `**` is stranded mid-line, where neither of the two
@@ -1591,7 +1591,7 @@ def test_a_marker_inside_the_bold_leaves_no_half_delimiter() -> None:
 
 
 def test_real_bold_survives_the_orphan_cleanup() -> None:
-    """The cleanup only closes pairs the marker emptied (`v3g06` t3's shape)."""
+    """The cleanup only closes pairs the marker emptied (a live turn's shape)."""
     rendered = render(
         _input(
             segments=[
@@ -1608,7 +1608,7 @@ def test_real_bold_survives_the_orphan_cleanup() -> None:
 
 
 def test_a_gate_turn_drops_the_half_sentence_it_stopped_on() -> None:
-    """Round-2 finding 4: `Appointment confirmed! Now let me add it to your`.
+    """`Appointment confirmed! Now let me add it to your`.
 
     The completed sentence in front of it is true and is kept; the ask the gate
     delivers is the message, and it is untouched.
@@ -1637,7 +1637,7 @@ def test_a_finished_sentence_without_a_full_stop_is_left_alone() -> None:
 
 
 def test_an_answer_to_a_repair_message_is_not_delivered() -> None:
-    """Round-2 finding 5: the repair works, but the PA answered it out loud."""
+    """The repair works, but the PA answered it out loud."""
     render_input = replace(
         _gate_turn(),
         segments=[

@@ -1,8 +1,8 @@
-"""The landed journal, plus the smallest resume entry point step 9 still owes.
+"""The landed journal, plus the smallest resume entry point still owed.
 
 It exists to prove one thing: that `test_resume_pool.py`'s assertions are
 satisfiable -- that none of them is an equality the design rejects, and that a
-correct step 9 can turn all three green.
+correct implementation can turn all three green.
 
 `TurnJournal` and `JournalRecord` here are **the real `memory.turn_journal`**,
 re-exported, not a reimplementation: the module has landed, so the faithful
@@ -43,7 +43,7 @@ async def replay_pending_turns(
 ) -> list[str]:
     """Rewrite every pending turn and return the ids, in order.
 
-    Q5, at-least-once: a turn whose adapter write was acknowledged but whose
+    At-least-once: a turn whose adapter write was acknowledged but whose
     state never reached disk is written a second time, and the duplicate is
     left for the backend to absorb. Nothing here dedupes, and the id of every
     rewritten turn is logged.

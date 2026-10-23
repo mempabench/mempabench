@@ -62,7 +62,7 @@ class LLMResponse:
     error_detail: dict[str, Any] | None = None
     dsml_converted: int = 0
     """How many of `tool_calls` were recovered from tool-call syntax the model
-    typed into `content` instead of calling the tool (regress5 acc_006, deepseek
+    typed into `content` instead of calling the tool (acc_006, deepseek
     v4-flash). Zero on every well-behaved response. The runner reads it to
     record `ix_dsml_calls_recovered` and to keep the turn off the empty-reply
     template."""

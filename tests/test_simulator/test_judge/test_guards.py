@@ -156,7 +156,7 @@ def test_question_ids_must_match_exactly():
 
 
 def test_an_empty_reason_is_a_schema_failure():
-    """Regress23 finding 2: ~8 live answers came back with `evidence` and
+    """Live, ~8 answers came back with `evidence` and
     `reason` both empty. Schema-legal, and a replay cannot tell a considered
     `no` from a dropped one."""
     raw = GOOD.replace('"an instruction to the assistant"', '""')
@@ -181,7 +181,7 @@ def test_empty_evidence_on_a_quoting_answer_is_an_evidence_failure():
 
 
 def test_evidence_is_not_checked_on_an_answer_that_asserts_an_absence():
-    """The owner's ruling of 2026-09-09: 没违反不引用. `not_applicable` says the
+    """`not_applicable` says the
     turn puts nothing to the assistant, so whatever the model wrote in
     `evidence` — a reason, a reference, nothing at all — is not read."""
     for written in ("", "the availability question is all he asks for here."):
@@ -273,7 +273,7 @@ def test_a_reference_resolves_to_the_sentence_it_names():
 def test_several_references_resolve_in_the_order_given():
     """Every spelling the format allows: the block named once, named twice, and
     named once with its sentence numbers listed after it — the shape about 1% of
-    this model's answers write (owner ruling, 2026-09-16)."""
+    this model's answers write."""
     block = {"candidate_turn": "Open the file. Then close it. Finally rest."}
     for written in (
         "candidate_turn#3,#1",
@@ -308,7 +308,7 @@ def test_one_number_of_a_listed_pair_that_is_not_there_is_refused():
 
 
 def test_a_quote_where_a_reference_belongs_is_refused():
-    """The failure the ruling of 2026-09-09 is about: the model copied words.
+    """The failure the reference format is about: the model copied words.
     Copied words are not a reference, whether or not they are in the block."""
     for written in ("Update the year field", "Update the year column", "#0"):
         verdict = Verdict("carries_an_ask", "ask", written, "r")
@@ -390,7 +390,7 @@ def _ask_wide(client):
 
 def test_a_cut_reply_is_re_asked_once_at_twice_the_width():
     """Well-formed JSON that stops mid-value cannot be fixed by sending the
-    identical request again; the smoke run of 2026-09-09 spent three 30-second
+    identical request again; a smoke run spent three 30-second
     calls proving it."""
     client = CuttingClient([('{"verdicts": [{"verdict": "yes', True), (GOOD, False)])
     verdicts = _ask_wide(client)
@@ -446,9 +446,9 @@ def test_invalid_evidence_is_re_asked_once_then_raises():
     )
     assert event["evidence"] == "candidate_turn#7"
     assert event["raw_response"] == bad
-    # The re-ask is not the identical request: in the live batch of 2026-09-09
+    # The re-ask is not the identical request: in a live batch
     # every blind re-send came back with the same wrong answer, so this one says
-    # what was wrong with the last one (owner ruling).
+    # what was wrong with the last one.
     first, second = client.prompts
     assert first == "p"
     assert second.startswith("p")
@@ -570,7 +570,7 @@ def test_no_questions_means_no_call():
 
 
 def test_the_schema_forbids_an_empty_reason():
-    """Regress23 finding 2, at the sampler: constrained decoding honours
+    """The empty reason, at the sampler: constrained decoding honours
     `minLength`, so "" cannot come back at all. `verdict_schema` rebuilds the
     item properties per call and must carry the constraint through."""
     from simulator.judge.client import VERDICT_SCHEMA, verdict_schema
@@ -601,7 +601,7 @@ def test_normalise_folds_an_accent_to_its_base_letter():
 
 
 def test_a_respelled_name_costs_nothing_now_the_evidence_is_a_number():
-    """Three of the eight evidence failures of 2026-09-09 were the model
+    """Three of eight live evidence failures were the model
     re-spelling à for ã in an otherwise verbatim quote. A reference has no
     letters to re-spell, and the sentence comes back off the block itself."""
     block = {"candidate_turn": "Brandão is the foundational source."}
@@ -613,7 +613,7 @@ def test_a_respelled_name_costs_nothing_now_the_evidence_is_a_number():
 
 def test_a_blank_reason_is_re_asked_with_feedback_naming_the_question():
     """Decoding is deterministic, so the identical re-ask returns the identical
-    blank `reason` (regress23m/acc_087 died on three of them). The second
+    blank `reason` (acc_087 died on three of them). The second
     request must carry feedback, and a good answer to it must stand."""
     blank = json.dumps(
         {

@@ -381,7 +381,7 @@ def test_exchange_holding_only_an_environment_action_is_rejected(
 ) -> None:
     """A delivered third-party message does not carry an exchange on its own.
 
-    Editorial (owner ruling 2026-09-13, O2): an exchange is a unit of dialogue,
+    Editorial: an exchange is a unit of dialogue,
     and a delivery is not dialogue. Somebody speaks after something arrives --
     the user or the PA -- and an exchange that holds only the arrival is a
     transcript defect, whatever it later contributes to memory (and under the
@@ -514,7 +514,7 @@ def test_authored_held_attempt_is_rejected(tmp_path: Path) -> None:
 def test_exchange_requires_a_spoken_line_and_claims_nothing_about_memory(
     tmp_path: Path,
 ) -> None:
-    """The exchange rule survives the memory-pool ruling as an editorial rule.
+    """The exchange rule survives the memory pool as an editorial rule.
 
     Under the pool a tool call and a third party's words both reach memory, so
     the rule can no longer be justified by what projects to nothing, and its

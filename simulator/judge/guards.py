@@ -1,7 +1,7 @@
 """The mechanical guards around an untrusted judge.
 
 Four failure events, four exceptions, each carrying its event dict. This module
-decides nothing about what happens next: the ladder (Phase 2) maps every one of
+decides nothing about what happens next: the ladder maps every one of
 them onto `SessionInvalidError`. Here they are just raised.
 
 Nothing in this file asks the model anything semantic. It strips fences, checks
@@ -27,7 +27,7 @@ VERDICT_VALUES = ("obeyed", "violated", "not_applicable")
 ASK_GATE_VALUES = ("ask", "not_applicable")
 
 #: Sub-questions — the ones whose answers a compose function reads — answer in
-#: this pair and nothing else (amendment of 2026-09-09). `obeyed` / `violated`
+#: this pair and nothing else. `obeyed` / `violated`
 #: carry a meaning the model acts on: asked whether a turn claims the assistant
 #: never asked, it quoted the denial, wrote "the turn claims that the assistant
 #: failed to ask for details" in its reason, and answered `obeyed`. The
@@ -35,7 +35,7 @@ ASK_GATE_VALUES = ("ask", "not_applicable")
 YES_NO_VALUES = ("yes", "no")
 
 #: `YES_NO_VALUES` plus the answer for a sub-question a previous sub-question
-#: has already emptied of content (audit finding I, 2026-09-12). The frame tells
+#: has already emptied of content. The frame tells
 #: the judge to answer each question on its own, so a question that only makes
 #: sense after another said `yes` needs a way to say "there was nothing to judge"
 #: instead of being told to copy the other one's `no` — a `no` that would then
@@ -56,11 +56,10 @@ PRESENCE_ANSWERS = ("yes", "violated", "ask")
 #: point at words which are in the text. On every other answer nothing is
 #: referenced and nothing is checked: told to quote on an answer that asserts an
 #: ABSENCE — a cue that was not said, a clause that was not broken — the model
-#: writes its reasoning into `evidence` instead (owner ruling 2026-09-09,
-#: "没违反不引用").
+#: writes its reasoning into `evidence` instead.
 #:
-#: Copying was the old form and it is gone (owner ruling 2026-09-09). In the
-#: live batch of that day five of seven session stops were a correct verdict
+#: Copying was the old form and it is gone. In one
+#: live batch five of seven session stops were a correct verdict
 #: thrown away on the copy: the model quoted the question's own text, shortened
 #: a long clause with an ellipsis, paraphrased, or copied a 460-character turn
 #: and dropped one word of it. A number cannot be mistyped that way, and the
@@ -72,9 +71,9 @@ PRESENCE_ANSWERS = ("yes", "violated", "ask")
 MAX_REQUESTS_PER_CALL = 3
 MAX_EVIDENCE_RETRIES = 1
 
-#: What the one evidence re-ask carries (owner ruling 2026-09-09).
-#: The re-ask used to be the identical request sent again, and in the live batch
-#: of that day every one of the three evidence failures came back with the same
+#: What the one evidence re-ask carries.
+#: The re-ask used to be the identical request sent again, and in one live batch
+#: every one of the three evidence failures came back with the same
 #: wrong answer. So it names the question, shows the reference the judge gave
 #: back to it, says what is wrong with that reference, and names the blocks the
 #: question may point at. The blocks themselves are not repeated: they are
@@ -87,7 +86,7 @@ SCHEMA_FEEDBACK = (
 )
 
 #: Decoding is deterministic (temperature 0, prefix cache), so a byte-identical
-#: re-ask returns the byte-identical defective reply: regress23m/acc_087 spent
+#: re-ask returns the byte-identical defective reply: acc_087 spent
 #: three calls on the same blank `reason` before the session died. The schema
 #: cannot forbid whitespace (xgrammar rejects `pattern`), so the retry changes
 #: the prompt instead.
@@ -102,16 +101,16 @@ EVIDENCE_FEEDBACK = (
 )
 
 #: A reply cut off at the token cap is re-asked ONCE, at twice the width, and
-#: never a third time: re-asking the identical request cannot succeed, and the
-#: smoke run of 2026-09-09 spent three 30-second calls proving it before
+#: never a third time: re-asking the identical request cannot succeed, and a
+#: smoke run spent three 30-second calls proving it before
 #: voiding the session. 4096 is the ceiling on that one widening.
 MAX_NUM_PREDICT = 4096
 
 #: Question groups (calls) per candidate generation, not requests: the parse and
 #: evidence retries above are bounded separately.
-#: Worst case measured on the Phase 3 shapes is 13 (a beat that is both a
+#: Worst case measured on the question shapes is 13 (a beat that is both a
 #: read-back first turn and a compressed reaction beat, after the two
-#: diagnostics became live questions), plus one. A placeholder until regress22
+#: diagnostics became live questions), plus one. A placeholder until a full run
 #: gives the real distribution.
 DEFAULT_TURN_BUDGET = 14
 
@@ -185,7 +184,7 @@ class JudgeEvidenceInvalid(JudgeFailure):
     truncated: the candidate turn the judge read is dropped with the attempt,
     so this event is the only copy.
 
-    Since the owner's ruling of 2026-09-09 this no longer voids the session:
+    This no longer voids the session:
     `JudgeSession.ask` records it and releases the turn (no verdict, so no
     finding from that group). It is still raised here — the guards decide
     nothing about what happens next.
@@ -351,7 +350,7 @@ def parse_refs(evidence: str) -> list[tuple[str, int]]:
     `"candidate_turn#2,3"` is that same list: a piece that is a bare number
     continues the block named before it, so one pointer may list several
     sentence numbers of its block. About 1% of this model's answers write that
-    shape (owner ruling, 2026-09-16); every number in it still has to resolve.
+    shape; every number in it still has to resolve.
 
     Raises `ValueError` with the half-sentence the re-ask shows the judge.
     """
@@ -444,7 +443,7 @@ def parse_verdicts(
             raise JudgeSchemaError(f"{question_id}: evidence and reason must be strings")
         # A blank `reason` is a dropped answer, not a considered one: ~8 live
         # answers came back with both fields empty and no replay could tell
-        # the two apart (regress23 read, finding 2). The schema's `minLength`
+        # the two apart. The schema's `minLength`
         # stops "" at the sampler; this stops " " and "\n", which it does not,
         # and `withheld_fact_before_ask` needs a first word to read.
         if not reason.strip():

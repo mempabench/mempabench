@@ -213,7 +213,7 @@ def test_num_predict_follows_the_schema_width(captured):
 
 def test_num_predict_is_sized_from_the_question_count(captured):
     """The tier is a floor. A two-question wide group spent all 600 on q1 and
-    was cut mid-value in q2 three times over (smoke run, 2026-09-09)."""
+    was cut mid-value in q2 three times over (smoke run)."""
     client = JudgeClient()
     pair = {"rule__q1": ("yes", "no"), "rule__q2": ("yes", "no")}
     client.generate(system="s", prompt="p", allowed=pair, num_predict_kind="wide")

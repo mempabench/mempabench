@@ -91,8 +91,8 @@ def resolve_session_gate(
 ) -> dict[str, Any] | None:
     """This draft's gate, or None when the session is allowed not to have one.
 
-    A forced `evolv_*` script resolves through the same path as an `acc_*` one
-    (owner, 2026-09-11): the outline now carries an entry for each of the five
+    A forced `evolv_*` script resolves through the same path as an `acc_*` one:
+    the outline now carries an entry for each of the five
     forced accs, two of which declare a `dictated_text` gate, and the artifact
     names that acc itself (`source_acc_num`). Nothing here is FE-specific
     beyond reading the identity off `event` / `event_meta` instead of `meta`.
@@ -114,8 +114,8 @@ def resolve_session_gate(
     `TAXONOMY - COMPRESSED_ATTRIBUTES`, so a probe carries a gate on exactly
     the attributes an acc session does.
 
-    Everything else raises. `probe.no_gate_reason` is abolished (owner,
-    2026-09-08): every uncompressed entry carries a dictated_text gate, so an
+    Everything else raises. `probe.no_gate_reason` is abolished: every
+    uncompressed entry carries a dictated_text gate, so an
     uncompressed session with none is a hole, not a gateless session. So are an
     unreadable draft, a missing outline, an outline with no entry for this
     session, and a gated draft whose `task_facts` lacks the key. Each of those
@@ -257,7 +257,7 @@ class _GateSource:
     `event` (transcript) or `event_meta` (draft) rather than `meta`, and the
     session body nested under `simulation` on a draft -- so this is the one
     place the dialects meet. Everything downstream reads accumulation names,
-    which is the owner's rule for this alignment: replicate the ACC mechanism,
+    which is the rule for this alignment: replicate the ACC mechanism,
     nothing FE-specific.
 
     Only the fields whose home differs between the dialects are here. The plan
@@ -357,7 +357,7 @@ def _body_fields(body: dict[str, Any], draft: dict[str, Any]) -> dict[str, Any]:
 def _key_terms(ingredient: dict[str, Any], name: str) -> list[str]:
     """The information the gated value has to carry.
 
-    The gate is keyed on information, not on words (owner, 2026-09-08): the
+    The gate is keyed on information, not on words: the
     outline authors these off the dictated sentence and the store passes a
     payload that carries every one of them. An entry that names a gate but no
     terms is a gate the store cannot key on, so it fails closed here rather than
@@ -384,8 +384,8 @@ def _gate_cue(ingredient: dict[str, Any], name: str) -> str:
     one of them (`IngredientObject._dictated_text_names_its_cue`), so an
     ingredient reaching here without one is a shape the authoring side already
     forbids. Resolving it to None would arm the actor with nothing while the run
-    still looked like it had a motivated gate -- the silent fallback the owner
-    banned -- so it is an error here instead.
+    still looked like it had a motivated gate -- a silent fallback -- so it is
+    an error here instead.
     """
     cue = ingredient.get("gate_cue")
     if not isinstance(cue, str) or not cue.strip():
@@ -633,7 +633,7 @@ def session_closing_hook(
     session: the simulator emits `simulator_turn` after the actor has produced
     the reaction beat's message and BEFORE the PA is called with it, so touching
     the marker there leaves it down for exactly the PA turn that answers it --
-    the session's last (owner ruling, 2026-09-09). Returns None -- no hook at
+    the session's last. Returns None -- no hook at
     all -- for every step that is not a compressed session.
 
     `beat_enter` is the count, and it arrives ahead of the same turn's
@@ -669,7 +669,7 @@ def gate_cue_carry_hook(
     the simulator owes it on that beat's opening turn. A beat that runs out of
     turns makes the simulator jump ahead over everything between it and the next
     preference beat (`jump_to_preference_beat_after_turn_limit`), and live
-    regress19 `acc_003` lost the cue exactly there: `b1_signal_discrepancy` spent
+    `acc_003` lost the cue exactly there: `b1_signal_discrepancy` spent
     its three turns, `b2_clarify_context` -- the cue beat -- was skipped, and the
     PA reached the reveal never having been told there was a note to write, so it
     asked for the year line instead.
@@ -786,14 +786,13 @@ def _probe_gate_wording(dictated_text: str) -> tuple[list[str], str, str]:
     cue / slot gate keys", so there is nothing authored to read them from and
     the frozen draft's `task_facts` value is all this side holds.
 
-    * key_terms: the dictated sentence, whole, as one term. The owner's rule is
+    * key_terms: the dictated sentence, whole, as one term. The rule is
       that a key term is a word the user would really say and never a token
       invented for the lock, so the only terms that can be named here without
       inventing an author's judgement are the user's own words -- all of them,
       in the order said. That is stricter than a hand-picked set, never looser:
       a payload carrying the sentence carries every term anyone could pick out
-      of it. The owner ruled on 2026-09-14 that
-      `state_server/store.py:GATE_MIN_KEY_TERMS`, the floor of two for
+      of it. `state_server/store.py:GATE_MIN_KEY_TERMS`, the floor of two for
       hand-picked terms, admits this one term because it is the whole dictated
       text, which the payload then has to carry verbatim.
 
@@ -819,7 +818,7 @@ def _require_gateless_is_legal(meta: dict[str, Any], name: str) -> None:
 
     A compressed session is the probe beat plus one reaction, so it has no task
     to gate. That is now the only way to be legitimately gateless:
-    `probe.no_gate_reason` is abolished (owner, 2026-09-08) and every
+    `probe.no_gate_reason` is abolished and every
     uncompressed entry carries a dictated_text gate, so an uncompressed session
     with no gate ingredient is a hole that would run ungated while the finished
     run still looked gated.

@@ -721,7 +721,7 @@ def test_a_missing_interaction_item_id_stops_the_whole_batch() -> None:  # T7
             event.get("name") == "ix_binding_invalid" for event in result.tool_events
         )
         # The declaration that bound ids this turn was `topic_management`'s, so
-        # that is what the held rows say. Live `v7r06` t18 stamped six rows
+        # that is what the held rows say. Live t18 stamped six rows
         # `autonomy_level` — an attribute the turn never mentioned — while they
         # carried `batch_id: "b1"`, so anything keying held rows by attribute
         # looked in the wrong place. And a fail-closed refusal opens no gate and
@@ -737,7 +737,7 @@ def test_a_missing_interaction_item_id_stops_the_whole_batch() -> None:  # T7
 def test_an_unbound_read_runs_and_an_unbound_write_is_still_refused() -> None:
     """A binding governs the calls a gate can stop; a read is not one of them.
 
-    Live `acc_039` P10: four calls arrived under item ids no plan item declared,
+    Live `acc_039`: four calls arrived under item ids no plan item declared,
     all four were lookups, the whole batch was refused `binding_invalid`, and
     the user's turn was the template "I could not carry out those steps".
     """
@@ -786,7 +786,7 @@ def test_an_unbound_read_runs_and_an_unbound_write_is_still_refused() -> None:
 def test_the_wrapper_fields_are_not_part_of_the_task_call() -> None:
     """Carrier C — stripped from the call *and* from what the run records.
 
-    Live `acc_039` P12 logged `calendar_event_create` with an empty
+    Live `acc_039` logged `calendar_event_create` with an empty
     `_ix_confirmation_message` sitting among its real arguments: the registry
     strips the field before the tool, but the transcript kept the raw call.
     """
@@ -1496,7 +1496,7 @@ def test_proactive_outreach_event_records_send_decision_and_message() -> None:
 
 
 # ---------------------------------------------------------------------------
-# regress12 acc_004 — the same tool, the same error, one guessed value
+# acc_004 — the same tool, the same error, one guessed value
 # ---------------------------------------------------------------------------
 
 
@@ -1666,7 +1666,7 @@ def test_a_capability_limit_is_never_counted_as_a_strike() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Owner ruling 2026-09-08 — a selection re-sent after its beat, and the
+# A selection re-sent after its beat, and the
 # max-steps backstop for a tool call that keeps coming back an error.
 # ---------------------------------------------------------------------------
 
@@ -1700,7 +1700,7 @@ def _reselection_run(
 
 
 def test_a_selection_resent_after_its_beat_is_ignored_not_refused() -> None:
-    """regress20 acc_027: `IX_emotional_engagement` on the reaction beat.
+    """acc_027: `IX_emotional_engagement` on the reaction beat.
 
     The tool is offered on beat 1 and withdrawn once the session has its
     setting. The registry answered "not found", the PA read that as a broken
@@ -1940,7 +1940,7 @@ def _failing_call(call_id: str) -> ToolCallRequest:
 
 
 def test_a_tool_that_keeps_failing_ends_the_turn_normally() -> None:
-    """Owner ruling 2026-09-08 — the max-steps backstop.
+    """The max-steps backstop.
 
     The store refuses the same call on four successive iterations. The runner
     stops re-prompting and ships what the model has written; the turn is not a
@@ -1977,7 +1977,7 @@ def test_a_tool_that_keeps_failing_ends_the_turn_normally() -> None:
 
 
 def test_the_strike_prompt_is_delivered_once_before_the_cap() -> None:
-    """Item 4 of the 2026-09-09 review — the two limits must not collide.
+    """The two limits must not collide.
 
     At `TOOL_FAILURE_STRIKE_LIMIT` the runner appends "ask the user for the one
     it needs"; with both limits at 3 that message was written and the turn ended
@@ -2081,9 +2081,7 @@ def _cap_ladder_run(
 
 
 def test_a_capability_limit_in_the_capped_iteration_keeps_the_boundary_contract() -> None:
-    """Item 1 of the 2026-09-09 review.
-
-    A `capability_limit` landing on the iteration the cap would end declares no
+    """A `capability_limit` landing on the iteration the cap would end declares no
     boundary and emits no `ix_boundary_unresolved`: the turn shipped
     `completed` with the block unresolved. The boundary declaration outranks the cap.
     """
@@ -2125,9 +2123,7 @@ def test_a_capability_limit_in_the_capped_iteration_keeps_the_boundary_contract(
 
 
 def test_the_capped_exit_still_owes_the_render_payload() -> None:
-    """Item 2 of the 2026-09-09 review.
-
-    The capped exit ships `last_segment` to the user, so it is a visible-message
+    """The capped exit ships `last_segment` to the user, so it is a visible-message
     turn and owes `IX_render_reasoning_visibility` like any other. It shipped the
     prose with no payload and no `ix_render_payload_missing`.
     """
@@ -2166,7 +2162,7 @@ def test_the_capped_exit_still_owes_the_render_payload() -> None:
 
 
 def test_the_capped_exit_ships_when_the_render_payload_is_in_hand() -> None:
-    """The other half of item 2: payload present, so the cap ships as before."""
+    """The other half of the test above: payload present, so the cap ships as before."""
     async def run():
         _, coro = _cap_ladder_run(
             [
@@ -2199,9 +2195,7 @@ def test_the_capped_exit_ships_when_the_render_payload_is_in_hand() -> None:
 
 
 def test_a_gate_in_the_capped_iteration_still_ends_at_the_gate() -> None:
-    """Item 3 of the 2026-09-09 review.
-
-    A gate opening on the iteration the cap would end lost its `beat_gate_turn`
+    """A gate opening on the iteration the cap would end lost its `beat_gate_turn`
     record, which `judge_pack` reads. The gate ends the turn; the cap does not.
     """
     async def run():

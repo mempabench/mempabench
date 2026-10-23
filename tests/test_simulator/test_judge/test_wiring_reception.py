@@ -6,7 +6,7 @@ The reception two — `reaction_asserts_unexecuted_pa_action` and
 None of them has a regex half left: the judge is the only decider, so with
 `MEMPA_JUDGE=off` the beat is not judged at all and none of them can fire.
 
-All four are record-only since the owner's ruling of 2026-09-14 ("只记"): each
+All four are record-only: each
 is still asked and each still writes its `judge_call` row, and the verdict
 rides out on the played turn's diagnostics instead of buying a rewrite. Three
 of them were hard-and-played-after-the-budget before that;
@@ -84,7 +84,7 @@ class _RecordingPA:
 
 #: The path the writing PA below updates, and the value that has to reach the
 #: judge: the name `mcp_state_document_update` alone does not say which record
-#: the assistant touched (live regress22 `acc_006`).
+#: the assistant touched (live `acc_006`).
 WROTE_PATH = "documents/research/citation_notes.md"
 
 
@@ -230,8 +230,7 @@ def test_mode_off_leaves_the_reception_beat_unjudged() -> None:
 
 
 def test_an_invented_write_is_recorded_and_never_a_finding() -> None:
-    """Non-blocking, owner ruling 2026-09-13: judged and recorded for
-    observation this round, never a finding.
+    """Non-blocking: judged and recorded for observation, never a finding.
 
     The call is made on every reaction turn exactly as before and its
     `judge_call` row carries the verdict; what changed is the consequence —
@@ -261,12 +260,11 @@ def test_an_invented_write_is_recorded_and_never_a_finding() -> None:
 def test_the_acts_the_session_ran_reach_the_judge() -> None:
     """The code-side half of the rule, and the live path feeds it.
 
-    Live regress22 `acc_006` stopped four times on this rule after seven
+    Live `acc_006` stopped four times on this rule after seven
     `mcp_state_document_update` calls that all came back ok: q2 asked the model
     to find the change in `<tool_log>` and it hunted for a tool named after the
-    user's phrasing instead. Owner ruling B of 2026-09-10 deleted q2; the
-    ruling of 2026-09-12 made the code side a LIST of the acts carried out, and
-    the session loop hands the executed names over for it.
+    user's phrasing instead. q2 is gone; the code side is a LIST of the acts
+    carried out, and the session loop hands the executed names over for it.
     """
     events, client = _run(
         BREAKS_BOTH,
@@ -289,7 +287,7 @@ def test_the_acts_the_session_ran_reach_the_judge() -> None:
 def test_a_write_inside_the_sandbox_is_one_of_the_acts() -> None:
     """An in-sandbox write is an act too, and a claim off the list still fails.
 
-    Live user_b `acc_001` on the mem0 line (2026-09-13): the PA really ran
+    Live user_b `acc_001` on the mem0 line: the PA really ran
     `mcp_state_document_update` on the bistro staff notes, the list was built
     from external effects alone and read "none yet", and the user thanking it
     for that edit was judged a fiction four rewrites running. The list carries
@@ -314,7 +312,7 @@ def test_a_write_inside_the_sandbox_is_one_of_the_acts() -> None:
 
     assert asked, "the reception beat was never judged"
     assert "document_update — edit an existing document" in asked[0]
-    # Non-blocking since the owner's ruling of 2026-09-13: the claim off the
+    # Non-blocking: the claim off the
     # list is still judged and recorded, and it no longer fails the turn.
     assert _diagnostics(events) == [["reaction_asserts_unexecuted_pa_action"]]
     assert _failures(events) == []
@@ -325,8 +323,8 @@ def test_a_go_ahead_the_beats_avoid_forbids_is_recorded() -> None:
     carve-out questions come from `avoid` too and answer `no` here.
 
     It was the one blocking rule of the four (it took the consequence over from
-    the deleted `authorised_before_its_beat` regex). Owner ruling 2026-09-14
-    ("只记"): the questions are unchanged and the verdict is recorded, but
+    the deleted `authorised_before_its_beat` regex). Record-only now: the
+    questions are unchanged and the verdict is recorded, but
     nothing is rewritten and nothing is voided.
     """
     events, _ = _run(
@@ -420,9 +418,9 @@ def test_mode_off_leaves_the_reaction_two_unjudged() -> None:
     ]
 
 
-@pytest.mark.skip(reason="future_policy commented out, owner ruling 2026-09-13")
+@pytest.mark.skip(reason="future_policy commented out")
 def test_a_future_policy_is_a_hard_finding() -> None:
-    """A diagnostic while a frame of patterns decided it, hard now (裁定 vi)."""
+    """A diagnostic while a frame of patterns decided it, hard now."""
     events, _ = _run(
         THE_REACTION_TWO,
         {

@@ -1,6 +1,6 @@
 """The per-request wall-clock deadline on the simulator's provider calls.
 
-regress21r acc_039 hung nine minutes on one OpenRouter call with nothing on
+Live, acc_039 hung nine minutes on one OpenRouter call with nothing on
 stderr. These pin the deadline that ends that: a stalled request must come back
 as a transient error while the run is still young enough to retry it.
 """

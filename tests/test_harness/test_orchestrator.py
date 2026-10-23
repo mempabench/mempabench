@@ -729,7 +729,7 @@ async def test_orchestrator_marks_failed_step(tmp_path: Path):
 
 
 class InvalidSessionExecutor(FakeExecutor):
-    """The executor of a step the simulator invalidated (owner ruling)."""
+    """The executor of a step the simulator invalidated."""
 
     async def execute(self, step, **kwargs):
         try:
@@ -1247,7 +1247,7 @@ async def test_no_wrapper_scaffolding_survives_the_pinned_flush(
 ) -> None:
     """The OUT column, regrepped: carrier C and the injected scaffold.
 
-    The IN column moved in step 7, so the old blanket `ix_` grep would now ban
+    The IN column moved, so the old blanket `ix_` grep would now ban
     the PA's own choice. What stays banned is what exists only because a
     benchmark is running.
     """
@@ -1264,9 +1264,6 @@ async def test_no_wrapper_scaffolding_survives_the_pinned_flush(
         assert key not in written, key
     # Not vacuous: the half ruled IN did survive the same flush.
     assert "mcp_state_document_read" in written
-
-
-# ── steps 17 / 18 / 25 / 25a ──────────────────────────────────────
 
 
 def _seed_run_dir(run_dir: Path, persona_id: str, session_key: str) -> Path:
@@ -1577,7 +1574,7 @@ async def test_ix_runtime_without_three_miss_proof_still_fails(tmp_path: Path) -
     assert ledger.steps["acc_001"].status == "failed"
 
 
-# ── failure_policy (D3): one test per key ─────────────────────────
+# ── failure_policy: one test per key ──────────────────────────────
 
 
 class _PendingTurnsCheckpoint(FakePACheckpoint):
@@ -1934,7 +1931,7 @@ class RaisingExecutor(FakeExecutor):
             raise self.error from None
 
 
-#: One case per session-level failure kind (owner ruling 2026-09-09). The three
+#: One case per session-level failure kind. The three
 #: judge voids and the two simulator ones reach the step as the class named
 #: here; `judge_unavailable` arrives as the bare `JudgeUnavailable`, because
 #: `SimulatorLoop.run_session` re-raises the cause rather than the void.
@@ -2042,7 +2039,7 @@ async def test_the_exception_that_stops_the_round_names_the_failed_step(
 async def test_the_same_run_id_resumes_at_the_session_that_stopped_the_round(
     tmp_path: Path,
 ) -> None:
-    """The other half of the ruling: stopping must not mean the run is over.
+    """The other half of the rule: stopping must not mean the run is over.
 
     Rerunning the SAME run id with no `--overwrite` rolls back to the
     checkpoint taken before the failed session — the failed record goes with
@@ -2178,7 +2175,7 @@ def test_rollback_goes_to_the_furthest_cut_point_not_the_latest_clock_reading(
 ) -> None:
     """A resume goes back to the last cut point the run reached.
 
-    Codex review 2026-09-14, finding 4. The cut point was chosen by the largest
+    The cut point was chosen by the largest
     `timestamp` in `metadata.json`, and those come from `datetime.now`: a host
     clock that steps backwards between two saves makes an earlier cut point
     read as the newest one, and the resume then reruns a completed, paid
@@ -2246,7 +2243,7 @@ async def test_a_signal_mid_step_finishes_the_step_and_stops_clean(
     capsys,
     _signal_handlers_restored,
 ) -> None:
-    """Owner ruling 2026-09-14: SIGTERM lands between steps, never inside one.
+    """SIGTERM lands between steps, never inside one.
 
     The step in flight when the signal arrives runs to its end, publishes its
     cut point and is marked done; the loop then stops, and the ledger has no
@@ -2363,7 +2360,7 @@ async def test_probe_runs_in_branch_and_returns_only_artifacts(tmp_path: Path):
     # The probe continues the mainline session inside its own branch.
     assert view["session_keys"] == [plan.main_pa_session_key()]
     assert view["adapter"] is None
-    # B16: the whole compaction step is skipped inside the branch.
+    # The whole compaction step is skipped inside the branch.
     assert view["skip_consolidation"] is True
     assert Path(view["recorder_path"]).parent != run_dir
     assert "branches" in str(view["steps_dir"])
@@ -2800,7 +2797,7 @@ class _FirstPACallExecutor(ProbeRecordingExecutor):
 @pytest.mark.parametrize("condition", ["oracle_preference", "no_memory"])
 async def test_oracle_probe_starts_with_no_prompt_history(tmp_path: Path, condition: str):
     """A source session with dialogue reaches the oracle PA's first model call
-    with no history at all; no_memory (owner 2026-09-25) is the same branch
+    with no history at all; no_memory is the same branch
     with the ground truth left out."""
     source = _two_acc_plan()
     source_dir = tmp_path / "runs" / source.run_id
@@ -3021,7 +3018,7 @@ class _StubMainlinePA:
     """Only the pieces `MainlinePACheckpointHandle` reaches on a real PA.
 
     The `SessionManager` is real, because the cache it keeps is exactly what
-    the R8 tests are about.
+    the forced-step tests below are about.
     """
 
     def __init__(self, workspace: Path) -> None:
@@ -3050,9 +3047,9 @@ async def _forced_step_writes(workspace: Path, session_key: str) -> None:
     The journal record is no longer seeded by hand: `_prepare_exchange` writes
     the pending one and `_commit_session_and_memory` extends the session and
     marks it, which is exactly what the pinned flush then consumes. The point
-    the R8 tests are about is unchanged -- the manager: the forced executor is
-    handed one of its own, so the PA bound during the previous acc step never
-    sees these messages.
+    the forced-step tests below are about is unchanged -- the manager: the
+    forced executor is handed one of its own, so the PA bound during the
+    previous acc step never sees these messages.
     """
     from harness.forced_event_executor import ForcedEventExecutor
     from harness.forced_event_replay import GatedReplay
@@ -3105,7 +3102,7 @@ async def _forced_step_writes(workspace: Path, session_key: str) -> None:
 async def test_a_pinned_flush_after_a_forced_step_keeps_the_forced_dialogue(
     tmp_path: Path,
 ) -> None:
-    """R8: the cut point must not save the acc PA's pre-forced session back."""
+    """The cut point must not save the acc PA's pre-forced session back."""
     from scripts.run_orchestrator import MainlinePACheckpointHandle
 
     workspace = tmp_path / "pa_workspace" / "user_a"
@@ -3159,7 +3156,7 @@ async def test_a_pinned_flush_after_a_forced_step_keeps_the_forced_dialogue(
 async def test_a_forced_first_run_still_has_a_usable_cut_point(
     tmp_path: Path,
 ) -> None:
-    """R8: starting or resuming at a forced step binds no session PA."""
+    """Starting or resuming at a forced step binds no session PA."""
     from scripts.run_orchestrator import MainlinePACheckpointHandle
 
     workspace = tmp_path / "pa_workspace" / "user_a"
@@ -3661,7 +3658,7 @@ def _orphan_branch_reaper(
 def test_reaping_an_orphan_branch_releases_its_mem0_collection_first(
     tmp_path: Path,
 ) -> None:
-    """Codex review 2026-09-15, finding 1: the reaper used to `rmtree` only.
+    """The reaper used to `rmtree` only.
 
     A branch that died hard still owns the collection it restored, and the
     directory is the only thing that names it — so removing the directory
@@ -4346,7 +4343,7 @@ async def test_one_worker_is_the_serial_batch_it_replaced(tmp_path: Path):
 async def test_workers_overlap_requested_probes_and_never_more(
     tmp_path: Path, width: int,
 ):
-    """Codex F2: N probes really run together, and N+1 never do."""
+    """N probes really run together, and N+1 never do."""
     plan = _many_probe_plan(width * 2)
     lines: list[str] = []
     executor = _WidthGateExecutor(width)
@@ -4429,7 +4426,7 @@ async def test_a_stopper_starts_nothing_new_and_lets_the_in_flight_finish(
     tmp_path: Path,
     stopper_class,
 ):
-    """Codex F2's scenario: N+2 probes, one stopper, N-1 in flight, 2 queued.
+    """N+2 probes, one stopper, N-1 in flight, 2 queued.
 
     A semaphore over tasks created up front cannot promise this — the queued
     tasks were already scheduled. The queue can: what is still on it when the
@@ -4439,7 +4436,7 @@ async def test_a_stopper_starts_nothing_new_and_lets_the_in_flight_finish(
     Once per stopper class that is not the judge: `IncompleteCheckpointError`
     is reachable from `branch_from`, i.e. after `mark_running` and after the
     slot opened, which is the leg that leaves a probe `running` with its slot
-    unclosed. `JudgeUnavailable` is the test below, because D1 gives it a
+    unclosed. `JudgeUnavailable` is the test below, because it gets a
     ledger record of its own to assert.
     """
     plan = _many_probe_plan(5)
@@ -4471,9 +4468,7 @@ async def test_a_stopper_starts_nothing_new_and_lets_the_in_flight_finish(
 async def test_a_dead_judge_records_the_probe_and_then_stops_the_batch(
     tmp_path: Path,
 ):
-    """Owner ruling D1 (2026-09-15), Codex F3.
-
-    The probe that met the dead judge cleans its branch, is recorded `failed`
+    """The probe that met the dead judge cleans its branch, is recorded `failed`
     with `judge_unavailable` and the evidence it managed to write, and joins
     `result.failed`; the batch then stops — nothing queued is started, and the
     exception leaves the batch, which is the process's non-zero rc.
@@ -4522,7 +4517,7 @@ async def test_a_dead_judge_records_the_probe_and_then_stops_the_batch(
     # Nothing queued behind it was started.
     assert not {"fin_04", "fin_05"} & set(ledger.steps)
     assert not orchestrator.in_flight
-    # A dead judge is not a void (D5): the probe is not rerun, so it has one
+    # A dead judge is not a void: the probe is not rerun, so it has one
     # branch and nothing of it was set aside.
     assert branch_runs.count("fin_02") == 1
     assert not (run_dir / "steps_superseded").exists()
@@ -4704,7 +4699,7 @@ async def test_a_thirty_three_probe_batch_schedules_and_then_resumes(
     assert not (run_dir / "crash_scene").exists()
 
 
-# ── a voided probe is rerun once, at once (owner D5, 2026-09-16) ──────
+# ── a voided probe is rerun at once ───────────────────────────────────
 
 #: The directory name `harness.run_layout.supersede_step_dirs` writes, which
 #: `scripts/diagnostics/probe_cohort_manifest.py --list-cohorts` reads back.
@@ -4762,11 +4757,11 @@ class _VoidingProbeExecutor(FailingProbeExecutor):
 
 
 class _IXRuntimeProbeExecutor(_VoidingProbeExecutor):
-    """Fails the named probe the way the three holes of 2026-09-18 failed.
+    """Fails the named probe the way three live holes failed.
 
     `AgentProviderError` whose message carries one of the IX runtime prefixes,
-    which `classify_failure` reads as `ix_runtime` — the kind the owner added
-    to `PROBE_RETRY_KINDS` on 2026-09-19.
+    which `classify_failure` reads as `ix_runtime` — a kind in
+    `PROBE_RETRY_KINDS`.
     """
 
     def failure(self) -> BaseException:
@@ -4793,7 +4788,7 @@ class _VoidAfterAStopExecutor(_VoidingProbeExecutor):
 class _VoidRetryHeldExecutor(_VoidingProbeExecutor):
     """A two-sided barrier between the retry and the other probes.
 
-    Codex r2 P3: holding the retry until the others are done is only half of
+    Holding the retry until the others are done is only half of
     it — the others could finish while the voiding worker copied evidence,
     superseded the void's cohort and cut the replacement branch, and then the
     retry would wait on an already-set event. So neither side may pass alone:
@@ -4850,7 +4845,7 @@ def _count_probe_branch_runs(orchestrator) -> list[str]:
 async def test_a_voided_probe_is_rerun_at_once_and_its_void_set_aside(
     tmp_path: Path,
 ):
-    """D5: the runner does the rerun itself, inside the batch.
+    """The runner does the rerun itself, inside the batch.
 
     The void's evidence becomes a superseded cohort of its own — the layout
     `--rerun-probe-steps` writes, so `--list-cohorts` and the manifest script
@@ -4977,9 +4972,8 @@ async def test_a_probe_that_fails_every_attempt_is_failed_and_the_batch_goes_on(
 async def test_an_other_probe_failure_is_retried_three_times(
     tmp_path: Path,
 ):
-    """Owner 2026-09-23 「再试两次吧 都到三次这样 other 其他的也是」: an
-    unclassified (`other`) probe failure gets the same three attempts as a
-    judge void or `ix_runtime`; the two earlier ones are set aside as
+    """An unclassified (`other`) probe failure gets the same three attempts as
+    a judge void or `ix_runtime`; the two earlier ones are set aside as
     superseded cohorts and the one record names the third."""
     plan = _many_probe_plan(2)
     executor = FailOneProbeExecutor("fin_01")
@@ -5001,9 +4995,9 @@ async def test_an_other_probe_failure_is_retried_three_times(
 async def test_an_ix_runtime_probe_is_rerun_and_can_pass_on_a_later_attempt(
     tmp_path: Path,
 ):
-    """Owner 2026-09-19: the PA gets three attempts at a probe.
+    """The PA gets three attempts at a probe.
 
-    The three holes of 2026-09-18 (`fin_06`, `fin_01`, `fin_22` across the
+    Three live holes (`fin_06`, `fin_01`, `fin_22` across the
     nanobot, hy4 and gpt lines) were all `ix_runtime` — the PA breaking an IX
     contract mid-turn — and under the old set they were never retried, so one
     bad turn wrote the cell off. Here the same failure happens twice and the
@@ -5053,7 +5047,7 @@ async def test_a_void_with_a_stop_already_up_is_failed_without_a_retry(
     tmp_path: Path, gate: str
 ):
     """A retry is a new start, and nothing new starts after a stopper or a
-    signal. The void is then recorded exactly as it was before D5."""
+    signal. The void is then recorded `failed`, with no retry."""
     plan = _two_probe_plan()
     lines: list[str] = []
     stopping = {"requested": False}
@@ -5113,7 +5107,7 @@ async def test_a_void_retry_does_not_block_the_other_workers(tmp_path: Path):
 
     Its branch is cut, run and recorded inside the slot that probe already
     holds, so the other two workers drain the queue while it happens. The
-    executor's barrier is two-sided (Codex r2 P3), so passing it is proof of
+    executor's barrier is two-sided, so passing it is proof of
     real overlap rather than of a lucky order: neither of the other two probes
     may finish before attempt 2 of the voided probe has *entered* the
     executor, and attempt 2 may not finish before both of them have. Overlap
@@ -5149,9 +5143,8 @@ async def test_a_cut_point_is_published_with_the_summary_the_ledger_records(
     The checkpoint is published before `mark_done`, so unless the summary is
     handed to `save`, the snapshot records the step as done with none. For a
     forced event that summary is the only copy of its `preference_overlay`
-    flip, and a rollback onto its own cut point is what reads it back:
-    `ub_nanobot_file_memory_deepseek_v4_flash_20260918` resumed with an empty
-    overlay and died at `acc_017`.
+    flip, and a rollback onto its own cut point is what reads it back: a live
+    run resumed with an empty overlay and died at `acc_017`.
     """
     plan = _two_acc_plan()
     calls: list = []
@@ -5173,7 +5166,7 @@ async def test_a_cut_point_is_published_with_the_summary_the_ledger_records(
         )
 
 
-# ── rollback recovery (checkpoint_rollback_recovery_plan_20260918) ─
+# ── rollback recovery ─────────────────────────────────────────────
 
 
 def test_a_pending_recovery_is_not_bypassed_by_a_clean_ledger(
@@ -5278,8 +5271,7 @@ def test_an_interrupted_recovery_continues_the_same_target(
 ) -> None:
     """Every way of dying mid-rollback leads back to the same target.
 
-    The acceptance row of the 2026-09-18 checkpoint rollback recovery plan:
-    inject a failure after the marker lands, during archiving, during the local
+    Inject a failure after the marker lands, during archiving, during the local
     copy, after the backend layer and after the ledger replacement; rebuild the
     manager each time. None of them may start the PA, re-select a revoked
     snapshot, or overwrite the evidence of the original crash.

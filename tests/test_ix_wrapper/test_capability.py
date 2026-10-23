@@ -95,9 +95,9 @@ def test_a_capability_limit_forces_the_resolve_tool_and_ends_with_the_handoff(
         gate = outbound.metadata["ix_render"]["gate"]
         assert gate["attribute"] == "capability_boundary"
         assert gate["message_source"] == "handoff_message"
-        # The read itself ran, so nothing is a held *call* -- and owner ruling
-        # 2026-09-18: the delivered handoff *is* the hand-back, so the boundary
-        # is not left on the books either.
+        # The read itself ran, so nothing is a held *call* -- and the delivered
+        # handoff *is* the hand-back, so the boundary is not left on the books
+        # either.
         assert outbound.metadata["ix_render"]["held"]["calls"] == []
         assert outbound.metadata["ix_render"]["episodes"] == {}
         assert loop.close_ix_session(SESSION_KEY, SCRIPT_SESSION) == []
@@ -135,11 +135,11 @@ def test_suggest_alternatives_declares_the_boundary_without_handing_off(
 
 
 # ---------------------------------------------------------------------------
-# owner, 2026-09-06 · the countable difference between the two settings
+# the countable difference between the two settings
 # ---------------------------------------------------------------------------
 
 def test_find_and_hand_off_lets_a_read_through_after_the_limit(loop_factory) -> None:
-    """Owner ruling 2026-09-17: a read after the limit runs; the turn still hands off.
+    """A read after the limit runs; the turn still hands off.
 
     `Find and hand off` allows the diagnostic lookups the hand-back needs, so
     the gate no longer holds every call after `capability_limit` — only the
@@ -321,20 +321,20 @@ def test_the_stop_reason_of_a_capability_contract_failure_is_its_own(
 
 
 # ---------------------------------------------------------------------------
-# round-3 finding 1 · the two scopes of the two-stage protocol
+# the two scopes of the two-stage protocol
 # ---------------------------------------------------------------------------
 
 def test_a_settled_setting_governs_a_beat_that_does_not_list_the_attribute(
     loop_factory,
 ) -> None:
-    """Round-3 finding 1: stage 2 is session-scoped, so stage 3 must be too.
+    """Stage 2 is session-scoped, so stage 3 must be too.
 
     The runner turns `capability_limit_seen` on from the tool result alone, not
     from the beat's `session_active_ix` — a forced seed or an earlier beat's
     choice both settle the setting elsewhere. So a `capability_limit` on a beat
     that does not list `capability_boundary` still declares the boundary. The
     setting reaches stage 3 through the turn directive, which was built from
-    the beat-filtered selections only: live, `v3g07` and `v3g08` both resolved
+    the beat-filtered selections only: live, two runs both resolved
     the boundary on beat 1 and then rendered byte-identically, `gate: null` and
     zero holds, because `capability_boundary_policy` was empty there.
     """
@@ -354,7 +354,7 @@ def test_a_settled_setting_governs_a_beat_that_does_not_list_the_attribute(
             setting="Find and hand off",
         )
 
-        # The beat lists nothing: this is `v3g07`'s `b1`, two beats before
+        # The beat lists nothing: this is the live run's `b1`, two beats before
         # `acc_026` activates the attribute.
         outbound = await run_turn(
             loop, "Say more about the unreferenced coupling.",
@@ -370,14 +370,14 @@ def test_a_settled_setting_governs_a_beat_that_does_not_list_the_attribute(
         assert gate["attribute"] == "capability_boundary"
         assert gate["message_source"] == "handoff_message"
         assert outbound.content.rstrip().endswith(HANDOFF)
-        # Owner ruling 2026-09-18: delivered, so nothing is left open.
+        # Delivered, so nothing is left open.
         assert outbound.metadata["ix_render"]["episodes"] == {}
 
     run(scenario())
 
 
 def test_suggest_alternatives_stays_open_on_the_same_off_beat(loop_factory) -> None:
-    """The pair `v3g07` / `v3g08` could not tell apart: the other setting has
+    """The two live runs could not tell apart: the other setting has
     to keep going on exactly the beat where `Find and hand off` gates."""
     async def scenario() -> None:
         provider = ScriptProvider([
@@ -602,7 +602,7 @@ def _selection_with_id(call_id: str):
 def test_a_pinned_resolve_banks_even_while_the_selection_is_still_owed(
     loop_factory,
 ) -> None:
-    """Live `regress1`/`regress2` acc_026: after the limit the model sent the
+    """Live acc_026: after the limit the model sent the
     selection without the resolve twice, then answered the pinned resolve alone
     (a pin carries one function), and the runner voided that response for the
     owed selection -- so the boundary never banked, the capability gate re-armed
@@ -640,7 +640,7 @@ def test_a_pinned_resolve_banks_even_while_the_selection_is_still_owed(
 def test_a_pinned_resolve_banks_before_the_render_ladder_resends_the_reply(
     loop_factory,
 ) -> None:
-    """Live `regress3` acc_026: after the limit the model answered the selection
+    """Live acc_026: after the limit the model answered the selection
     alone twice (capability gate: reminder, then pin), then the pinned resolve
     alone. That reply was consumed by the render-payload ladder -- a reminder and
     a resend -- before the capability gate ever saw it, so the boundary never
@@ -677,11 +677,11 @@ def test_a_pinned_resolve_banks_before_the_render_ladder_resends_the_reply(
 
 
 # ---------------------------------------------------------------------------
-# owner ruling 2026-09-18 · a delivered handoff ends the episode
+# a delivered handoff ends the episode
 #
 # The handoff message *is* the hand-back: once it has reached the user the PA
 # holds nothing and owes nothing, so `capability_boundary` must not be left on
-# the books waiting for a turn that a compressed session never has. The ruling
+# the books waiting for a turn that a compressed session never has. The rule
 # is about handoff in general, not about the six `capability_boundary` scenes:
 # the attribute is activated by the runtime trigger, so the same gate can open
 # on any beat of any step.
@@ -721,7 +721,7 @@ def test_a_delivered_handoff_closes_the_episode(loop_factory) -> None:
 
 
 def test_a_runtime_triggered_handoff_closes_the_episode_too(loop_factory) -> None:
-    """The ruling is about handoff, not about a `capability_boundary` beat.
+    """The rule is about handoff, not about a `capability_boundary` beat.
 
     `capability_boundary` is the one attribute a *runtime trigger* activates
     rather than a beat, so a scene whose target attribute is something else can
@@ -783,7 +783,7 @@ def test_a_handoff_with_no_message_is_still_a_contract_failure(loop_factory) -> 
 def test_a_write_held_by_the_handoff_gate_does_not_keep_the_episode_open(
     loop_factory,
 ) -> None:
-    """Owner ruling 2026-09-18·B: a write forbidden by the setting is audited, not queued.
+    """A write forbidden by the setting is audited, not queued.
 
     `Find and hand off` has no release mechanism -- being forbidden to act is
     not the same as needing the user's approval -- so a call the handoff gate
@@ -831,7 +831,7 @@ def test_a_write_held_by_the_handoff_gate_does_not_keep_the_episode_open(
 def test_an_autonomy_hold_survives_a_handoff_in_the_same_session(
     loop_factory,
 ) -> None:
-    """Owner ruling 2026-09-18·B: a real hold is not swept up by a handoff.
+    """A real hold is not swept up by a handoff.
 
     The confirmation the autonomy gate is waiting for is owed by an independent
     authorisation rule, so a handoff on a later turn neither answers it nor

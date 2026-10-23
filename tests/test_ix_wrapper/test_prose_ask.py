@@ -34,7 +34,7 @@ from .conftest import (
 ACTION_TYPES = {"task_read": "read", "task_send": "external_action"}
 PROSE_ASK = "Friday 10:00 is free with Dr. Patel.\n\nShall I go ahead and book it?"
 GATE_ASK = "Shall I book Friday 10:00 with Dr. Patel?"
-#: regress19 acc_039 t41, verbatim: the floor held `plan_s1_book_nov10` and this
+#: acc_039 t41, verbatim: the floor held `plan_s1_book_nov10` and this
 #: is the whole turn the user read — an announcement of an act that was blocked.
 ANNOUNCEMENT = (
     "I'll book the November 10, 08:30 appointment with Dr. Patel at Glenmont "
@@ -246,7 +246,7 @@ def test_the_gate_still_asks_after_an_unbound_prose_ask(loop_factory) -> None:
 def test_a_gate_ask_that_only_announces_the_act_is_no_ask_at_all(
     loop_factory,
 ) -> None:
-    """regress19 acc_039 t41 — "I'll book …" is not a confirmation.
+    """acc_039 t41 — "I'll book …" is not a confirmation.
 
     The floor held the booking and the PA's `_ix_confirmation_message` was a
     flat declarative. The wrapper shipped it verbatim and traced "ask

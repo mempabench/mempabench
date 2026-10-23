@@ -3,7 +3,7 @@
 `/new` was the odd one out among the three consolidation entry points: it
 archived the raw `session.messages` tail with no projection at all, and it
 archived it *after* clearing the session, so a failing consolidation lost the
-conversation it had just refused to summarise. After step 7 it reads the same
+conversation it had just refused to summarise. Now it reads the same
 journal the other two read, archives first, and clears only on success.
 """
 

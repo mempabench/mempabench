@@ -138,7 +138,7 @@ ProgressSink = Callable[[str], None]
 LEDGER_OVERLAY_KEY = "preference_overlay"
 CHECKPOINT_READY_TIMEOUT_S = 300.0
 #: How many times one probe is run before its cell is written off as a hole.
-#: Owner 2026-09-19, raising D5's two: the retried kinds are
+#: The retried kinds are
 #: `failure_kind.PROBE_RETRY_KINDS`, every attempt is the same worker's own
 #: work inside the slot the probe already holds, and the attempts before the
 #: last are set aside as superseded cohorts rather than discarded.
@@ -175,8 +175,8 @@ class ProbeRunConfigurationError(RuntimeError):
 
 
 #: What ends the probe batch instead of failing one probe. The first two are
-#: the branch machinery every probe shares; `JudgeUnavailable` is the owner's
-#: D1 ruling of 2026-09-15 — the probe that met the dead judge is recorded
+#: the branch machinery every probe shares; `JudgeUnavailable` is the third —
+#: the probe that met the dead judge is recorded
 #: `failed` like any other, and then the batch stops, because the judge will
 #: still be gone for the next one. Everything else is one probe's own failure.
 PROBE_BATCH_STOPPERS: tuple[type[BaseException], ...] = (
@@ -296,9 +296,9 @@ class OrchestratorConfig:
     # reach this field, so the same-parent assumption was the only behaviour
     # the field ever had.
     borrowed_runs_root: Path | None = None
-    #: Cut points to pin beyond the ones this plan's own probes imply (owner
-    #: ruling 2026-09-13: run the accumulations now, attach a probe plan later
-    #: off the same checkpoints). Named by the operator, because nothing in a
+    #: Cut points to pin beyond the ones this plan's own probes imply, so the
+    #: accumulations can run now and a probe plan attach later off the same
+    #: checkpoints. Named by the operator, because nothing in a
     #: probeless plan says which cut points a later plan will want. There is
     #: only one kind of pin: these take the full pinned save path.
     extra_pinned_step_ids: frozenset[str] = frozenset()
@@ -319,8 +319,8 @@ class OrchestratorConfig:
     #: the ledger. None runs every probe the ledger has not marked done. The
     #: timeline phase ignores it (`--only-steps` is probe-phase only).
     only_steps: frozenset[str] | None = None
-    #: Asks the loop to stop after the step in flight (owner ruling
-    #: 2026-09-14). Read at a step boundary only — never mid-step — so a stop
+    #: Asks the loop to stop after the step in flight. Read at a step
+    #: boundary only — never mid-step — so a stop
     #: leaves the ledger with no `running` record and the next resume has
     #: nothing to roll back. The runner's signal handler is what sets it.
     stop_requested: Callable[[], bool] | None = None
@@ -603,9 +603,9 @@ class Orchestrator:
         if not self.config.probe_only:
             resume_or_restore(self.ledger, self.config.checkpoint_manager, self.plan)
         # The rollback puts the run back on its snapshot; the journal is what
-        # says which turns died with a pool the adapter never received. Q5 is
-        # at-least-once and declared, so this is the one place a run replays
-        # them, before any step of it runs again.
+        # says which turns died with a pool the adapter never received. The
+        # replay is at-least-once and declared, so this is the one place a run
+        # replays them, before any step of it runs again.
         if not self.config.probe_only:
             await self._replay_pending_turns()
         self._reap_orphan_branches()
@@ -685,7 +685,7 @@ class Orchestrator:
             # The only place a stop is read: between two steps, after the
             # previous one published its cut point and its ledger record. A
             # stop taken anywhere else would leave the ledger `running` and
-            # cost the session it interrupted (owner ruling 2026-09-14).
+            # cost the session it interrupted.
             if self._stop_requested():
                 stopped = True
                 break
@@ -944,7 +944,7 @@ class Orchestrator:
         batch runner that reaps between jobs.
 
         The remote namespace goes first, through the same release the normal
-        finish uses (Codex review 2026-09-15, finding 1). A branch that died
+        finish uses. A branch that died
         hard still owns the Mem0 collection or MemOS cube it restored for
         itself, and the only thing that still names it is the
         `branch_namespace.json` inside the directory — so an `rmtree` on its
@@ -1122,12 +1122,12 @@ class Orchestrator:
 
         A probe that fails is marked `failed` with its `failure_kind` and the
         batch moves on — the run never stops on a probe, and a probe the judge
-        voided is rerun once by its own worker first (D5, `_run_one_probe`).
+        voided is rerun by its own worker first (`_run_one_probe`).
         Three exceptions stop
         it: a defect in what every branch is cut from
         (`ProbeRunConfigurationError`, `IncompleteCheckpointError`), which is
         not this probe failing but the probe line not being runnable, and a
-        dead judge (`JudgeUnavailable`, owner ruling D1 2026-09-15), which the
+        dead judge (`JudgeUnavailable`), which the
         next probe would meet again. A stopper sets `abort`: no queued probe is
         started after it, the probes already in flight run to their end and are
         recorded, and the first stopper is then re-raised so the process exits
@@ -1281,17 +1281,15 @@ class Orchestrator:
         )
         status: str | None = None
         try:
-            # D5 (owner, 2026-09-16): "a voided probe is rerun immediately."
+            # A voided probe is rerun immediately.
             # A rerun after the batch is the wrong shape at N>1, so the retry
             # is this worker's own work: a fresh branch off the same pin,
             # inside the slot this probe already holds.
             #
-            # Owner 2026-09-19 raised the cap from two attempts to
-            # `PROBE_ATTEMPTS` and added `ix_runtime` to the retried kinds
-            # (`PROBE_RETRY_KINDS`), so the PA gets three chances at a probe
-            # before the cell is written off. This drops the "twice = ask" half
-            # of D5: the second failure is no longer the record the report
-            # surfaces — the third is.
+            # The cap is `PROBE_ATTEMPTS` and `ix_runtime` is one of the retried
+            # kinds (`PROBE_RETRY_KINDS`), so the PA gets three chances at a probe
+            # before the cell is written off, and the failure the report surfaces
+            # is the third.
             # `first_attempt` is 1 unless the shared-memory attempt record
             # resumes this Probe further on.
             last_attempt = PROBE_ATTEMPTS
@@ -1339,7 +1337,7 @@ class Orchestrator:
                         and attempt < last_attempt
                         # The two start gates once more: a retry is a new start,
                         # and nothing new starts after a stopper or a signal.
-                        # The failure is then recorded as it was before D5.
+                        # The failure is then recorded without a retry.
                         and not (abort.is_set() or self._stop_requested())
                     ):
                         # The failure path has already copied this attempt's
@@ -1395,7 +1393,7 @@ class Orchestrator:
                         f"{kind}: {exc}"
                     )
                     if isinstance(exc, JudgeUnavailable):
-                        # D1: the probe is recorded like any other failure —
+                        # The probe is recorded like any other failure —
                         # the branch is already cleaned and its evidence copied
                         # out by `_run_probe_in_branch` — and then the batch
                         # stops, because a judge that is gone is gone for the
@@ -1698,7 +1696,7 @@ class Orchestrator:
                     "memory_adapter": memory_adapter,
                     "memory_backend_namespace": branch_namespace,
                     "memory_io_recorder": branch_recorder,
-                    # B16: the branch skips compaction end to end, not just
+                    # The branch skips compaction end to end, not just
                     # the LM write inside it.
                     "skip_consolidation": True,
                 },

@@ -1,4 +1,4 @@
-"""P1 · which IX tools a turn shows, which it forces, and what it injects.
+"""Which IX tools a turn shows, which it forces, and what it injects.
 
 Covers the required/optional tiers, per-call injection keyed on
 `session_active_ix` (inject then strip), and the response-evaluated
@@ -377,13 +377,11 @@ def test_capability_resolve_rejects_a_boundary_kind_outside_the_enum() -> None:
 
 
 def test_the_certainty_carrier_asks_for_a_claim_it_will_write() -> None:
-    """`measurements_render.md` round 2, Finding 1; round 3, Findings 1–2.
-
-    Asking for `[[c:<ref>]]` markers cannot work from this carrier: the tool
+    """Asking for `[[c:<ref>]]` markers cannot work from this carrier: the tool
     call is produced in the iteration *before* the prose, so the model would
     have to mark text it has not written — two live rounds produced a filled
     `certainties` list and zero markers. Committing to a span instead did not
-    fix the ordering either: round 3's three `Express` claims were paraphrases
+    fix the ordering either: a live run's three `Express` claims were paraphrases
     of markdown the model had not written yet, `0/3` located. So the carrier
     now points at the trailing block (carrier F) — written *after* the
     prose, quoting text that already exists — and keeps the arguments as the
@@ -432,7 +430,7 @@ def test_the_block_makes_the_certainty_tool_optional_but_never_the_payload() -> 
 
 
 def test_the_narrating_settings_demand_a_notice_on_a_turn_with_task_calls() -> None:
-    """Round-2 `acc_003`: Bookend rendered `notices 0/0` behind 21 task calls.
+    """`acc_003`: Bookend rendered `notices 0/0` behind 21 task calls.
 
     The PA selected Bookend, made twenty-one calls without an `_ix_notice` on
     any of them, and the user read a turn indistinguishable from Silent. The
@@ -474,7 +472,7 @@ def test_is_key_names_what_is_not_key_and_not_only_what_is() -> None:
 
     Under Self-directed `is_key` is the only thing between the user and a
     permission ask on a reversible internal write, and the definitional wording
-    (259d9db) held in round 3 and lost in round 4: "Adjust calendar event end
+    held in one live run and lost in the next: "Adjust calendar event end
     time from 10:15 to 09:50" — a correction the user had just ordered — came
     through as key. The negatives are concrete now.
     """
@@ -487,7 +485,7 @@ def test_is_key_names_what_is_not_key_and_not_only_what_is() -> None:
 
 
 def test_the_plan_says_a_bound_id_and_the_call_id_are_the_same_string() -> None:
-    """Round-2 `acc_039`: two writes held `binding_invalid` against a full plan.
+    """`acc_039`: two writes held `binding_invalid` against a full plan.
 
     `IX_render_autonomy_level` declared `bound_item_ids: ["create_placeholder"]`
     and the `calendar_event_create` that carried the step out shipped no
@@ -505,7 +503,7 @@ def test_the_plan_says_a_bound_id_and_the_call_id_are_the_same_string() -> None:
 
 
 def test_the_rationale_field_contrasts_a_work_log_with_evidence() -> None:
-    """`measurements_render.md` Finding 4 — all four released paragraphs were logs."""
+    """Live, all four released paragraphs were logs."""
     description = IX_RENDER_TOOL_SPECS["reasoning_visibility"].parameters[
         "properties"
     ]["user_facing_rationale"]["description"]
@@ -515,7 +513,7 @@ def test_the_rationale_field_contrasts_a_work_log_with_evidence() -> None:
 
 
 def test_the_rationale_field_is_second_person_reasons_and_not_owed_every_turn() -> None:
-    """Round-2 `acc_011`: 4 of the 5 released rationales were third-person recaps.
+    """`acc_011`: 4 of the 5 released rationales were third-person recaps.
 
     "The user confirmed the 15/12/3 time split…" opened the turn, prepended
     verbatim, on turns that decided nothing — two of them pure closing
@@ -541,8 +539,8 @@ def test_batch_carriers_tell_the_pa_its_unmarked_closing_line_still_ships() -> N
 
 
 def test_autonomy_level_offers_exactly_the_three_settings() -> None:
-    """2026-09-05: `Suggest` was merged into `Self-directed`. 2026-09-06: the
-    neutral option was removed, so the enum is the taxonomy and nothing else —
+    """`Suggest` was merged into `Self-directed` and the neutral option was
+    removed, so the enum is the taxonomy and nothing else —
     the model-facing schema is the one place a stale extra setting would still
     be selectable."""
     spec = IX_PASSIVE_SPECS["autonomy_level"]
@@ -559,7 +557,7 @@ def test_autonomy_level_offers_exactly_the_three_settings() -> None:
 
 
 def test_every_selection_enum_is_exactly_its_taxonomy_settings() -> None:
-    """No IX tool offers an option outside its own taxonomy (2026-09-06)."""
+    """No IX tool offers an option outside its own taxonomy."""
     for attribute, spec in IX_PASSIVE_SPECS.items():
         schema = next(
             definition
@@ -607,7 +605,7 @@ def test_restatement_is_empty_when_nothing_needs_restating() -> None:
 
 
 def test_the_restatement_closes_on_the_wrapper_talk_rule() -> None:
-    """regress18 `acc_006` t=7 — the only text on that turn that named a setting.
+    """`acc_006` t=7 — the only text on that turn that named a setting.
 
     The beat had no IX tool left (`active_ix_tools == []`, the selection was made
     at t=4) and no repair message, so the restatement line

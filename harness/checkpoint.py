@@ -1152,7 +1152,7 @@ class CheckpointManager:
     def progress_key(self, checkpoint_id: str) -> tuple[int, str]:
         """How far into the run this cut point is: done steps, then timestamp.
 
-        Not the wall clock on its own (Codex review 2026-09-14, finding 4):
+        Not the wall clock on its own:
         `timestamp` comes from `datetime.now`, so a host clock that steps
         backwards can make an earlier cut point read as the newest one — and
         both the resume that picks a checkpoint and the retention that drops
@@ -1399,7 +1399,7 @@ class CheckpointManager:
 
         if not (cp_dir / "metadata.json").is_file():
             raise FileNotFoundError(f"Checkpoint not found: {cp_dir}")
-        # Same place, same reason (Codex review 2026-09-14, finding 3): `save`
+        # Same place, same reason: `save`
         # refuses to publish a checkpoint that is missing a layer, so restoring
         # one is a contradiction — and by the time the missing layer is
         # noticed, the live layer it was meant to replace is already in the

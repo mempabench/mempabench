@@ -570,7 +570,7 @@ def test_add_waits_ten_minutes_while_other_operations_wait_three() -> None:
     assert read_timeouts == [600.0, 180.0]
 
 
-# ── checkpoint step 36 ────────────────────────────────────────────
+# ── checkpoint ────────────────────────────────────────────────────
 
 
 def test_export_cube_uses_frozen_cube_id() -> None:

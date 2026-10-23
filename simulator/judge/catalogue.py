@@ -65,14 +65,14 @@ _SECTION_RE = re.compile(r"^## (.+)$", re.MULTILINE)
 #: every write, in-sandbox (`internal_write`: documents, contacts, calendar,
 #: notes) as well as out (`external_write`, `external_action`). Read-only
 #: effects (`read`, `verify`) stay out: looking is not an act.
-#: Owner ruling of 2026-09-12: WHICH acts the assistant carried out is
+#: WHICH acts the assistant carried out is
 #: mechanical, so code collects them and hands the list to the model; what a
-#: line claims stays the model's. The mechanical half of that brief was
+#: line claims stays the model's. The mechanical half was first
 #: written against `harness/gate.py:_catalog_external_tools`, whose set is the
 #: external two, because a session releases at most one external tool — but
 #: the question is about ANY act, and the boolean it replaced (`pa_wrote`,
 #: a suffix test) counted in-sandbox writes too. Live user_b `acc_001` on the
-#: mem0 line (2026-09-13) is the cost of the narrower set: the PA really ran
+#: mem0 line is the cost of the narrower set: the PA really ran
 #: `document_update`, the list read "none yet", and four rewrites of the
 #: user's thanks were all judged fictions. Not imported from `harness`:
 #: `simulator/` does not read that package, the way `simulator.loop` and
@@ -94,7 +94,7 @@ NO_EXECUTED_ACTS = "none yet"
 #: A delivered proactive outreach as one line of the same list. It is the one
 #: act with no catalog entry: the send happens outside the tool record
 #: (`SimulatorLoop._run_proactive_trigger`), so no name carries it and the
-#: label is written here rather than read off the catalog. Live regress24m
+#: label is written here rather than read off the catalog. Live
 #: `acc_029` is why it is on the list at all — the PA really did contact the
 #: user, and the actor's true "having it sent was unwelcome" was judged a
 #: fiction without it.
@@ -256,7 +256,7 @@ class TurnContext:
     def executed_acts(self) -> tuple[str, ...]:
         """The acts this session has really carried out, one line each.
 
-        The owner's ruling of 2026-09-12 replaced the session boolean
+        This list replaced the session boolean
         `pa_wrote`: one flag meant any real write switched
         `reaction_asserts_unexecuted_pa_action` off for every later line, so an
         actor could fabricate "you already sent it" after the PA had merely
@@ -268,7 +268,7 @@ class TurnContext:
         catalog's writes, in-sandbox as well as external), plus a delivered
         outreach. The in-sandbox writes are on it because the question is
         about any act the line credits the assistant with, and a document the
-        PA really edited is one: live user_b `acc_001` (2026-09-13) thanked it
+        PA really edited is one: live user_b `acc_001` thanked it
         for a `document_update` it had just run and the turn was voided as a
         fiction. A read is never an act. The list is as long as the session's
         writes; a tool called twice is still one act, because the list says
@@ -406,7 +406,7 @@ def format_tool_log_line(
 ) -> str:
     """One `<tool_log>` line: what ran, what it ran on, how it came back.
 
-    Names alone are not enough. Live regress22 `acc_006` stopped four times on
+    Names alone are not enough. Live `acc_006` stopped four times on
     `reaction_asserts_unexecuted_pa_action` after seven `mcp_state_document_update`
     calls that all came back ok: handed seven bare names, the judge could not
     see WHAT had been updated and answered "the tool log shows no such action"
@@ -519,9 +519,9 @@ def build_asserts_unexecuted(ctx: TurnContext) -> QuestionGroup:
 
     q2 asked the model to find the claimed change in `<tool_log>`, and the 12B
     judge answered it by hunting for a tool named after the user's phrasing
-    (live regress22 `acc_006`, twice). Owner ruling B of 2026-09-10 deleted it
-    and `<tool_log>` with it, and made "did anything run" a code-side boolean;
-    the owner's ruling of 2026-09-12 replaced that boolean with this list.
+    (live `acc_006`, twice). It was then deleted
+    and `<tool_log>` with it, and "did anything run" became a code-side boolean;
+    this list replaced that boolean.
     `<executed_acts>` is the difference: not the raw log the judge could not
     read, but the acts themselves, named and glossed, which is a list a line
     can be checked against. `<assistant_turns_so_far>` stays — the question
@@ -552,7 +552,7 @@ def build_misstates_contractions(ctx: TurnContext) -> QuestionGroup:
             Question(f"{rule}__q1", prompt.text(f"{rule}__q1"), "candidate_turn"),
             # q2 has a third answer for "q1 said there is no report", so the
             # frame's "answer each question on its own" holds and a wrong `no`
-            # no longer has to be copied down (audit finding I, 2026-09-12).
+            # no longer has to be copied down.
             Question(
                 f"{rule}__q2",
                 prompt.text(f"{rule}__q2"),
@@ -611,8 +611,7 @@ def build_authorises_pa_action(ctx: TurnContext) -> QuestionGroup:
     rule = "reaction_authorises_pa_action"
     prompt = RULE_PROMPTS[rule]
     # `assistant_turns_so_far` is not here: no sub-question reads it, and the
-    # assistant's own go-aheads inside it pull q2 onto the wrong speaker
-    # (audit finding G, 2026-09-12).
+    # assistant's own go-aheads inside it pull q2 onto the wrong speaker.
     blocks = {"beat_avoid": ctx.beat_avoid}
     questions = [Question(f"{rule}__q1", prompt.text(f"{rule}__q1"), "beat_avoid")]
     for index, clause in enumerate(exception_clauses(ctx.beat_avoid), start=1):
@@ -665,17 +664,17 @@ def build_withheld_fact_before_ask(ctx: TurnContext) -> QuestionGroup:
 
     Delivery — are the key terms all there — is `missing_key_terms()` and stays
     in code: both errors of the two-step experiment were on that count, and none
-    on reading an exemption. `q_handed` is the question of the owner's ruling of
-    2026-09-09: it took over `pre_reveal_substitute_for_gated_fact` (did the turn
+    on reading an exemption. `q_handed` took over
+    `pre_reveal_substitute_for_gated_fact` (did the turn
     supply wording of its own for a thing not revealed yet) and nothing else —
-    ruling A of the same day keeps both exemptions as questions of their own, so
+    both exemptions stay questions of their own, so
     `q_handed` asks only whether the turn fills the slot. It works the slot noun
     out first the way `q_names` does, and answers on whether the words it quotes
     could be used AS the thing: replayed without that, the deleted rule's text
     scored P .10 over 150 rows, calling deferrals, instructions and bare
     mentions of the topic wording of the turn's own.
 
-    The three questions read three different blocks (owner ruling, 2026-09-09).
+    The three questions read three different blocks.
     `q_handed` quotes the handed or invented wording out of the candidate turn.
     `q_wording` asks for the wording *of this sentence*, which only the turn the
     user is replying to can have asked for. `q_names` asks whether the assistant
@@ -686,7 +685,7 @@ def build_withheld_fact_before_ask(ctx: TurnContext) -> QuestionGroup:
     them.
 
     That is the on-request arm. The pre-reveal arm asks `q_handed` alone, under
-    `## preamble_pre_reveal`: ruling A leaves the exemptions unread there, so
+    `## preamble_pre_reveal`: the exemptions do not apply there, so
     asking them buys nothing, and the two blocks only they read go with them.
     """
     rule = "withheld_fact_before_ask"
@@ -708,11 +707,10 @@ def build_withheld_fact_before_ask(ctx: TurnContext) -> QuestionGroup:
         ),
     }
     if ctx.pre_reveal:
-        # `compose_withheld_fact_before_ask` reads neither exemption on this arm
-        # (owner ruling A, 2026-09-09), so neither is asked, and the two blocks
+        # `compose_withheld_fact_before_ask` reads neither exemption on this arm,
+        # so neither is asked, and the two blocks
         # only they read — `pa_previous_turn`, `assistant_turns_so_far` — are not
-        # printed to a call that has no question for them (audit finding H,
-        # restored by the owner 2026-09-12).
+        # printed to a call that has no question for them.
         return QuestionGroup(
             rule=rule,
             shape="two_step",
@@ -744,7 +742,7 @@ def build_withheld_fact_before_ask(ctx: TurnContext) -> QuestionGroup:
 
 
 def build_reaction_beat_off_attribute(ctx: TurnContext) -> QuestionGroup:
-    """Owner ruling C-3 (2026-09-11): the frozen word table's finding, asked.
+    """The frozen word table's finding, asked.
 
     `_REACTION_SURFACE_TERMS` in `scripts/validate_normal_event.py` takes no
     new rows; whether a shared word opens another attribute's surface is a
@@ -778,8 +776,8 @@ def compose_carries_an_ask(verdicts, ctx) -> bool:
 def compose_asserts_unexecuted(verdicts, ctx) -> bool:
     """q1 alone: the turn claims an act `<executed_acts>` does not carry.
 
-    There is no second half any more. Owner ruling B of 2026-09-10 made it the
-    session boolean `pa_wrote` and the ruling of 2026-09-12 took that out: one
+    There is no second half any more. It became the
+    session boolean `pa_wrote`, which was then taken out: one
     flag cleared every claim on a turn as soon as anything at all had run, so
     the particular act a sentence names went unchecked. Code still owns the
     record — it builds the list — and the model is asked the one question a list
@@ -792,8 +790,7 @@ def compose_misstates_contractions(verdicts, ctx) -> bool:
     """q1 ∧ ¬q2, and q2 is read only when q1 said there is a report.
 
     q2 answers `not_applicable` when q1 is no, so nothing here has to tell the
-    two answers apart: the `and` never reaches q2 on that branch (audit finding
-    I, 2026-09-12).
+    two answers apart: the `and` never reaches q2 on that branch.
     """
     if not _yes(verdicts, "reaction_misstates_contractions__q1"):
         return False
@@ -858,8 +855,8 @@ def compose_withheld_fact_before_ask(verdicts, ctx) -> bool:
     """Pre-reveal: q_handed alone. On request: (delivered OR q_handed) AND NOT
     q_wording AND NOT asked_by_name.
 
-    Before the reveal beat the exemptions do not apply (owner ruling A,
-    2026-09-09): the turn must not hand a stand-in for the gated sentence over
+    Before the reveal beat the exemptions do not apply:
+    the turn must not hand a stand-in for the gated sentence over
     that early even when the assistant asked for it. Past the reveal beat the
     sentence is the actor's to give once asked, and the two exemptions are what
     excuse the handing over.
@@ -868,7 +865,7 @@ def compose_withheld_fact_before_ask(verdicts, ctx) -> bool:
     half of the same fact, the one that catches a turn handing over wording of
     its own before the reveal beat, where the code test has no real sentence to
     match against. Either one is a handing over; the two exemptions are what
-    excuse it, and both keep their own question (owner ruling A, 2026-09-09).
+    excuse it, and both keep their own question.
     Folded into `q_handed` the wording exemption could not reach a turn the code
     had already called delivered.
 
@@ -925,7 +922,7 @@ CATALOGUE: tuple[RuleSpec, ...] = (
         build_authorises_pa_action,
         compose_authorises_pa_action,
     ),
-    # Commented out, owner ruling 2026-09-13 ("先comment"): the rule is not
+    # Commented out: the rule is not
     # asked this round; gold, prompt and builder stay.
     # RuleSpec(
     #     "reaction_states_future_policy",
@@ -977,7 +974,7 @@ def render_questions(group: QuestionGroup) -> str:
         quoting = " or ".join(f'"{value}"' for value in (question.quotes_on or ()))
         # The grammar of a reference is in the system prompt, once. Per
         # question only the two facts that vary: which answers need one and
-        # which block it may point at (audit 2026-09-12, "多不多").
+        # which block it may point at.
         lines.append(
             f"[{question.question_id}]\n{question.text}\n"
             f"  answer with one of {answers}\n"

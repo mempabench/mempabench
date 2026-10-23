@@ -123,7 +123,7 @@ IX_RENDER_CONTRACT_FAILURE_DETAIL = (
     "invalid responses, so this turn had no per-turn render data"
 )
 
-#: Owner decision 2026-09-07: the same rule for the opening line. A Bookend /
+#: The same rule for the opening line. A Bookend /
 #: Full narration turn that executed task calls with no `_ix_notice` on any of
 #: them, and wrote none when asked twice, reaches the user as Silent -- so it
 #: does not reach the user.
@@ -132,7 +132,7 @@ IX_NOTICE_CONTRACT_FAILURE_DETAIL = (
     "carried _ix_notice, twice after being asked"
 )
 
-#: regress20 `acc_027`: the reaction beat offers no IX tools at all, the PA
+#: `acc_027`: the reaction beat offers no IX tools at all, the PA
 #: called `IX_emotional_engagement` anyway, the registry refused it three times
 #: and the turn failed closed at `runner.py`'s third-refusal break. It was
 #: reported as the capability failure below -- the mapping had a default, and
@@ -144,7 +144,7 @@ IX_SELECTION_CONTRACT_FAILURE_DETAIL = (
     "reply"
 )
 
-#: regress23m `acc_001`: the other cause of the same break. The beat *did* offer
+#: `acc_001`: the other cause of the same break. The beat *did* offer
 #: `IX_verbosity`; the PA called it with `{}` and the registry refused it three
 #: times for "missing required setting". The sentence above sent the reader to
 #: the beat's tool list, where there was nothing wrong.
@@ -155,7 +155,7 @@ IX_SELECTION_ARGS_CONTRACT_FAILURE_DETAIL = (
     "reply"
 )
 
-#: hy4 `acc_031`, 2026-09-18: the third cause of the same break, one tier down.
+#: hy4 `acc_031`: the third cause of the same break, one tier down.
 #: `IX_render_process_visibility` was called with the *selection* tool's
 #: `setting`/`evidence`/`application` and without its own required
 #: `completion_message`, so the turn wore the selection-arguments sentence and
@@ -179,7 +179,7 @@ IX_GATE_CONTRACT_FAILURE_DETAIL = (
 
 #: Every kind the runner can name, and nothing else: an unmapped kind is a new
 #: fatal site that has not said what it broke, and guessing is what produced
-#: the regress20 mislabel.
+#: the `acc_027` mislabel.
 _IX_CONTRACT_FAILURE_DETAILS: dict[str, str] = {
     IX_CONTRACT_RENDER: f"render contract: {IX_RENDER_CONTRACT_FAILURE_DETAIL}",
     IX_CONTRACT_NOTICE: f"notice contract: {IX_NOTICE_CONTRACT_FAILURE_DETAIL}",
@@ -205,7 +205,7 @@ _IX_CONTRACT_FAILURE_DETAILS: dict[str, str] = {
 #: setting, and it reads the turn directive, which is built from
 #: `inherited_ix_selections` alone. With
 #: the two scopes mismatched, stage 3 could never run for the events stage 2
-#: fires on: live, `v3g07` and `v3g08` (forced `Suggest alternatives` /
+#: fires on: live, two sessions (forced `Suggest alternatives` /
 #: `Find and hand off`) both declared the boundary on beat 1 and then rendered
 #: byte-identically -- `gate: null`, zero holds -- because
 #: `directive.capability_boundary_policy` was empty there. The renderer already
@@ -227,7 +227,7 @@ _TRIGGERED_IX = CAPABILITY_BOUNDARY_ATTRIBUTE
 #: built it — `{source_id, action_id, body}` — before the fixed
 #: `"Use IX_proactive_outreach …"` instruction was appended to the text the PA
 #: is shown. The instruction is IX contract enforcement and stays out of the
-#: pool (owner ruling 2026-09-13, Q4); the split stays exact because the clean
+#: pool; the split stays exact because the clean
 #: body is *constructed* here and never recovered by string-stripping the
 #: `InboundMessage.content`, whose suffix is an inline f-string literal. Popped
 #: off the outbound metadata like the consent sideband.
@@ -258,7 +258,7 @@ def render_environment_event(body: str) -> str:
     """
     return f"{ENVIRONMENT_EVENT_HEADER}\n{body}"
 
-#: regress13 acc_035 — how much of a dropped claim goes on the event. Enough to
+#: acc_035 — how much of a dropped claim goes on the event. Enough to
 #: recognise the sentence in the reply (or to see that it is not in *this*
 #: reply); the whole claim is already on the audit plane in
 #: `ix_render.certainties`, so the event carries a head and not a second copy.
@@ -718,7 +718,7 @@ class AgentLoop:
 
         `ContextBuilder` merges the scripted clock and channel framing into the
         user message so a provider never sees two user turns in a row. That
-        framing is item #2 — scaffolding that exists only because a run is
+        framing is scaffolding that exists only because a run is
         scripted — so it comes off here, exactly as `_save_turn` takes it off
         the persisted copy.
 
@@ -758,7 +758,7 @@ class AgentLoop:
 
         The block is built from the executed request and its tool event,
         never from the assistant message's serialized `tool_calls` — that copy
-        is written at `pa/agent/runner.py:1413-1421`, before
+        is written at `pa/agent/runner.py:1412-1420`, before
         `_dedupe_ix_selections` and `_restore_voided_selection_fields` run at
         `:1458-1462`, so it can carry an ignored duplicate or a blank
         `evidence` the registry never saw. The collector's call records carry
@@ -766,7 +766,7 @@ class AgentLoop:
         stripped (`pa/agent/ix/collector.py:995`).
 
         `executed` / `rejected` come from the call's `_run_tool` event status
-        (`pa/agent/runner.py:3751-3762`), which `record_call` copies;
+        (`pa/agent/runner.py:3748-3759`), which `record_call` copies;
         `ignored_duplicate` comes from `_reselected_attribute` (`:2840-2860`,
         recorded unexecuted with `status="ignored"`) and from
         `_dedupe_ix_selections` (`:3637-3666`), whose drops never reach the
@@ -1020,7 +1020,7 @@ class AgentLoop:
             if not episode.closed
             for call in episode.calls_held
         }
-        # Owner ruling 2026-09-08: a standing authorisation is the one verdict
+        # A standing authorisation is the one verdict
         # with no ask behind it -- the actor spoke the go-ahead on the beat
         # before anything was held (acc_039 t40). It names a tool and no id, so
         # the anchor above would drop it, and its own scope rule takes the place
@@ -1169,7 +1169,7 @@ class AgentLoop:
             attribute: getattr(selection, "setting", "") or ""
             for attribute, selection in (self._ix_selection_cache.get(cache_key) or {}).items()
         }
-        # Owner-approved verification aid (2026-09-08, `pa/agent/ix/verification.py`).
+        # Verification aid (`pa/agent/ix/verification.py`).
         # Here and nowhere else: the model's selection is already in
         # `result.tool_events` and in the selection cache, so the evidence keeps
         # the choice the PA actually made and this adds a second record beside
@@ -1213,7 +1213,7 @@ class AgentLoop:
         # still has to be told, and that line is the PA's to write -- the
         # renderer's template line underneath it does not make the miss go away.
         # `cancelled_now`, not `finished_episodes`: the latter accumulates for
-        # the whole session, so live `v6g01`'s two cancellations were reported
+        # the whole session, so live, two cancellations were reported
         # as nine, and anything counting cancellations off the event stream
         # over-counted 4.5 to 1.
         # acc_009 t=8 — the questions the payload declared and the prose never
@@ -1246,7 +1246,7 @@ class AgentLoop:
         # so the turn ships flat and the attribute has no surface. It was
         # trace-only for three rounds, and that is how a `claim_end` gap ate the
         # first `low` claim in four rounds without anything counting it.
-        # regress13 acc_035 — one row per dropped claim, not one row per turn
+        # acc_035 — one row per dropped claim, not one row per turn
         # carrying a `refs` list: the four drops of that session sat in two
         # events, so a counter over the stream read "2" where the surface lost
         # four hedges, and neither row said *which* sentence went missing. The
@@ -1266,7 +1266,7 @@ class AgentLoop:
                 "claim": claims.get(ref, "")[:_CLAIM_HEAD_CHARS],
                 "turn": render_input.turn_index,
             })
-        # regress13 acc_009 — the excision's own tidy-up, recorded because it is
+        # acc_009 — the excision's own tidy-up, recorded because it is
         # a sentence the PA wrote and the user did not read. Three turns there
         # shipped the lead-in alone; the count is what says how often the
         # setting's release rate and the PA's prose disagreed.
@@ -1288,7 +1288,7 @@ class AgentLoop:
                     "ix_event": True, "name": "ix_close_no_message",
                     "attribute": episode.attribute, "episode_id": episode.episode_id,
                 })
-        # Owner decision 2026-09-06: a carried question the PA released
+        # A carried question the PA released
         # without re-marking it is folded into this reply's prose -- released,
         # settled, nothing carried over. That is the rule the hold reminder
         # states, so it is not a failure; the record is what lets the batch
@@ -1306,7 +1306,7 @@ class AgentLoop:
         #
         # What the turn delivered decides it. The closing iteration put prose back on exactly
         # the hold turns this reads, so on a batch hold the flag fired by
-        # construction (`v5g01` = 3, two of them honest) until the three things
+        # construction (3 in one session, two of them honest) until the three things
         # a hold turn may legitimately deliver were excluded: the gate's ask,
         # released questions, and a released batch -- each of them a message
         # about work that did happen, or a request the user still owes.
@@ -1624,7 +1624,7 @@ class AgentLoop:
                 # interaction choice and `proactive_outreach` is scored on it,
                 # so a suppressed turn is not a turn that never happened --
                 # but it delivered nothing, so it appends no session message
-                # (owner ruling 2026-09-13, round-2 Q2 = A) and its journal
+                # and its journal
                 # span is `[n, n)`.
                 before_len = len(session.messages)
                 pool = self._build_turn_pool(
@@ -1846,8 +1846,8 @@ class AgentLoop:
             # non-fatal repairs emit the same events as the fatal ones, and
             # anything the list did not name fell through to the capability
             # text -- which is how a refused selection on a beat with no IX
-            # tools was reported as an unresolved capability limit (regress20
-            # acc_027). So: no default, and an unnamed kind says so.
+            # tools was reported as an unresolved capability limit
+            # (acc_027). So: no default, and an unnamed kind says so.
             kind = result.ix_contract_failure_kind
             detail = _IX_CONTRACT_FAILURE_DETAILS.get(kind or "") or (
                 f"contract: an IX rule that names no kind ({kind!r}) ended "
@@ -1888,7 +1888,7 @@ class AgentLoop:
             if callable(upstreams) and (seen := upstreams()):
                 failure.failed_turn_events["upstream_providers"] = seen
             raise failure
-        # No placeholder here any more (round 9 item 1). An empty delivered turn
+        # No placeholder here any more. An empty delivered turn
         # is decided at the runner's single exit, which spends one request asking
         # for the sentence the turn owes and hands back the template line when
         # that comes back empty too -- so by the time the renderer runs there is
@@ -2100,7 +2100,7 @@ class AgentLoop:
         Read off `finished_episodes`, which accumulates, precisely because the
         judge needs it on the turns *after* the cancellation: those turns
         withhold nothing, so no detector fires when the PA lists a cancelled
-        item as done -- live, `v6g01` t35's "Confirmation email sent to
+        item as done -- live, one turn's "Confirmation email sent to
         Dr. Okafor" for an `email_message_send` that never ran. De-duplicated
         by `(attribute, id)`: one episode can be cancelled twice in a session.
         """
@@ -2186,14 +2186,14 @@ class AgentLoop:
 
         `narration` is the prose written in the same assistant message as a held
         call, plus the sentences the wrapper-vocabulary filter
-        withheld (round 9 item 3, `item_id: "wrapper_vocabulary"`). The key is
+        withheld (`item_id: "wrapper_vocabulary"`). The key is
         absent when there is none, so a 1.1.0 record stays a valid 1.1.x record.
 
         `calls` is read from the open episodes for the same reason the other
         three keys are: an episode carries its pending items across turns, while
         `rendered.held` is only what the gate stopped on *this* turn. Reading
-        the latter alone made a carried call disappear from the blob -- live
-        (`v11s02` t7) `calls` was `[]` on a turn where the same blob's
+        the latter alone made a carried call disappear from the blob -- live,
+        `calls` was `[]` on a turn where the same blob's
         `plan_remaining` still listed the step it belonged to. `episode.calls_held`
         is the pending set (`render._pending` merges what the episode carried
         with this turn's holds), so this turn's rows are added on top only for
@@ -2418,7 +2418,7 @@ class AgentLoop:
 
         # The trigger the PA perceives, and the IX instruction the harness
         # appends to it, are built as two strings rather than one, so the pool
-        # gets the event without the instruction by construction (Q4) instead
+        # gets the event without the instruction by construction instead
         # of by stripping a suffix off the text.
         event_body = render_environment_event(
             f"Trigger ID: {trigger_id}\n"

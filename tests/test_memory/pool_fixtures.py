@@ -1,4 +1,4 @@
-"""One realistic turn pool, shared by every adapter's step-6 test.
+"""One realistic turn pool, shared by every adapter's pool test.
 
 The pool is built by `memory.event_writer.build_turn_pool` — never hand-rolled
 here — so the adapter tests assert against the bytes the harness really hands
@@ -218,7 +218,7 @@ _REASONING_PARAGRAPH = (
 def oversized_reasoning_turn_pool() -> TurnPool:
     """A pool whose ONE assistant message does not fit the embedding input.
 
-    The shape that killed `ub_simple_rag_glm_5_3_flash_20260918` at
+    The shape that killed a live simple_rag run at
     `acc_014:beat_clarify_task:t1`: a single iteration whose reasoning block
     alone runs over the cap, followed by its tool calls, which
     `build_turn_pool` emits as one assistant message. The `[reasoning]` block

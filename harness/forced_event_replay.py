@@ -74,8 +74,8 @@ def result_contains_expected(actual: Any, expected: Any) -> bool:
     same pins against the run's real stage with another
     (`harness/forced_event_executor.py`).
 
-    An expected list that is empty asserts that the world returned no members
-    (owner ruling 2026-09-12 on Codex F4). It is the writer's own assertion --
+    An expected list that is empty asserts that the world returned no members.
+    It is the writer's own assertion --
     the generator prompt offers "that the result is empty", and a set is the
     one answer `_pin_subset` cannot freeze for them -- so on the vacuous
     reading (`all(... for item in [])`) it claimed nothing, and an event that
@@ -85,8 +85,8 @@ def result_contains_expected(actual: Any, expected: Any) -> bool:
     A pinned document `content` is a containment claim, not a snapshot. The
     pins are frozen against the pristine fixture, but by the slot the forced
     event replays the accumulation sessions have appended to the same
-    documents (owner ruling on state-change semantics: accumulation is
-    accepted), so whole-string equality failed a world that still holds every
+    documents (accumulated state change is accepted), so whole-string
+    equality failed a world that still holds every
     fact the pinned PA turn relies on. `content` is satisfied when every
     non-empty pinned line occurs in the actual text in order; appended or
     interleaved lines are allowed, a missing, altered or reordered pinned line
@@ -160,7 +160,7 @@ def _coerced(value: Any, declared: str) -> Any:
     arithmetic -- offline in the generator's replay and live in the executor
     alike, since both go through `resolve_arguments`. user_d `evolv_02` is the
     first forced event in any persona to take a non-string catalog type from a
-    task fact, which is why nothing caught it until 2026-09-15.
+    task fact, which is why nothing caught it earlier.
 
     Only strings are converted, and only into the type the catalog names. Text
     that will not convert is returned unchanged rather than mangled, so the

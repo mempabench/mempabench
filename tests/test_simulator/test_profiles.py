@@ -68,7 +68,7 @@ def test_load_starter_profile_reads_nanobot_workspace() -> None:
             "Declarative assertions without hedging",
             "Demand precise specifications before proceeding",
         ),
-        # Restored from 7d6a3b1 with the strings the re-extracted bundle
+        # Restored with the strings the re-extracted bundle
         # actually carries; the old ones came from the hand-written user_b that
         # was archived before the extraction pipeline built this identity.
         (

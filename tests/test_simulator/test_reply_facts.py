@@ -1,12 +1,12 @@
 """The actor's private record of what the assistant's latest reply did.
 
-Owner ruling 2026-09-17 (`project_rules_setting_semantics`): the simulated user
-picks a reaction beat's conditional branch from the PA's visible reply plus
-exactly four facts the harness hands over — which state-changing tools ran
-(catalog name and catalog line, never arguments), how many task calls the turn
-made, how many progress lines and whether a closing line were delivered, and
-whether bracketed confidence tags appeared. Never a hold flag, never what the
-wrapper held back, never a gate's parameters, never a setting name.
+The simulated user picks a reaction beat's conditional branch from the PA's
+visible reply plus exactly four facts the harness hands over — which
+state-changing tools ran (catalog name and catalog line, never arguments), how
+many task calls the turn made, how many progress lines and whether a closing
+line were delivered, and whether bracketed confidence tags appeared. Never a
+hold flag, never what the wrapper held back, never a gate's parameters, never a
+setting name.
 
 Run with:
     PYTHONPATH=. python -m pytest tests/test_simulator/test_reply_facts.py
@@ -320,7 +320,7 @@ def test_the_actor_prompt_carries_the_four_facts_and_never_the_held_ledger() -> 
         assert "private record of what it did" not in opening
         assert after, "no turn after the PA's reply"
         for trigger in after:
-            # The four facts, as the ruling lists them.
+            # The four facts, as the module docstring lists them.
             assert SEND_LABEL in trigger
             assert "Tool calls it made for the task in that reply" in trigger
             assert ": 4" in trigger

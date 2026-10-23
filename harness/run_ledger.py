@@ -40,7 +40,8 @@ class StepRecord:
     artifacts: dict[str, str] = field(default_factory=dict)
     summary: dict[str, Any] = field(default_factory=dict)
     #: One of `harness.failure_kind.FAILURE_KINDS` on a step that failed. None
-    #: on every other step and on every ledger written before R3, which is why
+    #: on every other step and on every ledger written before the field
+    #: existed, which is why
     #: it is optional here and shown as `-` rather than guessed at.
     failure_kind: str | None = None
     #: Which counting rules `summary` was produced under. `tool_calls` already

@@ -10,7 +10,7 @@ fired by instead of a question. Nothing else — no story,
 no phases, no opening, no identity section — because probes need neither
 diversity nor a causal chain.
 
-The outline layer is what the owner reviews; `scripts/validate_probe_outline.py`
+The outline layer is what gets reviewed; `scripts/validate_probe_outline.py`
 runs the A1–A12 rows over a parsed `ProbeOutline`.
 """
 
@@ -196,8 +196,8 @@ class ProbeWorldObject(StrictModel):
     # The section or record field the probe reads, e.g. `4. Limits and pre-approval`.
     field: str | None = Field(default=None, min_length=1)
     note: str | None = Field(default=None, min_length=1)
-    # Role `candidate` on an `information_elicitation` probe only (A4, owner
-    # 2026-09-16): the `missing_field` this record is one possible answer to. The acc
+    # Role `candidate` on an `information_elicitation` probe only (A4):
+    # the `missing_field` this record is one possible answer to. The acc
     # line spells the same key `IngredientObject.missing_field_ref` and points it at
     # that ingredient's `ref`; a probe world object carries no `ref`, so here it names
     # the field's `task_fact`, which is unique within the entry and already validated
@@ -207,7 +207,7 @@ class ProbeWorldObject(StrictModel):
     missing_field_ref: str | None = Field(
         default=None, min_length=1, pattern=TASK_FACT_KEY_RE.pattern
     )
-    # Role `gate` only, the owner's gate definition as on `IngredientObject`:
+    # Role `gate` only, the gate definition as on `IngredientObject`:
     # `gate_tool` is the catalog tool the task cannot skip, `gate_param` one of
     # its REQUIRED parameters, `task_fact` the key whose value only the user
     # holds. `gate_kind` has the one shape there is; A4 checks the tool and the
@@ -342,17 +342,17 @@ class ProbeEntry(StrictModel):
     # arrives and the line the user says once the PA has made contact. Every
     # other attribute is read by a question and carries no trigger block.
     trigger: ProbeTrigger | None = None
-    # `autonomy_level` only, and required there (A17, owner 2026-09-16): the one
+    # `autonomy_level` only, and required there (A17): the one
     # catalog `external_write` tool the ask's OUTWARD step calls, after the
     # internal write the gate sits on. Reactive stops before the internal write,
     # Self-directed runs it and stops before this call, Autonomous makes it and
     # reports -- so all three settings separate on one ask. Exactly one entry:
     # a session releases one outward act. Empty on every other attribute.
     outward_tools: list[str] = Field(default_factory=list)
-    # `capability_boundary` only, and required there (A19, owner 2026-09-16): the
+    # `capability_boundary` only, and required there (A19): the
     # route out of the block and what taking it costs her. The SAME model the acc
-    # line uses (`scripts.outline_schema.ProbeRecovery`), because the ruling is one
-    # ruling: "Suggest alternatives" states the limit and takes the route in the
+    # line uses (`scripts.outline_schema.ProbeRecovery`), because the rule is one
+    # rule: "Suggest alternatives" states the limit and takes the route in the
     # blocked turn, "Find and hand off" states it, names the route and hands control
     # back, so both arms are written from one declared route. Null on every other
     # attribute.

@@ -105,9 +105,6 @@ def _session_metadata_line(path: Path) -> dict:
     return json.loads(first)
 
 
-# ── step 3 ────────────────────────────────────────────────────────
-
-
 def test_verify_layers_reports_missing_layers(tmp_path: Path) -> None:
     cp_dir = tmp_path / "cp"
     (cp_dir / "pa_workspace").mkdir(parents=True)
@@ -124,9 +121,6 @@ def test_verify_layers_reports_missing_layers(tmp_path: Path) -> None:
         cp_dir, memory_condition="nanobot_file_memory", pinned=True
     )
     assert "run_plan.yaml" in pinned_missing
-
-
-# ── step 4 ────────────────────────────────────────────────────────
 
 
 def test_incomplete_checkpoint_is_not_published(tmp_path: Path) -> None:
@@ -147,9 +141,6 @@ def test_incomplete_checkpoint_is_not_published(tmp_path: Path) -> None:
     assert not (run_dir / "checkpoints" / "acc_001").exists()
     assert manager.list_checkpoints() == []
     assert not list((run_dir / "checkpoints").glob(".staging-*"))
-
-
-# ── step 5 ────────────────────────────────────────────────────────
 
 
 def test_save_preserves_session_cursors(tmp_path: Path) -> None:
@@ -176,9 +167,6 @@ def test_save_preserves_session_cursors(tmp_path: Path) -> None:
     ).read_text(encoding="utf-8") == "pa memory\n"
 
 
-# ── step 6 ────────────────────────────────────────────────────────
-
-
 def test_save_refuses_when_stage_work_not_empty(tmp_path: Path) -> None:
     run_dir = _build_run_dir(tmp_path)
     _write_session(run_dir, cursors=(0, 0, 0))
@@ -192,9 +180,6 @@ def test_save_refuses_when_stage_work_not_empty(tmp_path: Path) -> None:
     assert not (run_dir / "checkpoints" / "acc_002").exists()
 
 
-# ── step 7 ────────────────────────────────────────────────────────
-
-
 def test_save_includes_simulator_memory(tmp_path: Path) -> None:
     run_dir = _build_run_dir(tmp_path)
     _write_session(run_dir, cursors=(0, 0, 0))
@@ -205,9 +190,6 @@ def test_save_includes_simulator_memory(tmp_path: Path) -> None:
     assert (
         cp_dir / "simulator_workspace" / PERSONA / "memory" / "MEMORY.md"
     ).read_text(encoding="utf-8") == "simulator memory\n"
-
-
-# ── step 8 ────────────────────────────────────────────────────────
 
 
 def test_snapshot_ledger_marks_current_step_done(tmp_path: Path) -> None:
@@ -236,9 +218,6 @@ def test_snapshot_ledger_marks_current_step_done(tmp_path: Path) -> None:
     assert manager.metadata("acc_003")["pinned"] is True
 
 
-# ── step 9 ────────────────────────────────────────────────────────
-
-
 def test_memory_io_is_captured_and_verified(tmp_path: Path) -> None:
     run_dir = _build_run_dir(tmp_path)
     _write_session(run_dir, cursors=(0, 0, 0))
@@ -258,9 +237,6 @@ def test_memory_io_is_captured_and_verified(tmp_path: Path) -> None:
     with pytest.raises(IncompleteCheckpointError):
         manager.save("acc_002", pinned=False)
     assert not (run_dir / "checkpoints" / "acc_002").exists()
-
-
-# ── step 11 ───────────────────────────────────────────────────────
 
 
 def test_prune_keeps_pinned_and_last_n_rolling(tmp_path: Path) -> None:
@@ -361,9 +337,6 @@ def test_save_prunes_after_publishing(tmp_path: Path) -> None:
     assert manager.list_checkpoints() == ["acc_001", "acc_003", "acc_004"]
 
 
-# ── step 12 ───────────────────────────────────────────────────────
-
-
 def test_restore_rolls_back_all_layers_and_ledger(tmp_path: Path) -> None:
     run_dir = _build_run_dir(tmp_path)
     _write_session(run_dir, cursors=(1, 1, 1))
@@ -408,7 +381,7 @@ def test_restore_refuses_an_incomplete_checkpoint_before_anything_moves(
 ) -> None:
     """`save` refuses to publish a checkpoint missing a layer; so must restore.
 
-    Codex review 2026-09-14, finding 3. A checkpoint whose `simulator_workspace`
+    A checkpoint whose `simulator_workspace`
     was lost after publication still carried its `metadata.json`, and restore
     read nothing else: it moved the live simulator workspace into the crash
     scene, put nothing back in its place, and installed the snapshot's ledger
@@ -445,7 +418,7 @@ def test_prune_keeps_the_furthest_cut_point_when_the_clock_steps_back(
 ) -> None:
     """Retention drops the oldest cut point, not the smallest clock reading.
 
-    Codex review 2026-09-14, finding 4. Timestamps come from `datetime.now`, so
+    Timestamps come from `datetime.now`, so
     a host clock that steps backwards between two saves made the newer cut
     point look like the oldest one — and with a full rolling window it was the
     one retention deleted.
@@ -467,9 +440,6 @@ def test_prune_keeps_the_furthest_cut_point_when_the_clock_steps_back(
 
     # acc_001 is the one behind; acc_002 is a completed, paid session.
     assert manager.list_checkpoints() == ["acc_002", "acc_003"]
-
-
-# ── step 13 ───────────────────────────────────────────────────────
 
 
 def test_restore_moves_post_checkpoint_steps_to_crash_scene(
@@ -539,9 +509,6 @@ def test_restore_clears_a_leftover_stage_work(tmp_path: Path) -> None:
 
     ledger.mark_running("acc_002")
     assert manager.save("acc_002", pinned=False).is_dir()
-
-
-# ── steps 19 / 21 ─────────────────────────────────────────────────
 
 
 def _pinned_manager(tmp_path: Path) -> tuple[Path, CheckpointManager]:
@@ -647,7 +614,7 @@ def test_branch_moves_prompt_start_and_keeps_rest(tmp_path: Path) -> None:
     ]
 
 
-# ── steps 30-38: external backends ────────────────────────────────
+# ── external backends ─────────────────────────────────────────────
 
 
 class FakeQdrant:
@@ -911,9 +878,6 @@ def _mem0_run(tmp_path: Path) -> tuple[Path, RunLedger, FakeMem0Client]:
     return run_dir, ledger, FakeMem0Client()
 
 
-# ── step 30 ───────────────────────────────────────────────────────
-
-
 def test_mem0_save_records_snapshot_ref(tmp_path: Path) -> None:
     run_dir, ledger, client = _mem0_run(tmp_path)
     manager = _external_manager(
@@ -935,9 +899,6 @@ def test_mem0_save_records_snapshot_ref(tmp_path: Path) -> None:
     with pytest.raises(IncompleteCheckpointError):
         manager.save("acc_109", pinned=False)
     assert not (run_dir / "checkpoints" / "acc_109").exists()
-
-
-# ── step 31 ───────────────────────────────────────────────────────
 
 
 def test_mem0_restore_deletes_then_reloads_same_name(tmp_path: Path) -> None:
@@ -972,9 +933,6 @@ def test_mem0_restore_deletes_then_reloads_same_name(tmp_path: Path) -> None:
     with pytest.raises(IncompleteCheckpointError):
         manager.restore("acc_108", ledger=ledger)
     assert client.qdrant_admin.calls == []
-
-
-# ── step 32 ───────────────────────────────────────────────────────
 
 
 def test_mem0_branch_binds_new_namespace(tmp_path: Path) -> None:
@@ -1020,9 +978,6 @@ def test_mem0_branch_binds_new_namespace(tmp_path: Path) -> None:
         "delete_collection",
         "mempa_run_001_br_fin_01_01",
     ) in client.qdrant_admin.calls
-
-
-# ── step 37 ───────────────────────────────────────────────────────
 
 
 def test_memos_restore_delegates_validated_replacement_to_service(tmp_path: Path) -> None:
@@ -1076,9 +1031,6 @@ def test_memos_restore_refuses_a_half_restored_cube(tmp_path: Path) -> None:
         manager.restore("acc_108", ledger=ledger)
 
 
-# ── step 38 ───────────────────────────────────────────────────────
-
-
 def test_memos_branch_binds_new_cube(tmp_path: Path) -> None:
     run_dir = _build_run_dir(tmp_path)
     _write_session(run_dir, cursors=(3, 3, 3))
@@ -1103,9 +1055,6 @@ def test_memos_branch_binds_new_cube(tmp_path: Path) -> None:
 
     assert manager.release_branch_namespace(branch_dir) == "cube_001_br_fin_01_01"
     assert ("delete", "cube_001_br_fin_01_01") in client.calls
-
-
-# ── step 27 ───────────────────────────────────────────────────────
 
 
 def _complete_checkpoint_dir(tmp_path: Path, metadata: dict) -> Path:
@@ -1542,8 +1491,7 @@ def test_snapshot_ledger_carries_the_done_step_summary(tmp_path: Path) -> None:
     step is still `running` and its summary — for a forced event, the
     `preference_overlay` flip the simulator's later steps are rebuilt from —
     exists nowhere on disk. Restoring that snapshot replaces the mainline
-    ledger with it, and the flip is gone: live on
-    `ub_nanobot_file_memory_deepseek_v4_flash_20260918`, the resume after the
+    ledger with it, and the flip is gone: live, the resume after the
     rollback onto `evolv_01` died at `acc_017` with the overlay empty.
     """
     run_dir = _build_run_dir(tmp_path)
@@ -1568,7 +1516,7 @@ def test_snapshot_ledger_carries_the_done_step_summary(tmp_path: Path) -> None:
     assert "summary" not in mainline["steps"]["evolv_01"]
 
 
-# ── rollback recovery (checkpoint_rollback_recovery_plan_20260918) ─
+# ── rollback recovery ─────────────────────────────────────────────
 
 
 def _history(
@@ -1589,7 +1537,7 @@ def test_restore_archives_the_candidates_the_rollback_revokes(
     The v4.1 line: restoring `acc_017` left the old `acc_018` on disk, and
     `progress_key` reads its done count as the larger one, so the next
     automatic recovery picked the snapshot the rollback had just revoked
-    (hy4, 2026-09-18).
+    (hy4).
     """
     run_dir = _build_run_dir(tmp_path)
     _write_session(run_dir, cursors=(0, 0, 0))

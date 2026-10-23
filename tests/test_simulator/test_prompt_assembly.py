@@ -229,7 +229,7 @@ def test_task_fact_path_absent_from_beat_and_history_keeps_its_real_value() -> N
 
 def test_three_block_output_format_required() -> None:
     """System message must instruct the LLM to use the 3-block output format
-    (2026-08-31 schema: message + factual_check + turn_assessment)."""
+    (message + factual_check + turn_assessment)."""
     identity, matrix, session = _load_fixtures()
     open_beat = session.beats[0]
     messages = assemble_prompt(identity, matrix, session, open_beat)
@@ -239,7 +239,7 @@ def test_three_block_output_format_required() -> None:
     assert "<message>" in sys
     assert "<factual_check>" in sys
     assert "<turn_assessment>" in sys
-    # The per-turn emotion block was removed 2026-08-31
+    # The per-turn emotion block was removed
     assert "<emotion_event>" not in sys
 
     # Boundary statement present (PA never sees the latter two)
@@ -289,7 +289,7 @@ def test_close_beat_cannot_start_a_follow_up_task() -> None:
 
 
 def test_an_offer_that_runs_ahead_of_the_beat_is_not_accepted() -> None:
-    """Live regress2 `acc_006`: `bottleneck_signal.avoid` said "Do not
+    """Live `acc_006`: `bottleneck_signal.avoid` said "Do not
     authorize any edits yet", the PA offered to make them anyway, and the actor
     answered "Proceed with the consolidation" — so the whole deliverable was
     finished three beats before `task_expansion` armed, and the probe beat had
@@ -307,7 +307,7 @@ def test_an_offer_that_runs_ahead_of_the_beat_is_not_accepted() -> None:
 
 
 def test_the_asking_beat_asks_and_does_not_answer_itself() -> None:
-    """Live regress2 `acc_035`: the probe beat was entered and played out, and
+    """Live `acc_035`: the probe beat was entered and played out, and
     the actor delivered the call the beat asks the assistant for ("the record
     supports granting the regrade") instead of demanding it, so the ask never
     reached the PA and the fact the beat holds stayed unreleased.
@@ -648,7 +648,7 @@ def test_response_skeleton_is_the_last_thing_in_the_system_prompt() -> None:
     assert "<turn_assessment>\nnext_beat:" in messages[-1]["content"]
 
 
-# --- session outline section (2026-09-03) ------------------------------------
+# --- session outline section -------------------------------------------------
 
 def _outline_session() -> SessionScript:
     return SessionScript(
@@ -767,7 +767,7 @@ def test_preference_beat_says_this_is_where_you_ask() -> None:
     assert line not in assemble_prompt(identity, matrix, session, plain_beat)[0]["content"]
 
 
-# --- probe gating: a fact gated to a later beat is not rendered (2026-09-04) ---
+# --- probe gating: a fact gated to a later beat is not rendered ----------------
 
 def _gated_session() -> SessionScript:
     _, _, session = _load_fixtures()
@@ -835,7 +835,7 @@ def test_the_deferral_rule_stands_once_the_gated_fact_unlocks() -> None:
 # --- a withheld fact the assistant asks for is deferred, never substituted ---
 
 def test_the_withheld_facts_line_renders_only_where_facts_are_withheld() -> None:
-    """Live `check039` `acc_039` t12: the PA, refused by the closed gate, asked
+    """Live `acc_039` t12: the PA, refused by the closed gate, asked
     for the visit reason two beats before its reveal, and the actor answered
     with an invented one ("routine preventive checkup. Use that exact phrasing
     for the record"). The line names deferral as the move on exactly the beats

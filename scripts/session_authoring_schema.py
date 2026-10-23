@@ -32,8 +32,7 @@ FORCED_EVENT_ID_BY_ACC = {
 #: the probe -- the user states the whole query up front and the PA's single
 #: reply carries both the selection and the surface being measured -- and beat
 #: 2 is one user reaction plus one PA reply, after which the session ends
-#: whatever the goal state is. There is no close beat. Owner rulings A-D,
-#: 2026-09-07.
+#: whatever the goal state is. There is no close beat.
 #:
 #: The table is attribute names, not `contract_class`: the set crosses classes
 #: in both directions. `task_expansion` and `capability_boundary` are not
@@ -41,8 +40,8 @@ FORCED_EVENT_ID_BY_ACC = {
 #: `output_realization` yet stays uncompressed. Everything absent here keeps
 #: today's floors.
 #:
-#: `proactive_outreach` compresses with the probe somewhere else (owner ruling,
-#: 2026-09-08): its session is triggered, so the probe is the PA's own trigger
+#: `proactive_outreach` compresses with the probe somewhere else:
+#: its session is triggered, so the probe is the PA's own trigger
 #: turn -- the external message arrives, and sending is High while staying
 #: silent is Low. The two authored beats are then the two entry-conditioned
 #: openings, of which the runtime plays exactly one, and that one is the
@@ -385,10 +384,10 @@ class NormalSessionDraft(StrictModel):
             )
         # A compressed attribute is exactly two beats -- beat 1 the probe, beat
         # 2 one user reaction and one PA reply, after which the session ends
-        # whatever the goal state is (owner ruling A, 2026-09-07): there is no
+        # whatever the goal state is: there is no
         # close beat, so this is a fixed length and not a floor. Every other
-        # session needs its warm-up beats, so five is the floor (owner ruling
-        # B: the explicit_request exception of four is withdrawn; a session
+        # session needs its warm-up beats, so five is the floor (with no
+        # four-beat exception for explicit_request; a session
         # that cannot reach five naturally is raised case by case). A triggered
         # session plays only one of its two openings, so it needs one more
         # authored beat to keep five exchanges on either path.
@@ -407,8 +406,8 @@ class NormalSessionDraft(StrictModel):
                 # (ids already enforced above), the runtime plays exactly one
                 # by entry condition, and whichever plays is the single
                 # reaction. So both declare the target -- the measurement is on
-                # either path -- and there is no beat to keep empty (owner
-                # ruling, 2026-09-08). `validate_normal_event` accordingly holds
+                # either path -- and there is no beat to keep empty.
+                # `validate_normal_event` accordingly holds
                 # BOTH openings to the reception-beat standard
                 # (`reception_beat_has_no_reaction_move`), not "the beat after
                 # the first declaring beat".
@@ -612,7 +611,7 @@ class ProbeSessionDraft(StrictModel):
     cell's attribute. `task_execution` / `task_facts` /
     `reveal_at` / `gate_cue_beat` mean what they mean on the normal branch.
     `world` is the outline entry's `world[]` carried over verbatim, so
-    `validate_probe_suite --drafts` (S3) can compare a pair's material.
+    `validate_probe_suite --drafts` can compare a pair's material.
 
     A `proactive_outreach` probe is the one exception to that beat shape: it is
     triggered rather than asked, so it carries `proactive_trigger` and its beats

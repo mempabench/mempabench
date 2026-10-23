@@ -216,7 +216,7 @@ def test_a_batch_held_on_turn_one_is_absent_from_turn_twos_history_and_memory(
 
 
 # ---------------------------------------------------------------------------
-# T2 (R1) · the same contract when the *payload field* carries the held text
+# T2 · the same contract when the *payload field* carries the held text
 #
 # The T2 case above puts the held wording in the model's prose and leaves the
 # payload's `body` empty, so it never exercised the carrier the payload tools
@@ -289,7 +289,7 @@ def _payload_results(loop) -> list[dict[str, Any]]:
 def test_a_held_question_text_reaches_no_public_face_and_is_annotated_in_history(
     loop_factory,
 ) -> None:
-    """R1: `Question.text` is a payload field, and the echo persisted it.
+    """`Question.text` is a payload field, and the echo persisted it.
 
     `Iterative` releases `q1` and holds `q2`. `q2`'s text never went out, so it
     may not appear on any of the four public faces; it stays in the record only
@@ -336,7 +336,7 @@ def test_a_held_question_text_reaches_no_public_face_and_is_annotated_in_history
 def test_a_held_batch_body_reaches_no_public_face_and_is_annotated_in_history(
     loop_factory,
 ) -> None:
-    """R1, the `topic_management` half: `Batch.body` is the same carrier."""
+    """The `topic_management` half: `Batch.body` is the same carrier."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content=None, tool_calls=[
@@ -416,7 +416,7 @@ def test_a_gate_turn_keeps_the_user_message_verbatim_and_no_internal_prompt(
 
         # What stays out is what exists only because a benchmark is running,
         # and what the wrapper withheld. The gated call's *declaration* is in —
-        # the PA did declare it (item #5) — but carrier C, which is wrapper
+        # the PA did declare it — but carrier C, which is wrapper
         # state rather than an argument the PA chose, is not.
         memory = _blob([event.messages for event in adapter.events])
         for internal in (

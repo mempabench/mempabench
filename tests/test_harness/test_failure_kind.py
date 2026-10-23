@@ -130,7 +130,7 @@ def test_every_session_level_action_says_the_round_stopped_and_resumes(
     kind: str,
 ) -> None:
     """A regression round is an accumulation run, so no session is ever skipped
-    past (owner ruling 2026-09-09). Whatever killed it, the action a reader
+    past. Whatever killed it, the action a reader
     gets is the same two facts: the round ended here, and the same run id picks
     it up here.
     """
@@ -200,7 +200,7 @@ def test_only_an_ix_contract_message_makes_a_provider_error_ix_runtime() -> None
 
 
 def test_a_proactive_event_left_undecided_is_ix_runtime() -> None:
-    """acc_007, 2026-10-20: the PA answered a proactive environment event with
+    """acc_007: the PA answered a proactive environment event with
     three tool-calling turns and never made the IX `proactive_outreach`
     send/suppress decision. The PA failed an IX contract, as it does when it
     leaves out a render payload, so the run resumes and a probe is rerun."""
@@ -241,15 +241,14 @@ def test_the_vocabulary_stays_closed() -> None:
 def test_probe_retry_kinds_hold_the_owners_2026_09_19_line():
     """Which failures buy a probe another attempt.
 
-    Owner 2026-09-19 raised the cap to three and put `ix_runtime` in: the PA
-    breaking an IX contract mid-turn is something another attempt can pass.
+    The cap is three and `ix_runtime` is in: the PA breaking an IX contract
+    mid-turn is something another attempt can pass.
     `ix_contract` stays out — `FAILURE_KIND_ACTIONS` says "archive; do not
     retry under the current code", and a version or checkpoint mismatch fails
     identically every time. `ix_open_hold` stays out too: a step that ended
     with a hold episode still open is a material question, not a flaky turn.
 
-    Owner 2026-09-23 (HY repeat_02/fin_23): 「再试两次吧 都到三次这样 other
-    其他的也是」 — `other` is retried too, three attempts before it is terminal.
+    `other` is retried too, three attempts before it is terminal.
     """
     assert "ix_runtime" in PROBE_RETRY_KINDS
     assert "other" in PROBE_RETRY_KINDS
@@ -261,7 +260,7 @@ def test_probe_retry_kinds_hold_the_owners_2026_09_19_line():
 
 
 def test_an_ix_runtime_failure_is_classified_into_the_retried_set():
-    """The exception the three holes of 2026-09-18 carried lands in the set."""
+    """The exception three live holes carried lands in the set."""
     kind = classify_failure(
         AgentProviderError(
             "PA turn failed the IX render contract: a required "

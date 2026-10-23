@@ -31,7 +31,7 @@ TOOL_RESULT_MAX_CHARS = 16_000
 #: counts only above the cut length.
 _TRUNCATION_MARKER = "\n... (truncated)"
 
-#: The prefixes of `IX_PAYLOAD_RESULT_TOOLS` (`pa/agent/ix/collector.py:1329`,
+#: The prefixes of `IX_PAYLOAD_RESULT_TOOLS` (`pa/agent/ix/collector.py:1328`,
 #: built from `IX_RENDER_TOOL_NAMES` and `IX_CONTINUE_TOOL_NAMES`,
 #: `pa/agent/ix/render_types.py:247-260`).  The constant itself cannot be
 #: imported here: `pa/agent/__init__.py` imports `ContextBuilder`, which
@@ -40,7 +40,7 @@ _IX_PAYLOAD_TOOL_PREFIXES = ("IX_render_", "IX_continue_")
 
 #: Carrier C (`pa/agent/ix/render_types.py:303`, `PER_CALL_INJECTED_FIELDS`):
 #: the three fields the IX wrapper injects onto every task tool's schema and
-#: strips before the real tool runs (`pa/agent/runner.py:3739-3743`). They are
+#: strips before the real tool runs (`pa/agent/runner.py:3736-3740`). They are
 #: wrapper state that exists only because a benchmark enforces the IX contract,
 #: so they are not experience and never reach a `[tool_call]` body. Spelled out
 #: here for the same reason as the prefixes above — the constant cannot be
@@ -53,14 +53,14 @@ PER_CALL_INJECTED_FIELDS = (
 
 #: The three outcomes of `[ix_selection]`. There is no `held` and no
 #: `voided`: IX selections are declarations that always run
-#: (`pa/agent/runner.py:2864-2866`), and a voided iteration contributes nothing
-#: at all (owner ruling 2026-09-13, Q1).
+#: (`pa/agent/runner.py:2861-2863`), and a voided iteration contributes nothing
+#: at all.
 _IX_SELECTION_OUTCOMES = frozenset({"executed", "rejected", "ignored_duplicate"})
 
 #: The `IX_proactive_outreach` argument carrying the contact text itself
 #: (`pa/agent/ix/tools.py:131-160`). It is the one selection argument that is a
 #: payload rather than a reason, so on a turn that delivered nothing it is held
-#: prose (O4) and stays on the audit plane.
+#: prose and stays on the audit plane.
 OUTREACH_MESSAGE_FIELD = "outreach_message"
 
 
@@ -101,25 +101,25 @@ def build_turn_pool(
 
     `environment_event` is the ACC trigger the PA perceived, as
     `process_environment_event` built it, before the harness appended its fixed
-    `"Use IX_proactive_outreach …"` instruction (owner ruling 2026-09-13, Q4).
+    `"Use IX_proactive_outreach …"` instruction.
     It leads the pool as an `[environment_event]` block, never as `role: user`.
 
     `delivered` is the turn's `public_turn`. When it is given, no assistant
     message's own prose becomes bare dialogue — the pre-render text is the
-    wrapper's input, not a delivered act (Q3) — and the turn ends with either
+    wrapper's input, not a delivered act — and the turn ends with either
     the delivered reply or, when nothing was delivered, `[no_reply]`.
 
     `ix_selections` carries `{id, name, args, outcome}` per selection call as
     the registry received it, which the serialized `tool_calls` on the
     assistant message cannot: that copy is written before
     `_dedupe_ix_selections` and `_restore_voided_selection_fields` run
-    (`pa/agent/runner.py:1413-1421` against `:1458-1462`).
+    (`pa/agent/runner.py:1412-1420` against `:1458-1462`).
 
     `ix_payload_status` is the turn's `ix_payload_status` JSON, carrying
     `released` / `held_not_released` / `cancelled`. It replaces a payload
-    tool's echoed result (item #9) and decides F1: a payload call's arguments
-    are the delivered text and stay, unless this turn held or cancelled a
-    section, in which case O4 keeps them out. The status is **per turn**, and
+    tool's echoed result and decides a payload call's arguments: they are the
+    delivered text and stay, unless this turn held or cancelled a section, in
+    which case they are held prose and stay out. The status is **per turn**, and
     both lists count — a forced close empties the hold by cancelling it, so
     `held_not_released` alone would read a cancelled section as delivered. One
     undelivered item blanks every payload call of that turn.
@@ -134,9 +134,10 @@ def build_turn_pool(
     }
     status = ix_payload_status or _payload_status_in(messages)
     holding = bool(_undelivered_payload_ids(status))
-    # O4 on the one attribute whose payload rides on its selection call: a
-    # suppressed `IX_proactive_outreach` carries the contact the PA wrote and
-    # the wrapper did not deliver. "Produced" means produced and kept, so the
+    # Held prose stays out on the one attribute whose payload rides on its
+    # selection call too: a suppressed `IX_proactive_outreach` carries the
+    # contact the PA wrote and the wrapper did not deliver. "Produced" means
+    # produced and kept, so the
     # candidate text stays on the audit plane and only the decision is
     # remembered — the `[no_reply]` block below. The general rule reads
     # the selection body as "the arguments as the registry received them",
@@ -214,7 +215,7 @@ def build_turn_pool(
                 )
                 emit("assistant", group)
             else:
-                # Q3: the delivered reply is `public_turn`, bare; the final
+                # The delivered reply is `public_turn`, bare; the final
                 # iteration contributes its reasoning and no `[prose]`.
                 emit("assistant", group)
                 if content and delivered is None:
@@ -368,7 +369,7 @@ def _payload_status_in(messages: Sequence[Mapping[str, Any]]) -> str:
 
     The forced-event line hands in `session.messages`, where
     `build_runtime_history` has already replaced the echo
-    (`pa/agent/ix/collector.py:1405-1412`). The ACC line hands the status in
+    (`pa/agent/ix/collector.py:1404-1411`). The ACC line hands the status in
     directly, because its raw loop slice still carries the echo.
     """
     for message in messages:
@@ -385,7 +386,7 @@ def _payload_status_in(messages: Sequence[Mapping[str, Any]]) -> str:
 def _undelivered_payload_ids(status: str) -> list[Any]:
     """The turn's payload sections nobody received: held, plus cancelled.
 
-    F1 keeps a payload call's arguments when they are the delivered text. An
+    A payload call's arguments are kept when they are the delivered text. An
     empty `held_not_released` on its own does not prove that: a forced close
     *empties* the hold by cancelling what was in it, so a
     cancelled question would read as delivered and its wording would enter
@@ -491,10 +492,10 @@ def _call_item(
     setting = _selection_setting(name, arguments)
     if setting is None:
         if name.startswith(_IX_PAYLOAD_TOOL_PREFIXES) and holding:
-            # O4: held prose stays out at hold time. A payload call whose turn
+            # Held prose stays out at hold time. A payload call whose turn
             # still holds something records the act and not the text; what the
-            # PA perceived of it is the `[ix_result]` hold status. F1 (owner
-            # ruling 2026-09-13): a turn that held nothing keeps the arguments,
+            # PA perceived of it is the `[ix_result]` hold status. A turn that
+            # held nothing keeps the arguments,
             # because they are the text the PA delivered.
             arguments = ""
         return new_item(

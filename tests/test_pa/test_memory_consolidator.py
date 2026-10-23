@@ -535,7 +535,7 @@ async def test_over_budget_writes_both_files_and_advances_indices():
 
 @pytest.mark.asyncio
 async def test_auto_compaction_consolidates_the_pool_and_not_held_prose():
-    """R2, restated for step 7: both file entry points read the same journal.
+    """Both file entry points read the same journal.
 
     The shape is no longer the two-message projection. The PA's own
     IX call and the world traffic are ruled IN -- they are the PA's experience, and a
@@ -700,7 +700,7 @@ async def test_distinct_consolidation_chunks_use_distinct_task_identities():
 
 @pytest.mark.asyncio
 async def test_probe_branch_skips_compaction_at_every_entry_point():
-    """B16: a probe skips compaction outright, not just the LM write in it."""
+    """A probe skips compaction outright, not just the LM write in it."""
     import inspect
 
     from pa.agent.loop import AgentLoop
@@ -780,13 +780,13 @@ class _StubAdapter:
 
 @pytest.mark.asyncio
 async def test_checkpoint_wait_drains_without_writing():
-    """Step 14: a cut point only waits. It never writes and never advances.
+    """A cut point only waits. It never writes and never advances.
 
     The two convergence actions are fixed and ordered — drain the background
     archives, then let the adapter settle — and neither of them may trigger a
     consolidation, move a cursor, or touch the memory files. Turns that were
     never compacted stay in the session and reach the snapshot as they are;
-    putting them into the memory files is step 16a's job, and only on pinned
+    putting them into the memory files happens elsewhere, and only on pinned
     steps. All three backends take this same path, with no branching.
     """
     import inspect
@@ -955,7 +955,7 @@ async def test_benchmark_clock_is_the_only_date_in_the_memory_files(tmp_path):
 
     A benchmark session runs at its scripted timestamp, but the turn used to be
     persisted with `datetime.now()`, and `_format_messages` puts that stamp in
-    front of every line the consolidation LM reads. In regress13 the LM copied
+    front of every line the consolidation LM reads. In one run the LM copied
     it: October sessions whose MEMORY.md said 2026-09-07, the day the batch
     happened to run. Driving one turn at a fixed benchmark timestamp and
     echoing the prompt into MEMORY.md, the only date in the file must be the
@@ -1083,7 +1083,7 @@ def test_no_reply_content_is_never_the_empty_string_a_backend_refuses() -> None:
     """The same rule, against the other reader that drops empty content.
 
     `_validated_raw_dialogue_messages` raises `Mem0ResponseError` on an
-    empty-content message (`memory/backends/mem0_client.py:153-157`), so a
+    empty-content message (`memory/backends/mem0_client.py:152-156`), so a
     renderer that suppressed an empty block would not merely lose the item —
     it would fail the whole `simple_rag` add for the turn.
     """

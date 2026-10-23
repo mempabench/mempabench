@@ -131,7 +131,7 @@ def test_a_chosen_setting_is_restated_on_a_later_toolless_turn(
 def test_the_restatement_of_an_in_turn_selection_is_the_next_turn_text(
     loop_factory,
 ) -> None:
-    """Owner ruling 2026-09-09 — no second wording for the same setting.
+    """No second wording for the same setting.
 
     The in-turn channel says what the next turn would have said, byte for
     byte: one builder, `collector.turn_reminder_message`, whichever turn it is
@@ -164,7 +164,7 @@ def test_the_restatement_of_an_in_turn_selection_is_the_next_turn_text(
 
 
 def test_a_setting_chosen_at_call_zero_shapes_the_same_turn(loop_factory) -> None:
-    """Owner ruling 2026-09-09 — regress21 `acc_002` t5.
+    """`acc_002` t5.
 
     `IX_solution_breadth(setting="Low")` at call 0, then a five-row table in
     the same reply: the restatement was built from `inherited_ix_selections`,
@@ -250,7 +250,7 @@ def test_the_process_payload_is_forced_under_every_process_setting(
             LLMResponse(content=None, tool_calls=[
                 ix("IX_render_process_visibility", completion_message="All set."),
                 # A task call, because the closing line is only released over
-                # one (owner decision 2026-09-07); the requiredness under test
+                # one; the requiredness under test
                 # is unchanged by it.
                 task_call("c1", "task_create", "", notice="Putting the meeting in now."),
             ]),
@@ -570,7 +570,7 @@ def test_a_new_episode_id_while_the_old_one_is_open_is_refused(loop_factory) -> 
         assert any("IX_continue_information_elicitation" in nudge for nudge in nudges)
         # T16: nudge once, record the second miss **once**, then deliver.
         # `IX_continue_<attribute>` is neither forcible nor fatal, so the check
-        # re-fired on every remaining iteration -- live (`v11s02` acc_009 t8) one
+        # re-fired on every remaining iteration -- live (acc_009 t8) one
         # owed continuation was recorded eight times.
         assert [
             event.get("name") for event in second.metadata["tool_events"]
@@ -704,16 +704,16 @@ def test_a_release_reused_for_another_tool_is_asked_again(loop_factory) -> None:
 def test_a_new_act_on_the_same_tool_is_asked_again_once_the_first_one_succeeded(
     loop_factory,
 ) -> None:
-    """Owner ruling 2026-09-08 — the release ends where the act succeeds.
+    """The release ends where the act succeeds.
 
-    The ruling lets a re-minted item inherit an unspent release on the same
-    tool, which is what stopped acc_039 asking three times for one booking. The
-    boundary it draws is the success: the send here went through, so the id
+    A re-minted item inherits an unspent release on the same tool, which is
+    what stopped acc_039 asking three times for one booking. The boundary of
+    that rule is the success: the send here went through, so the id
     minted afterwards is a *second* act, and the floor asks about it on its own
     account. That is the same shape as
     `test_a_stale_allow_does_not_release_anything_after_the_episode_closed`
     from the wrapper's side — a new plan item, a new id, the same tool — and it
-    is why binding the floor to the tool name alone (round 11's attempt) was
+    is why binding the floor to the tool name alone was
     wrong: it silenced the genuine second act along with the re-mint.
     """
     action_types = {"task_send": "external_action"}
@@ -796,9 +796,9 @@ def _floor_ask_script(second_ask: str, plan_id: str = "p2") -> list[LLMResponse]
 
 
 def test_a_re_mint_after_the_tool_refused_inherits_the_release(loop_factory) -> None:
-    """Owner ruling 2026-09-08 (a) — a refused call spends nothing.
+    """A refused call spends nothing.
 
-    regress16 acc_039 t31: the user said "Proceed", the release went through,
+    acc_039 t31: the user said "Proceed", the release went through,
     and the store rejected `appointment_create`'s reason. The act had not
     happened, so t34's `book_final` was the same booking under a third id — and
     it walked back into the floor gate and asked the user a third time.
@@ -843,7 +843,7 @@ def test_a_re_mint_after_the_tool_refused_inherits_the_release(loop_factory) -> 
 
 
 def test_a_retry_after_the_tool_errored_runs_in_the_same_turn(loop_factory) -> None:
-    """Owner ruling 2026-09-08 (a), inside one turn — regress21r acc_039 t19.
+    """An errored call spends nothing inside one turn either — acc_039 t19.
 
     The released `appointment_create` came back `unknown provider`; the booking
     had not happened, and the retry on the next iteration of the same turn was
@@ -892,9 +892,9 @@ def test_a_retry_after_the_tool_errored_runs_in_the_same_turn(loop_factory) -> N
 
 
 def test_the_same_call_held_over_and_over_ends_the_turn(loop_factory) -> None:
-    """Owner ruling ("设置一个 maximum steps") — the wrapper's half of the cap.
+    """The maximum-steps cap — the wrapper's half of it.
 
-    regress21r acc_039 t19 re-issued one booking 25 times after the release was
+    acc_039 t19 re-issued one booking 25 times after the release was
     spent. Every one of them was held before the tool ran, so the failure cap
     never saw an error and the turn died on the 40-iteration limit with the
     runner's own "maximum number of tool call iterations" string as the reply.
@@ -954,9 +954,9 @@ def test_the_same_call_held_over_and_over_ends_the_turn(loop_factory) -> None:
 
 
 def test_a_re_mint_after_a_content_objection_inherits_the_release(loop_factory) -> None:
-    """Owner ruling 2026-09-08 (b) — the never-issued call spends nothing either.
+    """The never-issued call spends nothing either.
 
-    regress16 acc_039 t28: the user allowed the booking but objected to what the
+    acc_039 t28: the user allowed the booking but objected to what the
     PA had put in the reason, so the PA released `book_appt_1`, issued no call
     for it, and re-minted `book_appt_2` with the reason rewritten. Same act,
     same tool, one turn later — and the second ask fired inside the very turn
@@ -1004,7 +1004,7 @@ def test_a_re_mint_after_a_content_objection_inherits_the_release(loop_factory) 
 
 
 def test_an_inherited_release_still_buys_only_one_call(loop_factory) -> None:
-    """The one-release-one-execution rule survives the ruling: one authorisation, one act.
+    """The one-release-one-execution rule survives the inheritance: one authorisation, one act.
 
     The release moves to the re-minted item; it does not multiply. A response
     that mints two items on the tool gets the first one through and is asked
@@ -1054,7 +1054,7 @@ def test_an_inherited_release_still_buys_only_one_call(loop_factory) -> None:
 
 
 def test_the_inherited_release_names_the_item_it_came_from(loop_factory) -> None:
-    """Owner ruling 2026-09-08 (e) — the inheritance is on the record.
+    """The inheritance is on the record.
 
     Nothing else in the transcript would show that the second act ran without
     an ask of its own, so the row carries the id whose authorisation it is
@@ -1095,7 +1095,7 @@ def test_the_inherited_release_names_the_item_it_came_from(loop_factory) -> None
 
 
 def test_a_denied_release_is_not_inherited_by_the_re_minted_item(loop_factory) -> None:
-    """Owner ruling 2026-09-08 (d) — the user can take the authorisation back.
+    """The user can take the authorisation back.
 
     The release persists across the re-mint, not across a change of mind: a
     `deny` on the sideband while the released item is still held ends it, and
@@ -1153,7 +1153,7 @@ def test_a_denied_release_is_not_inherited_by_the_re_minted_item(loop_factory) -
 
 
 # ---------------------------------------------------------------------------
-# The floor pre-authorisation (owner ruling 2026-09-08, "这个肯定要改")
+# The floor pre-authorisation
 # ---------------------------------------------------------------------------
 
 #: The sideband shape the wrapper accepts for a standing authorisation: no id,
@@ -1189,7 +1189,7 @@ def _one_act_script(ask: str, tool: str = "task_send") -> list[LLMResponse]:
 
 
 def test_a_go_ahead_in_the_turn_just_gone_pre_authorises_the_act(loop_factory) -> None:
-    """Owner ruling 2026-09-08 — regress19 acc_039 t40 → t41.
+    """acc_039 t40 → t41.
 
     t40 the user says "You may proceed with booking that slot at 08:30"; t41 the
     PA calls `appointment_create` and the floor holds it and asks for the same
@@ -1242,7 +1242,7 @@ def test_a_go_ahead_in_the_turn_just_gone_pre_authorises_the_act(loop_factory) -
 
 
 def test_the_go_ahead_reaches_the_act_under_its_runtime_name(loop_factory) -> None:
-    """regress20 `acc_039` t30 → t31 — the two spellings of one act.
+    """`acc_039` t30 → t31 — the two spellings of one act.
 
     The sideband names the catalog tool (`appointment_create`), which is what
     the draft's atomic steps name and what `harness/gate.py` derives from them;
@@ -1644,7 +1644,7 @@ def test_a_refusal_repaired_in_the_same_turn_claims_no_unexecuted_action(
     `mark_binding_repaired` marks `held.calls`, but the flag above scans
     `collector.calls`, where the refused attempt still sits `executed=False`.
     So the turn whose retry ran `task_send` told the judge that `task_send` was
-    claimed and never executed -- the same false verdict regress18 `acc_001` t6
+    claimed and never executed -- the same false verdict `acc_001` t6
     drew one path over, on `ix_selection_invalid`.
     """
     async def scenario() -> None:
@@ -1805,7 +1805,7 @@ def test_a_selection_refused_to_the_limit_fails_the_turn_closed(loop_factory) ->
     """It never degrades to an empty policy: the turn ends on the contract.
 
     And it ends on the *arguments* sentence, not the not-offered one. Live
-    regress23m `acc_001` is this shape: `active_ix_tools: ["IX_verbosity"]`, the
+    `acc_001` is this shape: `active_ix_tools: ["IX_verbosity"]`, the
     PA called `IX_verbosity` with `args: {}`, the registry answered "Invalid
     parameters for tool 'IX_verbosity': missing required setting" three times,
     and the failure was still reported as "the attribute's tool is not offered
@@ -1838,7 +1838,7 @@ def test_a_selection_refused_to_the_limit_fails_the_turn_closed(loop_factory) ->
     run(scenario())
 
 
-#: regress20 `acc_027`, the reaction beat: `active_ix_tools: []`, so
+#: `acc_027`, the reaction beat: `active_ix_tools: []`, so
 #: `IX_emotional_engagement` is not offered and every call comes back "not
 #: found" -- three refusals, the fail-closed break, no reply.
 def _never_offered_selection_responses() -> list[LLMResponse]:
@@ -1896,7 +1896,7 @@ def test_a_never_offered_selection_fails_on_the_selection_contract(
     run(scenario())
 
 
-#: regress18 `acc_001` t6. The reception beat cues no IX tool, so the model's
+#: `acc_001` t6. The reception beat cues no IX tool, so the model's
 #: `IX_verbosity` call comes back "not found" -- a refused selection -- and the
 #: same response's two `document_update` calls are withheld with it. The retry
 #: drops the selection and reissues the writes, which run, exactly as intended
@@ -2083,7 +2083,7 @@ def test_an_empty_ask_on_an_earlier_held_call_does_not_shadow_the_real_ask(
 ) -> None:
     """The gate's ask is the first held call that *wrote* one.
 
-    Live `v9s03` t24: one item held two calls, a refused `document_read` with no
+    Live t24: one item held two calls, a refused `document_read` with no
     `_ix_confirmation_message` ahead of the `document_update` that carried the
     real ask. The runner's lookup skipped the empty one and concluded the ask
     existed; the renderer's took the first id match and concluded it did not.
@@ -2134,7 +2134,7 @@ def test_an_empty_ask_on_an_earlier_held_call_does_not_shadow_the_real_ask(
 def test_an_allow_for_an_id_the_ask_never_named_releases_nothing(loop_factory) -> None:
     """The consent rule as written: "every held id **shown** to the user", not "every held id".
 
-    Live (`v2g02` t19/t21), an ask that named only a cancellation came back with
+    Live (t19/t21), an ask that named only a cancellation came back with
     an `allow` for six ids, five of them searches. The sideband is the user's
     voice, so an `allow` for an id no ask put to them authorises nothing: the
     item keeps waiting for an ask of its own.
@@ -2208,7 +2208,7 @@ def test_an_allow_for_an_id_the_ask_never_named_releases_nothing(loop_factory) -
 def test_a_gate_turn_does_not_ship_the_narration_of_the_held_call(loop_factory) -> None:
     """The prose beside a held call claims work that never happened.
 
-    Live (`v3g03` t12), the PA wrote `📧 Email confirmation sent to Dr. Okafor`
+    Live (t12), the PA wrote `📧 Email confirmation sent to Dr. Okafor`
     while the send was held; the id never executed in the whole run. Prose in the
     same assistant message as a held call is audit-only, and the ask is what the
     user gets.

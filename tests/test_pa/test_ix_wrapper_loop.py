@@ -245,7 +245,7 @@ def test_a_gate_turn_keeps_only_the_executed_half_of_the_tool_protocol(tmp_path)
         }
         assert memory[-1] == {"role": "assistant", "content": outbound.content}
         # Memory is the other projection. The PA *did* declare the gated call,
-        # so item #5 puts the declaration in — with no result, because it never
+        # so the declaration goes in — with no result, because it never
         # ran — while carrier C, which is wrapper state rather than an argument
         # the PA chose, is stripped out of it.
         blob = json.dumps(memory, default=str)

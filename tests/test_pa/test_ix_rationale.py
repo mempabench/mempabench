@@ -1,4 +1,4 @@
-"""P3 · producing and rendering `user_facing_rationale` + appending the `certainties` parenthesis.
+"""Producing and rendering `user_facing_rationale` + appending the `certainties` parenthesis.
 
 Also covers the unset fallback both entry points must have.
 """
@@ -245,7 +245,7 @@ def test_hide_and_unset_insert_nothing_for_a_found_claim(setting: str) -> None:
 
 
 def test_a_claim_that_is_not_in_the_reply_inserts_nothing_and_is_traced() -> None:
-    """The payload was given, so this is not a payload miss -- it only writes one trace line (round 2 finding 1)."""
+    """The payload was given, so this is not a payload miss -- it only writes one trace line."""
     result = render_certainties(
         "Express",
         "I will not touch the roster until you have checked the paper quizzes.",
@@ -299,7 +299,7 @@ def test_a_ref_with_a_claim_does_not_report_a_missing_marker() -> None:
 
 
 # ---------------------------------------------------------------------------
-# lookup normalisation: round 3 finding 1 (one full stop made two verbatim claims miss)
+# lookup normalisation (one full stop made two verbatim claims miss)
 # ---------------------------------------------------------------------------
 
 PERIOD_TEXT = (
@@ -309,7 +309,7 @@ PERIOD_CLAIM = "The email has been sent to Farid Rahimi successfully."
 
 
 def test_a_trailing_full_stop_no_longer_hides_a_verbatim_claim() -> None:
-    """Round 3 finding 1: in the prose it is a clause, and in the block the model wrote it as a sentence."""
+    """In the prose it is a clause, and in the block the model wrote it as a sentence."""
     match = claim_end(PERIOD_TEXT, PERIOD_CLAIM)
     assert match is not None
     assert match.strategy == "normalized"
@@ -399,7 +399,7 @@ def test_a_claim_with_a_long_insertion_is_still_found() -> None:
     assert ACC_035_PROSE[: match.end].endswith("from the available documents.")
 
 
-#: regress18 acc_035, PA turn t=3, verbatim from the run's own transcript. The
+#: acc_035, PA turn t=3, verbatim from the run's own transcript. The
 #: prose sentence carries one extra word ("therefore") against the claim the
 #: `<certainties>` block declared for it, so only `token_overlap` can find it —
 #: and the preamble matters: the pass's window is bounded at `2 * len(needle) + 4`
@@ -421,7 +421,7 @@ ACC_035_T3_CLAIM = (
 
 
 def test_a_token_overlap_marker_lands_on_the_clause_boundary() -> None:
-    """regress18 acc_035 t=3: the marker went in as `rather(confidence: high) than`.
+    """acc_035 t=3: the marker went in as `rather(confidence: high) than`.
 
     The overlap pass says *which passage* the claim is, not where it ends, so
     its index is only a starting point — the marker is pushed to the end of the
@@ -471,7 +471,7 @@ def test_the_strategy_that_matched_is_recorded_in_the_trace() -> None:
 
 
 # ---------------------------------------------------------------------------
-# round 3 finding 4: `Hide`'s "no parenthesis" has to be falsifiable
+# `Hide`'s "no parenthesis" has to be falsifiable
 # ---------------------------------------------------------------------------
 
 

@@ -167,7 +167,7 @@ def test_the_call_sites_resolve_the_same_directory(
 #
 # `_declared_pairing` inherited `except (OSError, yaml.YAMLError): return None`
 # from `harness/orchestrator.py::_probe_pairs_with`, which
-# the 2026-09-08 exemption audit judged a **hatch** -- "the
+# an exemption audit judged a **hatch** -- "the
 # paired fixture overlay silently dropped, so the two halves of an evolving pair
 # face different conditions" -- with `raise` as the fix. Sharing the function put
 # that one swallow behind three call sites, so it has to go: an unreadable draft

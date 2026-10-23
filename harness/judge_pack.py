@@ -12,16 +12,15 @@ Two judge faces, one transcript:
   `ix_render` block goes, every IX and internal tool event goes, the legacy
   `ix_directives` / `process_events` / `elicitation_events` groups go, and the
   per-call injected fields are stripped out of the args that remain. Removing a
-  few fields is not enough: one `trace` string leaks the setting. Two ruled
-  exceptions (2026-09-17): a proactive turn also
+  few fields is not enough: one `trace` string leaks the setting. Two
+  exceptions: a proactive turn also
   carries its send / suppress decision and delivery flag plus the trigger it
   answered (`TEXT_JUDGE_OUTREACH_KEYS` / `TEXT_JUDGE_TRIGGER_KEYS`), and the
   judge prompt renders `tool_log.jsonl` through `text_judge_tool_log`, an
   allow-list of business fields.
 
-`pa/agent/ix/render_types.py` (P0) freezes the field set, the banned keys and a
-`text_judge_projection` stub that raises; the packing itself is P4 and lands
-here.
+`pa/agent/ix/render_types.py` freezes the field set, the banned keys and a
+`text_judge_projection` stub that raises; the packing itself lands here.
 """
 
 from __future__ import annotations
@@ -162,7 +161,7 @@ TEXT_JUDGE_META_KEYS: frozenset[str] = frozenset({
     "pa_model", "simulator_model",
 })
 
-#: The proactive-outreach exception (owner ruling 2026-09-17):
+#: The proactive-outreach exception:
 #: on a `proactive_event` turn the text face carries these three keys
 #: of the transcript's `pa_turn` — the runtime's send / suppress decision and
 #: whether the contact was delivered — next to `public_turn`, which is the
@@ -183,7 +182,7 @@ TEXT_JUDGE_TRIGGER_KEYS: tuple[str, ...] = (
     "trigger_id", "source_type", "prior_thread", "detail", "user_impact",
 )
 
-#: **`tool_log.jsonl` (owner ruling 2026-09-17):** the
+#: **`tool_log.jsonl`:** the
 #: text face may show a tool's business result and error, filtered through an
 #: allow-list rather than the assumption that nothing else in the row leaks.
 #: The store writes every row through `state_server/store.py` `log_tool`
@@ -226,7 +225,7 @@ TEXT_JUDGE_TOOL_LOG_CONTROL_ARG_KEYS: frozenset[str] = frozenset({
 #: (`appointment_id`, `draft_id`, `event_id`, `sent_id`, …) and is allowed by
 #: that suffix. Not here, hence dropped: `gate_refusal`, `closed`,
 #: `session_closing` (the write-gate refusals), `loaded`, `open`, `satisfied`
-#: (the two audit rows), `drops_terms` (ruling-A refusal detail).
+#: (the two audit rows), `drops_terms` (key-term refusal detail).
 TEXT_JUDGE_TOOL_LOG_RESULT_KEYS: frozenset[str] = frozenset({
     # search / read outcomes
     "matches", "ids", "truncated", "found", "id", "type", "status",
@@ -283,7 +282,7 @@ def text_judge_projection(
     rendered: RenderedTurn,
     render_input: IXRenderInput,
 ) -> TextJudgeProjection:
-    """Projection 4 for one turn. Implements the P0 stub.
+    """Projection 4 for one turn. Implements the `render_types` stub.
 
     `public_turn` is the rendered message verbatim — the gate's ask is already
     inside it, which is why there is no second field for it. The task events are

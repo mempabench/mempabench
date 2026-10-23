@@ -45,8 +45,8 @@ FAILURE_KIND_ACTIONS: dict[str, str] = {
         "human look once it has failed all three, or on any other step kind: "
         "the PA broke the IX render or capability contract mid-turn"
     ),
-    # The six session-level kinds below all stopped the round where they stood
-    # (owner ruling 2026-09-09). A regression round is an ACCUMULATION run —
+    # The six session-level kinds below all stopped the round where they stood.
+    # A regression round is an ACCUMULATION run —
     # each session's memory is the next one's input — so a session that
     # measured nothing cannot be skipped past: a hole breaks the chain. The
     # round therefore ends at the failed session, and rerunning the SAME run id
@@ -135,7 +135,7 @@ _KIND_BY_EXCEPTION_NAME: dict[str, str] = {
     # (`pa/agent/loop.py::AgentLoop._proactive_decision`): the PA failed an IX
     # contract, as with a missing render payload below.
     "ProactiveDecisionMissingError": "ix_runtime",
-    # Audit item 6 (owner ruling 2026-09-08): the simulator failed as an
+    # The simulator failed as an
     # instrument — a beat's scripted ask never reached the PA, or a three-block
     # output never parsed — so the session measured nothing and the step is
     # invalid rather than merely dead (`simulator/output.py`). The distinction
@@ -219,17 +219,16 @@ _JUDGE_RULE_KINDS: dict[str, str] = {
 }
 
 #: The kinds that say the local judge voided the session it was watching. Read
-#: by the probe batch (owner decision D5: a voided probe is rerun once, at
-#: once), which needs the set rather than one kind, and derived from the map
+#: by the probe batch (a voided probe is rerun at once), which needs the set
+#: rather than one kind, and derived from the map
 #: above so a judge rule added there is a void without a second edit here.
 #: `judge_unavailable` is deliberately not one of them: the judge did not void
-#: a session, it is gone, and D1 makes it a batch stopper.
+#: a session, it is gone, and that stops the batch.
 JUDGE_VOID_KINDS: frozenset[str] = frozenset(_JUDGE_RULE_KINDS.values())
 
-#: The kinds a probe is rerun for. Owner 2026-09-19, superseding the D5 half of
-#: "twice = ask": a probe that died because the PA broke an IX contract
-#: mid-turn gets the same second (and now third) chance a judge void gets, so
-#: the PA is given three attempts before the cell is written off as a hole.
+#: The kinds a probe is rerun for: a probe that died because the PA broke an
+#: IX contract mid-turn gets the same second and third chance a judge void gets,
+#: so the PA is given three attempts before the cell is written off as a hole.
 #:
 #: `ix_runtime` is in; `ix_contract` deliberately is not. The first is the PA
 #: failing the contract on this turn, which another attempt can pass. The
@@ -238,10 +237,9 @@ JUDGE_VOID_KINDS: frozenset[str] = frozenset(_JUDGE_RULE_KINDS.values())
 #: fail identically. `ix_open_hold` is also out: the step ended with a hold
 #: episode still open, which is a material question, not a flaky turn.
 #:
-#: Owner 2026-09-23 (HY repeat_02/fin_23, 「再试两次吧 都到三次这样 other 其他的
-#: 也是」): `other` joins the retried kinds, so an unclassified failure also gets
-#: three attempts and is terminal only when all three are spent. This revises
-#: the 2026-09-19 line above for `other` only; the exclusions stand.
+#: `other` is a retried kind too, so an unclassified failure also gets three
+#: attempts and is terminal only when all three are spent. The exclusions above
+#: stand.
 PROBE_RETRY_KINDS: frozenset[str] = JUDGE_VOID_KINDS | {"ix_runtime", "other"}
 
 

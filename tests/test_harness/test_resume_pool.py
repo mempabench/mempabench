@@ -1,7 +1,7 @@
 """Resume of the turn pool across a crash.
 
-These are the acceptance tests for step 9, written before the code they
-describe. Step 9 has two deliverables: `memory/turn_journal.py` -- the
+These are acceptance tests written before the code they describe. That
+code has two parts: `memory/turn_journal.py` -- the
 "append-only turn journal, one record per pool write" -- and the resume entry
 point that reads it and re-writes the pending pools. The **module has landed**
 and these tests are written to its API; the **entry point has not**, and the
@@ -15,8 +15,8 @@ skipped file asserts nothing:
 - the journal records these tests read back are written by the **production**
   commit window, not by the test body. Every turn is driven through
   `AgentLoop.process_environment_event`, whose branch calls
-  `event_writer.record_turn_journal` twice (`pa/agent/loop.py:1564`, `:1584`) --
-  the seam step 5 left and step 7 wires. The tests bind that seam to the journal
+  `event_writer.record_turn_journal` twice (`pa/agent/loop.py:1564`, `:1584`).
+  The tests bind that seam to the journal
   module and nothing else: production decides the `turn_id`, the span, the pool
   and the ordering against `sessions.save`, which is what makes the rule
   ("the record is durable BEFORE the turn's first `sessions.save`") assertable
@@ -110,8 +110,8 @@ TIMESTAMP = datetime(2026, 9, 13, 10, 0, tzinfo=timezone.utc)
 SCOPE = MemoryScope(run_id="run_001", persona_id="user_a", agent_id="nanobot")
 
 #: The three things `session.messages` cannot give a resume back:
-#: intermediate assistant prose (blanked at `pa/agent/ix/collector.py:1404`),
-#: the final iteration's reasoning (dropped at `:1434`), and the PA's own IX
+#: intermediate assistant prose (blanked at `pa/agent/ix/collector.py:1403`),
+#: the final iteration's reasoning (dropped at `:1433`), and the PA's own IX
 #: call, which lives only in the raw provider slice. A journal that persisted a
 #: span, a hash, or the lossy slice carries none of them.
 INTERMEDIATE_PROSE = "The store closes at six, so this is worth one line."
@@ -195,7 +195,7 @@ def _bind_journal(
     """Bind the production journal seam to the journal module, and trace it.
 
     `event_writer.record_turn_journal` is the one named place a pool write
-    announces its record (`memory/event_writer.py:234`, "Step 7 wires this");
+    announces its record (`memory/event_writer.py:235`);
     the ACC line left it a documented no-op so it would not guess this module's
     API. Binding it here is the whole of the test's involvement: every argument
     -- `turn_id`, `span`, `timestamp`, `pool`, `state` -- and the moment of the
@@ -576,7 +576,7 @@ async def test_a_fresh_run_has_no_journal_and_replays_without_reading_the_sessio
 ) -> None:
     """A run with no session file yet must start, not die in the resume.
 
-    Live run #3 (2026-09-13) never reached its first API call: `Orchestrator.run`
+    A live run never reached its first API call: `Orchestrator.run`
     calls `_replay_pending_turns` at start-up unconditionally, and that read
     `handle.checkpoint_session()` unguarded. On a fresh run there is no session
     file, and `SessionManager.get` raises `SessionNotFoundError` rather than

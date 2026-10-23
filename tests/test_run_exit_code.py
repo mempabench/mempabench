@@ -115,7 +115,7 @@ def test_a_failure_inside_a_step_names_that_step_on_the_stop_line() -> None:
 
 
 def test_a_proactive_event_left_undecided_exits_75() -> None:
-    """acc_007, 2026-10-20: the run stopped with exit 1, so
+    """acc_007: the run stopped with exit 1, so
     `scripts/run_with_resume.sh` did not rerun it. The exception comes from the
     real raise site, `AgentLoop._proactive_decision`."""
     completed = _run_stopped_by(

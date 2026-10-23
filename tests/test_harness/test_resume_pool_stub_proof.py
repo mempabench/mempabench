@@ -1,20 +1,20 @@
 """`test_resume_pool.py` is skipped on this branch. This proves it still says something.
 
-The acceptance suite waits for `memory/turn_journal.py`, which is
-step 9's own deliverable, so on this branch the suite is skipped at import and
+The acceptance suite waits for `memory/turn_journal.py`, so on this branch
+the suite is skipped at import and
 contributes no red. That is an honest state to be in, but only if two claims
 about the skipped file can be checked rather than taken on trust:
 
 1. **it is satisfiable** -- no assertion in it is an equality the design
-   rejects, so a correct step 9 can turn all three tests green. A test that can
-   never pass is worse than no test: under `strict=True` it never fires;
+   rejects, so a correct implementation can turn all three tests green. A test
+   that can never pass is worse than no test: under `strict=True` it never fires;
 2. **it is non-vacuous** -- the tests fail on their own assertions, not on the
    module's absence, and specifically they refuse the ruled-out shortcut
    (a journal that keeps a span and a hash rather than the pool itself).
 
 Both are checked here by loading the suite twice, once against each throwaway
 journal in `_stubs/`, and running its three tests by hand. This file runs
-today; when step 9 lands `memory/turn_journal.py` the suite itself runs for
+today; when `memory/turn_journal.py` lands the suite itself runs for
 real and this proof becomes redundant -- delete it in that commit.
 """
 
@@ -91,7 +91,7 @@ def test_the_step9_suite_passes_against_a_faithful_journal(
     the rendered pool per `turn_id`, and its `replay_pending_turns` rewrites
     every pending record and logs the ids. Against it all three tests pass, so
     none of them is asserting an equality the plan rejects, and each of the
-    three `strict=True` xfails can actually fire once step 9 lands.
+    three `strict=True` xfails can actually fire once the resume entry point lands.
     """
     module = _load_suite(monkeypatch, _stub("faithful"), "faithful")
     for index, name in enumerate(TEST_NAMES):

@@ -234,7 +234,7 @@ class Exchange(StrictModel):
         # line from the user or the PA, which a `message` item whose `source`
         # is the string `user` or `pa` is. This is an editorial rule about how
         # a transcript is written, and nothing else -- it makes no claim about
-        # what does or does not reach memory (owner ruling 2026-09-13, O2).
+        # what does or does not reach memory.
         if not any(
             isinstance(item, MessageItem)
             and isinstance(item.source, str)

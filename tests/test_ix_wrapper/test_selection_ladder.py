@@ -628,7 +628,7 @@ def test_a_later_duplicate_selection_cannot_replace_the_banked_setting(
 
 
 def _truncated() -> LLMResponse:
-    """The live regress12 acc_026 shape: the whole budget spent, nothing sent.
+    """The live acc_026 shape: the whole budget spent, nothing sent.
 
     `finish_reason == "length"`, `completion_tokens == 4096`, no content and no
     tool calls -- deepseek-v4-flash reasoning to the cap with the answer still
@@ -646,7 +646,7 @@ def test_two_truncated_replies_are_answered_and_cost_the_ladder_nothing(
 ) -> None:
     """(f) A cut-off reply is the provider running out of room, not a miss.
 
-    Live regress12 acc_026: two of these were read as two ladder misses, so the
+    Live acc_026: two of these were read as two ladder misses, so the
     reminder and the pin were spent before the model had said anything at all,
     and the turn died on `ix_render_payload_missing` with the render payload
     never asked for. Each is answered once instead, and the budget is still
@@ -706,7 +706,7 @@ def test_a_third_empty_truncation_fails_as_provider_not_ix(
 # --- and then the fragment it left behind shipped as the turn ----------------
 
 
-#: regress16 acc_006 t=8, verbatim: narration written between two document
+#: acc_006 t=8, verbatim: narration written between two document
 #: edits. It is not an answer to anything, and the second sentence has no end.
 INTERSTITIAL = "Let me remove the remaining fragments. I'll work from the bottom up"
 
@@ -729,7 +729,7 @@ def test_a_truncated_turn_does_not_ship_its_unfinished_interstitial(
 ) -> None:
     """(i) The turn was cut off, so its dangling last line is not the reply.
 
-    Live regress16 acc_006: three truncations closed t=8, the renderer's
+    Live acc_006: three truncations closed t=8, the renderer's
     `_final_segment` reached back past them to the narration the model had
     written between its `document_update` calls, and the user's whole PA turn
     was `Let me remove the remaining fragments. I'll work from the bottom up`.
@@ -829,7 +829,7 @@ def test_a_truncated_turn_with_no_finished_sentence_takes_the_empty_path(
 # --- the provider answered with an error, and the wrapper read it as a turn --
 
 
-#: The live regress12 acc_003 t=12 body, verbatim: the upstream error and its
+#: The live acc_003 t=12 body, verbatim: the upstream error and its
 #: request id, handed back as the response's `content`.
 PROVIDER_ERROR_BODY = (
     "The request failed because it is missing `messages.content` parameter. "
@@ -846,7 +846,7 @@ def test_a_provider_error_is_retried_once_and_the_turn_still_lands(
 ) -> None:
     """(h) An error response is not a reply, so it costs one more request.
 
-    Live regress12 acc_003 t=12: the user had just authorised two document
+    Live acc_003 t=12: the user had just authorised two document
     merges, the provider answered with its error body, and the wrapper released
     that string as the whole PA turn with zero tool calls. The same messages go
     back once instead, and the turn the model then writes is the one delivered.
@@ -954,13 +954,13 @@ def _pin_messages(provider: ScriptProvider) -> list[str]:
 def test_the_one_available_pin_asks_selection_for_evidence_and_application(
     loop_factory,
 ) -> None:
-    """regress21 — a pinned selection came back as the bare `setting`.
+    """A pinned selection came back as the bare `setting`.
 
     `tool_choice` is answered with the schema's `required` list and nothing
     else, and `setting` is the only required field on a selection tool. Every
-    regress21 session whose selection was pinned (`acc_002`, `007`, `009`,
-    `019`, `026`, `035`) banked `evidence: ""`, and so did all three of
-    regress20's; no pinned selection in either round carried one. The pin now
+    live session whose selection was pinned (`acc_002`, `007`, `009`,
+    `019`, `026`, `035`) banked `evidence: ""`, and so did all three of an
+    earlier run's; no pinned selection in either run carried one. The pin now
     names the two fields the pinned call would otherwise drop. The render
     payload's pin is untouched: it has no such fields.
     """
@@ -993,7 +993,7 @@ def test_a_forced_event_says_how_many_calls_preceded_the_pin(
 
     `collector.events` are appended after every executed call, so a pin that
     fired before the model had made a single call still sits at the tail of the
-    list. Three regress21 reads took that for chronology and reported the
+    list. Three reads took that for chronology and reported the
     wrapper pinning a carrier the turn already had (`acc_007` t2 pinned
     `IX_proactive_outreach` and the record shows the selection first;
     `acc_026` t4 the same). `call_index` says it plainly.
@@ -1036,8 +1036,8 @@ def test_a_forced_event_says_how_many_calls_preceded_the_pin(
 
 
 def test_provider_error_retry_keeps_the_pinned_tool_choice(loop_factory) -> None:
-    """C/USER_FORCED_TOOL_RETRY_FIX_20260924.json: a pinned request answered with a
-    provider error is retried with the same `tool_choice`, never unpinned."""
+    """A pinned request answered with a provider error is retried with the same
+    `tool_choice`, never unpinned."""
     async def scenario() -> None:
         provider = ScriptProvider([
             LLMResponse(content=None, tool_calls=[_render_call()]),

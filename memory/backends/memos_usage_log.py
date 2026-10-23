@@ -16,7 +16,7 @@ So the harness reads that file out of the container and prints one line per
 call into the run's api log, beside the ``openrouter_call`` lines the in-process
 providers emit.
 
-**There is no cost field, by owner ruling (2026-09-14).** The container logs
+**There is no cost field.** The container logs
 tokens and seconds and no price, and the repo has no price table, so any dollar
 figure here could only be an estimate.  Reading the fork is also the only option
 that leaves the pinned MemOS source alone: any fork edit would move

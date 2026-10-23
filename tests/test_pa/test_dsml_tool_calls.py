@@ -1,6 +1,6 @@
 """The provider seam that recovers tool calls `deepseek-v4-flash` typed as prose.
 
-regress5 acc_006: six of eleven PA turns came back with the model's own
+acc_006: six of eleven PA turns came back with the model's own
 `<｜DSML｜tool_calls>` syntax in `content` and an empty `tool_calls`, five of them
 shipped the empty-reply template with no task call at all, and the session's
 writes fell from 8 to 1. Every block below is the text that run really produced.
@@ -13,7 +13,7 @@ from pa.providers.openai_compat_provider import (
     convert_dsml_tool_calls,
 )
 
-#: regress5 acc_006 t16, verbatim. The whole turn was this and nothing else.
+#: acc_006 t16, verbatim. The whole turn was this and nothing else.
 ACC_006_T16_READ = (
     '<｜DSML｜tool_calls>\n'
     '<｜DSML｜invoke name="mcp_state_document_read">\n'
@@ -23,7 +23,7 @@ ACC_006_T16_READ = (
     '</｜DSML｜tool_calls>'
 )
 
-#: regress5 acc_006 t20, verbatim — the year fix that never ran. Two multi-line
+#: acc_006 t20, verbatim — the year fix that never ran. Two multi-line
 #: `string="true"` values whose leading spaces and code fence are the anchor the
 #: edit is matched on, so nothing about them may be normalised.
 ACC_006_T20_UPDATE = (
@@ -64,7 +64,7 @@ _T20_OLD_STRING = (
     "background contrast, not as support for the pathway argument."
 )
 
-#: regress5 acc_006 t13, verbatim — and it stops mid-JSON, mid-parameter, with
+#: acc_006 t13, verbatim — and it stops mid-JSON, mid-parameter, with
 #: no closing tag of any kind: the model ran out of completion tokens inside the
 #: argument list. This is the block that must NOT become a call.
 ACC_006_T13_TRUNCATED = (
@@ -94,7 +94,7 @@ ACC_006_T13_CLOSED = (
     '</｜DSML｜tool_calls>'
 )
 
-#: regress4 acc_001 t32 — 7056 characters, all of it one closed `document_update`
+#: acc_001 t32 — 7056 characters, all of it one closed `document_update`
 #: invoke, none of it a reply. Its `replacement` value is cut here after the
 #: first two lines; the three parameters and their spellings are as they arrived.
 ACC_001_T32_ANCHORED = (

@@ -186,7 +186,7 @@ class SessionExecutor:
                 for record in outside_plan:
                     writer.log_event(record)
             events.extend(outside_plan)
-        # Owner-approved verification aid (2026-09-08): a step the wrapper
+        # Verification aid: a step the wrapper
         # steered under `MEMPA_VERIFY_OUTREACH` stamps its own transcript and,
         # below, its own `meta.yaml`, so neither artifact can be picked up
         # later and read as a scored session.
@@ -228,7 +228,7 @@ class SessionExecutor:
             None,
         )
         if invalid is not None:
-            # The simulator invalidated this session (owner ruling 2026-09-08).
+            # The simulator invalidated this session.
             # Read off the transcript rather than the exception, so `harness`
             # stays free of `simulator` imports and a re-read of the directory
             # says the same thing the live run did.

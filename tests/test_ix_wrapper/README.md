@@ -29,8 +29,8 @@ adapter is a fake in `conftest.py`, modelled on the fixtures in
 ## T → test
 
 A T is listed against the test(s) that actually assert it. Where a package test
-from P1–P6b already covers a case in full, that test is named instead and the
-case is **not** duplicated here.
+already covers a case in full, that test is named instead and the case is
+**not** duplicated here.
 
 | id | covered by |
 |---|---|

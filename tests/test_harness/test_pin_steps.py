@@ -1,4 +1,4 @@
-"""Owner ruling 2026-09-13 — run the accumulations now, probe them later.
+"""Run the accumulations now, probe them later.
 
 A run may execute its accumulation timeline before any probe plan exists and
 have one attached later, off the same checkpoints. Two things have to hold for
@@ -491,7 +491,7 @@ def _oracle_plan(source: RunPlan) -> RunPlan:
 async def test_oracle_borrows_from_an_external_backend_with_no_client(
     tmp_path: Path,
 ) -> None:
-    """Owner 2026-09-25: an oracle run may borrow any condition's cut point.
+    """An oracle run may borrow any condition's cut point.
 
     Like the baseline, it reads none of the source's store, so its entrypoint
     has no backend client and nothing is restored for the branch.

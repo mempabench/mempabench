@@ -113,7 +113,7 @@ def test_full_plan_borrows_exact_pins_without_fabricating_new_timeline(repeat_ca
             if step.kind in PROBE_KINDS} == case.expected_pins
     assert set(_read(case.repeat / "ledger.json")["steps"]) == set(PROBE_IDS)
     assert (case.repeat / "ledger.json").read_bytes() == before
-    # Plan C1: the record is the source pointer only.
+    # The record is the source pointer only.
     assert reference == {"schema_version": 1, "repeat": 2, "source_run_dir": str(case.source)}
     assert source_refs.write_repeat_source(case.repeat, case.source, 2)
     assert (case.repeat / "ledger.json").read_bytes() == before
@@ -159,7 +159,7 @@ def test_complete_new_probes_cannot_hide_failed_original_timeline(repeat_case, k
 
 
 def test_an_older_record_with_file_digests_and_a_rebind_still_loads(repeat_case):
-    """D7: an older repeat's record also carries file digests, an acceptance
+    """An older repeat's record also carries file digests, an acceptance
     reference and maybe a rebind; none of it is read or compared."""
     case = repeat_case
     stale = {"path": "/elsewhere/file", "sha256": "0" * 64}

@@ -21,7 +21,7 @@ from simulator.providers.base import LLMProvider, LLMResponse, ToolCallRequest
 if TYPE_CHECKING:
     from simulator.providers.registry import ProviderSpec
 
-#: Wall-clock ceiling on one provider request. regress21r acc_039 sat nine
+#: Wall-clock ceiling on one provider request. acc_039 sat nine
 #: minutes on its first OpenRouter call with nothing on stderr: the SDK default
 #: is a 600 s timeout with two internal retries, so a stalled connection could
 #: hold a run for half an hour before anything surfaced. 180 s is the same
@@ -130,7 +130,7 @@ def _log_openrouter_call(model: str, started: float, response: LLMResponse, cost
     )
     if cost is not None:
         line += f" cost_usd={cost}"
-    # regress21 on gemini-3.8-flash cut 7/13 self-report calls at completion_tokens=4092
+    # One run on gemini-3.8-flash cut 7/13 self-report calls at completion_tokens=4092
     # and the log could not say `length`.
     line += f" finish_reason={response.finish_reason}"
     print(line, file=sys.stderr, flush=True)

@@ -1,4 +1,4 @@
-"""P0 contract tests for `pa.agent.ix.render_types`.
+"""Contract tests for `pa.agent.ix.render_types`.
 
 Every construction below is a worked example of a turn budget, a batch, or a
 serialised JSON shape.
@@ -1107,9 +1107,9 @@ def test_every_hold_reason_the_runner_emits_is_known_here() -> None:
 def test_a_hold_that_asks_nothing_is_never_held_for_confirmation(
     attribute: str, reason: str
 ) -> None:
-    """Round 7 finding: `held_for_confirmation` + `gate: null` + `asked: false`.
+    """`held_for_confirmation` + `gate: null` + `asked: false`.
 
-    In live run `v7r06` t18 all six `binding_invalid` rows were written as
+    In a live run (t18) all six `binding_invalid` rows were written as
     `held_for_confirmation` -- that status means "the user has been asked and we
     are waiting for an answer", while that beat opened no gate and asked
     nothing, so three reads simply vanished. The invariant is checked over the

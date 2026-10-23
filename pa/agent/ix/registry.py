@@ -11,7 +11,7 @@ Three jobs:
    attribute as soon as it has been chosen), and strip them again before the real
    tool is called — one change covering all task tools;
 3. answer "which IX tools must have been called this turn" both unconditionally
-   (`required_ix_tool_names`) and by evaluating the P0 required predicates against
+   (`required_ix_tool_names`) and by evaluating the required predicates against
    this turn's response (`required_ix_tool_names_for`).
 """
 

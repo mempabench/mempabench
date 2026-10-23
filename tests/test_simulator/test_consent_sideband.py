@@ -216,7 +216,7 @@ class _HeldItemsPA:
             content=GATE_ASK,
             metadata={
                 "tool_events": [],
-                # What the harness (P4) translates out of the render result.
+                # What the harness translates out of the render result.
                 "held_items": (
                     [{"interaction_item_id": "i3", "intent": "send the extension request"}]
                     if holding else []
@@ -352,7 +352,7 @@ def test_a_pa_turn_with_held_items_reaches_the_simulator_as_prose_only() -> None
 
         # What the simulator got back is the rendered prose, nothing else.
         entry = dict(loop._history[1])
-        # The transcript stamp is the loop's own bookkeeping (regress21), and
+        # The transcript stamp is the loop's own bookkeeping, and
         # `build_messages` leaves it behind.
         assert isinstance(entry.pop("t"), int)
         assert entry == {"role": "user", "content": GATE_ASK}

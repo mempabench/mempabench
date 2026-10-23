@@ -140,7 +140,7 @@ UNUSED_BLOCKS: dict[str, frozenset[str]] = {
     # state_diff、pa_toolcalls；`scene.triggers[]` 明确不参与 → scene 保留
     "capability_boundary": frozenset(),
     # state_diff；scene 保留 —— judge 要拿到 `withheld_required_facts` 清单判
-    # `Structured` 问没问全（主人裁定 2026-09-17）
+    # `Structured` 问没问全
     "information_elicitation": frozenset(),
     # state_diff、pa_toolcalls、scene
     "topic_management": frozenset({BLOCK_SCENE}),
@@ -282,7 +282,7 @@ def _scene(inp: JudgeInput) -> str:
     lines += [f"  - {json.dumps(item, ensure_ascii=False)}" for item in world["feasible_options"]] or ["  （无）"]
     lines.append(f"- 待处理事项 pending_items（{len(world['pending_items'])} 项）：")
     lines += [f"  - {json.dumps(item, ensure_ascii=False)}" for item in world["pending_items"]] or ["  （无）"]
-    # 主人裁定 2026-09-17：作者故意从
+    # 作者故意从
     # 用户请求里抽掉的必需事实清单只进 `information_elicitation` 的 judge prompt（`Structured`
     # 覆盖度的对照物）；别的带场景块的属性不渲染它。被测 PA 拿不到 scene.json。
     if inp.attribute == "information_elicitation":

@@ -1,20 +1,19 @@
 """The beat that carries the gate's cue has to actually say it.
 
 The cue is the phrase a gated session's own prose gives the user so that a
-question about the withheld fact is a natural thing for the PA to ask (owner
-ruling 2026-09-08: "a gate nothing in the task motivates is not a gate"). Live
-regress18 lost it on three of the five gated sessions — `acc_009` t2, `acc_039`
+question about the withheld fact is a natural thing for the PA to ask (a gate
+nothing in the task motivates is not a gate). A live run lost it on three of
+the five gated sessions — `acc_009` t2, `acc_039`
 t3 and `acc_011` t7 — every one of them to a style
 retry, and in all three the PA then wrote instead of asking, so the gate was
 measured on refusals rather than on the design. Nothing saw it go: the cue is
 prose in `user_instruction`, not a `task_facts` key.
 
-The rule was retried and then played (owner, 2026-09-08); since the owner's
-ruling of 2026-09-14 ("只记") it is recorded and played: a missing cue makes it
-likely the PA never asks, but unlike a dropped key term it hands the PA nothing
-the world will refuse, so the session still measures something.
+The rule was retried and then played; now it is recorded and played: a missing
+cue makes it likely the PA never asks, but unlike a dropped key term it hands
+the PA nothing the world will refuse, so the session still measures something.
 
-Phase 3 step 5 (2026-09-09): the cue is a semantic question, so the local judge
+The cue is a semantic question, so the local judge
 answers it — inside the `general` group, on the cue beat's opening turn only —
 and the content-word regex that used to answer it is gone. There is no
 fallback: with `MEMPA_JUDGE=off` the rule is not judged at all,
@@ -218,9 +217,9 @@ def _cue_judge(
     answers: dict[str, Any] = {
         "gate_cue_missing": list(verdicts),
         # The probe turns below stand in for the beat that dictates the reason,
-        # and `probe_fact_missing` has been hard since the owner's ruling of
-        # 2026-09-13, so without this every one of these scripts would void on
-        # a rule none of them is about. The judge reads the fact in the turn.
+        # and `probe_fact_missing` is hard, so without this every one of these
+        # scripts would void on a rule none of them is about. The judge reads
+        # the fact in the turn.
         "probe_fact_missing:checkup_reason_the_user_dictates": (
             "yes",
             "candidate_turn#1",
@@ -252,7 +251,7 @@ _WITH_CUE = (
     "clinic wants the reason for the visit before it will hold one."
 )
 # Every beat after the first is a probe beat, so its turn has to carry an ask,
-# and each one has to differ from the last (the judge's repeat check, removed 2026-09-12).
+# and each one has to differ from the last (the judge's repeat check, now removed).
 _LATER = [
     _turn("Can you confirm the entry now?"),
     _turn("Is the hold showing on the calendar?"),
@@ -270,7 +269,7 @@ def _retry_note(provider: _ScriptedProvider) -> str:
 
 
 def test_a_cue_beat_turn_without_the_cue_is_recorded_and_played() -> None:
-    """Owner ruling 2026-09-14 ("只记"): the cue check still runs on the cue
+    """The cue check still runs on the cue
     beat's opening turn and still writes its judge row, but a missing cue buys
     no rewrite — the turn the judge refused is the one the PA is given."""
 
@@ -358,7 +357,7 @@ def test_an_unset_cue_checks_nothing() -> None:
 
 
 def test_a_dropped_cue_never_costs_the_session() -> None:
-    """It was retry-then-play (owner, 2026-09-08) and is play-and-record now. A
+    """It was retry-then-play and is play-and-record now. A
     missing cue makes it likely the PA never asks, but it hands the PA nothing
     the world will refuse, so the session still measures something and runs on."""
     judge, _ = _cue_judge(_VIOLATED_NO_CUE, ask=_ASK_NO_CUE)
@@ -399,7 +398,7 @@ _LONG_TURN_WITH_THE_CUE = (
 
 
 def test_the_style_retry_note_quotes_the_sentence_carrying_the_cue() -> None:
-    """The regress18 defect itself: a style check fired on the cue
+    """The live defect itself: a style check fired on the cue
     beat's first attempt and the shortened rewrite paid for the cut with the
     cue (`acc_009` t2, `acc_039` t3, `acc_011` t7)."""
     loop, provider, _ = _loop(
@@ -430,7 +429,7 @@ _LONG_TURN_RESTATING_THE_CUE = (
 
 
 def test_the_style_retry_note_quotes_a_cue_restated_on_a_later_beat() -> None:
-    """Live regress20 `acc_003` t10: a b2 shortening retry with an empty note,
+    """Live `acc_003` t10: a b2 shortening retry with an empty note,
     and the rewrite dropped b2's restatement of the cue while keeping a
     question that widened the task. The cue is owed by its own beat, but a
     later beat that says it again is saying the sentence the gate depends on.
@@ -469,8 +468,8 @@ _ONE_LONG_SENTENCE_RESTATING_THE_CUE = (
 
 
 def test_a_later_beats_cue_restatement_is_not_counted_by_the_length_cap() -> None:
-    """Owner, 2026-09-16: the sentences the note protects and the sentences the
-    35-word cap does not count are one list. They were two, and live memos r2
+    """The sentences the note protects and the sentences the 35-word cap does
+    not count are one list. They were two, and live memos
     `acc_108` had the restated cue in only one of them: a retry note telling
     the actor to keep the 37-word sentence that was the whole message, and a
     cap still counting it, so every attempt was asked for a shorter turn and

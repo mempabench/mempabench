@@ -381,7 +381,7 @@ def _question_hold(question_id: str = "q2") -> dict:
 
 
 def test_a_question_only_hold_is_pending_but_offers_nothing_to_consent_to() -> None:
-    """The R7 case: `held_items` is empty, yet the PA is mid-question.
+    """`held_items` is empty, yet the PA is mid-question.
 
     Advancing on the empty list walks out of the ask, and on the last beat ends
     the session with the episode open.
@@ -726,7 +726,7 @@ class _StubProviderProfile:
 async def test_the_plans_pa_max_tokens_reaches_the_pa_request(
     tmp_path: Path, pa_max_tokens: int
 ) -> None:
-    """regress16 acc_006 was cut off six times at the provider dataclass's 4096.
+    """acc_006 was cut off six times at the provider dataclass's 4096.
 
     Nothing on the PA path ever set a limit: `AgentRunSpec.max_tokens` stays
     `None`, so the request inherits the provider's `GenerationSettings`. That is
@@ -757,7 +757,7 @@ async def test_the_plans_pa_max_tokens_reaches_the_pa_request(
 
 
 def test_reply_facts_count_released_notices_completion_and_brackets() -> None:
-    """Owner ruling 2026-09-17: the actor is told how many progress lines and
+    """The actor is told how many progress lines and
     whether a closing line were delivered, and whether bracketed confidence
     tags appeared — counts and flags off the delivered reply, nothing else."""
     blob = _ix_render(

@@ -1,13 +1,13 @@
 """A compressed session is exactly two beats and stops after the second.
 
-Owner ruling (2026-09-07): for a target attribute in `COMPRESSED_ATTRIBUTES`
-the session is the probe and one reaction — one user turn and one PA reply —
-and then it ends. Not "ends unless the goal was already met", not "ends unless
-a hold is still open", not "ends unless the reaction asked for something": the
-stop is unconditional, and the things that would otherwise extend the session
-are recorded on a `compressed_session_end` event instead of acted on.
+For a target attribute in `COMPRESSED_ATTRIBUTES` the session is the probe and
+one reaction — one user turn and one PA reply — and then it ends. Not "ends
+unless the goal was already met", not "ends unless a hold is still open", not
+"ends unless the reaction asked for something": the stop is unconditional, and
+the things that would otherwise extend the session are recorded on a
+`compressed_session_end` event instead of acted on.
 
-Owner ruling A (2026-09-08): beat 1 does not keep the ordinary loop either. It
+Beat 1 does not keep the ordinary loop either. It
 is the probe — the user states the whole query and the PA replies once — so it
 advances to the reaction after that reply whatever `turn_assessment` said, an
 open hold included. What it asked for is recorded on the same event as
@@ -227,7 +227,7 @@ def test_the_table_is_the_nine_attributes_the_owner_named() -> None:
             "uncertainty_expression",
             "task_expansion",
             "capability_boundary",
-            # The ninth, added 2026-09-08: triggered, so its probe is the PA's
+            # The ninth: triggered, so its probe is the PA's
             # own trigger turn and its two beats are the two openings.
             "proactive_outreach",
         }
@@ -318,10 +318,10 @@ def test_a_five_beat_uncompressed_script_runs_all_five_beats() -> None:
 # -- the probe advance ------------------------------------------------------
 
 def test_the_probe_advances_after_one_pa_reply_despite_a_stay() -> None:
-    """Owner ruling A: beat 1 is the probe — the user states the whole query,
+    """Beat 1 is the probe — the user states the whole query,
     the PA replies once, and the loop moves on. `next_beat: stay` with
     `goal_already_met: false` is the whole case for staying, and it buys
-    nothing. Live regress14 (`acc_004`, `acc_002`) stayed in beat 1 for two and
+    nothing. Live, `acc_004` and `acc_002` stayed in beat 1 for two and
     three exchanges on exactly this assessment and ran the task on inside the
     probe.
     """
@@ -545,7 +545,7 @@ def test_an_uncompressed_script_with_two_beats_still_runs_normally() -> None:
 # silent is Low. The two authored beats are the two entry-conditioned openings
 # and `_beats_after_outreach` drops the one the decision did not pick, so the
 # opening that plays is the reaction and the session stops after it — first
-# beat entered, not second. Owner ruling, 2026-09-08.
+# beat entered, not second.
 
 
 class _ProactivePA:
@@ -650,7 +650,7 @@ PURE_REACTION = (
 
 @pytest.mark.parametrize("decision", ["send", "suppress"])
 def test_the_played_opening_is_not_forced_to_carry_an_ask(decision: str) -> None:
-    """Live regress14c `acc_007` t4-t6. Both openings declare the attribute by
+    """Live `acc_007` t4-t6. Both openings declare the attribute by
     contract, so `require_ask` derived from `bool(beat.active_skills)` threw the
     clean reaction away and the retry came back with "What are the specific
     hours for this water shutoff?" — a question the beat's own `avoid` forbids.
@@ -679,11 +679,11 @@ SENT_REACTION = (
 
 
 def test_a_delivered_outreach_is_listed_for_the_judge_on_the_played_opening() -> None:
-    """Live regress24m `acc_029`. The PA decided `send`, the harness delivered
+    """Live `acc_029`. The PA decided `send`, the harness delivered
     the message, and no task tool ran — so the write check read the session
     write-free and the actor's true "having it sent was unwelcome" died as an
     act credited to an assistant that had carried none out. The delivery is an
-    act, and since the owner's ruling of 2026-09-12 it is a line of the list
+    act, and it is a line of the list
     the judge is given rather than a boolean that clears the turn.
     """
     client = ScriptedJudgeClient(
@@ -728,7 +728,7 @@ def test_a_suppressed_outreach_leaves_the_list_empty() -> None:
     ]
 
     assert asked and NO_EXECUTED_ACTS in asked[0]
-    # Non-blocking since the owner's ruling of 2026-09-13: the empty list still
+    # Non-blocking: the empty list still
     # makes the claim an invention, and the turn is played with it recorded.
     assert _of_kind(events, "simulator_validation_failure") == []
     assert [e["diagnostics"] for e in _of_kind(events, "simulator_turn_diagnostics")] == [
@@ -736,11 +736,11 @@ def test_a_suppressed_outreach_leaves_the_list_empty() -> None:
     ]
 
 
-@pytest.mark.skip(reason="forced-ask check off, owner ruling 2026-09-14")
+@pytest.mark.skip(reason="forced-ask check off")
 def test_an_untriggered_compressed_probe_still_owes_an_ask() -> None:
     """The other half of the same flag: beat 1 of an untriggered compressed
     session is the probe, it declares the attribute, and an acknowledgement
-    there is a miss. Record-only since owner ruling 2026-09-14 ("只记"): the
+    there is a miss. Record-only: the
     gate still arms, and it records instead of re-asking."""
     events, provider = _run(
         [
@@ -882,23 +882,21 @@ class _SilentJudgeClient:
 
 @pytest.mark.parametrize("decision", ["send", "suppress"])
 def test_the_played_opening_arms_the_reception_beat_checks(decision: str) -> None:
-    """The other half of the same hole (2026-09-09).
+    """The other half of the same hole.
 
     `_is_reaction_beat` had already been taught to read the stamp; the
     `reception_beat` line still asked for a carried attribute the played
     opening cannot have — it is the first beat entered and it declares the
     attribute itself, so `reception_carry_attributes` subtracts it away.
     Every reception check was therefore unarmed on the one beat a triggered
-    compressed session measures, regress21 `acc_007` among them. Armed here
+    compressed session measures, `acc_007` among them. Armed here
     means armed: the invention is thrown back, not merely tolerated.
 
-    Both decisions again, as before 197fbd8e. That commit dropped `send`
-    because a delivered outreach set the session boolean and the boolean
-    cleared every claim the turn made, the invented bibliography update
-    included. The owner's ruling of 2026-09-12 took the boolean out: the
-    outreach is one line of a list, an invention that is not on the list is
-    still an invention, and the decision changes neither the arming nor the
-    verdict here.
+    Both decisions. A delivered outreach does not set a session boolean that
+    clears every claim the turn made, the invented bibliography update
+    included: the outreach is one line of a list, an invention that is not on
+    the list is still an invention, and the decision changes neither the
+    arming nor the verdict here.
     """
     events, provider = _run(
         [_INVENTED, _turn(PURE_REACTION, "advance", "false")],
@@ -908,8 +906,8 @@ def test_the_played_opening_arms_the_reception_beat_checks(decision: str) -> Non
     )
 
     # The arming is what this test is about, and the `judge_call` row is what
-    # proves it: the rule is asked on the played opening. Non-blocking since
-    # the owner's ruling of 2026-09-13, so the answer is recorded and the
+    # proves it: the rule is asked on the played opening. Non-blocking,
+    # so the answer is recorded and the
     # invention is played on the first attempt instead of being rewritten.
     assert [
         e["verdicts"]
@@ -927,7 +925,7 @@ def test_the_played_opening_arms_the_reception_beat_checks(decision: str) -> Non
 def test_an_invention_on_the_played_opening_no_longer_voids(
     decision: str,
 ) -> None:
-    """The void path, gone: non-blocking, owner ruling 2026-09-13.
+    """The void path, gone: non-blocking.
 
     The played opening IS `compressed_reaction_beat`, so the
     `PLAYED_AFTER_BUDGET` carve-out used to end the step on a contract error
@@ -935,8 +933,8 @@ def test_an_invention_on_the_played_opening_no_longer_voids(
     now, so the carve-out is never read and the fabricated act plays through
     on the first attempt, recorded on the turn's diagnostics.
 
-    Both decisions again, for the reason above: the delivered outreach no
-    longer clears an invention nothing on the list accounts for.
+    Both decisions, for the reason above: the delivered outreach does not
+    clear an invention nothing on the list accounts for.
     """
     events, provider = _run(
         [_INVENTED, _INVENTED, _INVENTED, _INVENTED],
@@ -954,9 +952,9 @@ def test_an_invention_on_the_played_opening_no_longer_voids(
 
 
 def test_the_triggered_arming_calls_no_judge_with_the_judge_off(monkeypatch) -> None:
-    """This is the one commit of the Phase 3 ladder that changes behaviour
-    with the judge off, so the mode-off case asserts only that the judge
-    was not called — acc_007's findings are meant to change."""
+    """The triggered arming changes behaviour even with the judge off, so the
+    mode-off case asserts only that the judge was not called — acc_007's
+    findings are meant to change."""
     monkeypatch.delenv("MEMPA_JUDGE", raising=False)
     client = _SilentJudgeClient()
     _run(
@@ -1026,7 +1024,7 @@ def test_the_untriggered_reaction_beat_is_still_the_second_one() -> None:
 # -- the reaction beat is never a readback beat -----------------------------
 
 def test_the_reaction_beat_is_never_pushed_to_ask_to_be_shown_the_artefact() -> None:
-    """Owner ruling E: the write and its readback both happen inside beat 1 and
+    """The write and its readback both happen inside beat 1 and
     the PA shows the result there, so beat 2 asks for nothing. `readback_beats`
     is what would break that — a marked beat sets `is_readback`, which forces
     `require_ask` and the readback retry note, and the actor would be told to
@@ -1054,14 +1052,14 @@ def test_the_reaction_beat_is_never_pushed_to_ask_to_be_shown_the_artefact() -> 
     )
 
 
-@pytest.mark.skip(reason="forced-ask check off, owner ruling 2026-09-14")
+@pytest.mark.skip(reason="forced-ask check off")
 def test_a_marked_reaction_beat_is_what_the_guard_prevents() -> None:
     """The same script and the same acknowledging turn, with the reaction beat
     marked by hand: the gate arms and the reaction is recorded as a miss. This
     is the behaviour `readback_beat_ids` no longer produces for a compressed
     draft.
 
-    Record-only since owner ruling 2026-09-14 ("只记"), so the miss is all that
+    Record-only, so the miss is all that
     happens: the turn is played as it came and no note goes back.
     """
     script = _compressed_script()
@@ -1131,7 +1129,7 @@ def _reflection_response() -> str:
 
 
 def test_the_compressed_stop_still_runs_the_session_end_reflection() -> None:
-    """Owner (2026-09-07 night): the hard stop after beat 2 exits through the
+    """The hard stop after beat 2 exits through the
     same end-of-session path as every other session, so the self-report
     questionnaire is still asked and its record still lands in the transcript."""
 
@@ -1175,10 +1173,10 @@ def test_the_compressed_stop_still_runs_the_session_end_reflection() -> None:
 
 
 # -- an invented PA action on the reaction beat -----------------------------
-# Owner ruling (2026-09-08): on a compressed session the reaction beat's one
+# On a compressed session the reaction beat's one
 # exchange IS the measurement, so a reaction to work the assistant never did
 # scores the attribute against a fiction — an instrument error, not a style
-# note. Live regress16 `acc_006` t7 credited the PA with reformatting the whole
+# note. Live `acc_006` t7 credited the PA with reformatting the whole
 # bibliography into APA style; its only prior turn had read two documents and
 # written nothing, and every one of the 22 updates it went on to make was a
 # deletion. The check existed and fired, but only in the session loop, after
@@ -1226,8 +1224,8 @@ _INVENTED = _turn(_INVENTED_MESSAGE, "advance", "false")
 
 
 def test_a_reaction_crediting_a_write_that_never_ran_is_recorded_not_rewritten() -> None:
-    """Non-blocking, owner ruling 2026-09-13: judged and recorded for
-    observation this round, never a finding. The invention reaches the PA on
+    """Non-blocking: judged and recorded for
+    observation, never a finding. The invention reaches the PA on
     the first attempt, with the rule and the judge's evidence on the turn's
     diagnostics."""
     events, _ = _run(
@@ -1280,7 +1278,7 @@ def test_a_reaction_to_a_write_the_assistant_really_made_is_left_alone() -> None
 
 
 def test_an_invention_on_a_compressed_reaction_beat_no_longer_voids() -> None:
-    """The void path, gone: non-blocking, owner ruling 2026-09-13.
+    """The void path, gone: non-blocking.
 
     On the compressed reaction beat the one exchange IS the measurement, so
     the rule used to be kept out of `PLAYED_AFTER_BUDGET` there and the step
@@ -1314,9 +1312,8 @@ def test_an_invention_on_a_compressed_reaction_beat_no_longer_voids() -> None:
 
 def test_an_uncompressed_reception_beat_is_recorded_too() -> None:
     """The arming is unchanged — every reaction beat, not the compressed one
-    alone (owner ruling 2026-09-08, the three uncompressed hits over
-    regress12-19: regress14c `acc_039` t17, regress18 `acc_009` t13 and
-    regress18 `acc_039` t23). Non-blocking since 2026-09-13, so the turn is
+    alone (the three uncompressed hits in live runs: `acc_039` t17,
+    `acc_009` t13 and `acc_039` t23). Non-blocking, so the turn is
     played on the first attempt and the verdict lands on its diagnostics."""
     events, provider = _run(
         [

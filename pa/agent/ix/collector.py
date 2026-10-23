@@ -1,4 +1,4 @@
-"""P2 · Collector, gates, hold bookkeeping and turn projections.
+"""Collector, gates, hold bookkeeping and turn projections.
 
 This module is the Runner/Loop-side half of the IX wrapper.
 It owns:
@@ -124,7 +124,7 @@ HOLD_PROMPT_PREFIX = "[interaction wrapper]"
 #: Every repair message ends with this; it now also closes the two *standing*
 #: model-facing texts (`SETTING_COMMITMENT_NOTE` on every selection tool, and the
 #: per-turn restatement below), which is why it moved to `specs.py` — the module
-#: this one imports. Live `v8s02` t5 delivered `the search calls didn't execute
+#: this one imports. Live, one turn delivered `the search calls didn't execute
 #: because the interaction_item_id parameters aren't part of the tool
 #: definitions` as the whole reply: the PA explaining the hold protocol to the
 #: person it is assisting, and explaining it wrong. `WRAPPER_VOCABULARY` in
@@ -136,12 +136,12 @@ NO_META_ACKNOWLEDGEMENT = (
     "produce the corrected turn. " + NO_WRAPPER_TALK
 )
 #: The one line of `CERTAINTY_BLOCK_INSTRUCTION` the model keeps losing, said
-#: again on its own so it is not buried mid-paragraph. regress14b `acc_035`: the
+#: again on its own so it is not buried mid-paragraph. `acc_035`: the
 #: first attempt declared three claims, all of them sentences of the *previous*
 #: reply, the locator placed none, and the re-ask
 #: (`IX_CERTAINTY_CLAIM_REPAIR`) did not save it -- the turn failed the
-#: certainties contract and aborted the run (owner ruling 4 has since made that
-#: an untagged turn instead); the rerun still placed only 1 of 3, the other two
+#: certainties contract and aborted the run (that is now an untagged turn
+#: instead); the rerun still placed only 1 of 3, the other two
 #: being paraphrases of what the reply meant. The repair message already says
 #: this; saying it before the first attempt is what stops the miss costing a
 #: re-ask and a turn with no confidence on it. Setting-blind like the passage it
@@ -177,7 +177,7 @@ def turn_reminder_message(
 
     The restatement block closes on `NO_WRAPPER_TALK`. This is the one text that
     hands the model a setting *name* on a turn where the IX tool itself is gone:
-    regress18 `acc_006` t=7 had no IX tool and no repair message, only this line
+    `acc_006` t=7 had no IX tool and no repair message, only this line
     (`- task_expansion: Low — …`), and the reply told the user *"so it stays
     within the Low boundary."* The clause is setting-blind like the rest, so it
     changes nothing about what is restated — only whether the model is told not
@@ -381,7 +381,7 @@ def consent_decisions_from_metadata(
 
     Two shapes are accepted. An entry naming an ``interaction_item_id`` answers
     a held ask. An entry with **no** id but a ``tool`` is a standing
-    authorisation (owner ruling 2026-09-08): the actor spoke the go-ahead for an
+    authorisation: the actor spoke the go-ahead for an
     outward act before any hold existed, and ``preauthorised_acts`` turns it
     into a one-turn release on that tool. An entry with neither is dropped.
     """
@@ -416,7 +416,7 @@ def catalog_tool_name(tool_name: str) -> str:
     The pre-authorisation path is the one place the two spellings meet: the
     sideband is in catalog space and `ToolCallRequest.name` is in runtime
     space, so both ends are put through here before they are compared. Live
-    regress20 `acc_039` t31 is what happens without it -- the standing allow
+    `acc_039` t31 is what happens without it -- the standing allow
     for `appointment_create` never matched the PA's `mcp_state_appointment_create`,
     the floor held the call and asked for a permission the user had already
     given, and the grant lapsed unspent the same turn.
@@ -433,7 +433,7 @@ def preauthorised_acts(
     consent_decisions: Sequence[ConsentDecision],
     calls: Sequence[ToolCallRecord],
 ) -> set[str]:
-    """The tools this turn's standing authorisations still cover (owner, 2026-09-08).
+    """The tools this turn's standing authorisations still cover.
 
     live acc_039 t40 -- "You may proceed with booking that slot at 08:30" -- is
     the authorising beat, and t41's `appointment_create` was the act it
@@ -505,7 +505,7 @@ def live_act_releases(
     consent_decisions: Sequence[ConsentDecision],
     calls: Sequence[ToolCallRecord],
 ) -> dict[str, str]:
-    """`tool -> the item id whose release on it is still unspent` (owner, 2026-09-08).
+    """`tool -> the item id whose release on it is still unspent`.
 
     An authorisation is bound to the *action*, and the tool name is
     what names the action; the `interaction_item_id` is minted fresh whenever
@@ -518,7 +518,7 @@ def live_act_releases(
 
     - the act **succeeding** -- an `ok` call on the tool drops the entry, so the
       next act on it is asked for afresh. A genuine second act comes after a
-      success, which is why binding to the tool alone (round 11's attempt) was
+      success, which is why binding to the tool alone was
       wrong and this is not: an errored or never-issued call spends nothing.
     - the user **withdrawing** it -- a `deny` on the sideband, or the PA's own
       `skip`, while the released item is still held.
@@ -615,7 +615,7 @@ _ID_DECLARING_ATTRIBUTES = ("autonomy_level", "topic_management")
 def binding_attribute(payloads: TurnPayloads, hold: IXHold, fallback: str) -> str:
     """Whose declaration the failed binding belongs to.
 
-    Live `v7r06` t18 stamped all six `binding_invalid` rows
+    Live, one turn stamped all six `binding_invalid` rows
     `attribute: "autonomy_level"` while the response had declared
     `topic_management` batches and the rows carried `batch_id: "b1"` — so
     anything that keys held rows by attribute (the episode's `calls_held`, the
@@ -654,7 +654,7 @@ def rebound_batch_ids(payloads: TurnPayloads, hold: IXHold) -> list[str]:
     Within its set: the id alone is not the handle. Keying this by `batch_id`
     made a *new* `batch_set_id` re-using `b1` a rebinding, which is what the
     `batch_set_id` description asks the PA to do once a set has closed. Live
-    (round 4) it cost acc_023 two turns, held `email_draft_create` twice, and put
+    it cost acc_023 two turns, held `email_draft_create` twice, and put
     the wrapper's own stall text in front of the user; the PA escaped only by
     minting a fresh `c1` prefix.
 
@@ -709,7 +709,7 @@ def validate_bindings(
 
     A question id is an *unknown* binding like any other — questions declare no
     call ids — but it is the one confusion the model makes on its
-    own: live `v8s02` t3 bound three task calls to `q1`/`q1`/`q2` on the turn it
+    own: live, the PA bound three task calls to `q1`/`q1`/`q2` on the turn it
     declared those questions, and read the generic "unknown id" back as "the
     field is not part of the tool definitions". `question_ids` only changes what
     the repair *says*; the refusal is the same.
@@ -869,21 +869,21 @@ class TurnCollector:
     #: The audit blob has no other record of it: live it was visible only as an
     #: extra provider call whose prompt was ~14k tokens shorter.
     closing_iteration: bool | None = None
-    #: Round 9 item 1 — the turn would deliver nothing and the one extra
+    #: The turn would deliver nothing and the one extra
     #: provider request the runner sends came back empty too. It is the runner
     #: that decides this; the renderer is the one allowed to write the line.
     empty_reply: bool = False
-    #: regress5 acc_006 — some response this turn carried the model's own
+    #: acc_006 — some response this turn carried the model's own
     #: tool-call syntax as text, recovered at the provider seam or left
     #: unparsable. Either way the PA had work in hand, so the empty-reply
     #: template is a false statement about this turn.
     dsml_markup_seen: bool = False
-    #: Round 9 item 2 — the fail-closed binding exit fired: a second response
+    #: The fail-closed binding exit fired: a second response
     #: bound its task calls wrongly and the whole batch is gone for this turn.
     #: A *repaired* first refusal never sets it, so the close line cannot land
     #: on a turn whose retry actually ran the calls.
     binding_refused: bool = False
-    #: regress12 acc_004 — `{(tool, error class): failures}` for this turn, where
+    #: acc_004 — `{(tool, error class): failures}` for this turn, where
     #: the class is the error text with the call's own argument values taken out.
     #: Live, `shopping_order_create` was called 46 times with guessed
     #: `delivery_address_id`s (addr_home, addr_001, addr_4b, ...) and answered
@@ -898,7 +898,7 @@ class TurnCollector:
     #: on the tool, so two nearby calendar to-dos carry their own budgets, and
     #: spent once -- a repair that fails again is over.
     recurrence_repairs: dict[str, RecurrenceRepair] = field(default_factory=dict)
-    #: regress16 acc_006 — `completion_tokens` of the response currently in
+    #: acc_006 — `completion_tokens` of the response currently in
     #: hand when the provider ended it at the token limit, `None` when the last
     #: response came back whole. Only the *last* response matters: a truncation
     #: the retry answered is over, and the turn that follows it is a normal one.
@@ -1115,7 +1115,7 @@ class TurnCollector:
         `consent[]` follows `calls`, not `held`: a row for an id whose call
         already **executed** records an authorisation the world has acted on,
         and the retry will not re-issue that call, so wiping it loses the row
-        for good. Live `v6g02` t20 released `item_2`, ran `appointment_create`,
+        for good. Live, one turn released `item_2`, ran `appointment_create`,
         then opened a gate for `item_3` with no ask -- the repair cleared the
         turn and `consent[]` shipped empty, so two authorisations in the run
         were recorded as one.
@@ -1190,7 +1190,7 @@ class TurnCollector:
 
 
 # ---------------------------------------------------------------------------
-# the renderer call site (P1 owns `render.py`)
+# the renderer call site
 # ---------------------------------------------------------------------------
 
 _MARKER_RES = (BATCH_MARKER_RE, QUESTION_MARKER_RE, CERTAINTY_MARKER_RE)
@@ -1255,8 +1255,8 @@ def open_episode_ids(hold: IXHold) -> list[tuple[str, str]]:
 def hold_prompt(hold: IXHold, unreleased: Sequence[str] = ()) -> str:
     """The controlled reminder: hold ids only, never the user's own words.
 
-    An episode holding only questions or batches gets the reminder too (owner
-    decision 2026-09-05). It used to be skipped for having no held *call*, so an
+    An episode holding only questions or batches gets the reminder too. It used
+    to be skipped for having no held *call*, so an
     `Iterative` turn that withheld `q2` and made no tool call left the next turn
     with nothing to resume from, while `IX_continue_information_elicitation` was
     still required. Held questions and batches are listed by id and their short
@@ -1335,7 +1335,7 @@ def hold_prompt(hold: IXHold, unreleased: Sequence[str] = ()) -> str:
         )
     # A cancelled item is a terminal fact, and the PA is told it on
     # **every** later turn of the session -- not only on the turn it happened.
-    # Live, `v6g01`'s round cap dropped `email1` in silence and three turns
+    # Live, the round cap dropped `email1` in silence and three turns
     # later the PA's own summary listed the never-sent email under "Completed".
     cancelled: list[str] = []
     for episode in hold.finished_episodes:
@@ -1384,7 +1384,7 @@ def ix_payload_status(
     does not mean everything was delivered — a forced close empties the hold by
     cancelling it — and the memory pool decides on both lists: a payload call's
     arguments are the delivered text and are remembered, unless this turn held
-    or cancelled something, in which case they are text nobody received (O4).
+    or cancelled something, in which case they are text nobody received.
     """
     return json.dumps(
         {

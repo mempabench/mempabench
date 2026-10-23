@@ -175,8 +175,7 @@ def test_the_avoid_lead_no_longer_carries_the_scope_clause_rule():
     ctx = cat.TurnContext(candidate_turn="That is fine.", beat_avoid=SCOPE_AVOID)
     (group,) = build_general_groups(ctx)
     # The scope sentence is authoring metadata, so it is never put to the
-    # judge; the clause after it keeps its global index (owner ruling
-    # 2026-09-14).
+    # judge; the clause after it keeps its global index.
     assert group.question_ids == ["avoid_2"]
     for question in group.questions:
         assert _SCOPE_SENTENCE not in question.text
@@ -274,7 +273,7 @@ def test_the_avoid_lead_keeps_the_goal_exemption_without_the_ban_list():
     for question in group.questions:
         assert _GOAL_SENTENCE in question.text
     _, prompt = cat.render(group)
-    # The list of acts is commented out (owner ruling 2026-09-14): the judge
+    # The list of acts is commented out: the judge
     # read it as a standing ban and stopped reading the clause, which is 32 of
-    # the 33 `avoid` findings of the live user_b round of 2026-09-14.
+    # the 33 `avoid` findings of a live user_b run.
     assert "Every other act this clause bans is still violated" not in prompt

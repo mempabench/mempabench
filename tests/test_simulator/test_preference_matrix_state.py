@@ -65,7 +65,7 @@ def test_matrix_rejects_stored_counts_and_bad_shapes() -> None:
 
 
 def test_a_setting_retired_from_the_taxonomy_is_refused_at_load() -> None:
-    """`Suggest` was merged into `Self-directed` on 2026-09-05 (autonomy_level went
+    """`Suggest` was merged into `Self-directed` (autonomy_level went
     from four settings to three). A cell still naming it is stale, not merely
     unusual, so the matrix must not load at all."""
     data = _matrix({"autonomy_level": _cell(setting="Suggest")})
@@ -86,14 +86,14 @@ def _is_marked_invalid(path: Path) -> bool:
 
 
 def test_matrix_marked_invalid_is_refused_at_load() -> None:
-    """Matrices holding settings removed on 2026-09-05 must not load at all."""
+    """Matrices holding removed settings must not load at all."""
     with pytest.raises(ValidationError, match=INVALID_MARKER):
         PreferenceMatrix.model_validate(
             {**_matrix({"verbosity": _cell()}), "status": INVALID_MARKER}
         )
     # Every shipped matrix has been re-extracted under the current settings.
-    # user_b was in this marked set while its cells were being re-extracted
-    # (7d6a3b1); the promoted matrix carries no marker, so the set is empty and
+    # user_b was in this marked set while its cells were being re-extracted;
+    # the promoted matrix carries no marker, so the set is empty and
     # user_b has to load like any other persona.
     marked = [path for path in PERSONA_FILES if _is_marked_invalid(path)]
     assert marked == []

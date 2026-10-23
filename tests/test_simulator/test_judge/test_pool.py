@@ -29,7 +29,7 @@ BOX_B = "http://10.0.0.2:30001"
 
 @pytest.fixture
 def pool_env(monkeypatch):
-    """The owner's split: 1/3 to box_a, 2/3 to box_b."""
+    """The split: 1/3 to box_a, 2/3 to box_b."""
     for name in [key for key in os.environ if key.startswith("MEMPA_JUDGE_")]:
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setenv("MEMPA_JUDGE_NAME_1", "box_a")
@@ -208,10 +208,10 @@ def test_both_boxes_down_stops_the_round(pool_env, transport) -> None:
 def test_a_timed_out_call_is_tried_once_on_the_other_box(
     pool_env, transport, capsys
 ) -> None:
-    """Owner ruling 2026-09-14, after nanobot acc_108: a box that drops a call
-    mid-stream gets the call taken off it, not the session voided. Since
-    2026-09-18 the same box is asked again first (`MEMPA_JUDGE_RETRIES`), and
-    the handover is what its retries running out buys."""
+    """After nanobot acc_108: a box that drops a call mid-stream gets the call
+    taken off it, not the session voided. The same box is asked again first
+    (`MEMPA_JUDGE_RETRIES`), and the handover is what its retries running out
+    buys."""
     pool_env.setenv("MEMPA_JUDGE_RETRIES", "1")
     client = JudgeClient(deadline_s=5)
     dropped, survivor = client._order
@@ -336,7 +336,7 @@ def test_the_log_line_names_the_box(pool_env, transport, capsys) -> None:
 
 
 def test_primary_puts_one_box_first_in_every_draw(pool_env, transport) -> None:
-    """Owner ruling 2026-09-16: PRIMARY replaces the dice with an order."""
+    """PRIMARY replaces the dice with an order."""
     pool_env.setenv("MEMPA_JUDGE_PRIMARY", "2")
     for _ in range(20):
         client = JudgeClient()
@@ -538,7 +538,7 @@ def test_a_single_url_still_needs_the_pin(monkeypatch) -> None:
 def test_a_fallback_that_is_down_does_not_block_the_preflight(
     pool_env, capsys, monkeypatch
 ) -> None:
-    """Owner: the fallback is a fallback. Down, it is a warning, not a stop."""
+    """The fallback is a fallback. Down, it is a warning, not a stop."""
     from simulator.judge import session as judge_session
 
     monkeypatch.setenv("MEMPA_JUDGE_PRIMARY", "1")
@@ -573,7 +573,7 @@ def test_a_fallback_that_is_down_does_not_block_the_preflight(
 def test_a_timeout_is_retried_on_the_same_box_before_the_failover(
     pool_env, transport, monkeypatch, capsys
 ) -> None:
-    """Owner ruling 2026-09-18, after the live run that died on one slow
+    """After the live run that died on one slow
     OpenRouter call: a timeout is a transient failure of that box like a 503
     is, so it is retried in place first and only then handed over."""
     monkeypatch.setattr(judge_client, "RETRY_PAUSE_S", 0.001)
@@ -601,7 +601,7 @@ def test_a_timeout_is_retried_on_the_same_box_before_the_failover(
 def test_a_retry_gets_its_own_deadline_not_the_leftovers(
     pool_env, transport, monkeypatch
 ) -> None:
-    """The bug of 2026-09-18: the retries shared the call's one deadline, so a
+    """The bug: the retries shared the call's one deadline, so a
     first attempt that spent it left no room for any of them and the box was
     called unavailable after 0 retries. Every attempt gets a whole deadline."""
     monkeypatch.setattr(judge_client, "RETRY_PAUSE_S", 0.05)
@@ -628,7 +628,7 @@ def test_a_retry_gets_its_own_deadline_not_the_leftovers(
 def test_every_fallback_down_comes_back_to_the_primary(
     pool_env, transport, monkeypatch, capsys
 ) -> None:
-    """Owner ruling 2026-09-18: the pool walked to its end used to be the end
+    """The pool walked to its end used to be the end
     of the run. The primary gets one more pass first."""
     monkeypatch.setattr(judge_client, "RETRY_PAUSE_S", 0.001)
     monkeypatch.setenv("MEMPA_JUDGE_RETRIES", "0")

@@ -112,8 +112,8 @@ Skills with available="false" need dependencies installed first - you can try in
         memory_paths = ""
         if self.native_file_memory_enabled:
             # No file name at all: a printed path was copied into document_read
-            # (regress1/2 acc_004), and a printed basename was guessed into one
-            # (regress3 acc_009, `my_desktop/MEMORY.md`). The memory is described
+            # (acc_004), and a printed basename was guessed into one
+            # (acc_009, `my_desktop/MEMORY.md`). The memory is described
             # by what it is, and the PA is told there is no file for it to open.
             memory_paths = """- Long-term memory — maintained for you automatically outside the conversation; its current content is already included in the "# Memory" section of this prompt.
 - History log — maintained for you automatically outside the conversation; each entry starts with [YYYY-MM-DD HH:MM].

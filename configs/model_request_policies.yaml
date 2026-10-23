@@ -149,7 +149,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa, memory_extraction, consolidation]
 
-  # validated 2026-09-11 by probe (the regress23 PA model probe)
+  # validated by a PA model probe
   - provider_name: openrouter
     model: z-ai/glm-5.3-flash
     temperature: send
@@ -159,7 +159,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated 2026-09-11 by probe (the regress23 PA model probe)
+  # validated by a PA model probe
   - provider_name: openrouter
     model: openai/gpt-5.6-sol
     temperature: send
@@ -169,7 +169,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated 2026-09-11 by probe (the regress23 PA model probe)
+  # validated by a PA model probe
   # reasoning model: needs pa_max_tokens >= 2048 (at 256 it returns finish_reason=length
   # with no tool call); benchmark runs use 24576.
   - provider_name: openrouter
@@ -181,7 +181,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated 2026-09-11 by probe (the regress23 PA model probe)
+  # validated by a PA model probe
   - provider_name: openrouter
     model: qwen/qwen3.8-27b
     temperature: send
@@ -191,7 +191,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated 2026-09-11 by probe (the regress23 PA model probe)
+  # validated by a PA model probe
   - provider_name: openrouter
     model: minimax/minimax-m3
     temperature: send
@@ -201,7 +201,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated 2026-09-18 by scripts/diagnostics/validate_model_policy.py --online
+  # validated by scripts/diagnostics/validate_model_policy.py --online
   - provider_name: openrouter
     model: google/gemini-3.8-flash
     temperature: send
@@ -211,7 +211,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated 2026-09-18 by scripts/diagnostics/validate_model_policy.py --online
+  # validated by scripts/diagnostics/validate_model_policy.py --online
   # free channel: probes saw no 429 and no rate-limit signal, but one call took 15s
   - provider_name: openrouter
     model: nvidia/nemotron-3-ultra-550b-a55b:free
@@ -222,7 +222,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated 2026-09-18 by scripts/diagnostics/validate_model_policy.py --online
+  # validated by scripts/diagnostics/validate_model_policy.py --online
   - provider_name: openrouter
     model: deepseek/deepseek-v4.1-flash
     temperature: send
@@ -232,7 +232,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated 2026-09-18 by scripts/diagnostics/validate_model_policy.py --online
+  # validated by scripts/diagnostics/validate_model_policy.py --online
   # also probed: tool_choice "auto", the proactive trailing-`system` shape, the
   # trailing-`tool` shape, and 3+3 stability reps (no 429, no empty choices)
   - provider_name: openrouter
@@ -248,7 +248,7 @@ models:
 # `provider` field (OpenRouter provider preferences). Kept apart from the
 # policies above, so it never changes a policy snapshot or its sha256.
 provider_routing:
-  # Owner decision 2026-09-24: tencent/hy4-preview runs only on SiliconFlow,
+  # tencent/hy4-preview runs only on SiliconFlow,
   # which honors named/required tool_choice; no fallback to another upstream.
   # raw_response_log_dir (logging only): every PA call's raw upstream response
   # is appended to <workspace>/<dir>/<run_id>/raw_pa_responses.jsonl.

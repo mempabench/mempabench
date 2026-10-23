@@ -131,7 +131,7 @@ async def test_the_pas_final_turn_of_a_compressed_session_runs_closed(tmp_path: 
     """The wiring, end to end: the executor installs the closing hook.
 
     The probe beat's PA turn is open -- the session is still going -- and the
-    reaction beat's is not, which is the turn regress19 `acc_035` t8 spent
+    reaction beat's is not, which is the turn `acc_035` t8 spent
     writing a roster change nobody had asked for.
     """
     stage = _compressed_stage(tmp_path, 2)
@@ -292,7 +292,7 @@ async def test_session_executor_propagates_loop_error(tmp_path: Path):
 
 @pytest.mark.asyncio
 async def test_an_invalid_session_names_its_rule_in_meta(tmp_path: Path):
-    """Owner ruling 2026-09-08: a step whose simulator failed as an instrument
+    """A step whose simulator failed as an instrument
     says so in its own directory, not only in the ledger, so a read can count
     the rule without reopening the transcript."""
     executor = SessionExecutor(
@@ -329,7 +329,7 @@ async def test_a_finished_session_records_no_invalid_rule(tmp_path: Path):
 async def test_a_forced_outreach_branch_is_stamped_on_transcript_and_meta(
     tmp_path: Path,
 ):
-    """Owner-approved verification aid (2026-09-08).
+    """The verification aid.
 
     The wrapper's stamp rides inside `pa_turn.tool_events`, where only a
     reader that opens tool events would find it. The executor lifts it to a
@@ -703,10 +703,10 @@ def _outside_plan_records(result) -> list[dict]:
 
 @pytest.mark.asyncio
 async def test_every_undeclared_write_call_is_recorded(tmp_path: Path):
-    """regress13 `acc_023`: the PA sent a real email the draft never planned.
+    """`acc_023`: the PA sent a real email the draft never planned.
 
     Sent twice, across two beats, and both calls are recorded. The old rule
-    kept only the first per tool name, which is why regress18 `acc_039` showed
+    kept only the first per tool name, which is why `acc_039` showed
     2 records for 4 refused email writes and `acc_011` 1 for 6 refused
     `document_update`s — the count read as "tried once" either way. The
     declared tools around it still record nothing.
@@ -754,7 +754,7 @@ async def test_every_undeclared_write_call_is_recorded(tmp_path: Path):
 async def test_repeated_undeclared_writes_inside_one_turn_are_told_apart(
     tmp_path: Path,
 ):
-    """regress18 `acc_011`: six refused `document_update`s inside three turns.
+    """`acc_011`: six refused `document_update`s inside three turns.
 
     Same tool, same turn, same beat — without `call_index` the records would be
     byte-identical and a reader could not say which call of the turn each one
@@ -792,9 +792,9 @@ async def test_repeated_undeclared_writes_inside_one_turn_are_told_apart(
 
 @pytest.mark.asyncio
 async def test_an_undeclared_read_is_recorded_as_a_read(tmp_path: Path):
-    """Owner ruling 2026-09-08: the read calls are recorded too.
+    """The read calls are recorded too.
 
-    regress20 `acc_023` made roughly ninety out-of-plan reads and the records
+    `acc_023` made roughly ninety out-of-plan reads and the records
     said none, because the read class was dropped before anything was written.
     The per-model read behaviour is analysed later, so every call is kept —
     `tool_class` is what tells the two apart afterwards.
@@ -899,7 +899,7 @@ def _pa_turn_with(tool: str, args: dict) -> dict:
 
 
 def test_a_declared_tool_pointed_off_plan_is_its_own_finding(tmp_path: Path) -> None:
-    """regress13 `acc_019` wrote to a file no atomic step names through a
+    """`acc_019` wrote to a file no atomic step names through a
     perfectly declared `document_update`, and the name-only rule read it as
     clean. The argument comparison catches it, under its own record kind so the
     name-only counts stay comparable."""

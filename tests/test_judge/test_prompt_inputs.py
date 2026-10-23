@@ -1,4 +1,4 @@
-"""What reaches the judge prompt, and what must not — the 2026-09-17 input boundary.
+"""What reaches the judge prompt, and what must not — the input boundary.
 
 Every check here runs
 `assemble_prompt` over a small synthetic `judge_input/<probe>/` directory and
@@ -307,7 +307,7 @@ def test_state_diff_is_not_offered_outside_the_rubric(tmp_path: Path, attribute:
 
 #: The feature files whose judge-facing half still cites `ix_render` / `state_diff`.
 #: Strict xfail: an entry that starts XPASSing has to be removed,
-#: so the list cannot go stale. Empty since U3b rendered the 14 files from the
+#: so the list cannot go stale. Empty since the 14 files are rendered from the
 #: Feature Tables; add a name only if a file regresses on purpose.
 _RUBRIC_STILL_CITES_IX_FIELDS: set[str] = set()
 
@@ -317,7 +317,7 @@ _RUBRIC_STILL_CITES_IX_FIELDS: set[str] = set()
     [
         pytest.param(
             attribute,
-            marks=pytest.mark.xfail(strict=True, reason="U3b: judge-facing prose still cites ix_render / state_diff"),
+            marks=pytest.mark.xfail(strict=True, reason="judge-facing prose still cites ix_render / state_diff"),
         )
         if attribute in _RUBRIC_STILL_CITES_IX_FIELDS
         else attribute

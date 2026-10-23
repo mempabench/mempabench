@@ -2,7 +2,7 @@
 
 The pool a turn writes cannot be re-derived from `session.messages`: the
 persisted slice drops intermediate prose, held call declarations and the final
-iteration's reasoning (`pa/agent/ix/collector.py:1394-1404`, `:1434`). So the
+iteration's reasoning (`pa/agent/ix/collector.py:1393-1403`, `:1433`). So the
 rendered pool is *persisted* instead, one record per pool write, beside the
 session file. A resume re-reads the artefact rather than re-deriving one.
 
@@ -10,7 +10,7 @@ Two completion tracks, because two backends commit differently:
 
 * `state` — `pending` on append, `written` once the adapter receipt is
   recorded (`mark_written`). This is the resume authority: a `pending` record
-  is replayed under Q5's at-least-once rule, a `written` one is skipped. It is
+  is replayed under the at-least-once rule, a `written` one is skipped. It is
   never a message index, which is what makes a zero-span turn (a suppressed
   outreach, span `[n,n)`) resumable at all.
 * `file_consolidated` — the second completion mark, for the file condition,
@@ -32,8 +32,8 @@ is its own line folded onto the record when the journal is read. A crash
 between the two therefore loses nothing — the record is durable from the moment
 it is appended, before the turn's first `sessions.save`.
 
-Wiring this module is NOT done here. Step 7 wires three consumers, all reading
-this same journal from their own cursor and advancing it only after
+Wiring this module is NOT done here. Three consumers read this same journal,
+each from its own cursor, and advance it only after
 `require_file_consolidation` returns:
 
 1. mid-session compaction — `pa/agent/memory.py:531-570`, which consumes
@@ -46,12 +46,12 @@ this same journal from their own cursor and advancing it only after
    records first and clears, saves, invalidates and opens the new journal
    boundary only on success.
 
-Steps 4 and 5 wire the producer: `append_pending` inside the turn's commit
+The producer calls `append_pending` inside the turn's commit
 window before the first `sessions.save`, `mark_written` after the adapter
 acknowledges and before the cursor advances (`pa/agent/loop.py:1596-1613`).
 
-Step 9 reads `resume_pending()`: its `.records` are the pools to re-write and
-its `.turn_ids` are what the resume log must list. Two further step-9 duties
+A resume reads `resume_pending()`: its `.records` are the pools to re-write and
+its `.turn_ids` are what the resume log must list. Two further resume duties
 live outside this module: the checkpoint must carry the journal file alongside
 `session.jsonl` (the journal is saved and restored with the
 checkpoint — `pa/session/manager.py:360-378` copies only the session file
@@ -62,8 +62,8 @@ reference map) ride in the optional `realized` field. Its producer is
 `harness/forced_event_executor.py:_prepare_exchange`, which writes the pending
 record once the exchange's world calls have run and before the first
 `session_manager.save`; `_prepare_exchange` reads the field back on a resume and
-skips `registry.execute` for an exchange that already has one. Q5 authorises
-replaying a memory write, never a world action.
+skips `registry.execute` for an exchange that already has one. A resume
+replays a memory write, never a world action.
 """
 
 from __future__ import annotations
@@ -279,7 +279,7 @@ class TurnJournal:
         return [record for record in self._records if record.state == PENDING]
 
     def resume_pending(self) -> ResumePlan:
-        """The records a resume re-writes, under Q5's at-least-once rule."""
+        """The records a resume re-writes, under the at-least-once rule."""
         pending = self.pending_records()
         return ResumePlan(
             records=pending,

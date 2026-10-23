@@ -1,6 +1,6 @@
 """Every request the PA sends answers every call the history carries.
 
-regress23m `acc_001` / `acc_004`, 2026-09-12: `openai/gpt-5.6-sol` returned
+`acc_001` / `acc_004`: `openai/gpt-5.6-sol` returned
 `400 No tool output found for function call <id>` and the run died. The calls
 were the ones `_execute_tools_ix_first` withholds when a selection is refused —
 they are recorded as held and deliberately never run, and the loop then

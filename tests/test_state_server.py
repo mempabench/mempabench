@@ -105,7 +105,7 @@ def test_document_update_rejects_a_duplicate_anchor(tmp_path: Path):
         store.update_document("documents/intro.md", "note", "final")
 
 
-# A bare heading line as the anchor. Live (regress13 acc_001 t=18) the PA sent
+# A bare heading line as the anchor. Live (acc_001 t=18) the PA sent
 # `## Raw — needs converting to a proper entry` and a replacement that opened
 # with its own heading: the section heading was consumed and the raw note it
 # introduced was left under the replacement's heading.
@@ -138,7 +138,7 @@ def test_document_update_refuses_a_bare_heading_line_anchor(
 
 
 # An anchor that stops at the end of a wrapped list item's first line. Live
-# (regress19 acc_035 t=8) the PA anchored on the first line of a two-line
+# (acc_035 t=8) the PA anchored on the first line of a two-line
 # "Notes to self" bullet and inserted a new bullet after it; the old bullet's
 # clause was cut in half around the insertion.
 
@@ -232,7 +232,7 @@ def test_a_trailing_hash_or_hashes_without_a_heading_are_ordinary_anchors(
 
 
 def test_a_fallback_tier_match_tells_the_pa_which_span_it_edited(tmp_path: Path):
-    """`match_tier` alone was ignored live (regress13 acc_003, two `unescaped`
+    """`match_tier` alone was ignored live (acc_003, two `unescaped`
     rescues), so a non-exact rung now carries a note the PA can act on."""
     store = _document_store(tmp_path, '# Notes\n\nHe said "yes" to the venue.\n')
 
@@ -507,7 +507,7 @@ def _home_and_cinema_state(tmp_path: Path) -> Path:
     ["home", "my apartment", "Glenmont Heights, apartment 4B", "12 Corvid Ave, Glenmont"],
 )
 def test_route_options_resolves_home_endpoints_to_the_home_record(tmp_path: Path, origin: str):
-    # regress14b acc_002: the address text shared one token with the home record
+    # acc_002: the address text shared one token with the home record
     # and one with "Glenmont Cinema", and the cinema won on the shorter name.
     store = StateStore(
         _home_and_cinema_state(tmp_path),
@@ -752,7 +752,7 @@ def test_reads_reflect_real_writes_without_scripted_layer(tmp_path: Path):
 def test_a_tool_result_never_carries_the_run_bookkeeping(monkeypatch, tmp_path: Path):
     """The stamp belongs on disk and in the tool log, never back in the prompt.
 
-    Live (`v2g03`), the PA created an appointment and read it back, and the tool
+    Live, the PA created an appointment and read it back, and the tool
     message in its own session file ended `"run_id": "v2g03", "session_id":
     "acc_039"`. A descriptive run id would have named the setting under test.
     """
@@ -1404,7 +1404,7 @@ def test_shopping_return_case_update_rejects_closed_case_without_mutation(tmp_pa
 
 # A search row names the records it handed back
 #
-# Owner ruling 2026-09-16: `{"matches": 1}` cannot be attributed to anything.
+# `{"matches": 1}` cannot be attributed to anything.
 # Live acc_096's row was `contact_search {"query": "Sarah Bennett"} ->
 # {"matches": 1}`, so nothing in the finished run said the record was
 # `ct_0012`, and the run-level exposure scan could not report that fin_28's

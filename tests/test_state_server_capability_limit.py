@@ -117,7 +117,8 @@ TRACKING = {
 
 def test_duplicated_constants_equal_the_p0_originals() -> None:
     """state_server/ imports nothing from pa/, so the four capability-limit
-    literals are duplicated. They must stay equal to the P0 frozen values."""
+    literals are duplicated. They must stay equal to the values frozen in
+    `render_types`."""
     assert store_module.CAPABILITY_LIMIT_ERROR_CODE == render_types.CAPABILITY_LIMIT_ERROR_CODE
     assert store_module.CAPABILITY_LIMIT_TOOL_STATUS == render_types.CAPABILITY_LIMIT_TOOL_STATUS
     assert store_module.CAPABILITY_LIMIT_RESULT_KEYS == render_types.CAPABILITY_LIMIT_RESULT_KEYS
@@ -324,7 +325,7 @@ def test_the_public_store_hands_the_frozen_shape_through_intact(
     have to survive that, because the runner's whole capability path keys off
     `is_capability_limit(result)` and nothing else.
 
-    Round 3 (`v3g07` / `v3g08`) read as if this seam had eaten the signal — the
+    Live runs read as if this seam had eaten the signal — the
     two forced settings rendered byte-identically with `gate: null`. It had
     not: `strip_run_identity` drops run identity and world-visibility keys only.
     This pins that, and follows the result all the way to

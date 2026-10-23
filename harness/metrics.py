@@ -4,7 +4,7 @@ Pure data, no LLM. Inputs, all under one run directory:
 
 - `judge_output/<judge_id>/<probe_id>.json` — one record per probe. Both faces
   are read from the record: `ix_face.exact_match` / `ix_face.pa_setting` (computed by
-  code) and `text_face.score` (1–5). A record missing either face raises (B9).
+  code) and `text_face.score` (1–5). A record missing either face raises.
 - `judge_input/<probe_id>/ground_truth.json` — `context` / `attribute` / `setting`
   of the cell the probe reads; `setting` is already `setting_for(probe_kind, record)`
   (pre-event → old GT, final → new GT), so E4 needs no second resolution.
@@ -42,7 +42,7 @@ SCORE_DOMAIN = (1, 2, 3, 4, 5)
 LOW_SCORE_MAX = 2
 CONTEXTS = ("work", "personal")
 
-#: The score of a probe that exhausted its attempts (owner 2026-10-16): IX wrong,
+#: The score of a probe that exhausted its attempts: IX wrong,
 #: Text 1, denominator unchanged. The paper export reads these same names.
 FLOOR_RULE = "retain_scores_model_failure_floor_v1"
 FLOOR_IX = 0

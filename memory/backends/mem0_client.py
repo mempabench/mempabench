@@ -52,8 +52,7 @@ _RAW_DIALOGUE_ROLES = frozenset({"user", "assistant"})
 #: belongs to the frozen mem0 contract (`mem0_embedding_chunk_policy()` folds it
 #: into `Mem0RuntimeConfig`) and not to the call site.
 #:
-#: The 2000 this replaces killed the first live metering run
-#: (2026-09-14): three
+#: The 2000 this replaces killed the first live metering run: three
 #: extraction attempts on one chunk, all `finish_reason=length` at
 #: `completion_tokens=2000`, all with empty content. Replaying that exact chunk
 #: raw showed why — the budget went to reasoning, not to output:

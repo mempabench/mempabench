@@ -1,4 +1,4 @@
-"""Contract-level tests for the M1 adapter scaffold.
+"""Contract-level tests for the adapter scaffold.
 
 Tests cover:
 - All public types can be constructed with minimal valid values.
@@ -492,7 +492,7 @@ async def test_adapter_presents_every_item_it_receives(
 
     # Per-backend post-conditions.
     if backend == "nanobot_file_memory":
-        # Step 7 wires the journal; today `record_event` still defers.
+        # `record_event` defers to file consolidation.
         assert receipt.status == WriteStatus.deferred_to_file_consolidation
         assert (tmp_path / "MEMORY.md").exists() is False
     elif backend == "no_memory":

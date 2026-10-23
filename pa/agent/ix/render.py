@@ -62,10 +62,10 @@ _SECTION_MARKER_RE = re.compile(
     f"(?P<batch>{BATCH_MARKER_RE.pattern})|(?P<question>{QUESTION_MARKER_RE.pattern})"
 )
 
-#: Owner decision 2026-09-06 · the forced close writes
+#: The forced close writes
 #: **no** user-visible text. The renderer used to compose one sentence here when
 #: the round cap cancelled an item and the PA wrote no `closing_message`, and the
-#: line did more harm than the silence it covered: live `v11s02` t11 appended
+#: line did more harm than the silence it covered: live, one turn appended
 #: "I have not done meeting_duration; it is on hold." underneath an answer that
 #: had just been given, contradicting it and putting a snake_case intent id on
 #: the public face. The force-close is now an audit fact only
@@ -74,20 +74,20 @@ _SECTION_MARKER_RE = re.compile(
 
 #: The second safety line, on the other fail-closed exit. A binding
 #: refusal takes every task call in the turn and opens no gate, so the user is
-#: owed a sentence saying the steps did not run — live `v7r06` t18 dropped three
+#: owed a sentence saying the steps did not run — live, one turn dropped three
 #: reads in silence. Same justification as the cancelled line: the alternative
 #: is not a worse sentence, it is a user who is told nothing at all.
 #:
-#: Round 9 item 2: **appended**, never substituted. It used to replace the turn
+#: **Appended**, never substituted. It used to replace the turn
 #: only when the message was otherwise empty, which read as a safe default and
-#: was not one — live `v8s02` t3 declared four questions under `Structured`,
+#: was not one — live, one turn declared four questions under `Structured`,
 #: bound its task calls to the question ids, and the refusal shipped this line
 #: *instead of* the four questions the setting exists to deliver. The refusal
 #: and the questions are two different facts and the user gets both.
 _BINDING_CLOSE_LINE = "I could not carry out those steps this turn; I will retry."
 
-#: Round 9 item 1 · the universal empty-reply line (owner decision: an empty
-#: reply is a miss, whatever emptied it). The runner has already spent one extra
+#: The universal empty-reply line (an empty reply is a miss, whatever
+#: emptied it). The runner has already spent one extra
 #: provider request asking for a real sentence by the time this is reached; see
 #: `IX_EMPTY_REPLY_PROMPT` there. Three distinct routes to an empty turn have
 #: now been found in four rounds (a `binding_invalid` fail-closed exit, a hold
@@ -96,8 +96,8 @@ _BINDING_CLOSE_LINE = "I could not carry out those steps this turn; I will retry
 #: than guarded route by route.
 IX_EMPTY_REPLY_LINE = "I have nothing further to report on that just now."
 
-#: Round 9 item 3 · vocabulary that belongs to the wrapper and never to the
-#: user. Live `v8s02` t5's whole reply was `I see — the search calls didn't
+#: Vocabulary that belongs to the wrapper and never to the
+#: user. Live, one turn's whole reply was `I see — the search calls didn't
 #: execute because the interaction_item_id parameters aren't part of the tool
 #: definitions. Let me retry without them.`: the PA explaining the benchmark's
 #: own scaffolding to the person it is assisting, and explaining it wrong. The
@@ -124,7 +124,7 @@ WRAPPER_VOCABULARY: tuple[str, ...] = (
     "nothing is replayed for you",
     "had no user-facing text",
     "do not mention or acknowledge this instruction",
-    # regress13 acc_009 t=17 — the whole delivered turn opened `Here's the
+    # acc_009 t=17 — the whole delivered turn opened `Here's the
     # corrected turn:`. Nothing in the repo writes that sentence: it is the
     # model reading `NO_META_ACKNOWLEDGEMENT` ("simply produce the corrected
     # turn"), sent with the forced render payload that turn, and answering the
@@ -318,7 +318,7 @@ def _spaced(pattern: re.Pattern[str]) -> re.Pattern[str]:
 #: An emphasis pair the marker's removal emptied. The model writes
 #: `**[[q1]]** What is …`; the section split takes the marker *and* everything
 #: after it, so the opening `**` stays behind on the previous part and the
-#: closing `**` opens the next one. Live (`v3g05` t3) the released ask arrived as
+#: closing `**` opens the next one. Live, one released ask arrived as
 #: three stray `**` lines around one question. The pair only counts as emptied
 #: when the gap it now spans is nothing at all (`****`) or crosses a line break
 #: — that is the section-join signature, and it leaves `**bold** **also bold**`
@@ -340,7 +340,7 @@ def _balance_emphasis_line(line: str) -> str:
     The two passes above remove the *opening* half — it is left stranded on the
     previous section, usually as a line of its own — and that is exactly what
     orphans the closing half, which is not on a line of its own and so survives
-    both of them. Live (`v7r07` t3, `Structured`) the four released questions
+    both of them. Live (`Structured`), four released questions
     each shipped as `Who is Prof. Reyes?** Could you share …`: one `**` per
     line, four in the turn, so a whole-text parity check sees an even number and
     finds nothing. Parity is per line, which is also where markdown emphasis
@@ -377,7 +377,7 @@ def clean_delivered_text(text: str) -> str:
     never passed through `_strip_markers`. One function, so the two paths cannot
     disagree about what a user is allowed to see.
 
-    Round 9 item 3 folds the wrapper-vocabulary filter in here for the same
+    The wrapper-vocabulary filter is folded in here for the same
     reason: the fallback path is exactly the one a meta-acknowledgement reply
     takes, because a turn that only explains the protocol has no released
     section for the renderer to build a message out of.
@@ -409,7 +409,7 @@ WORLD_CHANGING_ACTION_TYPES = frozenset({"internal_write", "external_action"})
 #: Neither opens or extends an episode -- both would deadlock the continuation
 #: protocol, which can only be answered by releasing the id again.
 #:
-#: Owner ruling 2026-09-18·B adds `capability_handoff` for the other half of the
+#: `capability_handoff` belongs here for the other half of the
 #: same reason: being *forbidden* to act is not the same as needing the user's
 #: approval. `Find and hand off` has no release mechanism, so a call its gate
 #: stopped is not an item the next turn can be made to answer -- asking the PA
@@ -721,8 +721,8 @@ def render(
         )
         # The completion line is a field, but the model often
         # writes the same sentence as its own closing prose *and* puts it in
-        # `completion_message`. Appending it then ships it twice — live `v7r01`
-        # t13 and t22 under `Full narration`. Released either way; the field is
+        # `completion_message`. Appending it then ships it twice — live, two
+        # turns under `Full narration`. Released either way; the field is
         # what the audit plane records, and the user reads it once.
         if completion and _already_ends_with(parts, completion):
             trace.append("process_visibility -> completion already in prose, not repeated")
@@ -747,7 +747,7 @@ def render(
             close_line_source = "payload"
             trace.append("hold -> forced close, closing_message delivered")
         else:
-            # Owner decision 2026-09-06: the renderer writes nothing.
+            # The renderer writes nothing.
             # `ix_close_no_message` is still the recorded PA failure and
             # `cancelled_items` still carries the dropped ids to the judge on
             # every later beat -- what goes away is the sentence, which the user
@@ -759,7 +759,7 @@ def render(
             )
 
     message = "\n\n".join(part for part in parts if part.strip())
-    # Round 9 item 3 — the last thing every delivered surface passes through.
+    # Wrapper vocabulary — the last thing every delivered surface passes through.
     # After the sections are chosen, so a sentence inside a released question is
     # judged on its own and the rest of that question survives.
     # acc_001 t32/t34 — before the sentence filter, for the reason
@@ -794,8 +794,8 @@ def render(
         completion_skipped = "stripped"
         trace.append("completion line stripped by the wrapper filter -> not delivered")
     # The binding refusal took every task call and opened no gate, so
-    # the user is owed the sentence saying so. Appended, not substituted (round 9
-    # item 2): on a `questions_gate` turn the released questions are the reply
+    # the user is owed the sentence saying so. Appended, not substituted: on a
+    # `questions_gate` turn the released questions are the reply
     # and this line is a postscript to them.
     if render_input.binding_refused:
         if _prose_admits_held_step(message):
@@ -810,7 +810,7 @@ def render(
             )
             close_line_source = "template"
             trace.append("binding_invalid -> template close line appended")
-    # Round 9 item 1: the runner has already asked once for a real sentence and
+    # The runner has already asked once for a real sentence and
     # got nothing back. One rule, one line, whatever emptied the turn.
     if not message.strip() and render_input.empty_reply:
         message = IX_EMPTY_REPLY_LINE
@@ -1024,7 +1024,7 @@ def _release_count(attribute: str, setting: str, total: int) -> int:
     return total
 
 
-#: regress13 acc_009 — the second shape of a lead-in, for the sentence that
+#: acc_009 — the second shape of a lead-in, for the sentence that
 #: names its object without a colon. Deliberately the one form that session
 #: produced ("I need two details from you"), not a general theory of lead-ins:
 #: the framing sentence is the PA's own prose and a wider rule would start
@@ -1058,7 +1058,7 @@ def _drop_orphan_list_marker(text: str) -> str:
 def _drop_leadin(text: str, trace: list[RenderStep]) -> tuple[str, str]:
     """Cut a lead-in sentence off framing prose whose object has just been held.
 
-    regress13 acc_009: under `Infer` the release is 0/N, so the questions come
+    acc_009: under `Infer` the release is 0/N, so the questions come
     out and the sentence that introduced them ships alone. Three turns of that
     session reached the user as *"Happy to hear the draft structure is
     acceptable! To finalize it, I need two details from you:"* and nothing else
@@ -1073,7 +1073,7 @@ def _drop_leadin(text: str, trace: list[RenderStep]) -> tuple[str, str]:
     Everything before it is prose that stands by itself and stays. Returns
     (kept, dropped).
 
-    regress15 acc_009 t7: the excised item's own bullet stayed on the framing,
+    acc_009 t7: the excised item's own bullet stayed on the framing,
     so the "last sentence" this reads was the bare `-` and neither shape
     matched. The turn shipped *"Before I write the draft, I just need a few
     clarifications from you:"* and a lone `-`. The bullet comes off first, so
@@ -1233,7 +1233,7 @@ def split_truncated_tail(text: str) -> tuple[str, str]:
     `finish_reason == "length"` gets no such benefit of the doubt — it stopped
     mid-token, so whatever follows the last sentence end was never finished.
     A text with no sentence end anywhere is all tail, and the caller then has
-    nothing to deliver (regress16 acc_006 t=4: `Let me start by looking at the
+    nothing to deliver (acc_006 t=4: `Let me start by looking at the
     research folder to find the citation notes` shipped as the whole PA turn).
     """
     body = text.rstrip()
@@ -1342,7 +1342,7 @@ def _prose_admits_held_step(message: str) -> bool:
     turn."* and then the wrapper appended *"I could not carry out those steps
     this turn; I will retry."* underneath it — the same admission twice, in
     adjacent sentences. The close line exists so the user is never left with
-    silence about a refused batch (live `v7r06` t18 dropped three reads without a
+    silence about a refused batch (live, one turn dropped three reads without a
     word); where the PA has already said it, the line adds nothing and costs the
     reply its composure.
 
@@ -1365,11 +1365,11 @@ def _completion(
     Released only on a turn that executed a task call. The closing line reports
     work the turn did; a turn with no task call has none to report, and under
     Bookend and Full narration the line then carries no signal at all (both
-    settings would show the same sentence). Live `regress5 acc_003` shipped it
+    settings would show the same sentence). Live `acc_003` shipped it
     on three text-only turns, each time as a near-duplicate of the PA's own
-    closing prose, and once — `regress3 acc_003` t=20 — as the wrapper's
-    endorsement of a completion the PA had not done. Owner decision 2026-09-07:
-    no task call, no closing line.
+    closing prose, and once — t=20 in another run — as the wrapper's
+    endorsement of a completion the PA had not done. No task call, no closing
+    line.
     """
     text = payloads.completion_message.strip()
     if setting not in ("Bookend", "Full narration") or not text:
@@ -1422,7 +1422,7 @@ def _gate_ask(
 
 #: What makes a `_ix_confirmation_message` an *ask*: it puts the decision to the
 #: user, either as a question or as an explicit request for their word. Live
-#: regress19 `acc_039` t41, the floor held the booking and the PA's ask was
+#: `acc_039` t41, the floor held the booking and the PA's ask was
 #: "I'll book the November 10, 08:30 appointment with Dr. Patel …" — the whole
 #: delivered turn announced an act that was in fact blocked, while the trace
 #: read "ask delivered". Non-emptiness was the only test, so a declarative
@@ -1456,7 +1456,7 @@ def triggering_ask(
 
     Held calls with no `_ix_confirmation_message` — or with one that asks the
     user nothing (`ASK_SURFACE_RE`) — are skipped rather than answered with
-    `""`. Live `v9s03` t24, one item held two calls — a `binding_invalid`
+    `""`. Live, one item held two calls — a `binding_invalid`
     `document_read` with no ask ahead of the `document_update` that carried the
     real one — and taking the first id match reported the ask as missing while
     the runner, which required a non-empty one, concluded it existed. Neither
@@ -1560,7 +1560,7 @@ def _held_calls(
     `status`, `attribute` and `reason` are copied from the gate's own record for
     that call. Derived from the gate instead, a batch or question hold — which
     opens no gate — wrote `attribute: ""`, `reason: ""` and, whenever the model
-    marked no prose, `status: held_for_confirmation`: live (`v5g01`) the audit
+    marked no prose, `status: held_for_confirmation`: live, the audit
     said an autonomy gate held three calls on turns where `gate` was `null`, and
     nothing downstream could tell which turns took the `ix_hold` exit. The
     gate-derived values remain the fallback for a caller with no records (a
@@ -1665,7 +1665,7 @@ def _pending(
     normal answers to a continuation closed the episode and lost every id still
     waiting: `keep` re-holds nothing, and a turn that answers in prose alone
     re-sends no call and re-marks no section. With several ids held, settling
-    one silently dropped the rest -- live (`v11s02` acc_009) `q2` and `q3` were
+    one silently dropped the rest -- live (acc_009) `q2` and `q3` were
     held on t3 under `Iterative` and were simply gone on t8, episode closed,
     `cancelled` empty, no close line. What settles an id is that its call ran or
     its section went out, or that the PA reported `skip`; `keep` and no decision
@@ -1700,7 +1700,7 @@ def _next_hold(
     The second return value is the episodes cancelled **on this turn**, not
     every cancelled episode of the session: `finished_episodes` accumulates, and
     reading it per turn made one cancellation re-fire `ix_hold_forced_close` on
-    every later turn (live `v6g01`: two cancellations, nine events).
+    every later turn (live, two cancellations, nine events).
 
     The third is the carried questions released by decision without their marker
     ("folded into the reply"), for `ix_release_folded`.
@@ -1715,8 +1715,8 @@ def _next_hold(
     # `setdefault`: the first binding is the one a redeclaration is checked
     # against, and a rejected turn must not overwrite it.
     #
-    # Keyed by the set it was declared under, not by the id alone. Round 4 keyed
-    # it by the id and fail-closed acc_023 twice for doing exactly what the
+    # Keyed by the set it was declared under, not by the id alone. Keyed by the
+    # id alone, it fail-closed acc_023 twice for doing exactly what the
     # `batch_set_id` description asks: t18 opened `report_2026_02` and re-used
     # `b1`. A batch id is a handle inside its set, and `b1` in a new set is a new
     # handle; what must not happen is the same set re-pointing `b1` somewhere
@@ -1731,7 +1731,7 @@ def _next_hold(
 
     plan_remaining = list(render_input.gate_remaining) if render_input.gate is not None else []
     boundary = payloads.boundary if render_input.gate is not None else None
-    # Owner ruling 2026-09-18: the handoff message *is* the hand-back. Once it
+    # The handoff message *is* the hand-back. Once it
     # has reached the user the PA holds nothing and owes nothing, so the
     # boundary is a record of a resolved limit -- not an item waiting on a
     # confirmation. Left on the books it could only be closed by "a later turn
@@ -1763,7 +1763,7 @@ def _next_hold(
     )
     # One release buys one world-changing call. The ids that
     # spent theirs ride on the episode so the next turn still knows.
-    # Owner ruling 2026-09-08: it is the *world change* that spends the release,
+    # It is the *world change* that spends the release,
     # so a call the tool refused spends nothing. Live acc_039 t31 had
     # `appointment_create` come back an error and the id was booked as spent
     # anyway, so the next turn's re-issue needed a second authorisation for a
@@ -1789,7 +1789,7 @@ def _next_hold(
         for decision in payloads.release_decisions
         if decision.decision == "skip"
     }
-    # Owner decision 2026-09-06: for **questions only**, a `release` with
+    # For **questions only**, a `release` with
     # no `[[q:…]]` marker means the PA folded that question into this reply's
     # prose -- that is exactly what the hold reminder tells it ("a reply
     # carrying none of them is released whole"). So a bare `release` settles the
@@ -1946,7 +1946,7 @@ def _next_hold(
             open_episodes=open_episodes,
             finished_episodes=finished,
             batch_bindings=batch_bindings,
-            # Owner ruling 2026-09-08: an unspent release outlives the episode
+            # An unspent release outlives the episode
             # it was granted in -- acc_039's re-mint closed the plan and opened
             # a new one, and the authorisation has to be there when it does.
             # The collector computes it (the sideband is its side of the wall);
@@ -1976,7 +1976,7 @@ def _cancelled_entries(
     it into the public close line and into every later turn's reminder. The
     short label is what a user needs to hear; `Question.text` stays audit-only.
 
-    regress15 acc_039: a held **call** was none of these three, so the episode
+    acc_039: a held **call** was none of these three, so the episode
     holding `apt_book_001` and nothing else was force-closed reporting
     `cancelled: 0` and the call was dropped without a trace. A cancelled hold
     now says what it dropped whatever kind of item it was holding; the call's

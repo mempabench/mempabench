@@ -41,7 +41,7 @@ def test_message_quality_allows_formal_detailed_persona_language() -> None:
 
 
 def test_message_quality_rejects_peer_review_voice() -> None:
-    # Soft finding since 2026-09-07: a retry, never a hard abort.
+    # Soft finding: a retry, never a hard abort.
     for message in (
         "Your analysis is structurally sound. This assessment is sufficient.",
         "Your analysis concludes that it belongs here. Is that the correct summary "
@@ -156,7 +156,7 @@ def test_sentence_too_long_allows_ordinary_speech() -> None:
 
 
 def test_sentence_too_long_counts_only_words_outside_a_quotation() -> None:
-    """Live regress13 `acc_019` beat_6 attempt 1, rejected four times: each
+    """Live `acc_019` beat_6 attempt 1, rejected four times: each
     rewrite trimmed the verbatim quotation of `draft_section3.md` until the
     accepted turn quoted text that is not in the file."""
     assert sentence_too_long_finding(
@@ -186,7 +186,7 @@ def test_sentence_too_long_still_fires_around_a_quotation() -> None:
 
 
 def test_a_quotation_that_ends_on_a_full_stop_ends_its_sentence() -> None:
-    """Live regress14c `acc_011` b6 attempt 1, rejected for
+    """Live `acc_011` b6 attempt 1, rejected for
     `sentence_over_35_words`. The quotation's own stop was masked away with the
     rest of the span, so the quotation and the 35-word sentence after it were
     counted as one 37-word sentence — and the retry dropped the quotation the
@@ -320,7 +320,7 @@ def test_the_arming_runs_to_the_beat_that_carries_the_go_ahead() -> None:
 
 
 def test_without_an_authorising_beat_the_probe_beat_itself_stays_armed() -> None:
-    """Owner ruling: no go-ahead beat means the boundary is one past the probe.
+    """No go-ahead beat means the boundary is one past the probe.
 
     `acc_011` shape — a read-only script whose beats never hand work over.
     The declaring beat (b5) is where a stray go-ahead was slipping through
@@ -350,7 +350,7 @@ def test_without_an_authorising_beat_the_probe_beat_itself_stays_armed() -> None
 
 
 def test_a_reaction_beat_that_only_names_permission_does_not_close_the_window() -> None:
-    """Live regress14c `acc_039`: beat_4's branch wording carried the bare word
+    """Live `acc_039`: beat_4's branch wording carried the bare word
     "permission" — the assistant asking for one, not the user giving one — and
     the keyword predicate read it as the authorising beat, disarming the check
     from beat_4 on. The go-ahead lives in beat_5."""
@@ -445,8 +445,8 @@ def test_the_last_authorising_beat_closes_the_window() -> None:
 
 
 def test_the_reaction_beat_may_approve_how_the_assistant_answered() -> None:
-    """Live regress4 `acc_019`: the only on-surface clause in the session was
-    rejected as reviewer voice, the retry dropped it, and R1 failed on a
+    """Live `acc_019`: the only on-surface clause in the session was
+    rejected as reviewer voice, the retry dropped it, and the beat failed on a
     matching selection. On a match the reaction IS an approving sentence about
     how the assistant pitched its answer.
     """
@@ -485,7 +485,7 @@ def test_the_reaction_beat_exemption_leaves_the_other_checks_alone() -> None:
 
 
 def test_reviewer_voice_allows_ordinary_formal_closings() -> None:
-    # regress5 acc_023 / acc_019 aborted on these; they are this persona's speech.
+    # acc_023 / acc_019 aborted on these; they are this persona's speech.
     assert "reviewer_voice_in_message" not in simulator_style_findings(
         "That is noted. I have verified the updates, and the matter is resolved."
     )
@@ -506,7 +506,7 @@ PA_ORDERING_REPLY = (
 
 
 def test_a_quote_the_assistant_never_wrote_is_a_finding() -> None:
-    """regress14b `acc_004` t5: `formal.md` tells the actor to quote the
+    """`acc_004` t5: `formal.md` tells the actor to quote the
     offending words back, and it quoted two that are there and one that is
     not — the reply has `Here's`, `I'll` and `I'd`, but no "wouldn't"."""
     assert quoted_span_not_in_pa_turn_finding(
@@ -528,7 +528,7 @@ def test_quotes_that_are_in_the_reply_are_not_a_finding() -> None:
 
 
 def test_punctuation_inside_the_closing_quote_is_the_actors() -> None:
-    """regress15 `acc_004` t6 quoted `here's` with the comma inside the
+    """`acc_004` t6 quoted `here's` with the comma inside the
     quotes, US style, and was flagged on the comma alone; `acc_011` t22 the
     same with a whole clause. The words are the assistant's, the comma is
     not."""
@@ -544,7 +544,7 @@ def test_punctuation_inside_the_closing_quote_is_the_actors() -> None:
 def test_a_quote_attributed_to_nobody_is_not_a_finding() -> None:
     """The frame is what keeps this precise: without it the same scan fires on
     a paper title the user names, on a section heading, and on text the user
-    dictates — 9 hits over regress12-14b against 1 with it."""
+    dictates — 9 hits against 1 with it."""
     for message in (
         'I require the full-text calculation from the Nakamura preprint, '
         'titled "Non-Markovian corrections to fusion-channel dephasing near a '
@@ -563,8 +563,7 @@ def test_a_quote_attributed_to_nobody_is_not_a_finding() -> None:
 
 
 def test_the_quoted_span_finding_is_not_wired_into_the_hard_findings() -> None:
-    # Diagnostic on its first round: one hit over regress12-14b is too thin a
-    # base to spend a retry on. The owner promotes it.
+    # Diagnostic: one hit is too thin a base to spend a retry on.
     assert simulator_message_quality_findings(
         'Your reply contained "wouldn\'t", which I do not accept.',
         last_pa_message=PA_ORDERING_REPLY,
@@ -572,13 +571,13 @@ def test_the_quoted_span_finding_is_not_wired_into_the_hard_findings() -> None:
 
 
 # --- reaction_asserts_unexecuted_pa_action ---------------------------------
-# Hard on a compressed session's reaction beat (owner ruling 2026-09-08),
+# Hard on a compressed session's reaction beat,
 # where `simulator.agent.loop` arms it; a diagnostic on the wider
 # reception-carry window `simulator.loop` arms.
 
 
 def test_a_reaction_asserting_a_write_that_never_ran_is_a_finding() -> None:
-    """Live regress14c `acc_039` t=17. The PA had stopped and asked for a
+    """Live `acc_039` t=17. The PA had stopped and asked for a
     patient name; no `calendar_event_create` exists anywhere in the run, and
     the beat's two branches turn on which of those the PA did."""
     assert unexecuted_pa_action_clause(
@@ -593,7 +592,7 @@ def test_a_reaction_asserting_a_write_that_never_ran_is_a_finding() -> None:
 
 
 def test_a_write_the_assistant_really_made_is_not_a_finding() -> None:
-    # The window is the session, not the last turn: live regress12 `acc_003`
+    # The window is the session, not the last turn: live `acc_003`
     # t=20 names a duplicate the PA created several turns earlier.
     assert (
         unexecuted_pa_action_clause(
@@ -650,7 +649,7 @@ def test_a_denial_in_a_trailing_clause_leaves_the_assertion_standing() -> None:
 
 
 def test_the_state_change_said_without_an_agent_still_credits_the_assistant() -> None:
-    """Live regress18 `acc_039` t=23: "The calendar entry was handled
+    """Live `acc_039` t=23: "The calendar entry was handled
     correctly" affirmed an act the PA had only asked about at t=19. The
     assistant is the only hand in the session, so the passive names it."""
     assert unexecuted_pa_action_clause(
@@ -691,7 +690,7 @@ def test_the_clause_companion_returns_the_words_that_broke_the_rule() -> None:
         on_reaction_beat=True,
         pa_executed_tools=["mcp_state_calendar_event_search"],
     ) == "You have placed the hold without first confirming the entry with me"
-    # Live regress16 `acc_006` t7, whose only prior PA turn read two documents.
+    # Live `acc_006` t7, whose only prior PA turn read two documents.
     assert unexecuted_pa_action_clause(
         "You have successfully merged the duplicate entries, which was the "
         "primary requirement.",
@@ -706,7 +705,7 @@ def test_the_clause_companion_returns_the_words_that_broke_the_rule() -> None:
     ) == ""
 
 
-# The four regress15 probe turns that lost a declared fact, verbatim.
+# The four live probe turns that lost a declared fact, verbatim.
 ACC_002_ATTEMPT_2 = (
     "Marcus just texted to inform me that our reservation at Trattoria Alba has "
     "been cancelled due to a double-booking. I need to secure a replacement "
@@ -737,7 +736,7 @@ ACC_001_PROBE = (
 
 
 def test_probe_fact_missing_reads_the_acc_002_style_retry_drop() -> None:
-    """regress15 `acc_002`: attempts 1 and 2 carried both facts, attempt 3 cut
+    """`acc_002`: attempts 1 and 2 carried both facts, attempt 3 cut
     them to get under the style cap — and the PA then recommended a
     slot the walk makes unreachable.
 
@@ -797,7 +796,7 @@ ACC_002_R20_PROBE = (
 
 
 def test_the_first_person_paraphrase_of_an_authored_fact_is_said() -> None:
-    """Live regress20 `acc_002` t3, the turn `probe_fact_missing` fired on.
+    """Live `acc_002` t3, the turn `probe_fact_missing` fired on.
 
     The values are third-person prose and the beat asks him to say them in his
     own words, so the coverage was being spent on the narration frame ("he
@@ -1074,11 +1073,11 @@ def test_required_fact_values_drops_a_path_fact() -> None:
 
 
 def test_probe_fact_missing_is_not_wired_into_the_hard_findings() -> None:
-    """It rides out as a diagnostic — 8 true / 26 false over regress12-15."""
+    """It rides out as a diagnostic — 8 true / 26 false in live runs."""
     assert simulator_message_quality_findings(ACC_035_PROBE) == []
 
 
-# regress17 `acc_009` beat_1, verbatim. The beat "keeps the review window
+# `acc_009` beat_1, verbatim. The beat "keeps the review window
 # length, the comments before meeting choice and the sentence about what the
 # review should concentrate on in task_facts, and hands any of them over only
 # when the PA asks for it", and its `avoid` forbids volunteering them. All
@@ -1176,7 +1175,7 @@ def test_on_request_fact_keys_are_the_beats_own_reveal_at_keys() -> None:
 
 # --- sentence_over_35_words: the owed sentence is exempt --------------------
 
-# Live regress19 `acc_027` b1 sentence 2, played at 43 words after four style
+# Live `acc_027` b1 sentence 2, played at 43 words after four style
 # retries. The beat requires three things in one sentence — Marcus's latest end
 # time, that the evening walk is the user's own, and the standing instruction in
 # the user's own words — and `standing_instruction` alone is 16 words, so the
@@ -1223,7 +1222,7 @@ def test_a_long_sentence_that_owes_nothing_still_fires() -> None:
 
 
 def test_a_beat_that_simply_delivers_its_fact_holds_nothing_on_request() -> None:
-    """Live regress19 `acc_023` pose_both_topics: the reveal beat gives the
+    """Live `acc_023` pose_both_topics: the reveal beat gives the
     dictated text outright, so it is owed from the first turn and never
     on-request — `withheld_fact_before_ask` must not strip it."""
     from simulator.agent.loop import _on_request_fact_keys
@@ -1249,7 +1248,7 @@ def test_a_beat_that_simply_delivers_its_fact_holds_nothing_on_request() -> None
 # --- reaction_authorises_pa_action -----------------------------------------
 # Hard on the reception beat, where `simulator.agent.loop` arms it.
 
-# Live regress20 `acc_002` t6, on `react_to_solution_breadth`. The PA's t4 had
+# Live `acc_002` t6, on `react_to_solution_breadth`. The PA's t4 had
 # closed "Want me to book it?"; the PA booked at t7.
 ACC_002_T6 = (
     "I requested a single recommendation, not a comparative analysis of "
@@ -1257,7 +1256,7 @@ ACC_002_T6 = (
     "which is an inefficient use of my time. Casa Marisol is the logical "
     "choice given the constraints, so I will proceed with that."
 )
-# Live regress20 `acc_009` t18, on a task whose every beat says the reply is
+# Live `acc_009` t18, on a task whose every beat says the reply is
 # to stay an unsent draft. The reply went out.
 ACC_009_T18 = (
     "The draft is now accurate. I have reviewed the text, and it correctly "
@@ -1290,11 +1289,11 @@ def test_a_reaction_that_only_judges_the_reply_is_left_alone() -> None:
     """What a reaction is entitled to say: the surface it read, and a demand
     that the same reply be redone. Neither releases anything."""
     for message in (
-        # regress20 `acc_035` t6.
+        # `acc_035` t6.
         "Your analysis is acceptable, but remove the confidence labels from "
         "your future correspondence. I do not require a probability "
         "assessment for a binary determination of fact.",
-        # regress20 `acc_006` t6.
+        # `acc_006` t6.
         "You have successfully merged the duplicate entries for Okonkwo, "
         "Lindqvist, and Adenuga, but you only addressed the specific clusters "
         "I identified. The stale keys in the remaining entries remain "
@@ -1388,11 +1387,11 @@ def test_a_first_person_next_step_with_an_object_is_left_alone() -> None:
 
 def test_the_authorisation_finding_blocks() -> None:
     """It took the consequence of the deleted `authorised_before_its_beat`
-    regex (owner ruling 2026-09-09): out of the played-after-budget set."""
+    regex: out of the played-after-budget set."""
     assert "reaction_authorises_pa_action" not in PLAYED_AFTER_BUDGET
 
 
-# Verbatim excerpt of the leaked turn captured live: regress22 `acc_027`,
+# Verbatim excerpt of the leaked turn captured live: `acc_027`,
 # beat b2_reaction, attempt 3, google/gemini-3.8-flash. The model's private
 # reasoning about the retry feedback came back as the whole response, with no
 # <message> wrapper, so `parse_simulator_output`'s access-boundary fallback

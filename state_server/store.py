@@ -37,7 +37,7 @@ _ACTOR_HIDDEN_FILES = {
     "session_closing",
 }
 
-# Session gate (2026-09-08 owner ruling). A gated session's write payload is
+# Session gate. A gated session's write payload is
 # the user's own words, said only at the probe beat. Until then the store
 # refuses the call, and the refusal is the message the PA reads: it has to say
 # "ask the user", because a PA told only that the value is wrong invents a
@@ -64,9 +64,9 @@ GATE_MISMATCH_REFUSAL = (
     "give or confirm it, and stop."
 )
 #: Refusal for a write on the gate tool AFTER the gate is satisfied that would
-#: leave the artifact without the user's information (owner ruling A,
-#: 2026-09-08). The parameter used to be fully open from the first matching
-#: write, and regress16/17/18 acc_009 spent that opening: two free revisions of
+#: leave the artifact without the user's information. The parameter used to
+#: be fully open from the first matching write, and acc_009 spent that opening
+#: in three runs: two free revisions of
 #: the same draft dropped "line-by-line", so the saved artifact no longer held
 #: the focus the user had dictated. The refusal is worded at the artifact, not
 #: at the value, because a write that changes something else and keeps the words
@@ -77,7 +77,7 @@ GATE_DROPS_TERMS_REFUSAL = (
     "words the user used in this conversation, and this write would drop them. "
     "Keep the user's words as given, or ask the user."
 )
-#: The gate is keyed on INFORMATION, not on words (owner, 2026-09-08). The
+#: The gate is keyed on INFORMATION, not on words. The
 #: outline authors `gate_key_terms` off the dictated sentence, and a value
 #: passes when it carries every one of them; a PA that reworded the sentence
 #: around the terms has still asked, and one that dropped a term has not. Two is
@@ -85,8 +85,8 @@ GATE_DROPS_TERMS_REFUSAL = (
 #: the information -- live acc_009 turned on three filler tokens under the old
 #: 0.7 token ratio, which this replaces.
 #:
-#: Exactly one single term escapes the floor: the whole dictated text itself
-#: (owner, 2026-09-14). The probe line authors no terms -- `harness/gate.py:
+#: Exactly one single term escapes the floor: the whole dictated text itself.
+#: The probe line authors no terms -- `harness/gate.py:
 #: _probe_gate_wording` has only the sentence the user says -- so it names that
 #: sentence entire as the one term. That is the opposite of a word standing in
 #: for the information: the payload has to carry all of it, which is stricter
@@ -94,8 +94,8 @@ GATE_DROPS_TERMS_REFUSAL = (
 GATE_MIN_KEY_TERMS = 2
 
 #: Number words the key-term normalisation reads as their digits, so "three
-#: weeks" and "3 weeks" are the same information (owner ruling 6, 2026-09-08).
-#: regress16 acc_039 refused "began approximately 3 weeks ago" against a term of
+#: weeks" and "3 weeks" are the same information.
+#: acc_039 refused "began approximately 3 weeks ago" against a term of
 #: "three weeks": the PA had asked, said what the user said, and lost the gate to
 #: a spelling. Only standalone words are mapped -- "twenty-one" is two words
 #: after punctuation becomes a break, and normalises to "20 1", which is what a
@@ -127,7 +127,7 @@ NUMBER_WORDS.update(
 DIGIT_GROUP_COMMA_RE = re.compile(r"(?<=\d),(?=\d)")
 
 #: Endings a key term's word may wear in the payload, and the payload's word in
-#: the term, without being a different word (owner, 2026-09-08). regress19
+#: the term, without being a different word.
 #: acc_009 refused a body that said everything the user had dictated because the
 #: PA wrote "hardest" against a term of "hard"; a round earlier "I confirm
 #: receipt" lost to "Confirming receipt". The gate is keyed on the information,
@@ -188,7 +188,7 @@ GATE_OPEN_MARKER = "gate_open"
 #: every key term. From then on the PA may write that parameter in its own
 #: words -- it has asked, and making it re-quote the user on every later write
 #: is what ate acc_009's reaction beat -- but the ARTIFACT has to keep carrying
-#: the information (`_enforce_gate_keeps_terms`, owner ruling A). It is a file
+#: the information (`_enforce_gate_keeps_terms`). It is a file
 #: rather than an attribute because the MCP server builds a fresh store per tool
 #: call, and `harness.state_runtime` clears it with the other markers on step
 #: entry and exit so it cannot unlock a later session. The same name is the
@@ -199,20 +199,21 @@ GATE_SATISFIED_MARKER = "gate_satisfied"
 #: Gate tools that write INTO an existing record, so the artifact after the
 #: write is not the value the call passed: `document_update` substitutes one
 #: span of a file, and `calendar_event_update` / `contact_update` leave every
-#: field they were not given. For these `_enforce_gate` cannot judge ruling A
-#: from the payload, so their handlers call `_enforce_gate_keeps_terms`
-#: themselves, at the point the merged record exists and before it is
-#: persisted. Every other gate tool creates a record whose gated field is
-#: exactly what the call passed, and is checked at the seam.
+#: field they were not given. For these `_enforce_gate` cannot judge from the
+#: payload whether the artifact keeps the terms, so their handlers call
+#: `_enforce_gate_keeps_terms` themselves, at the point the merged record
+#: exists and before it is persisted. Every other gate tool creates a record
+#: whose gated field is exactly what the call passed, and is checked at the
+#: seam.
 GATE_MERGING_TOOLS = frozenset(
     {"document_update", "calendar_event_update", "contact_update"}
 )
 
 #: Refusal for the second lock -- a write tool that is not the gate tool and
 #: that this draft does not call before the reveal. It says NOTHING about the
-#: gate (owner ruling B, 2026-09-08): it used to name the gate tool and param,
+#: gate: it used to name the gate tool and param,
 #: and the call it refuses is by definition one the PA improvised, so that text
-#: announced a step the session had not reached. regress18 acc_011 took three
+#: announced a step the session had not reached. acc_011 took three
 #: of these inside one beat-1 turn and asked the user to dictate the file four
 #: beats early. `GATE_REFUSAL` -- lock 1, on the gate tool itself -- still names
 #: what it needs, because there the ask is the only way forward.
@@ -224,10 +225,10 @@ GATE_CLOSED_WRITE_REFUSAL = (
 #: The harness touches this file in the state root once a COMPRESSED session's
 #: reaction beat has delivered its user turn to the PA (`harness/gate.py`), so
 #: it is down for exactly one PA turn: the last one of the session. From then on
-#: every write tool is refused. Rule E says the reaction beat never asks for a
+#: every write tool is refused. The reaction beat never asks for a
 #: product, so no beat of such a session can want a write there -- and nothing
-#: scores that turn either, because the session is over the moment it ends. Live
-#: regress19 `acc_035` t8 spent it executing an offer the user had not answered:
+#: scores that turn either, because the session is over the moment it ends. Live,
+#: `acc_035` t8 spent it executing an offer the user had not answered:
 #: two roster writes that invented an 8 -> 9 change and corrupted a note.
 #: A file rather than an attribute for the same reason as `gate_open`: the MCP
 #: server builds a fresh store per tool call, and `harness.state_runtime` clears
@@ -380,7 +381,7 @@ def strip_run_identity(value: Any, _depth: int = 0) -> Any:
 # with the document_read backing_stores in data/state_tools/catalog.yaml.
 _DOCUMENT_TOP_LEVEL_DIRS = ("documents", "my_desktop")
 
-# Section-level date scoping inside a markdown document (owner, 2026-09-12).
+# Section-level date scoping inside a markdown document.
 #
 # `<!-- visible_from: YYYY-MM-DD -->` on a line of its own opens a scoped block.
 # The block runs to the next `visible_from` marker or to `<!-- visible_from: end
@@ -398,7 +399,7 @@ _VISIBLE_FROM_RE = re.compile(
 )
 _VISIBLE_FROM_END = "end"
 _ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-# Hour-granular form of the same stamp (owner, 2026-09-14). A pre-event probe
+# Hour-granular form of the same stamp. A pre-event probe
 # sits 60 minutes before its forced event, on a day that already carries earlier
 # accumulation sessions, so a day-granular stamp cannot hide a probe-only object
 # from that morning's sessions. A stamp that carries a time is compared as a
@@ -442,7 +443,7 @@ def stamp_visible(
       today's behaviour. A caller that knows only the day cannot place the
       stamp against the session's hour, and the safe reading is the one that
       changes nothing: the authoring-time validators (which know only a day)
-      keep their current verdicts, and `validate_probe_outline`'s A25 is what
+      keep their current verdicts, and `validate_probe_outline` is what
       keeps a same-day timed stamp inside its probe's window.
     * no session clock at all -> everything is visible, as before.
     """
@@ -539,7 +540,7 @@ RECURRENCE_FORMAT = (
     "(e.g. 'weekly on Mondays and Wednesdays'), "
     "each optionally suffixed ' through YYYY-MM-DD'"
 )
-# gpt acc_082 (2026-09-18) — the one calendar failure that is a parameter fault
+# gpt acc_082 — the one calendar failure that is a parameter fault
 # on an otherwise complete call, and the one where nothing has been written when
 # it fires. Six `calendar_event_create` calls came in with `recurrence: '>TBD'`
 # and were refused before the append; the wrapper had only the refusal sentence
@@ -724,7 +725,7 @@ def _require_known_location(
     values of the records visible at the session date -- so a value outside it
     can only ever match nothing. The store used to answer those calls with an
     empty result, and a PA that had passed a restaurant name where a street was
-    wanted read the emptiness as "nothing nearby" and moved on: regress16
+    wanted read the emptiness as "nothing nearby" and moved on:
     acc_027 called place_search with location='Casa Marisol', then 'Golden Peak
     Szechuan', then 'downtown', and got 0 matches three times.
 
@@ -1113,7 +1114,7 @@ def _recurrence_covers(record: dict[str, Any], date: str) -> bool:
 MATCH_TIERS = ("exact", "unescaped", "whitespace")
 
 # A fallback tier rescued the call, so the PA has to be told which span it
-# actually edited: live (regress13 acc_003) two `unescaped` rescues went back as
+# actually edited: live (acc_003) two `unescaped` rescues went back as
 # a bare `match_tier` field the PA never acted on, and it kept sending escapes.
 _MATCH_TIER_NOTES = {
     "unescaped": (
@@ -1128,8 +1129,8 @@ _MATCH_TIER_NOTES = {
 
 # A bare markdown heading line is never a safe anchor: it matches, so the
 # replacement consumes the heading and whatever the replacement opens with
-# becomes the heading for entries written under the old one. Live (regress13
-# acc_001 t=18) `## Raw -- needs converting to a proper entry` was replaced by a
+# becomes the heading for entries written under the old one. Live
+# (acc_001 t=18) `## Raw -- needs converting to a proper entry` was replaced by a
 # new heading plus a new entry, and the raw note that heading introduced was
 # left under it.
 ANCHOR_IS_HEADING_ERROR_CODE = "anchor_is_heading"
@@ -1147,7 +1148,7 @@ def _is_bare_heading_anchor(anchor: str) -> bool:
 # A span that ends at the end of a physical line inside a wrapped list item is
 # never a safe place to write: the replacement lands between the item's first
 # line and its continuation lines, and whatever the replacement ends with becomes
-# the head of the item's tail. Live (regress19 acc_035 t=8) the PA anchored on
+# the head of the item's tail. Live (acc_035 t=8) the PA anchored on
 # the first line of a two-line "Notes to self" bullet and inserted a new bullet;
 # the old bullet's clause was cut in half around it.
 ANCHOR_ENDS_MID_ITEM_ERROR_CODE = "anchor_ends_mid_item"
@@ -1418,12 +1419,12 @@ class StateStore:
     def _enforce_session_closing(self, tool_name: str) -> None:
         """Refuse every write on a compressed session's final PA turn.
 
-        Owner ruling 2026-09-09. A compressed session is exactly two beats --
+        A compressed session is exactly two beats --
         the probe, then the reaction -- and the session ends with the PA's reply
-        to the reaction. Rule E says that reaction beat never asks for a
+        to the reaction. That reaction beat never asks for a
         product, so there is no beat of such a session whose work a write on
         that turn could be finishing; and nothing scores what the PA does there,
-        because the transcript stops. Live regress19 `acc_035` t8 executed an
+        because the transcript stops. Live, `acc_035` t8 executed an
         offer the user never answered, on exactly that turn: two roster writes
         carrying an invented 8 -> 9 and a corrupted note, into the committed
         stage, unseen and unscored.
@@ -1459,7 +1460,7 @@ class StateStore:
 
         The two texts differ in what they may say. Lock 1 names the parameter it
         wants, because asking for it is the only way past. Lock 2 names nothing
-        of the gate (ruling B): the call it refuses is one the PA improvised, so
+        of the gate: the call it refuses is one the PA improvised, so
         anything it says about the gate announces a step the session has not
         reached.
         """
@@ -1500,7 +1501,7 @@ class StateStore:
         false for a write to any tool the gate is not on, because such a call
         does not satisfy the gate however it is worded. `satisfied` is about the
         session: true from the call that first carried every key term onwards.
-        Since ruling A, a row on the gate tool reading `matched: false,
+        A row on the gate tool reading `matched: false,
         satisfied: true` is a refusal -- the write that would have emptied the
         artifact -- and the successful later writes read `matched: true` on the
         PA's own wording. `document_update` is the exception worth knowing: its
@@ -1533,7 +1534,7 @@ class StateStore:
         `title` and `notes` together. Only the gated one is compared; the rest
         are there so the pair the outline names is always present to check.
 
-        The gate holds the FIRST write here (owner, 2026-09-08). Once a call has
+        The gate holds the FIRST write here. Once a call has
         carried every key term the marker goes down and this stops demanding the
         words of the payload: the PA has asked, and acc_009's session was eaten
         by a PA re-quoting the user turn after turn. What later writes still owe
@@ -1586,7 +1587,7 @@ class StateStore:
         landed -- the whole file for `document_update`, the merged field for the
         other two merging tools, and the payload value everywhere else, since a
         create tool's record is what the call passed. Every key term has to
-        still be in there (owner ruling A, 2026-09-08): acc_009's PA asked, got
+        still be in there: acc_009's PA asked, got
         the words, wrote them, and then revised them away twice, and the run's
         artifact no longer held the focus the user dictated.
 
@@ -1710,7 +1711,7 @@ class StateStore:
 
         `GATE_MIN_KEY_TERMS` terms, or one term that is the whole dictated text
         -- the probe line's gate, which names the user's sentence entire because
-        it has no authored terms to name (owner, 2026-09-14). "The whole
+        it has no authored terms to name. "The whole
         dictated text" is decided by `_term_words`, the same normalisation the
         matcher compares in, so the term that passes here is exactly the one a
         payload has to carry whole to satisfy `_carries_key_terms`. Any other
@@ -2120,8 +2121,8 @@ class StateStore:
                 ),
             }
         updated = current[:start] + replacement + current[end:]
-        # Ruling A on the merging path: the file as it stands after the write,
-        # judged on a copy so a refusal leaves the document untouched.
+        # The kept-terms check on the merging path: the file as it stands after
+        # the write, judged on a copy so a refusal leaves the document untouched.
         self._enforce_gate_keeps_terms(
             "document_update", {"replacement": replacement}, updated
         )
@@ -2656,8 +2657,9 @@ class StateStore:
         if not changes:
             raise ValueError("calendar_event_update requires at least one field to change")
         record.update(changes)
-        # Ruling A on the merging path: a call that never names the gated field
-        # leaves the user's words where they were, so the record is what counts.
+        # The kept-terms check on the merging path: a call that never names the
+        # gated field leaves the user's words where they were, so the record is
+        # what counts.
         self._enforce_gate_keeps_terms(
             "calendar_event_update",
             {"title": title, "notes": notes},
@@ -2823,7 +2825,7 @@ class StateStore:
         if not changes:
             raise ValueError("contact_update requires at least one field to change")
         record.update(changes)
-        # Ruling A on the merging path, as on `calendar_event_update`.
+        # The kept-terms check on the merging path, as on `calendar_event_update`.
         self._enforce_gate_keeps_terms(
             "contact_update",
             {"relation": relation, "notes": notes},
@@ -3002,7 +3004,7 @@ class StateStore:
         # home address "12 Corvid Ave, Glenmont" shared only "glenmont" with
         # "Glenmont Heights apartment" (below half of three) but that one token
         # was half of two-token "Glenmont Cinema", so walking times came back
-        # from the cinema. regress14b acc_002.
+        # from the cinema (acc_002).
         return bool(overlap) and overlap in (query_tokens, stored_tokens)
 
     def route_options(self, origin: str, destination: str, stop: str = "") -> dict[str, Any]:

@@ -8,7 +8,7 @@ An asked-under attribute is now loaded in reception-only form on exactly that
 one beat, the first beat after the one that asked.
 
 It used to stay loaded for the rest of the session, and so did the complaint:
-live regress11 `acc_035` objected to the confidence tags on its reaction beat
+live `acc_035` objected to the confidence tags on its reaction beat
 (`t=13`, correct) and again at `t=16`, 19, 21, 24 and 29. The IX selection is
 made once, at the declaring beat, so the actor reacts once and then proceeds
 with the task under the surface it got.
@@ -122,7 +122,7 @@ def test_a_beat_before_any_asking_beat_carries_nothing() -> None:
 
 
 def test_the_carried_rules_come_with_the_order_to_take_a_position() -> None:
-    """Live regress1: `reception_skills` was loaded on every reaction beat and
+    """Live, `reception_skills` was loaded on every reaction beat and
     the actor still answered the task only ("The structure is acceptable",
     "Reviews the updates and responds as this person would") — acc_004,
     acc_006, acc_011. The carried block now says the turn has to land on the
@@ -139,7 +139,7 @@ def test_the_carried_rules_come_with_the_order_to_take_a_position() -> None:
 
 
 def test_the_order_to_take_a_position_binds_on_the_beats_own_skills_too() -> None:
-    """Live regress2 `acc_007`: the beat that declares the attribute carries no
+    """Live `acc_007`: the beat that declares the attribute carries no
     reception-only skills — the carry subtracts its own — so the order was
     switched off at the one beat where the surface had already appeared (the
     PA's unprompted ping is the `proactive_outreach` surface, delivered before
@@ -266,7 +266,7 @@ def test_only_the_beat_right_after_the_probe_is_the_reaction_beat() -> None:
 
 
 # ---------------------------------------------------------------------------
-# The reaction is taken once: regress11 `acc_035`
+# The reaction is taken once: `acc_035`
 # ---------------------------------------------------------------------------
 
 SPEND_IT_ON_THE_TASK = "The main content of this step is the task"

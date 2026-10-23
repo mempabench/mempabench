@@ -145,10 +145,10 @@ IX_TASK_CALLS_DEFERRED_FOR_CARRIER = (
 #: Appended to the pin when the tool being pinned is a *selection* tool. A
 #: `tool_choice` pin gets answered with the schema's `required` list and
 #: nothing else -- for a selection tool that is `setting` alone -- so the turn
-#: banks a setting with no reasoning behind it. Live: every regress21 session
+#: banks a setting with no reasoning behind it. Live: in one run every session
 #: whose selection was pinned (`acc_002`, `007`, `009`, `019`, `026`, `035`)
-#: recorded `evidence: ""`, and so did all three of regress20's (`002`, `026`,
-#: `035`); no pinned selection in either round carried one. The other half of
+#: recorded `evidence: ""`, and so did all three in another (`002`, `026`,
+#: `035`); no pinned selection in either run carried one. The other half of
 #: the same wound already has an answer -- `_restore_voided_selection_fields`
 #: refills the blanks from a copy the *same turn* wrote and the wrapper then voided --
 #: but on the ordinary ladder path there is no earlier copy to refill from,
@@ -161,7 +161,7 @@ IX_FORCED_SELECTION_FIELDS = (
     "to write, and `evidence` with what you are going on -- leave `evidence` "
     "empty if you have nothing to cite, and never invent it. "
 )
-#: regress12 acc_026 — the model spent the whole `max_tokens` budget on
+#: acc_026 — the model spent the whole `max_tokens` budget on
 #: reasoning and returned nothing: `finish_reason == "length"`, no tool calls,
 #: no content. The ladder read each of those as a miss, so two truncations
 #: bought a reminder and a pin and the turn died with the render payload never
@@ -176,7 +176,7 @@ PROVIDER_TRUNCATED_RETRY = (
 #: Empty truncations may retry twice; exhaustion is a provider failure and
 #: cannot spend any IX repair budget.
 PROVIDER_TRUNCATION_RETRIES = 2
-#: regress12 acc_003 t=12 — the provider answered the closing request with the
+#: acc_003 t=12 — the provider answered the closing request with the
 #: upstream error body ("The request failed because it is missing
 #: `messages.content` parameter" plus a request id) and the runner released that
 #: text as a finished PA turn: zero tool calls, and the two document merges the
@@ -184,7 +184,7 @@ PROVIDER_TRUNCATION_RETRIES = 2
 #: it buys one more request with the same messages before the turn ends on the
 #: error path -- and it is never what the user reads.
 PROVIDER_ERROR_RETRIES = 1
-#: regress12 acc_004 — `shopping_order_create` was called 46 times with guessed
+#: acc_004 — `shopping_order_create` was called 46 times with guessed
 #: `delivery_address_id` values (addr_home, addr_001, addr_4b, ...) and answered
 #: "unknown delivery address" every time: 274 tool calls, 1531 s, and an invented
 #: order id at the end. The gate held mechanically and the PA never asked. After
@@ -204,7 +204,7 @@ TOOL_FAILURE_STRIKE_PROMPT = (
     "same error and will not run again on this turn. Stop trying other values "
     "for it: ask the user for the one it needs. " + NO_META_ACKNOWLEDGEMENT
 )
-#: gpt `acc_082`, 2026-09-18 — the strike's one exception. Six
+#: gpt `acc_082` — the strike's one exception. Six
 #: `calendar_event_create` calls came in with `recurrence: '>TBD'` on an evening
 #: the user had authorised in as many words ("Nothing is on the calendar yet, so
 #: put it on with the title ..."); the store refused every one of them before
@@ -236,20 +236,20 @@ RECURRENCE_REBIND_RESULT = (
     "authorisation. Re-send it with interaction_item_id {item_id} and the same "
     "render binding; the one attempt is still unspent."
 )
-#: Owner ruling 2026-09-08 — the strike's other half. The strike stops one tool
+#: The strike's other half. The strike stops one tool
 #: inside one response; this stops the *turn* when the same tool has come back an
 #: error on this many separate iterations, which is the shape the runner spins
 #: on: error result, re-prompt, same call, error result. Counted per iteration,
 #: not per call, because a burst of identical failures in one response is what
-#: the strike already answers (regress12 acc_004's 46 guessed address ids).
+#: the strike already answers (acc_004's 46 guessed address ids).
 #:
-#: One *above* the strike limit, and derived rather than written out (review item
-#: 4, 2026-09-09): at the same value the strike's "ask the user for the one it
+#: One *above* the strike limit, and derived rather than written out: at the
+#: same value the strike's "ask the user for the one it
 #: needs" prompt was appended on the very iteration the cap ended, so it was
 #: written into the history and no request ever carried it. The extra iteration
 #: is what delivers it.
 TOOL_RETRY_CAP = TOOL_FAILURE_STRIKE_LIMIT + 1
-#: regress20 acc_027 — a per-session selection tool is offered on the beat that
+#: acc_027 — a per-session selection tool is offered on the beat that
 #: activates its attribute and withdrawn once the session has the setting. The
 #: PA called `IX_emotional_engagement` on the following beat, the base registry
 #: answered "Tool ... not found", the PA read that as a broken call and re-sent
@@ -330,7 +330,7 @@ _NO_GATE_HOLD_REASONS = frozenset({
 #: The two hold statuses that end the turn on their own. A batch or a
 #: question hold opens no gate, so before this the loop went back to the
 #: provider and the provider's *next* message narrated the held call as done:
-#: live, `v3g03` withheld the send and the following text-only message read
+#: live, one session withheld the send and the following text-only message read
 #: `📧 Email confirmation sent to Dr. Okafor`. The same-message narration rule
 #: cannot reach that shape — deepseek writes the call with empty content and
 #: the prose one message later — so the turn stops here, exactly as a gate does.
@@ -357,7 +357,7 @@ IX_HELD_TOOL_RESULT = json.dumps(
 )
 #: The same result for the other fail-closed exit. A binding refusal
 #: is not "waiting for the user": nothing was put to anybody, the ids were the
-#: problem, and the turn's whole batch is gone. Live `v7r06` t18 held all six
+#: problem, and the turn's whole batch is gone. Live, one turn held all six
 #: calls this way and shipped the loop placeholder, because the closing
 #: iteration was only ever run on the batch / question path.
 IX_BINDING_HELD_TOOL_RESULT = json.dumps(
@@ -370,7 +370,7 @@ IX_BINDING_HELD_TOOL_RESULT = json.dumps(
     },
     ensure_ascii=False,
 )
-#: regress23m `acc_001` / `acc_004`, 2026-09-12 — the tool protocol's last
+#: `acc_001` / `acc_004` — the tool protocol's last
 #: resort. A call the wrapper withheld gets no result at the point it is
 #: withheld (a held call never touches the world), and the paths that
 #: re-request inside the same turn -- the `ix_selection_invalid` retry, the
@@ -390,7 +390,7 @@ WITHHELD_TOOL_RESULT = json.dumps(
     },
     ensure_ascii=False,
 )
-#: Owner decision 2026-09-07 (regress5 acc_003): a turn that selected Bookend or
+#: acc_003 — a turn that selected Bookend or
 #: Full narration and executed task calls with no `_ix_notice` on any of them
 #: reaches the user as if the setting were Silent -- the spec says so in as many
 #: words, and the model ignored it on the one turn the session exists to test.
@@ -424,8 +424,8 @@ IX_HOLD_CLOSING_PROMPT = (
     "in front of the text it owns. Text only; do not call tools. "
     + NO_META_ACKNOWLEDGEMENT
 )
-#: Round 9 item 1 — the one extra request an otherwise-silent turn buys. Not a
-#: closing request: there may be no hold at all. `v8s01` t26 answered a
+#: The one extra request an otherwise-silent turn buys. Not a closing
+#: request: there may be no hold at all. A live turn answered a
 #: substantive instruction (book a room, move an event) with an empty completion
 #: and no tool calls, and what the user read was the loop's placeholder. Task
 #: tools are gone here, exactly as in the closing request, so this cannot start
@@ -483,7 +483,7 @@ IX_GATE_MESSAGE_REPAIR = (
     + NO_META_ACKNOWLEDGEMENT
 )
 #: A `release` is a promise to act in this same reply, and releases are
-#: never auto-replayed. Live, `v3g03` released the held email, issued
+#: never auto-replayed. Live, one session released the held email, issued
 #: no call, closed the episode, and told the user it had gone out. Asked once; a
 #: second response without the call keeps the item held (`ix_release_missing`).
 IX_RELEASE_REPAIR = (
@@ -552,7 +552,7 @@ IX_QUESTION_MARKER_REPAIR = (
 #: they read, two lines above "Done! …has been saved to your desktop". Not one
 #: coherent assistant. Asked, never rewritten: the renderer will not compose the
 #: reasons, and a second work log ships as it stands with the event as the
-#: record. Round 2 fixed this by wording, round 3 held, round 4 lost it.
+#: record. A wording fix alone did not hold.
 IX_RATIONALE_WORK_LOG_REPAIR = (
     "[interaction wrapper] Your `user_facing_rationale` starts by describing "
     "the user in the third person. That field is printed to them, ahead of your "
@@ -561,7 +561,7 @@ IX_RATIONALE_WORK_LOG_REPAIR = (
     "of what you did. Resend the payload with the reasons, or with the field "
     "empty if this turn decided nothing. " + NO_META_ACKNOWLEDGEMENT
 )
-#: regress13 acc_035 t=7 — three declared certainties, `Express`, and the
+#: acc_035 t=7 — three declared certainties, `Express`, and the
 #: locator placed none of them, so the one attribute under test had no surface
 #: at all on the very turn the reception beat reads and the actor approved a
 #: reply with no hedges in it. The read says why: three of the four drops that
@@ -604,7 +604,7 @@ _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 #: Which IX contract a `STOP_REASON_IX_CONTRACT_FAILURE` turn broke. Five
 #: unrelated rules fail closed on the one stop reason, so the stop reason alone
 #: cannot say what the turn owed; each fatal site names its own kind here and
-#: the loop maps the kind to the sentence a reader gets. Live regress20
+#: the loop maps the kind to the sentence a reader gets. Live
 #: `acc_027`: the reaction beat offers no IX tools, the PA re-sent
 #: `IX_emotional_engagement` three times, and the turn was reported as
 #: "IX_capability_resolve was missing or invalid twice after a tool reported a
@@ -614,13 +614,13 @@ _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 IX_CONTRACT_RENDER = "render"
 IX_CONTRACT_CAPABILITY = "capability"
 IX_CONTRACT_SELECTION = "selection"
-#: regress23m `acc_001`: the same break, the other cause. `IX_verbosity` *was*
+#: `acc_001`: the same break, the other cause. `IX_verbosity` *was*
 #: offered (`active_ix_tools: ["IX_verbosity"]`); the PA called it with `{}` and
 #: the registry refused it for "missing required setting" three times. The turn
 #: still wore the not-offered sentence, so the record pointed the reader at the
 #: beat's tool list, which was fine, instead of at the arguments, which were not.
 IX_CONTRACT_SELECTION_ARGS = "selection_args"
-#: hy4 `acc_031`, 2026-09-18: the same break, one tier further down. The turn's
+#: hy4 `acc_031`: the same break, one tier further down. The turn's
 #: setting was already chosen and the *render* payload was refused on its own
 #: arguments -- `IX_render_process_visibility` sent the selection tool's
 #: `setting`/`evidence`/`application` and left out its own required
@@ -665,7 +665,7 @@ def _tool_result_error(result: Any) -> Any | None:
 def _tool_error_class(tool_call: ToolCallRequest, error: Any) -> str:
     """One failure's shape, with the values this call guessed taken out.
 
-    regress12 acc_004: 46 `shopping_order_create` calls, 46 different
+    acc_004: 46 `shopping_order_create` calls, 46 different
     `delivery_address_id`s, one error -- "unknown delivery address: <the value>".
     The id is what varies and the sentence is what repeats, so every string
     argument the call sent is removed before the texts are compared. Short
@@ -1005,13 +1005,13 @@ class AgentRunner:
         #: The tools already recorded as missing this turn, so the second miss is
         #: recorded once rather than once per remaining iteration.
         payload_missing_reported: set[str] = set()
-        #: Owner ruling 2026-09-08 — how many *iterations* of this turn each tool
+        #: How many *iterations* of this turn each tool
         #: has come back an error on. One per iteration however many of its calls
         #: failed in it: the burst inside a single response is the strike's
         #: business, and this one is about the re-prompt loop.
         retry_failures: dict[str, int] = {}
         #: The same backstop for the calls the *wrapper* stops. A held call gets
-        #: no error result, so `failing_now` never sees it: live regress21r
+        #: no error result, so `failing_now` never sees it: live
         #: acc_039 t19 re-issued one booking 25 times, the wrapper held every
         #: one of them `release_spent`, and 25 of the turn's 40 iterations went
         #: on a loop nothing could break. Keyed on (tool, arguments) so an
@@ -1041,10 +1041,10 @@ class AgentRunner:
         #: acc_011 — the `user_facing_rationale` written about the reader instead
         #: of to them, nudged once per turn. Same reason again.
         rationale_work_log_nudges = 0
-        #: regress13 acc_035 — the whole `<certainties>` block missing the prose,
-        #: re-asked once per turn. Its own counter like the three above; owner
-        #: ruling 4 (2026-09-08) made the second all-drop ship untagged with the
-        #: failure recorded, rather than ending the step.
+        #: acc_035 — the whole `<certainties>` block missing the prose,
+        #: re-asked once per turn. Its own counter like the three above; the
+        #: second all-drop ships untagged with the failure recorded, rather than
+        #: ending the step.
         certainty_claim_retries = 0
         #: Set for the one response that answers the release repair,
         #: so the payload reminder cannot discard the call the repair asked for.
@@ -1089,14 +1089,14 @@ class AgentRunner:
                 "contract": contract,
                 "operation": operation,
             }
-        #: regress12 acc_026 — replies the provider cut off at the token limit,
+        #: acc_026 — replies the provider cut off at the token limit,
         #: counted apart from every ladder budget: nothing was decided in them,
         #: so nothing may be spent on them.
         provider_truncations = 0
-        #: regress12 acc_003 — the same, for a response the provider marked an
+        #: acc_003 — the same, for a response the provider marked an
         #: error: no reply came back, so no budget may be charged for one.
         provider_errors = 0
-        #: regress12 acc_004 — tools already struck off for this turn *and* named
+        #: acc_004 — tools already struck off for this turn *and* named
         #: to the model. The strike itself is on the collector; this is only so
         #: the instruction is written once however many iterations follow.
         strike_prompted: set[str] = set()
@@ -1190,7 +1190,7 @@ class AgentRunner:
                 "outcome": "",
             }
             iteration_log.append(iteration_entry)
-            # regress16 acc_006 — carried to the single exit, and reset on every
+            # acc_006 — carried to the single exit, and reset on every
             # response that came back whole, so what it says at the exit is
             # "the last thing the provider sent was cut off at the token limit".
             collector.truncated_completion_tokens = (
@@ -1203,7 +1203,7 @@ class AgentRunner:
             hook_context.response = provider_response
             hook_context.usage = usage
             hook_context.tool_calls = list(provider_response.tool_calls)
-            # regress12 acc_026 — a reply the provider cut off at `max_tokens`
+            # acc_026 — a reply the provider cut off at `max_tokens`
             # with nothing in it: no text, no calls, `finish_reason == "length"`.
             # The model decided nothing there, so it is answered before any
             # nudge, ladder or gate can read it as a miss and spend a budget on
@@ -1241,7 +1241,7 @@ class AgentRunner:
                 hook_context.stop_reason = stop_reason
                 await hook.after_iteration(hook_context)
                 break
-            # regress12 acc_003 t=12 — a response the provider marked an error.
+            # acc_003 t=12 — a response the provider marked an error.
             # Its `content` is the gateway's error body, not the model's words,
             # so nothing below may read it: it must not become a segment, an
             # assistant message, a ladder miss or the turn's text. One more
@@ -1254,8 +1254,8 @@ class AgentRunner:
                 if provider_errors <= PROVIDER_ERROR_RETRIES:
                     iteration_entry["outcome"] = "provider_error_retried"
                     collector.emit("provider_error_retried", attempt=provider_errors)
-                    # C/USER_FORCED_TOOL_RETRY_FIX_20260924.json: the retry re-sends the same
-                    # request, so a pinned tool_choice must be pinned again.
+                    # The retry re-sends the same request, so a pinned tool_choice
+                    # must be pinned again.
                     if request_pinned_tool is not None:
                         forced_tool = request_pinned_tool
                     await hook.after_iteration(hook_context)
@@ -1277,7 +1277,7 @@ class AgentRunner:
                 break
             collector.add_reasoning(provider_response.reasoning_content)
             # The provider seam lifted tool-call syntax the model typed into its
-            # message back into real calls (regress5 acc_006). Recorded per
+            # message back into real calls (acc_006). Recorded per
             # iteration, because a run whose calls all arrive this way is a
             # model that is not really speaking the tool protocol and the batch
             # review has to be able to count it.
@@ -1298,7 +1298,7 @@ class AgentRunner:
             )[1]:
                 collector.dsml_markup_seen = True
             # The boundary declaration banks the moment it arrives, before any
-            # gate can consume the response: live regress3 acc_026 the pinned
+            # gate can consume the response: live acc_026 the pinned
             # `IX_capability_resolve` reply was taken by the render-payload
             # ladder (a reminder and a resend), never reached the capability
             # gate, and the turn died on `ix_boundary_unresolved` although the
@@ -1319,7 +1319,7 @@ class AgentRunner:
                         # render tool is only offered under a chosen setting --
                         # yet every iteration spent on the boundary counted as
                         # one of their misses. The ladder budget restarts here
-                        # (regress4 acc_026: fatal at the third "miss" with the
+                        # (acc_026: fatal at the third "miss" with the
                         # render tool never pinned).
                         conditional_retries = 0
 
@@ -1434,8 +1434,8 @@ class AgentRunner:
                 and (
                     name in _SELECTION_TOOL_NAMES
                     or name in _RENDER_TOOL_NAMES
-                    # The boundary declaration answers its own pin (regress4
-                    # acc_026: it was counted as the render payload's third
+                    # The boundary declaration answers its own pin (acc_026:
+                    # it was counted as the render payload's third
                     # miss and the turn went fatal without the render ever
                     # being pinned).
                     or name == IX_CAPABILITY_RESOLVE_TOOL
@@ -1457,7 +1457,7 @@ class AgentRunner:
                     final_content = None
                     await hook.after_iteration(hook_context)
                     break
-                # regress19 acc_009 t8 — the reasoning this response wrote is
+                # acc_009 t8 — the reasoning this response wrote is
                 # kept even though the response is not. What the pin re-buys is
                 # the *selection*, and it comes back as the bare `setting` the
                 # pin named: nothing asks the model to derive its evidence a
@@ -1498,7 +1498,7 @@ class AgentRunner:
                 # carriers it did send are owed too. `conditional_missing`
                 # reads those off `response_tool_names` and calls them
                 # satisfied, which only holds for a response that runs. Live
-                # `regress19r` acc_009 t1: the model answered the nudge with
+                # acc_009 t1: the model answered the nudge with
                 # the selection alongside a task call, so the wrapper voided the
                 # response whole, but the ladder had already counted that
                 # selection as made and pinned the render instead. The
@@ -1543,7 +1543,7 @@ class AgentRunner:
                 # `ix_render_payload_missing` on the second miss, then deliver".
                 # `IX_continue_<attribute>` is not forcible and not fatal, so the
                 # check re-fires on every later iteration of the same turn: live
-                # (`v11s02` acc_009 t8) one owed continuation was recorded eight
+                # (acc_009 t8) one owed continuation was recorded eight
                 # times. The budget is already spent -- nothing is re-asked, so
                 # the repeats are audit noise, not a repair loop.
                 if not set(conditional_missing) <= payload_missing_reported:
@@ -1567,8 +1567,8 @@ class AgentRunner:
             # A response answering the selection's pin is executed even while
             # the resolve is still owed: voiding it here wasted the selection's
             # only pin on a call that never banked, and the ladder then went
-            # fatal on that carrier once the boundary was declared (regress4
-            # acc_026). The resolve is reminded or pinned on the next iteration.
+            # fatal on that carrier once the boundary was declared
+            # (acc_026). The resolve is reminded or pinned on the next iteration.
             if (
                 capability_required
                 and IX_CAPABILITY_RESOLVE_TOOL not in response_tool_names
@@ -1728,8 +1728,8 @@ class AgentRunner:
                     # it whole re-arms the capability gate on the next iteration
                     # with no pin left (`_forcible_tool` returns None) and the
                     # turn ends on `ix_boundary_unresolved` although the model
-                    # sent the payload it was asked for -- live `regress1` /
-                    # `regress2` acc_026, three of four runs. The resolve payload
+                    # sent the payload it was asked for -- live acc_026, three
+                    # of four runs. The resolve payload
                     # is banked here; the rest of the response is still resent.
                     resolve_calls = [
                         tool_call for tool_call in provider_response.tool_calls
@@ -1930,7 +1930,7 @@ class AgentRunner:
                             tools=", ".join(deferred_owed),
                         )
                     ))
-                # regress12 acc_004 — after the strike limit the tool is out for
+                # acc_004 — after the strike limit the tool is out for
                 # the turn, and the model has to be told what to do instead:
                 # ask, rather than guess again. Once per struck tool per turn,
                 # and after the tool results so the protocol stays well formed.
@@ -1981,8 +1981,8 @@ class AgentRunner:
                     messages.append(internal_user_message(
                         IX_CARRIER_RECORDED_NOTE.format(tool=name)
                     ))
-                # Owner ruling 2026-09-09 — the setting the model just chose
-                # shapes *this* turn's reply. regress21 `acc_002` t5 selected
+                # The setting the model just chose shapes *this* turn's
+                # reply. `acc_002` t5 selected
                 # `solution_breadth: Low` at call 0 and still delivered a
                 # five-row table; the Low surface arrived on t8, because the per-turn
                 # restatement is built from `inherited_ix_selections`, which the
@@ -2022,12 +2022,12 @@ class AgentRunner:
                 if rejected:
                     ix_argument_retries += 1
                     # Which of the two refusals this was. The beat's own
-                    # `session_active_ix` cannot answer it: regress20 `acc_027`
+                    # `session_active_ix` cannot answer it: `acc_027`
                     # carried `emotional_engagement` there while the reaction
                     # beat offered no IX tool at all. This turn's tool view is
                     # what the registry dispatched against, so a rejected name
                     # inside it was offered and refused on its arguments
-                    # (regress23m `acc_001`, `IX_verbosity` called with `{}`),
+                    # (`acc_001`, `IX_verbosity` called with `{}`),
                     # and a name outside it was never offered.
                     offered_now = set(spec.tools.tool_names)
                     all_offered = all(name in offered_now for name in rejected)
@@ -2048,7 +2048,7 @@ class AgentRunner:
                     exhausted = _spend_ix_repair_attempt(
                         cause, "ix_tool_arguments"
                     )
-                    # regress20 acc_027 recorded the refused tool and nothing
+                    # acc_027 recorded the refused tool and nothing
                     # else, so the record could not say *why* the registry
                     # refused it. The beat's own attribute list is the answer
                     # in the common case -- there the reaction beat offered
@@ -2092,7 +2092,7 @@ class AgentRunner:
                         break
                     # Same trade as the batch repair below, for the same reason:
                     # nothing ran, so the refused attempt's hold records go with
-                    # it and the retry starts clean. Live regress18 `acc_001` t6
+                    # it and the retry starts clean. Live `acc_001` t6
                     # kept them: the reissued `document_update`s executed --
                     # `state_diff.jsonl` and `canonical_stage` carry both -- while
                     # `held.calls` still reported them `held_for_binding` and
@@ -2115,13 +2115,12 @@ class AgentRunner:
                     await hook.after_iteration(hook_context)
                     continue
 
-                # Owner ruling 2026-09-08 — the max-steps backstop. Counted here,
+                # The max-steps backstop. Counted here,
                 # where the results are in hand, so an iteration that ends on any
                 # of the repairs below still counts; *acted on* at the very
                 # bottom of this branch, so every rule of the ladder -- the
                 # boundary declaration, the gate, the hold -- decides the turn
-                # first and the cap only replaces the final `continue` (review
-                # items 1 and 3, 2026-09-09).
+                # first and the cap only replaces the final `continue`.
                 #
                 # A `capability_limit` is excluded from the count for the same
                 # reason the strike excludes it: the capability-boundary protocol owns the blocked-capability
@@ -2182,7 +2181,7 @@ class AgentRunner:
                     binding_retries += 1
                     if binding_retries > 1:
                         collector.emit("ix_binding_invalid", attempts=2)
-                        # Round 9 item 2: only *this* exit owes the user the
+                        # Only *this* exit owes the user the
                         # close line. A first refusal is repaired inside the
                         # turn, and its hold rows stay on the audit plane
                         # afterwards -- scanning them would tell the user the
@@ -2190,7 +2189,7 @@ class AgentRunner:
                         collector.binding_refused = True
                         # The closing iteration applies here too. A binding refusal takes the
                         # whole turn's batch, so `last_segment` is whatever the
-                        # refused response happened to write -- live `v7r06` t18
+                        # refused response happened to write -- live, on one turn
                         # that was nothing at all, and the loop's old placeholder
                         # sentence was the entire reply. The closing iteration
                         # was only ever run on the batch / question path; the
@@ -2356,7 +2355,7 @@ class AgentRunner:
                 # The max-steps backstop, in place of the final `continue`: every
                 # rule above has declined to end the turn, so the only thing left
                 # is another request, and the tool it would carry has said
-                # everything it is going to say. One exception (review item 1): a
+                # everything it is going to say. One exception: a
                 # `capability_limit` seen this turn owes the boundary declaration, and
                 # that is exactly the re-prompting the cap would cut short --
                 # the turn would ship `completed` with the block unresolved and
@@ -2372,7 +2371,7 @@ class AgentRunner:
                         beat=str(spec.ix_context.get("beat") or ""),
                     )
                     iteration_entry["outcome"] = "tool_retry_cap_reached"
-                    # Review item 2: what ships here is a user-facing message, so
+                    # What ships here is a user-facing message, so
                     # the turn owes its render payloads exactly as a text reply
                     # does. The response that reached the cap carried tool calls,
                     # so the predicate's own "visible message" test says no --
@@ -2459,7 +2458,7 @@ class AgentRunner:
             # `clean or ""`, never `None`: a reply with no text at all puts an
             # assistant message with a null `content` and no `tool_calls` on the
             # history, and the next request built from it is rejected outright
-            # -- regress12 acc_003 t=12, "missing `messages.content` parameter",
+            # -- acc_003 t=12, "missing `messages.content` parameter",
             # raised by the closing request the empty-reply rule sends straight
             # after this. An empty string is what `_sanitize_empty_content`
             # already knows how to send.
@@ -2468,7 +2467,7 @@ class AgentRunner:
                 reasoning_content=provider_response.reasoning_content,
                 thinking_blocks=provider_response.thinking_blocks,
             ))
-            # regress13 acc_035 — after `add_segment`, because under carrier F
+            # acc_035 — after `add_segment`, because under carrier F
             # the trailing block replaces the tool payload and this is the
             # call that reads it; and after the assistant message, so the re-ask
             # goes out with the reply it is about on the history. `last_segment`
@@ -2498,7 +2497,7 @@ class AgentRunner:
                     )
                     await hook.after_iteration(hook_context)
                     continue
-                # Owner ruling 4 (2026-09-08): the retry is spent and the turn
+                # The retry is spent and the turn
                 # ships anyway, untagged. Every claim missed the prose, so the
                 # renderer locates none of them and appends no parenthesis --
                 # the reply reaches the user with no confidence on it at all,
@@ -2606,7 +2605,7 @@ class AgentRunner:
         through the model's next reply. The retry cap is the one exit where it
         is not: it ends the turn on a response that *did* call tools and ships
         that response's prose, so it passes the answer in rather than letting it
-        be derived (review item 2, 2026-09-09).
+        be derived.
         """
         evaluate = getattr(spec.tools, "required_ix_tool_names_for", None)
         if evaluate is None:
@@ -2822,8 +2821,8 @@ class AgentRunner:
         of three still put the `Express` surface in front of the user, and the
         per-claim `ix_certainty_claim_not_found` rows are the record for that.
         Only the all-or-nothing turn is worth a request, because that is the one
-        where the attribute under test rendered nothing at all (regress13
-        acc_035 t=7: three declared, `annotated 0/3 claims`, a plain reply, and
+        where the attribute under test rendered nothing at all (acc_035
+        t=7: three declared, `annotated 0/3 claims`, a plain reply, and
         the reception beat scored it as if the PA had chosen `Hide`).
 
         `Express` only. Under `Hide` the renderer appends nothing by design, so
@@ -2905,7 +2904,7 @@ class AgentRunner:
         )
         if rendered.message.strip():
             return True
-        # regress13 acc_009 — the fallback reads the model's raw text, which on
+        # acc_009 — the fallback reads the model's raw text, which on
         # a hold turn still carries every excised `[[q:…]]` section: under
         # `Infer` (release 0/N) a reply with no framing at all rendered to
         # nothing here, answered "yes, it delivers", and `loop.py`'s matching
@@ -2951,8 +2950,8 @@ class AgentRunner:
         can be certain did not answer, so that is what the audit is allowed to
         record.
 
-        An empty reply is a different rule with its own request (round 9 item 1),
-        so it is left alone here.
+        An empty reply is a different rule with its own request, so it is left
+        alone here.
         """
         completion = collector.payloads.completion_message.strip()
         if not completion:
@@ -2983,9 +2982,9 @@ class AgentRunner:
         final_content: str | None,
         stop_reason: str,
     ) -> tuple[str | None, str]:
-        """Owner decision 2026-09-07 — a narrating turn must carry its notice.
+        """A narrating turn must carry its notice.
 
-        regress5 acc_003 t=3: the PA selected Bookend, made three catalog
+        acc_003 t=3: the PA selected Bookend, made three catalog
         lookups, wrote `_ix_notice` on none of them, and the user read a reply
         with no opening line -- the surface of Silent under a setting that is
         not Silent, on the one turn the session probes. The renderer counted
@@ -3047,7 +3046,7 @@ class AgentRunner:
         collector: TurnCollector,
         stop_reason: str,
     ) -> str | None:
-        """regress16 acc_006 — a turn the provider cut off does not ship a fragment.
+        """acc_006 — a turn the provider cut off does not ship a fragment.
 
         Both PA turns of that session reached the user as a mid-tool-sequence
         aside: `Let me start by looking at the research folder to find the
@@ -3089,7 +3088,7 @@ class AgentRunner:
         collector.replace_delivered_segment(kept)
         # Re-read rather than return `kept`: this is the loop's unfiltered
         # `public_turn` fallback, and `last_segment` is the one form of the text
-        # that has been through every delivery strip (regress13 acc_009).
+        # that has been through every delivery strip (acc_009).
         return collector.last_segment or None
 
     async def _resolve_unfinished_turn(
@@ -3154,12 +3153,12 @@ class AgentRunner:
         final_content: str | None,
         stop_reason: str,
     ) -> str | None:
-        """Round 9 item 1 — an empty reply is a miss, whatever emptied it.
+        """An empty reply is a miss, whatever emptied it.
 
         One rule at the single exit, replacing the reason-specific guards: three
-        distinct routes to a turn with no user-facing text were found in four
-        rounds (a `binding_invalid` fail-closed exit, a hold whose closing
-        request came back silent, and -- `v8s01` t26 -- a provider completion
+        distinct routes to a turn with no user-facing text were found (a
+        `binding_invalid` fail-closed exit, a hold whose closing request came
+        back silent, and a provider completion
         with no text and no tool calls at all, answering a two-part instruction
         the user then heard nothing about). Guarding them one at a time was not
         converging, so the emptiness itself is what is checked.
@@ -3190,7 +3189,7 @@ class AgentRunner:
             ):
                 return collector.last_segment or final_content
         if collector.dsml_markup_seen:
-            # regress5 acc_006: five turns whose reply was tool-call syntax
+            # acc_006: five turns whose reply was tool-call syntax
             # shipped `I have nothing further to report on that just now.` The
             # PA had four document edits in hand and typed every one of them --
             # the line is false, and it is false in the direction that hides the
@@ -3206,7 +3205,7 @@ class AgentRunner:
             # `None`, never `final_content`: reaching here means every delivery
             # surface already cleaned that text to nothing, and `loop.py`'s
             # `public_turn` fallback reads `final_content` unfiltered -- handing
-            # the markup back would undo 03ee0f7 and put it in front of the user.
+            # the markup back would put it in front of the user.
             return None
         collector.empty_reply = True
         collector.emit("ix_empty_reply", stop_reason=stop_reason)
@@ -3232,7 +3231,7 @@ class AgentRunner:
         text alone, and a response with no text leaves the turn exactly where
         the hold left it.
 
-        Round 9 item 1 reuses it for the empty-reply rule with a different
+        The empty-reply rule reuses it with a different
         `prompt` and no `provider_response`: the conditions it needs — task
         tools withdrawn, one request, text taken or not — are the same, and the
         turn is allowed exactly one of these however it emptied.
@@ -3295,7 +3294,7 @@ class AgentRunner:
         if spec.llm_task_identity is not None:
             request["task_identity"] = spec.llm_task_identity
         response = await self.provider.chat_with_retry(**request)
-        # regress12 acc_003 t=12 — this is the request that failed, and its
+        # acc_003 t=12 — this is the request that failed, and its
         # error body left here as prose: the closing iteration took it for the
         # turn's text and the wrapper released it, request id and all. The main
         # loop's error branch never sees this request, so the guard is repeated
@@ -3470,7 +3469,7 @@ class AgentRunner:
             if ix_calls
             else ix_directive
         )
-        # qwen `acc_082`, 2026-09-18 — name resolution, then authorisation, then
+        # qwen `acc_082` — name resolution, then authorisation, then
         # execution. Qwen called `mcp_state_calendar_list`, which does not exist
         # (the beat offered `..._event_search` and `..._event_read`), and the
         # invented name went straight into the business-call list: the
@@ -3547,7 +3546,7 @@ class AgentRunner:
                             action_type=action_type,
                         )
                     continue
-                # X-3, owner 2026-09-19: task calls in one provider response run
+                # Task calls in one provider response run
                 # in order.  Once one of them returns a capability limit, the
                 # already-selected Find-and-hand-off policy applies to the
                 # remaining siblings immediately.  Earlier calls have already
@@ -3573,7 +3572,7 @@ class AgentRunner:
                             reason="capability_handoff",
                         )
                     continue
-                # regress12 acc_004 — the same tool, the same error, over and
+                # acc_004 — the same tool, the same error, over and
                 # over on one guessed argument. The call still gets a result, so
                 # the tool protocol stays well formed, but the tool does not run:
                 # the value is not in the world and the next guess will not find
@@ -3700,7 +3699,7 @@ class AgentRunner:
         if gate_bearing and self._binding_contract_active(spec):
             # A read needs no binding: it opens no gate, joins no batch release
             # and changes nothing, so an id on it authorises nothing either.
-            # Live `acc_039` P10 spent a whole turn on this — four unbound
+            # Live `acc_039` spent a whole turn on this — four unbound
             # calls, all of them lookups, refused as a batch, and the user was
             # told the steps could not be carried out. Only the calls a binding
             # governs — draft, internal write, external action — are checked.
@@ -3786,7 +3785,7 @@ class AgentRunner:
             and directive.information_elicitation in {"structured", "iterative"}
             and bool(collector.payloads.questions)
         )
-        # Owner, 2026-09-06: the countable difference between the two
+        # The countable difference between the two
         # `capability_boundary` settings is "at least one tool call after the
         # limit this turn" versus "zero". `_capability_handoff_gate` only runs
         # once `_execute_tools` has returned, so the response that answers the
@@ -3795,7 +3794,7 @@ class AgentRunner:
         # back while the PA quietly tried something, and the two settings become
         # indistinguishable in the transcript. The limit is only seen once the
         # limiting call has already run, so the response that hit it keeps its
-        # own siblings. Owner, 2026-09-17: `Find and hand off` allows the
+        # own siblings. `Find and hand off` allows the
         # diagnostic lookups the hand-back needs, so afterwards only read calls
         # still run and every draft / internal write / external action is held
         # (`action_types.py`); whether a read was diagnosis or a recovery
@@ -3845,7 +3844,7 @@ class AgentRunner:
             for decision in collector.payloads.release_decisions
             if decision.decision == "release"
         }
-        # Owner ruling 2026-09-08: which tools still carry an unspent release,
+        # Which tools still carry an unspent release,
         # so a re-minted item does not re-ask for an act the user has already
         # authorised. Computed here as well as in the write-back because the
         # re-mint can happen in the very response that releases the old id
@@ -3853,7 +3852,7 @@ class AgentRunner:
         act_releases = live_act_releases(
             spec.hold, collector.payloads, spec.consent_decisions, collector.calls,
         )
-        # Owner ruling 2026-09-08 ("这个肯定要改"): the go-ahead the user spoke in
+        # The go-ahead the user spoke in
         # the turn just gone, for an act nothing was holding yet. acc_039 t40
         # authorised the booking, t41 held it and asked again. Recomputed per
         # response like `act_releases`, and never written back to the hold: the
@@ -3863,7 +3862,7 @@ class AgentRunner:
         # episode is holding, released this turn through
         # `IX_continue_topic_management`, is past the batch restriction even when
         # the same response re-declares it inside an unreleased batch. Without
-        # this the two protocols livelock: `v6g01` released `email1` on eight
+        # this the two protocols livelock: one session released `email1` on eight
         # turns, issued `email_message_send` on all eight, and the re-declared
         # `b2` re-held it every time -- the action was authorised eight times and
         # never happened. It only lifts `batch_not_released`; the id still goes
@@ -3882,11 +3881,11 @@ class AgentRunner:
             for episode in spec.hold.open_episodes.values()
             for item_id in episode.executed_item_ids
         }
-        # Owner ruling 2026-09-08, the half this path was missing: it is the
+        # The half this path was missing: it is the
         # *world change* that spends the release, so a call the tool refused
         # spends nothing. `live_act_releases` and `render.executed_now` both
         # test `status == "ok"`; this set was filled at gate time, before the
-        # outcome was known, and never revised. Live regress21r acc_039 t19 --
+        # outcome was known, and never revised. Live acc_039 t19 --
         # the released `appointment_create` came back `unknown provider`, the
         # id was booked as spent anyway, and the 25 retries of a booking that
         # had never happened were all refused `release_spent`. An id whose
@@ -3993,7 +3992,7 @@ class AgentRunner:
                     if action_type == "external_action" else ""
                 )
                 if inherited:
-                    # Owner ruling 2026-09-08: the same act under a new id. The
+                    # The same act under a new id. The
                     # user authorised this tool and the act has not gone through
                     # yet, so the floor does not ask a second time; the grant is
                     # consumed by the first `ok` call on the tool, which is why
@@ -4020,11 +4019,11 @@ class AgentRunner:
                         for a in spec.ix_context.get(CONTEXT_KEY, [])
                     ))
                 ):
-                    # Owner ruling 2026-09-08: the user authorised this act in
+                    # The user authorised this act in
                     # the turn immediately before, on a beat where nothing was
                     # held — so there is no id the sideband could have answered
                     # and no ask this act is still waiting for. Asking again
-                    # takes the same permission twice (spec anti-behaviour 7).
+                    # takes the same permission twice.
                     #
                     # Discarded here for the same reason `act_releases` is: one
                     # entry buys one call, and a second act on the tool in this
@@ -4072,7 +4071,7 @@ class AgentRunner:
 
             # `consent[]` is the record of one authorisation, so it
             # gets one row per (attribute, item) — not one per call carrying
-            # the id. Live, `v3g02` t24 wrote four rows for a single `allow`
+            # the id. Live, one turn wrote four rows for a single `allow`
             # (one read, one write, two duplicates the spent-release check
             # refused), and a judge counting authorisations off `consent[]`
             # over-counted by four to one. What each individual call did is
@@ -4159,7 +4158,7 @@ class AgentRunner:
 
         **Only an executed call satisfies a release.** `collector.calls` holds
         the withheld ones too, so counting them made the release/call diff empty
-        whenever the wrapper itself re-held the call -- `v6g01` released `email1`
+        whenever the wrapper itself re-held the call -- one session released `email1`
         eight times, issued it eight times, and got zero `ix_release_missing`
         while the email never went out. A call the wrapper refused this turn is
         not the missing call the repair is for: the refusal is already on the
@@ -4206,7 +4205,7 @@ class AgentRunner:
 
         Without this the write-back sees nothing held for the attribute and
         closes the episode, so the id the user authorised is gone -- live,
-        `v3g03` lost `email_01` exactly this way after the repair would have had
+        one session lost `email_01` exactly this way after the repair would have had
         its second chance.
         """
         for item_id, attribute, tool in AgentRunner._releases_without_calls(
@@ -4226,7 +4225,7 @@ class AgentRunner:
     def _expire_preauthorisations(
         spec: AgentRunSpec, collector: TurnCollector
     ) -> None:
-        """Owner ruling 2026-09-08: a standing authorisation lasts one PA turn.
+        """A standing authorisation lasts one PA turn.
 
         The user said "you may proceed" about the act it named, on the beat they
         said it. Nothing carries it forward: it is read from
@@ -4287,7 +4286,7 @@ class AgentRunner:
     ) -> str | None:
         """The attribute of a selection call this turn no longer offers, or None.
 
-        Three conditions, all needed (regress20 acc_027). It has to be a
+        Three conditions, all needed (acc_027). It has to be a
         per-session selection tool -- an `IX_render_*` payload or
         `IX_capability_resolve` the turn does not offer is a different mistake
         and keeps its refusal. It has to be absent from *this* turn's tool view,
@@ -4323,7 +4322,7 @@ class AgentRunner:
     ) -> None:
         """Refill a selection's blank reasoning from this turn's voided copy.
 
-        Live regress19 acc_009 t8: the response carrying
+        Live acc_009 t8: the response carrying
         `IX_information_elicitation{setting: "Structured", evidence: "The user
         explicitly asked to be asked for the remaining parameters before
         drafting…", application: …}` also carried a task call, so the wrapper voided
@@ -4334,7 +4333,7 @@ class AgentRunner:
 
         The pinned selection still decides: its `setting` is untouched, and a
         setting it *changed* keeps its own blanks, because evidence justifies
-        one setting and says nothing about another (`regress19r` t1 re-emitted
+        one setting and says nothing about another (acc_009 t1 re-emitted
         the same selection as `Iterative`). Only blanks are filled, and only
         from what this same turn already wrote for that same setting.
         """
@@ -4449,7 +4448,7 @@ class AgentRunner:
         # Carrier C fields are wrapper state, never tool arguments. The registry
         # already strips them off the call it forwards, but the event below is
         # what the transcript keeps, and it carried them verbatim: live
-        # `acc_039` P12 shows `calendar_event_create` logged with an empty
+        # `acc_039` shows `calendar_event_create` logged with an empty
         # `_ix_confirmation_message` among its real arguments. The wrapper reads
         # the fields off `tool_call.arguments` elsewhere, so they are dropped
         # here rather than on the call itself.

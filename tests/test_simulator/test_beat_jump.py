@@ -290,10 +290,10 @@ def test_no_jump_when_the_preference_beat_is_simply_the_next_one() -> None:
 
 
 def test_the_jump_lands_on_a_reveal_beat_instead_of_skipping_it() -> None:
-    """Live regress4 `acc_039`: 871ba00 held `reveal_at` beats out of the
-    collapse path, and beat_04 then died to this jump instead
-    (`transcript.jsonl` t=15). The November 20 slot was never spoken and
-    beat_05 went on to "verify" a booking that did not exist. Fourth round.
+    """Live `acc_039`: with `reveal_at` beats held out of the collapse path,
+    beat_04 then died to this jump instead (`transcript.jsonl` t=15). The
+    November 20 slot was never spoken and beat_05 went on to "verify" a booking
+    that did not exist.
     """
 
     async def run():

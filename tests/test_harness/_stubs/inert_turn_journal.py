@@ -2,7 +2,7 @@
 
 This is the ruled-out shortcut -- "persist the pool itself", not a
 pointer to a slice that has already been stripped -- and it is here to be
-refuted. `test_resume_pool_stub_proof.py` runs the step-9 suite against it and
+refuted. `test_resume_pool_stub_proof.py` runs the resume-pool suite against it and
 asserts every test fails on its own assertions, which is what makes "these
 tests assert behaviour, not the module's presence" checkable rather than
 claimed.

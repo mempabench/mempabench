@@ -78,7 +78,7 @@ def _save_variance_audit(path: Path, audit: dict) -> None:
         os.close(directory)
 
 
-#: Judge chances per Probe in variance scoring (user instruction 2026-09-22):
+#: Judge chances per Probe in variance scoring:
 #: one chance is one complete judge evaluation, including its native re-ask.
 #: The first chance that ends in HTTP429 is not counted (``extra_used``): a
 #: rate limit gets one retry beyond the three; a later 429 counts normally.
@@ -228,7 +228,7 @@ def score(run: Path, *, variance_retries: bool = False, not_applicable_exhausted
             if {p["probe_id"] for p in json.loads(index.read_text())["probes"]} != scored_ids:
                 raise ValueError("packer did not produce every scored probe")
             valid = set()
-        # What the statistics need to apply their own exclusions (D2).
+        # What the statistics need to apply their own exclusions.
         ledger = json.loads((run / "ledger.json").read_text())
         audit["skipped_steps"] = {
             sid: (row.get("summary") or {}).get("skip_reason")

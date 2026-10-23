@@ -444,7 +444,7 @@ def test_record_adapter_write_commit_advances_only_on_commit() -> None:
 
 
 # ---------------------------------------------------------------------------
-# `outcome=` on `[ix_selection]`, and F1's payload-argument rule
+# `outcome=` on `[ix_selection]`, and the payload-argument rule
 # ---------------------------------------------------------------------------
 
 def test_ix_selection_outcome_comes_from_the_call_record() -> None:
@@ -558,9 +558,9 @@ _RENDER_CALL = {
 
 
 def test_an_executed_payload_call_keeps_the_text_it_delivered() -> None:
-    # F1 (owner ruling 2026-09-13). The arguments of a released `IX_render_*`
-    # call are the delivered text, and item #5 rules the act and its arguments
-    # IN. Blanking them by tool name dropped what the PA actually said.
+    # The arguments of a released `IX_render_*` call are the delivered text,
+    # and the act and its arguments are IN. Blanking them by tool name dropped
+    # what the PA actually said.
     pool = build_turn_pool(
         [_RENDER_CALL],
         ix_payload_status=(
@@ -576,7 +576,7 @@ def test_an_executed_payload_call_keeps_the_text_it_delivered() -> None:
 
 
 def test_a_payload_call_is_blanked_while_the_turn_still_holds_something() -> None:
-    # O4: held prose stays out at hold time. The status is per turn, so one
+    # Held prose stays out at hold time. The status is per turn, so one
     # held item blanks the turn's payload arguments; the act is still recorded.
     pool = build_turn_pool(
         [_RENDER_CALL],
@@ -592,7 +592,7 @@ def test_a_payload_call_is_blanked_while_the_turn_still_holds_something() -> Non
 
 
 def test_a_cancelled_payload_is_blanked_even_though_nothing_is_still_held() -> None:
-    """F1(c): an empty `held_not_released` does not mean "delivered".
+    """An empty `held_not_released` does not mean "delivered".
 
     A forced close *empties* the hold by cancelling what was in it,
     so on the cancelling turn the status reads `held_not_released:
@@ -657,7 +657,7 @@ def test_a_raw_payload_echo_is_replaced_by_the_turn_status() -> None:
 
 def test_the_wrapper_carrier_fields_never_reach_a_tool_call_block() -> None:
     # Carrier C is wrapper state, stripped before the real tool runs
-    # (`pa/agent/runner.py:3739-3743`). It exists only because a benchmark
+    # (`pa/agent/runner.py:3736-3740`). It exists only because a benchmark
     # enforces the IX contract, so it is not experience.
     from pa.agent.ix.render_types import PER_CALL_INJECTED_FIELDS
 
@@ -746,7 +746,7 @@ def test_nothing_delivered_writes_a_no_reply_block_with_a_non_empty_content() ->
 
 
 def test_the_delivered_reply_is_public_turn_and_never_the_raw_prose() -> None:
-    # Q3: the pre-render text is the wrapper's input, not a delivered act, so
+    # The pre-render text is the wrapper's input, not a delivered act, so
     # the final iteration contributes its reasoning and nothing else.
     pool = build_turn_pool(
         [
@@ -835,7 +835,7 @@ async def test_a_given_pool_is_written_verbatim_and_never_rebuilt(
             {"role": "user", "content": spoken.body},
             {
                 "role": "assistant",
-                # Spelled out, not built with the renderer under test (F5).
+                # Spelled out, not built with the renderer under test.
                 "content": (
                     '[third_party source_kind=third_party'
                     ' source_id="Glenmont Trail Office" offset=90]\n'

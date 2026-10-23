@@ -57,7 +57,7 @@ AUTHORED_ARTIFACT_KINDS = frozenset({"normal_session", "probe_session"})
 
 
 def _validate_forced_transcript(path: Path) -> None:
-    """D5: the forced-event transcript passes its schema and source checks now, at freeze.
+    """The forced-event transcript passes its schema and source checks now, at freeze.
 
     `harness.forced_event_schema.validate_forced_event_transcript` in process:
     schema and the sources the transcript names. A failing transcript is not
@@ -493,7 +493,7 @@ def _validate_probe_draft(
     *,
     gt_pairs: Mapping[str, PreEvent] | None = None,
 ) -> FrozenProbeOverlay:
-    """D5: the probe's fixture overlay is settled now, at freeze.
+    """The probe's fixture overlay is settled now, at freeze.
 
     The overlay the probe will run over is resolved the one shared way (for a
     final a pre_event probe pairs with, the pre's `fixture/`), and the drafts'

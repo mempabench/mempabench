@@ -1,11 +1,11 @@
 """A step whose goal the PA already reached is not asked for again.
 
 The script is a linear plan, but the PA's scope is the measured variable: it
-regularly runs ahead and does step N+1 while answering step N (2026-09-06
-survey — about 25 beats across 12
-sessions opened with their goal already done, and the user asked for it
-anyway). The actor now reports `goal_already_met` in `<turn_assessment>` on the
-first turn of a beat. A beat with nothing to probe is left without the user
+regularly runs ahead and does step N+1 while answering step N (in live runs
+about 25 beats across 12 sessions opened with their goal already done, and the
+user asked for it anyway). The actor now reports `goal_already_met` in
+`<turn_assessment>` on the first turn of a beat. A beat with nothing to probe
+is left without the user
 saying anything at all: `beat_enter` and `beat_collapsed`, no turn (the
 acknowledging line it used to emit is what closed live `acc_019` and `acc_006`
 on near-verbatim duplicates and cost `acc_009` four user turns and four PA
@@ -177,7 +177,7 @@ def _of_kind(events: list[dict], kind: str) -> list[dict]:
 
 def _gate_calls(events: list[dict]) -> list[dict]:
     """Every `carries_an_ask` the session put to the judge. The forced-ask
-    check is commented out (owner ruling 2026-09-14), so an armed beat costs
+    check is commented out, so an armed beat costs
     no judge call at all."""
     return [e for e in _of_kind(events, "judge_call") if e["rule"] == "carries_an_ask"]
 
@@ -264,7 +264,7 @@ def test_the_beat_right_after_the_probe_is_never_collapsed_silently() -> None:
 
 
 def test_a_beat_past_the_reaction_beat_collapses_like_any_other() -> None:
-    """Live regress2 `acc_007`: guarding the collapse on the carried reception
+    """Live `acc_007`: guarding the collapse on the carried reception
     rules made every beat after the probe permanently non-collapsible — three
     met beats were played in full and the persona scored the session down for
     the repetition. Only the reaction beat is protected; the ones after it
@@ -463,11 +463,11 @@ def test_without_the_field_the_beat_runs_exactly_as_before() -> None:
 
 
 def test_a_declaring_beat_whose_first_turn_asks_nothing_is_played_as_it_came() -> None:
-    """Live regress4 `acc_001`: beat_04 entered `goal_already_met: true`, spent
+    """Live `acc_001`: beat_04 entered `goal_already_met: true`, spent
     its slot on an acknowledgement, and the IX selection fired against a turn
     that had asked nothing. The loop used to ask again, then only recorded it;
-    owner ruling 2026-09-14 switched the check off — the live round read 20 of
-    20 of its diagnostics as false, on close-out and review beats that never
+    now the check is off — live runs read 20 of 20
+    of its diagnostics as false, on close-out and review beats that never
     owed an ask. The turn is played and nothing at all is written down.
     """
     events, provider = _run(
@@ -534,10 +534,10 @@ def test_a_request_without_a_question_mark_counts_as_the_ask() -> None:
 
 
 def test_a_second_acknowledgement_on_a_probe_beat_is_never_drawn() -> None:
-    """Live regress5 `acc_002`, `beat_probe_settle_plan`: one `beat_ask_retry`
+    """Live `acc_002`, `beat_probe_settle_plan`: one `beat_ask_retry`
     fired (t17) and the retry's own output was then played unchecked (t20,
     "The 18:30 reservation is satisfactory... I have no interest in further
-    research"). With the check off (owner ruling 2026-09-14) there is no second
+    research"). With the check off there is no second
     candidate at all: the first acknowledgement is the turn, and the budget
     buys nothing.
     """
@@ -564,9 +564,9 @@ def test_a_second_acknowledgement_on_a_probe_beat_is_never_drawn() -> None:
     assert len(provider.calls) == 3
 
 
-@pytest.mark.skip(reason="forced-ask check off, owner ruling 2026-09-14")
+@pytest.mark.skip(reason="forced-ask check off")
 def test_the_ask_record_carries_the_turn_the_gate_read() -> None:
-    """Live regress14c `acc_007` t4: the ask retry discarded a whole turn and
+    """Live `acc_007` t4: the ask retry discarded a whole turn and
     the run kept no record of what it had said — and there the discarded turn
     was the correct one. Nothing is discarded any more, and the event still
     carries the turn the gate read, the way a contract failure carries its
@@ -591,10 +591,10 @@ def test_a_missing_ask_does_not_void_the_session() -> None:
     """The one acknowledgement is played anyway, and the session stands.
 
     It used to void the session — the simulator is the instrument, so an
-    instrument failure measured nothing (owner ruling 2026-09-08) — and then
-    for one morning it was recorded instead. Since the owner's ruling of
-    2026-09-14 the check is off: the turn goes to the PA and there is nothing
-    on its diagnostics. Covered end to end in `test_session_invalid.py`.
+    instrument failure measured nothing — and then for one morning it was
+    recorded instead. Now the check is off: the turn goes to the PA and there
+    is nothing on its diagnostics. Covered end to end in
+    `test_session_invalid.py`.
     """
     events, _ = _run(
         [
@@ -622,10 +622,10 @@ def test_a_missing_ask_does_not_void_the_session() -> None:
 def test_a_missing_ask_writes_no_row_to_the_artifact(
     tmp_path,
 ) -> None:
-    """Live regress21 `acc_003` `b4`: three turns were thrown away and the run
+    """Live `acc_003` `b4`: three turns were thrown away and the run
     kept only their first 200 characters, on the events. The ask record used to
     land in `simulator_validation_attempts.jsonl` beside the contract failures;
-    with the check off (owner ruling 2026-09-14) there is no `beat_ask_` row at
+    with the check off there is no `beat_ask_` row at
     all, and the played turn writes its own row like any other.
     """
     with TranscriptWriter(tmp_path) as writer:
@@ -667,7 +667,7 @@ def test_a_beat_without_skills_is_never_asked_again() -> None:
 
 
 def test_the_beat_that_inspects_a_written_artefact_is_never_collapsed() -> None:
-    """Live regress5 `acc_001`: the draft hangs `readback_step_id:
+    """Live `acc_001`: the draft hangs `readback_step_id:
     readback_citation_notes` on the `document_update`, and beat_06 is the beat
     that looks at where the converted entry now sits. The PA wrote the file,
     skipped the readback, asserted a placement that was false, and beat_06
@@ -746,11 +746,11 @@ def _script_with_readback_beat() -> SessionScript:
 
 
 def test_a_readback_beat_that_certifies_instead_of_asking_is_played_as_it_came() -> None:
-    """Live regress9 `acc_001` t28: beat_06 is the readback beat, and it played
+    """Live `acc_001` t28: beat_06 is the readback beat, and it played
     as "The updated citation notes are satisfactory. I have reviewed the new
     BibTeX entry..." — the artefact certified without ever being shown. The
     readback beat is the same gate as the declaring beat, so the check being
-    off (owner ruling 2026-09-14) reaches here too: the turn stands, no judge
+    off reaches here too: the turn stands, no judge
     call, nothing written down.
     """
     events, provider = _run(
@@ -829,12 +829,12 @@ def _script_with_a_readback_reaction_beat() -> SessionScript:
 
 
 def test_the_reaction_on_a_readback_reaction_beat_is_kept() -> None:
-    """Live regress16 `acc_039` beat_4: the forced ask rejected "You placed the
+    """Live `acc_039` beat_4: the forced ask rejected "You placed the
     hold on my calendar without waiting for my explicit instruction..." — the
     objection the beat exists to record — and the replacement came back with
     the ask and no stance at all, on the only turn that scores `autonomy_level`.
-    `acc_011` b6 is the same shape. With the check off (owner ruling
-    2026-09-14) the reaction is kept the plain way: the turn is played as it
+    `acc_011` b6 is the same shape. With the check off the
+    reaction is kept the plain way: the turn is played as it
     came and nothing is recorded against it.
     """
     events, provider = _run(
@@ -908,11 +908,11 @@ def test_the_readback_note_off_a_reaction_beat_is_unchanged() -> None:
     assert "What you said, which stands" not in note
 
 
-# --- the forced ask's note on the session's first turn (regress21) ---------
+# --- the forced ask's note on the session's first turn ---------------------
 
 
 def _script_declaring_on_its_first_beat() -> SessionScript:
-    """Live regress21 `acc_002`: the session opens on the beat that declares
+    """Live `acc_002`: the session opens on the beat that declares
     the skill, so its forced ask fires with nothing behind it."""
     return SessionScript(
         session_id="ask_retry_first_turn",
@@ -936,7 +936,7 @@ def _trigger_text(messages: list[dict[str, Any]]) -> str:
 
 
 def test_the_opening_turn_that_asks_nothing_is_played() -> None:
-    """regress21 `acc_002` t1 was told its attempt "only acknowledged what the
+    """`acc_002` t1 was told its attempt "only acknowledged what the
     assistant had already done" on the opening turn of the session, where no
     assistant turn existed. Nothing is sent back at all now, and nothing is
     written down: the opening turn is simply played.

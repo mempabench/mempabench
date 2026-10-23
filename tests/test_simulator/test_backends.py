@@ -1002,7 +1002,7 @@ def test_nanobot_runner_still_fails_on_hard_finding_at_last_attempt() -> None:
 
 
 def test_nanobot_runner_records_an_invented_path_and_plays_the_turn() -> None:
-    """Owner ruling 2026-09-14 ("只记"): `names_a_file_you_do_not_know` is a
+    """`names_a_file_you_do_not_know` is a
     judgement about the turn, so it is recorded and the turn is played."""
 
     async def run():
@@ -1148,7 +1148,7 @@ def test_accepted_turn_carries_its_diagnostics_on_the_clean_path() -> None:
 def test_accepted_turn_carries_its_diagnostics_when_the_style_budget_runs_out() -> None:
     """Accept path 2 of 3: a style finding is played on the last attempt.
 
-    This is the regress12 acc_003 t15 shape — the retry was for a style
+    This is the live acc_003 t15 shape — the retry was for a style
     finding and the diagnostic rode through it.
     """
     async def run():
@@ -1179,7 +1179,7 @@ def test_a_format_invalid_turn_is_refused_once_the_budget_is_spent() -> None:
     A three-block output that never parsed was played on its parse fallback:
     the recovered message, and a `next_beat` the actor never wrote. The
     simulator is the instrument, so it is refused and the session loop turns
-    the raise into an invalid session (owner ruling 2026-09-08).
+    the raise into an invalid session.
     """
     async def run():
         malformed = f"<message>{_MISQUOTE_ONE_LINER}</message>"
@@ -1258,7 +1258,7 @@ def _fact_session(beat: Beat) -> SessionScript:
 
 
 def test_a_style_retry_note_names_the_facts_the_step_still_owes() -> None:
-    """regress15 `acc_002`: attempt 3 bought its way under the style cap by
+    """`acc_002`: attempt 3 bought its way under the style cap by
     cutting the facts the beat existed to deliver. The style note now says which
     ones the step still owes, and it comes after the style hint, not instead."""
 
@@ -1282,7 +1282,7 @@ def test_a_style_retry_note_names_the_facts_the_step_still_owes() -> None:
             if "private output contract" in str(message["content"])
         )
         assert "over 35 words" in note
-        # The value, not the bare key: regress17 `acc_002` had the key
+        # The value, not the bare key: live `acc_002` had the key
         # `marcus_available_from` and wrote "you are available from 18:00".
         assert note.endswith("This step must still say student_name: Farid Rahimi.")
         assert "still say student_name." not in note
@@ -1300,7 +1300,7 @@ _LONG_SENTENCE_WITH_THE_FACT = (
 
 
 def test_a_style_retry_note_quotes_the_sentence_that_already_carries_the_fact():
-    """Naming the value was not enough. regress18 `acc_002` t4 had the note with
+    """Naming the value was not enough. Live `acc_002` t4 had the note with
     `marcus_available_from: Marcus is free from 18:00` spelled out and the
     shortened rewrite still turned it into "you are available from 18:00". So
     the note quotes back the rejected attempt's own sentence and says the cut
@@ -1351,10 +1351,10 @@ def _fact_judge() -> JudgeSession:
 
 
 def test_a_turn_that_leaves_out_a_revealed_fact_is_recorded_not_said_again() -> None:
-    """Hard from 2026-09-13 to 2026-09-14, a diagnostic on either side of it.
+    """A diagnostic, not a hard finding.
 
     Record-only, so the first attempt plays and the key the judge named stays
-    on the row: regress21 `acc_027` recorded the diagnostic twice with no key
+    on the row: live `acc_027` recorded the diagnostic twice with no key
     and both reads re-derived them by hand.
     """
 
@@ -1393,7 +1393,7 @@ def test_a_turn_that_leaves_out_a_revealed_fact_is_recorded_not_said_again() -> 
 def test_a_fact_still_missing_is_recorded_and_the_session_plays(
     tmp_path: Path,
 ) -> None:
-    """It used to void the session (owner ruling 2026-09-13). Record-only:
+    """It used to void the session. Record-only:
     the turn reaches the assistant and the rule reaches the artefact the reader
     opens, with the keys it fired on."""
 
@@ -1443,8 +1443,8 @@ def test_a_fact_still_missing_is_recorded_and_the_session_plays(
 def test_with_the_judge_off_a_missing_probe_fact_is_not_checked(
     make_judge, tmp_path: Path
 ) -> None:
-    """The rule is the judge's alone, and the hard finding of
-    2026-09-13 did not change that: with no judge, or one that is off, the same
+    """The rule is the judge's alone, and making it a hard
+    finding did not change that: with no judge, or one that is off, the same
     turn that the judge sends back is played as it stands on its first attempt.
     """
 
@@ -1490,7 +1490,7 @@ def test_with_the_judge_off_a_missing_probe_fact_is_not_checked(
 def test_a_revealed_fact_is_not_owed_until_the_pa_asks_for_it() -> None:
     """A probe beat hands its `reveal_at` facts over on request only, so the
     same turn before any PA question is the draft working, not a defect —
-    regress17 `acc_009` fired five times on turns whose `avoid` forbade
+    live `acc_009` fired five times on turns whose `avoid` forbade
     volunteering the fact."""
 
     async def run():
@@ -1511,10 +1511,10 @@ def test_a_revealed_fact_is_not_owed_until_the_pa_asks_for_it() -> None:
     asyncio.run(run())
 
 
-# --- history entries carry the transcript `t` (regress21) ------------------
+# --- history entries carry the transcript `t` ------------------------------
 #
 # An evidence row indexes `history`; a reader holds `transcript.jsonl`, whose
-# `t` counts events. Six regress21 reads took one for the other. The loop
+# `t` counts events. Six live reads took one for the other. The loop
 # stamps each history entry with the `t` of the event that carried it, and the
 # reflection event says which of the two its `turn` counts.
 

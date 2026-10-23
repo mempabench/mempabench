@@ -1,6 +1,6 @@
 """The judge inside the ladder: mode, the void door, and the two other sites.
 
-Phase 2 is the wiring, so nothing here calls Ollama. The judge is a scripted
+These tests cover the wiring, so nothing here calls Ollama. The judge is a scripted
 client that answers whatever it is asked, which is enough to pin the two
 things the wiring decides: `off` leaves the judge's rules unchecked, and `live`
 hands each of them to the judge.
@@ -120,7 +120,7 @@ def _script_with_a_fact() -> SessionScript:
     """The same session, with a fact the opening beat has to say.
 
     The forced-ask check used to be the loop's only judge call and it is
-    commented out (owner ruling 2026-09-14), so a session that has to reach the
+    commented out, so a session that has to reach the
     judge through the loop needs a per-turn rule instead: `probe_fact_missing`
     is asked on any beat with a required fact value.
     """
@@ -200,7 +200,7 @@ def test_the_judge_answers_the_gate_and_an_ask_it_reads_is_played() -> None:
     assert len(provider.calls) == 3
 
 
-@pytest.mark.skip(reason="forced-ask check off, owner ruling 2026-09-14")
+@pytest.mark.skip(reason="forced-ask check off")
 def test_the_judge_can_read_no_ask_and_the_row_carries_its_evidence() -> None:
     client = ScriptedJudgeClient(
         {
@@ -216,7 +216,7 @@ def test_the_judge_can_read_no_ask_and_the_row_carries_its_evidence() -> None:
     writer = _RecordingWriter()
     events, _ = _run([*BASE_TURNS, _turn(AN_ASK), _turn(AN_ASK)], judge, writer)
 
-    # Record-only, owner ruling 2026-09-14 ("只记"): the gate reads the turn
+    # Record-only: the gate reads the turn
     # once and the turn is played whatever it reads.
     assert _of_kind(events, "beat_ask_retry") == []
     assert [
@@ -233,7 +233,7 @@ def test_the_judge_can_read_no_ask_and_the_row_carries_its_evidence() -> None:
 
 
 def test_the_gate_is_never_asked_through_the_loop() -> None:
-    """Owner ruling 2026-09-14: the forced-ask check is commented out, so the
+    """The forced-ask check is commented out, so the
     armed beat costs no judge call at all — the ~13 s the gate spent per
     readback beat is the whole point — and the turn is played as it came."""
     client = ScriptedJudgeClient({"carries_an_ask": ("ask", "where do we eat instead")})
@@ -264,7 +264,7 @@ def test_the_judge_call_event_names_the_box_that_answered() -> None:
 def test_the_judge_call_event_carries_the_evidence_and_the_reason() -> None:
     """`verdicts` says what was answered; `answers` says what it pointed at.
 
-    regress22 acc_007 voided on four `violated` answers whose sentence nobody
+    acc_007 voided on four `violated` answers whose sentence nobody
     could name afterwards: the event kept the verdict alone. Both fields are on
     the record now, the quote untruncated.
     """
@@ -322,8 +322,8 @@ def test_an_unparseable_reply_voids_the_session() -> None:
 
 def test_evidence_that_points_nowhere_releases_the_turn() -> None:
     """Twice unable to give a reference that resolves, the answer is not
-    substantiated: the event is recorded and the turn goes through (owner
-    ruling 2026-09-09). The session is NOT void — that is for a judge that
+    substantiated: the event is recorded and the turn goes through.
+    The session is NOT void — that is for a judge that
     cannot be read at all."""
     judge, seen = _void_judge(
         ScriptedJudgeClient({"carries_an_ask": ("ask", "words this turn never said")})
@@ -356,8 +356,8 @@ def test_a_released_group_answers_the_rules_non_fired_value() -> None:
         fact_values={"venue": "the place on Mill Street"},
     )
     for rule, released in (
-        # Commented out, owner ruling 2026-09-13 ("先comment"): the rule is not
-        # asked this round; gold, prompt and builder stay. It is out of the
+        # Commented out: the rule is not asked; gold, prompt and builder
+        # stay. It is out of the
         # catalogue, so `judge.judge` no longer has a spec for it.
         # ("reaction_states_future_policy", False),
         ("probe_fact_missing", []),
@@ -619,13 +619,12 @@ def test_preflight_passes_on_a_probe_that_parses(monkeypatch) -> None:
 
 # -------------------------------------------------------------- the gate rule
 #
-# Phase 3 commit 3, merged into one rule on the owner's
-# ruling of 2026-09-09. The semantic regex went in that commit, so the judge is
+# One rule, with no semantic regex, so the judge is
 # the only thing that can produce the finding: `off` produces it on neither arm
 # of the union, and on both it is the judge's answer composed against the
 # harness's own arming.
 #
-# Owner ruling 2026-09-14: the judge half is commented out at the call site
+# The judge half is commented out at the call site
 # (`simulator/agent/loop.py`), so neither arm is asked any more. What is left is
 # the code half — `missing_key_terms()` before the reveal beat — and the three
 # tests below are what the simulator side does now. The catalogue builder, the
@@ -636,7 +635,7 @@ GATE_TEXT = (
     "the chest tightening when I take the stairs in the mornings, which began "
     "about three weeks ago"
 )
-# The pre-reveal invention: live `check039` `acc_039` t12, on the beat before
+# The pre-reveal invention: live `acc_039` t12, on the beat before
 # the reveal, supplying a reason the actor does not hold yet.
 INVENTED_REASON = "The reason for the visit is a routine preventive checkup."
 # The dictation itself, delivered on the reveal beat with every gate term in it.
@@ -652,7 +651,7 @@ PRE_REVEAL_KEY_TERMS = "Chest tightening on the stairs, three weeks now."
 
 def _withheld_questions(client: ScriptedJudgeClient) -> list[str]:
     """The gate rule's question ids the client was asked — none, since the
-    owner's ruling of 2026-09-14."""
+    judge half is commented out."""
     return [
         question
         for question in _asked(client)
@@ -729,7 +728,7 @@ def test_invented_pre_reveal_wording_is_no_longer_judged() -> None:
     The code has no delivery to count here — the gate terms are missing — and
     `q_handed` was the only thing that could say the turn handed something over,
     so nothing is asked and nothing is recorded. 29/29 of that question's live
-    verdicts were false, which is what the ruling turned it off for.
+    verdicts were false, which is why it is off.
     """
     client = ScriptedJudgeClient(
         {
@@ -756,7 +755,7 @@ def test_the_on_request_window_is_no_longer_armed() -> None:
     exemptions that used to decide it were questions of the judge's. Nothing is
     asked and nothing is recorded — the code half runs before the reveal beat
     alone."""
-    # The fact rule, hard since 2026-09-13, would otherwise end this turn on a
+    # The fact rule, a hard one, would otherwise end this turn on a
     # rule the test is not about — and this turn does say the reason, so `yes`
     # is the honest answer.
     client = ScriptedJudgeClient(
@@ -874,7 +873,7 @@ CLEAN_TURN = "Marcus has written. What does his message say?"
 
 def test_the_general_form_is_not_called_with_the_judge_off(monkeypatch) -> None:
     """Mode off is still the default, and the beat's own direction is judged by
-    nobody: the turn that breaks `avoid` is played, exactly as before Phase 3."""
+    nobody: the turn that breaks `avoid` is played, exactly as without the judge."""
     monkeypatch.delenv("MEMPA_JUDGE", raising=False)
     client = ScriptedJudgeClient()
     events, _ = _run_general(
@@ -905,9 +904,8 @@ def test_every_avoid_clause_is_asked_on_its_own() -> None:
 
 
 def test_an_avoid_clause_the_turn_breaks_is_recorded_and_never_a_finding() -> None:
-    """Non-blocking, judge-line decision 2026-09-14 (live FP watch: 32/33 false
-    positives): judged and recorded, never a finding, until `_AVOID_LEAD` is
-    fixed and replayed.
+    """Non-blocking (32/33 false positives in live runs): judged and recorded,
+    never a finding, until `_AVOID_LEAD` is fixed and replayed.
 
     The clause is still asked on its own and its `judge_call` row still carries
     the `violated`; what changed is the consequence — no rewrite, no retry note.
@@ -952,7 +950,7 @@ def test_an_avoid_clause_the_turn_breaks_is_recorded_and_never_a_finding() -> No
 def test_a_repeated_avoid_violation_never_spends_an_attempt() -> None:
     """What `PLAYED_AFTER_BUDGET` used to cover: the turn is played anyway.
 
-    Non-blocking since 2026-09-14, so it is played without spending the budget
+    Non-blocking, so it is played without spending the budget
     at all — one provider call per beat, no `session_invalid`, and the rule
     recorded on the beat that broke it.
     """
@@ -1028,7 +1026,7 @@ def test_an_unmeasured_rule_is_asked_and_decides_nothing(monkeypatch):
     assert advisory == {"rule": "reaction_names_setting", "composed": True}
 
 
-@pytest.mark.skip(reason="future_policy commented out, owner ruling 2026-09-13")
+@pytest.mark.skip(reason="future_policy commented out")
 def test_a_measured_rule_still_decides(monkeypatch):
     from simulator.judge import session as judge_session
 
@@ -1100,7 +1098,7 @@ def test_a_blocking_judge_call_leaves_the_event_loop_running(site: str) -> None:
     Every armed site goes out through `asyncio.to_thread`, so a sibling
     coroutine gets to run while the call is out -- and it is the sibling that
     releases it, which is why the order is the assertion and the clock is not.
-    The reaction site takes the same wrap and has no armed rule this round
+    The reaction site takes the same wrap and has no armed rule
     (`reaction_states_future_policy` is commented out), so nothing here drives
     it.
     """

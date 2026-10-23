@@ -333,7 +333,7 @@ def has_pending_interaction_from_ix_render(ix_render: Mapping[str, Any]) -> bool
 def reply_facts_from_ix_render(ix_render: Mapping[str, Any]) -> dict[str, Any]:
     """The wrapper-side half of the actor's record of the delivered reply.
 
-    Owner ruling 2026-09-17: the simulated user is told how many progress
+    The simulated user is told how many progress
     lines and whether a closing line were delivered, and whether bracketed
     confidence tags appeared, so a reaction keyed on those can be chosen from
     fact rather than from the reply's self-description. Counts and flags off
@@ -492,7 +492,7 @@ class RecordingPA:
         metadata["has_pending_interaction"] = has_pending_interaction_from_ix_render(
             ix_render
         )
-        # The actor's record of the delivered reply (owner 2026-09-17): three
+        # The actor's record of the delivered reply: three
         # counts/flags off what went out, never what was held.
         metadata["reply_facts"] = reply_facts_from_ix_render(ix_render)
         return outbound
@@ -513,14 +513,14 @@ class OpenHoldEpisodeError(RuntimeError):
     carried an open hold would restore into a session whose PA is waiting on a
     confirmation nobody will ever give.
 
-    "Waiting on a confirmation" is the whole of it, and owner ruling 2026-09-18
-    holds the wrapper to it: what makes an episode open is an item the user
+    "Waiting on a confirmation" is the whole of it, and the wrapper is held
+    to it: what makes an episode open is an item the user
     still owes an answer on -- an autonomy ask, a held question, an undelivered
     batch, a call waiting for its release. A *delivered* `handoff_message` is
     the opposite: the PA has handed control back and is waiting for nothing, so
     `capability_boundary` closes on that turn (`pa/agent/ix/render.py`,
     `_next_hold`) instead of being carried into a turn a compressed session
-    never has. Nothing else changed: any episode that really is waiting still
+    never has. Any episode that really is waiting still
     fails the step here, on the mainline. A probe step is the one place a
     still-open episode is recorded rather than raised -- it runs in its own
     branch and publishes no checkpoint (`harness/orchestrator.py`,

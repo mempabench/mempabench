@@ -555,7 +555,7 @@ class TestMem0Registry:
 
 # ── Chunked writes: a turn pool against mem0's embedding input cap ──
 #
-# The 2026-09-14 `mem0` smoke died on the first
+# A `mem0` smoke run died on the first
 # adapter write of `acc_001` with a 400 from the embeddings endpoint: on the
 # `infer=True` path mem0 embeds the whole pool as ONE input
 # (`mem0/memory/main.py:822-825`) and an ACC turn pool runs ~10k tokens
@@ -724,7 +724,7 @@ async def test_a_blocking_search_leaves_the_event_loop_running() -> None:
 # own content (`mem0/memory/main.py:722-723`), not the `parse_messages`
 # concatenation, so message-boundary chunking never applied to it and a single
 # over-cap message was the one thing it could not write. That killed
-# `ub_simple_rag_glm_5_3_flash_20260918` twice on 2026-09-18 — at
+# a live simple_rag run twice — at
 # `acc_014:beat_clarify_task:t1` (one 8291-token assistant message: an 8180-
 # token `[reasoning]` block plus three `[tool_call]` blocks) and at
 # `acc_017:request_dance_spot:t0` (8567 tokens: a 4849-token `[reasoning]`
@@ -854,8 +854,7 @@ async def test_simple_rag_cuts_inside_a_single_over_cap_line() -> None:
 
 # ── Boundary checks: measured pieces, no whitespace-only record ──
 #
-# Two risks the review of `3c451e0b` named, both reproduced against that
-# commit before this one:
+# Two risks, both reproduced before they were fixed:
 #
 #   * `_longest_fitting_prefix` bisected on the assumption that a prefix's
 #     token count grows with its length. No tokenizer promises that, and the
@@ -976,7 +975,7 @@ def test_content_that_cannot_be_cut_without_a_blank_record_is_an_error() -> None
 #
 # `_chunks_that_fit_the_embedding_input` batches at message boundaries, so a
 # message that alone exceeds the budget was a hard error there — the same
-# shape that killed `simple_rag` twice on 2026-09-18, and the one pool the
+# shape that killed `simple_rag` twice, and the one pool the
 # `mem0` condition could not write either. `message_split_v1` cuts that one
 # message into consecutive, non-overlapping sub-messages first and leaves the
 # batching alone.

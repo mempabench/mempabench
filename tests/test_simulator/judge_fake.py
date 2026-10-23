@@ -15,12 +15,12 @@ else entirely and only have to get past the ask gate:
   asked about: a scripted verdict is about one candidate turn, and the retry
   that removed the offending words is a different one.
 
-A test still writes the WORDS it wants pointed at. Since the owner's ruling of
-2026-09-09 the judge answers with a reference (`candidate_turn#2`) into blocks
-printed with their sentences numbered, so `_reference` looks the scripted words
-up in the prompt and answers with the number in front of them — which is what
-the model does. Words that are nowhere in the prompt go out unchanged, so a
-test can still script the answer the guard has to refuse.
+A test still writes the WORDS it wants pointed at. The judge answers with a
+reference (`candidate_turn#2`) into blocks printed with their sentences
+numbered, so `_reference` looks the scripted words up in the prompt and answers
+with the number in front of them — which is what the model does. Words that are
+nowhere in the prompt go out unchanged, so a test can still script the answer
+the guard has to refuse.
 """
 
 from __future__ import annotations

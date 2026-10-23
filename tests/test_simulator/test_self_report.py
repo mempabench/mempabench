@@ -233,7 +233,7 @@ def test_empty_response_retries_before_parsing(
     asyncio.run(run())
 
 
-# --- reflection evidence (owner ruling 2026-09-08) -------------------------
+# --- reflection evidence ---------------------------------------------------
 #
 # No checker judges what the reflection says. The evidence block only has to
 # show that every claim carries a row and that the words it quotes were
@@ -551,7 +551,7 @@ def test_a_quote_with_a_colon_and_an_apostrophe_is_copied_verbatim() -> None:
 
 
 def test_evidence_findings_are_recorded_on_the_first_attempt_without_a_re_ask() -> None:
-    """Record-only since the owner's ruling of 2026-09-14: an evidence finding
+    """Record-only: an evidence finding
     used to spend the retry budget first and only be recorded once it was gone.
     The first parse returns, the finding rides on the result, and the
     reflection costs one call."""
@@ -602,7 +602,7 @@ def test_valid_evidence_is_carried_on_the_result() -> None:
     asyncio.run(run())
 
 
-# --- token budget on the session-end call (regress21, 2026-09-09) ----------
+# --- token budget on the session-end call ----------------------------------
 #
 # google/gemini-3.8-flash spends its thinking tokens inside `max_tokens`; on
 # the provider default of 4096 the reflection came back cut mid-block on 7 of
@@ -647,7 +647,7 @@ def test_a_cut_response_records_finish_reason_and_usage_on_the_attempt() -> None
     asyncio.run(run())
 
 
-# --- 8192 was hit too (user_b round, 2026-09-14) ---------------------------
+# --- 8192 was hit too (user_b runs) ----------------------------------------
 #
 # 6 session-end calls came back at completion_tokens=8188 with
 # finish_reason=length; on 5 of them the last block, `<reflection_evidence>`,
@@ -727,7 +727,7 @@ def test_a_clean_accepted_reflection_records_no_row() -> None:
 # --- the row names the transcript `t` as well as the history index ---------
 #
 # `turn` counts positions in the rendered history, which is what the reflection
-# prompt numbers. Six regress21 reads (`acc_002`, `acc_004`, `acc_009`,
+# prompt numbers. Six live reads (`acc_002`, `acc_004`, `acc_009`,
 # `acc_011`, `acc_019`, `acc_023`) read it as the transcript `t` and called
 # correct rows off by one. The row now carries both.
 
@@ -776,7 +776,7 @@ def test_an_unstamped_or_out_of_range_turn_leaves_the_transcript_t_empty() -> No
     asyncio.run(run())
 
 
-# --- a quoted span is not a sentence boundary (regress21 `acc_019`) --------
+# --- a quoted span is not a sentence boundary (`acc_019`) ------------------
 #
 # Attempt 2 was rejected `reflection_evidence_uncovered` with every claim
 # covered: the claim quoted the PA back, the quotation carried a full stop, and

@@ -121,7 +121,7 @@ ASSISTANT_LLM_PROVIDER_NAME = "openrouter"
 PROMPT_WORKSPACE_ENV = "NANOBOT_PROMPT_WORKSPACE"
 
 #: The PA's persona file, written once per run into the workspace. The second
-#: sentence is round-1's acc_006 finding: a turn with no tool call at all
+#: sentence comes from acc_006: a turn with no tool call at all
 #: reported three citation merges as done, and the claim was then consolidated
 #: into the memory artefact as fact.
 SOUL_TEXT = (
@@ -849,7 +849,7 @@ def _parse_only_steps(value: str | None) -> frozenset[str] | None:
     return step_ids
 
 
-#: Every condition, MemOS included (owner ruling 2026-09-20), accepts four
+#: Every condition, MemOS included, accepts four
 #: independent probe branches. Mainline steps remain sequential.
 PROBE_CONCURRENCY_CAP = 4
 
@@ -903,7 +903,7 @@ def _probe_pa_max_tokens(args: argparse.Namespace, plan: RunPlan, step: Any, run
         "schema": "mempa_pa_output_cap_override/1", "field": "pa_max_tokens", "step_id": step.step_id,
         "base_pa_max_tokens": plan.pa_max_tokens, "effective_pa_max_tokens": tokens, "pid": os.getpid(),
         "recorded_at": datetime.now(timezone.utc).isoformat(),
-        "rule": "user 2026-09-23: plan cap by default; a probe stuck at it may be retried with a higher cap, at most 3x the plan cap",
+        "rule": "plan cap by default; a probe stuck at it may be retried with a higher cap, at most 3x the plan cap",
     }, indent=2) + "\n")
     return tokens
 
@@ -998,8 +998,7 @@ def _acc_names_from_list(acc_list: str) -> list[str]:
 
 
 class GracefulStop:
-    """SIGTERM / SIGINT: finish the step in flight, then stop (owner ruling
-    2026-09-14).
+    """SIGTERM / SIGINT: finish the step in flight, then stop.
 
     A mid-run code roll used to mean watching the log and killing the process
     in the gap between two sessions — miss the gap and the step that was
@@ -1096,7 +1095,7 @@ class MainlinePACheckpointHandle:
     a `SessionManager` of its own, and a run that starts or resumes at one
     never binds anything. So the handle is created around a mainline PA over
     the mainline workspace, and `checkpoint_session()` re-reads the file rather
-    than trusting whichever cache it is holding (R8).
+    than trusting whichever cache it is holding.
     """
 
     def __init__(self, session_key: str, mainline_pa: Any) -> None:
@@ -1125,7 +1124,7 @@ class MainlinePACheckpointHandle:
         # the forced executor per exchange -- but each holds its own
         # `SessionManager`. Reading the bound PA's cache would hand the cut
         # point a session from before the last forced event and then save it
-        # back over the forced dialogue, so re-read the file instead (R8).
+        # back over the forced dialogue, so re-read the file instead.
         sessions = self._require().sessions
         sessions.invalidate(self.session_key)
         return sessions.get(self.session_key)
@@ -1311,7 +1310,7 @@ def _arm_dictation_check(script, gate, authorised_tool=None, declared_cue_beat=N
     carry every key term the store will look for. No gate (compressed or
     forced session) leaves the check unarmed.
 
-    The cue rides along for the simulator's sake (peer request, 2026-09-08): it
+    The cue rides along for the simulator's sake: it
     is the reason the PA has an ask to make, so the actor has to keep saying it
     however the style retry rewrites the turn, and `gate_cue_beat` is the beat
     that owes it. Read like the other three rather than defaulted: a resolved
@@ -1598,7 +1597,7 @@ def _resolve_extra_pins(
 ) -> frozenset[str]:
     """Cut points to pin beyond the ones this plan's own probes imply.
 
-    Owner ruling 2026-09-13: a run may execute its accumulation timeline now
+    A run may execute its accumulation timeline now
     and have a probe plan attached later, off the same checkpoints. Nothing in
     a probeless plan says which cut points that later plan will want, so the
     operator names them. Only accumulation steps qualify, for the same reason
@@ -2441,7 +2440,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help=(
             "one probe step only: run its PA at a higher output cap than the "
             "frozen plan (at most 3x), recorded under pa_output_cap_override/. "
-            "User rule 2026-09-23: only for a probe that keeps getting stuck "
+            "Only for a probe that keeps getting stuck "
             "at the plan cap"
         ),
     )

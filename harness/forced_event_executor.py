@@ -60,7 +60,7 @@ def _exchange_turn_id(transcript: ForcedEventTranscript, index: int) -> str:
     """The one id an exchange's adapter event and journal record both carry.
 
     Receipt and record are matched by `turn_id`, which two sites deriving
-    their own strings cannot do -- the defect step 7 found on the ACC line and
+    their own strings cannot do -- the defect found on the ACC line and
     fixed with `PAAgentLoop._turn_id`. This is the FE line's single id, the
     string the adapter event already carried before the journal existed; no
     second scheme is introduced.
@@ -350,8 +350,8 @@ class ForcedEventExecutor:
                     first_visible_timestamp = first_visible_timestamp or timestamp
                     continue
                 if record is not None:
-                    # The world already answered this call; Q5 authorises
-                    # replaying a memory write, never a world action.
+                    # The world already answered this call; a resume replays
+                    # a memory write, never a world action.
                     actual_result = realized["results"][item.call_id]
                 else:
                     actual_result = _decode_tool_result(
@@ -548,7 +548,7 @@ class ForcedEventExecutor:
         No compat path: a record for an exchange that touched the world and
         carries no `realized` cannot say which calls already ran, and the only
         thing left to do with it would be to run them again. That is the one
-        outcome Q5 does not authorise, so it is an error.
+        outcome a resume must never produce, so it is an error.
         """
         if record is None:
             return {"results": {}, "action_ids": []}
@@ -816,7 +816,7 @@ _NOT_EXECUTED = "not executed"
 def _experience_pool(session_messages: list[dict[str, Any]]) -> TurnPool:
     """One exchange's pool: the PA's whole first-person experience of it.
 
-    The harness performs no selection (owner ruling 2026-09-13). What the PA
+    The harness performs no selection. What the PA
     said, what the person said, what the PA did and learned through a tool, and
     what the world or a third party delivered into the conversation are all in
     it. Dialogue stays bare and byte-equal -- `simple_rag` compares those bytes

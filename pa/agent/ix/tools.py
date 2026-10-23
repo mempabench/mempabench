@@ -163,7 +163,7 @@ class IXPreferenceTool(Tool):
 # ---------------------------------------------------------------------------
 # Required predicates — "response-evaluated conditionally-required"
 # ---------------------------------------------------------------------------
-# Each predicate is pure over `RequiredContext` (frozen in P0) and is evaluated
+# Each predicate is pure over `RequiredContext` (frozen in `render_types.py`) and is evaluated
 # after this turn's provider response is in hand, at the existing check in
 # `pa/agent/runner.py:161-174`. Required-but-not-called inserts one nudge and
 # retries the turn once; not required means not shown and not nudged.

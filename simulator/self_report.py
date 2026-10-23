@@ -1,6 +1,6 @@
 """Session-end self-report: one call, answered by the simulator itself.
 
-HCI framing (2026-08-31): the questionnaire is filled in by the participant.
+HCI framing: the questionnaire is filled in by the participant.
 The simulator's own dialogue model — with full character card and life
 context — writes the reflection, the closing emotion, and the five
 self-report answers in a single response. There is no external calibrator
@@ -35,7 +35,7 @@ _EVIDENCE_RE = re.compile(
 )
 
 #: Completion budget for the one session-end call. The provider default
-#: (4096) was hit on 7 of 13 regress21 sessions: google/gemini-3.8-flash
+#: (4096) was hit on 7 of 13 sessions of one run: google/gemini-3.8-flash
 #: spends its thinking tokens inside `max_tokens`, so the reflection came
 #: back cut mid-block (completion_tokens=4092) and cost a second call.
 #: 8192 was then hit in turn on 6 of ~300 user_b sessions
@@ -201,7 +201,7 @@ def _transcript_t(history: list[dict[str, Any]], turn: int | None) -> int | None
     `turn` indexes `history`, which is what the rendered transcript numbers and
     what every check here resolves against. A reader of `transcript.jsonl`
     numbers the same message by the event `t` the session loop stamped on it,
-    and the two do not line up: the regress21 reads of `acc_002`, `acc_004`,
+    and the two do not line up: the reads of `acc_002`, `acc_004`,
     `acc_009`, `acc_011`, `acc_019` and `acc_023` all took one for the other.
     The row carries both. `None` when no index was given, when it names no
     entry, or when the entry carries no `t` (a history built by hand).
@@ -223,7 +223,7 @@ def _sentences(text: str) -> list[str]:
     """Split on terminal punctuation, but never inside a double-quoted span.
 
     A reflection sentence that quotes the PA carries the PA's own punctuation,
-    and a full stop inside the quotation does not end the claim. Live regress21
+    and a full stop inside the quotation does not end the claim. Live
     `acc_019` attempt 2 was rejected `reflection_evidence_uncovered` on exactly
     that: the claim read `the assistant acknowledged that the draft now stood
     "without hedging. If you want" further adjustments.`, the splitter cut it at
@@ -444,9 +444,9 @@ class SessionEndSelfReporter:
                     answers=answers,
                     history=history,
                 )
-                # Evidence findings are recorded, never raised: the owner ruled
-                # out a hard checker on what the reflection says. Record-only
-                # since the owner ruling of 2026-09-14 ("只记"): no re-ask on an
+                # Evidence findings are recorded, never raised: there is no
+                # hard checker on what the reflection says. Record-only:
+                # no re-ask on an
                 # evidence finding either; restore the condition
                 # `if not evidence_findings or attempt > self.output_contract_retries:`
                 # to bring the re-ask back.

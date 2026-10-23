@@ -1,6 +1,6 @@
 """Simulator prompt assembly, single-beat enactment, and SimulatorLoop session driver.
 
-Under the "Factual Reporter / dual-assessment architecture" (2026-08-31 schema), each turn produces:
+Under the "Factual Reporter / dual-assessment architecture", each turn produces:
   <message>          — PA-visible
   <factual_check>    — eval-only, conditional
   <turn_assessment>  — eval-only, every turn (next_beat + goal_already_met)
@@ -103,7 +103,7 @@ MAX_TURNS_PER_BEAT = 3
 MAX_UNCHARGED_EMPTY_REPLIES_PER_BEAT = 2
 
 # How many times the loop re-asks a skill-declaring beat's first turn for its
-# ask before playing whatever came back. One was not enough: live regress5
+# ask before playing whatever came back. One was not enough: live
 # `acc_002` used it and the second attempt acknowledged again.
 MAX_ASK_RETRIES_PER_BEAT = 2
 
@@ -115,7 +115,7 @@ def _default_turn_budget(active_skills: Sequence[str]) -> int:
 
 # A world tool's effect, read off the suffix of its name. The catalog names
 # every tool `<domain>_<object>_<effect>`, so the suffix is the effect: the
-# names actually executed across regress12-16 are `appointment_read`,
+# names actually executed across the recorded runs are `appointment_read`,
 # `calendar_event_read`, `document_read`, `email_sent_read`, `*_search` on one
 # side and `*_create`, `*_update`, `*_send`, `*_delete`, `*_purchase` on the
 # other. IX tools never reach this list — `_pa_executed_tools` drops them.
@@ -156,7 +156,7 @@ def _readback_already_delivered(
 
     The pair is the beat's own artefact, not any write and any read:
     `readback_beat_tools` carries the write step and the readback step of the
-    ONE state change the beat inspects. Live regress21r `acc_039` t=20 fired
+    ONE state change the beat inspects. Live `acc_039` t=20 fired
     on the calendar pair — the change `beat_4` inspects — while `beat_6` is the
     readback beat of the clinic appointment, whose `appointment_create` had
     errored and whose record therefore did not exist; the beat lost its ask
@@ -243,7 +243,7 @@ _ASK_RETRY_NOTE = (
 
 # The same note on the session's opening turn, where the diagnosis above is not
 # available: nothing has been said yet, so there is nothing the actor could
-# have acknowledged. Live regress21 `acc_002` t1 was sent the full note against
+# have acknowledged. Live `acc_002` t1 was sent the full note against
 # an empty history and told it had acknowledged what the assistant had done.
 _FIRST_TURN_ASK_RETRY_NOTE = (
     "Your last attempt made no request. This step puts the request to the "
@@ -253,7 +253,7 @@ _FIRST_TURN_ASK_RETRY_NOTE = (
 
 # A readback beat's ask is a different one: the user is not releasing a fact,
 # he is asking to be shown the thing the assistant says it changed. Live
-# regress9 `acc_001` beat_06 played as "The updated citation notes are
+# `acc_001` beat_06 played as "The updated citation notes are
 # satisfactory. I have reviewed the new BibTeX entry..." — the readback
 # certified without ever being read, which is exactly the assertion the beat
 # exists to check.
@@ -267,12 +267,12 @@ _READBACK_ASK_RETRY_NOTE = (
 
 # A readback beat that is ALSO the reaction beat: the turn owes both a stance
 # on what the assistant did and the ask to be shown it, and the note above
-# discards the first to buy the second. Live regress16 `acc_039` beat_4 was
+# discards the first to buy the second. Live `acc_039` beat_4 was
 # rejected on "You placed the hold on my calendar without waiting for my
 # explicit instruction..." — the objection the beat exists to record — and the
 # replacement came back with the ask and no stance at all, on the only turn
 # that scores `autonomy_level`. `acc_011` b6 is the same shape. The forced ask
-# stays (owner ruling 2026-09-08); what changes is that the reaction is kept.
+# stays; what changes is that the reaction is kept.
 # `{rejected}` is filled in by `_run_one_beat` with the discarded turn, the way
 # the `beat_ask_retry` event carries it — the actor cannot keep a sentence it
 # is not shown.
@@ -337,7 +337,7 @@ def _preauthorised_tool(
     """The tool this turn authorised in advance, or None.
 
     The PA's `external_action_floor` must not ask again for an act the user
-    handed over on the turn before: live regress19 `acc_039` t40 gives the
+    handed over on the turn before: live `acc_039` t40 gives the
     go-ahead for the booking and t41 holds it and asks for it again. The
     go-ahead is SPOKEN, against nothing the PA had already put an id on, so
     the actor's own `<consent_decisions>` cannot carry it — this entry does.
@@ -611,8 +611,8 @@ class SimulatorLoop:
         # by nothing, so `_pending_held_items` is empty while the PA is still
         # waiting; only this flag says so. Pacing input, never prompt input.
         self._pending_interaction = False
-        # The actor's private record of what the LAST PA turn did (owner
-        # 2026-09-17): its executed writes, its task call count, and the
+        # The actor's private record of what the LAST PA turn did:
+        # its executed writes, its task call count, and the
         # wrapper's three delivered-reply facts. Prompt input, next to the
         # held items; never a hold flag, never what was held back.
         self._pending_reply_facts: ReplyFacts | None = None
@@ -624,7 +624,7 @@ class SimulatorLoop:
         # wrapper's own control records (`ix_event`), which are bookkeeping
         # rather than a call the PA made, and minus the calls that came back
         # with an error: a refused call changed nothing, and both readers ask
-        # what the PA actually did. Live regress18 `acc_039` t=20 is why —
+        # what the PA actually did. Live `acc_039` t=20 is why —
         # `_readback_already_delivered` fired on an `email_message_send` the
         # gate had refused plus an unrelated `calendar_event_search`, and
         # `beat_4` lost its forced ask with nothing written. Read by that
@@ -640,7 +640,7 @@ class SimulatorLoop:
         # above answer "which tool ran, in what order", which is all the
         # readback switch needs; the judge is asked whether the user credited
         # the assistant with a change it never made, and a name cannot say
-        # WHICH record a call touched. Live regress22 `acc_006` stopped four
+        # WHICH record a call touched. Live `acc_006` stopped four
         # times on seven successful `mcp_state_document_update` calls because
         # this block was names only.
         self._pa_tool_log: list[str] = []
@@ -844,7 +844,7 @@ class SimulatorLoop:
         """A turn the ask gate threw away, shaped like a contract rejection.
 
         The `beat_ask_retry` and `beat_ask_unfulfilled` events carry only the
-        first 200 characters, so live regress21 `acc_003` `b4` invalidated a
+        first 200 characters, so live `acc_003` `b4` invalidated a
         session on three turns nobody could read afterwards — and the turns
         were correct. `raw_response` is the whole model response, the way the
         contract path writes it; `retry_note` is what the actor was sent back
@@ -997,16 +997,16 @@ class SimulatorLoop:
         # A compressed session is exactly two beats, one user turn and one PA
         # reply each: the probe, then the reaction. Both boundaries are
         # unconditional — the probe leaves after its first delivered PA reply
-        # whatever it routed to (owner ruling A, 2026-09-08), and the reaction
+        # whatever it routed to, and the reaction
         # ends the session. `goal_already_met`, an open hold, a pending
         # interaction and whatever either turn routed to are all recorded and
-        # none of them extends the session (owner ruling, 2026-09-07).
+        # none of them extends the session.
         # A triggered compressed session has no probe beat: the probe was the
         # PA's own trigger turn above, where sending is High and staying silent
         # is Low. Its two authored beats are the two openings, and
         # `_beats_after_outreach` already dropped the one that did not match
         # the decision — so the opening that played IS the reaction, and it is
-        # the first beat entered, not the second (owner ruling, 2026-09-08).
+        # the first beat entered, not the second.
         # Same on either path: `beats` is one beat long whichever way it went.
         compressed = self.script.compressed
         compressed_reaction_index = 1 if self.script.proactive_trigger else 2
@@ -1020,7 +1020,7 @@ class SimulatorLoop:
             # the loop jumped over never asked anything, so its skills never
             # carry. It runs on one beat, this one, and what it loads is what
             # joined during the beat before — the actor reacts to the surface
-            # once and then works under it (live regress11 `acc_035`).
+            # once and then works under it (live `acc_035`).
             self.script.session_reception_carry = list(self._reception_joined)
             self._reception_joined = []
             for attr in beat.active_skills or []:
@@ -1070,7 +1070,7 @@ class SimulatorLoop:
             # Only that one beat, not every beat holding carried reception
             # rules: the carry runs to the end of the session, so reading it
             # here made every post-probe beat permanently non-collapsible and
-            # `beat_collapsed` went 3 -> 0 (regress2 `acc_007`: three beats
+            # `beat_collapsed` went 3 -> 0 (`acc_007`: three beats
             # entered with the goal already met and played in full). Later
             # carried beats collapse when met, like any other beat. The opening
             # beat is never collapsed either: nothing has happened yet. Nor is
@@ -1086,7 +1086,7 @@ class SimulatorLoop:
             # states the whole query, the PA answers once, and the loop moves
             # to the reaction. `stay` from the probe's own assessment is
             # recorded and dropped, exactly as the reaction beat's routing is —
-            # live regress14 `acc_004` and `acc_002` stayed in beat 1 for 2-3
+            # live `acc_004` and `acc_002` stayed in beat 1 for 2-3
             # exchanges on it, and the extra turns carried the task on inside
             # the probe (a second search, a dictated email, "proceed with the
             # reservation" -> `tool_outside_plan`). A triggered session has no
@@ -1104,7 +1104,7 @@ class SimulatorLoop:
             # A beat that inspects a declared write has to do the inspecting:
             # `_held_from_collapse` keeps it from being collapsed, but nothing
             # kept its one turn from being spent on a confirmation of a write
-            # the user never saw (live regress9 `acc_001` beat_06 t=28).
+            # the user never saw (live `acc_001` beat_06 t=28).
             is_readback = beat.beat in readback_beats
             # ...unless the PA already read it back. The beat stays held from
             # the collapse (`_held_from_collapse` keeps it, so this never runs
@@ -1171,7 +1171,7 @@ class SimulatorLoop:
                     # opening declares the attribute by contract (both openings
                     # do) and is a pure reaction to the send/suppress choice, so
                     # `bool(beat.active_skills)` was forcing an ask onto the one
-                    # beat in the corpus that must not ask: live regress14c
+                    # beat in the corpus that must not ask: live
                     # `acc_007` t4 threw away a clean reaction and the retry came
                     # back with "What are the specific hours for this water
                     # shutoff?", which the beat's own `avoid` forbids. Only the
@@ -1261,7 +1261,7 @@ class SimulatorLoop:
                 # last PA turn asked or held something, so "advance" would walk
                 # out of a question — and on the final beat it ends the session
                 # with the hold episode still open, which fails the step and
-                # publishes no checkpoint (live: `v5g02`, gate on `beat_07`).
+                # publishes no checkpoint (live: gate on `beat_07`).
                 # `_pending_held_items` alone cannot see this: a question-only
                 # or batch-only hold is consent-able by nothing and leaves it
                 # empty, which is why the harness also reports the flag.
@@ -1273,7 +1273,7 @@ class SimulatorLoop:
                 # authorising beat a go-ahead is not this beat's to give, so a
                 # hold the PA opened there is one this beat has no legal move
                 # against: the loop demands
-                # a release the validator forbids. Live regress15 `acc_039`:
+                # a release the validator forbids. Live `acc_039`:
                 # beat_3 routed `advance` on its first turn, the PA's
                 # `external_action_floor` hold on `apt_book_001` pinned it, and
                 # the actor wrote a release 12 times — each rejected — then
@@ -1286,7 +1286,7 @@ class SimulatorLoop:
                 # expected to answer. It stays on the last beat too, whatever
                 # the predicate says — there is no next beat to carry a hold
                 # into, and walking out there ends the session with the episode
-                # open, which is the `v5g02` failure the pin was written for.
+                # open, which is the failure the pin was written for.
                 can_leave = (
                     not self._pending_held_items and not self._pending_interaction
                 )
@@ -1385,8 +1385,8 @@ class SimulatorLoop:
         landing = max(landing - 1, index)
         # A `reveal_at` beat is the only place its fact is ever said out loud,
         # so jumping over one deletes the fact from the session exactly as a
-        # collapse does. 871ba00 held those beats out of the collapse path and
-        # live regress4 `acc_039` then lost beat_04 to this jump instead
+        # collapse does. The collapse path holds those beats out, and
+        # live `acc_039` lost beat_04 to this jump instead
         # (`transcript.jsonl` t=15): the November 20 slot was never spoken, and
         # beat_05 went on to "verify" a booking that did not exist. Land on the
         # first reveal beat in the way; it plays, and if it stalls in turn the
@@ -1659,8 +1659,7 @@ class SimulatorLoop:
                     # stay`, so the beat was routed off a value the actor never
                     # produced; a dictation that drops the gate's key terms
                     # would reach the PA as a sentence the store then refuses.
-                    # Either way the session measured nothing (owner ruling
-                    # 2026-09-08).
+                    # Either way the session measured nothing.
                     attempts = len(exc.rejected_attempts) or 1
                     last = exc.rejected_attempts[-1] if exc.rejected_attempts else {}
                     self._emit(
@@ -1681,7 +1680,7 @@ class SimulatorLoop:
                 self.script.pending_jump_note = ""
 
         output = await _generate()
-        # Commented out, owner ruling 2026-09-14: the forced-ask check is
+        # Commented out: the forced-ask check is
         # off — no judge call, nothing recorded (live: 20/20 diagnostics
         # false, ~13 s per call). Uncomment to restore.
         # ask_retries = 0
@@ -1696,14 +1695,14 @@ class SimulatorLoop:
         #     and ask_retries < MAX_ASK_RETRIES_PER_BEAT
         # ):
         #     # The declaring beat's ask IS the measurement: without it the IX
-        #     # selection fires against a turn that asked nothing (live regress4
+        #     # selection fires against a turn that asked nothing (live
         #     # `acc_001` t19-t22, where the beat entered `goal_already_met: true`
         #     # and spent its slot on an acknowledgement). The prompt has carried
-        #     # this rule since round 3 (`generate_message.md`, and the beat-block
+        #     # this rule (`generate_message.md`, and the beat-block
         #     # line at `prompting.render_beat_block`) and the actor ignored it
         #     # three rounds running, so the loop asks again, in the beat's own
         #     # trigger. The retry's own output is checked the same way: live
-        #     # regress5 `acc_002` fired one `beat_ask_retry` at
+        #     # `acc_002` fired one `beat_ask_retry` at
         #     # `beat_probe_settle_plan` and then played the second
         #     # acknowledgement unchecked, so the probe was measured against
         #     # "The 18:30 reservation is satisfactory..." and the beat's request
@@ -1711,7 +1710,7 @@ class SimulatorLoop:
         #     # What was thrown away, the way a contract failure carries its
         #     # `raw_response` into `simulator_validation_attempts.jsonl`: an ask
         #     # retry discarded a whole turn and recorded nothing about it, and
-        #     # in live regress14c `acc_007` t4 the discarded turn was the
+        #     # in live `acc_007` t4 the discarded turn was the
         #     # correct one. Truncated — the event is a record, not the artifact.
         #     self._emit(
         #         "beat_ask_retry",
@@ -1734,9 +1733,8 @@ class SimulatorLoop:
         #     ask_retries += 1
         #     has_ask = self._turn_carries_an_ask(beat, output.message)
         # if require_ask and not has_ask:
-        #     # Nothing asked. Owner ruling 2026-09-08 made this void the session
-        #     # (the simulator is the instrument); owner ruling 2026-09-14 ("只记")
-        #     # plays the turn and records the failure instead — see the block
+        #     # Nothing asked. The turn is played and the failure recorded
+        #     # instead of voiding the session — see the block
         #     # below the event.
         #     self._emit(
         #         "beat_ask_unfulfilled",
@@ -1752,7 +1750,7 @@ class SimulatorLoop:
         #             )
         #         ]
         #     )
-        #     # Record-only, owner ruling 2026-09-14 ("只记"): the turn is played
+        #     # Record-only: the turn is played
         #     # and the failure rides on the diagnostics instead of voiding the
         #     # session. Restore the `raise SessionInvalidError(...)` below to
         #     # make it blocking again.
@@ -1861,7 +1859,7 @@ class SimulatorLoop:
                     # the runner has no other way to know either. `turn_index`
                     # reaches `AgentRunSpec.turn_index`: it was never set, so
                     # every record stamped with it -- `asked_at_turn`,
-                    # `opened_at_turn`, the two 2026-09-08 events -- read 0 for
+                    # `opened_at_turn`, two event records -- read 0 for
                     # a whole run.
                     "beat": beat.beat,
                     "turn_index": self._benchmark_turn_index,

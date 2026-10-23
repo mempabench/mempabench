@@ -15,7 +15,7 @@ The grammar is one block per item::
 `offset=` is the one attribute every tag may carry.  It is emitted last, only
 when the item has an offset, and only on a tagged block: a bare dialogue
 message keeps its exact bytes, which is what `simple_rag`'s byte-equality
-contract (`mem0_client.py:184-189`) compares.
+contract (`mem0_client.py:183-188`) compares.
 """
 
 from __future__ import annotations
@@ -134,7 +134,7 @@ def _render_block(item: ExperienceItem) -> str:
     close_line = f"[/{item.kind}]"
     if not item.body:
         # The delimiters are always emitted, so an empty body is still a
-        # non-empty content string: `mem0_client.py:153-157` and
+        # non-empty content string: `mem0_client.py:152-156` and
         # `pa/agent/memory.py:123-124` both drop empty content, and
         # `[no_reply]` is an interaction choice that is scored.
         return f"{open_line}\n{close_line}"

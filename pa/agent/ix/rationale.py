@@ -1,4 +1,4 @@
-"""P3 · pure-function rendering of `reasoning_visibility` and `uncertainty_expression`.
+"""Pure-function rendering of `reasoning_visibility` and `uncertainty_expression`.
 
 Rules:
 
@@ -25,7 +25,7 @@ Rules:
   `ix_render.certainties` (`CertaintyJSON`).
 
 This module is pure: no IO, no LLM calls, it never reads provider reasoning.
-`render.py` (P1) calls the entry points here and folds the results into
+`render.py` calls the entry points here and folds the results into
 `RenderedTurn` / `AuditTrace`.
 """
 
@@ -198,7 +198,7 @@ _EMPHASIS_CHARS = "*_`~"
 
 #: A clause quoted as a sentence: the model adds punctuation at the end, while
 #: in the prose it is usually followed by ` and …`. In a live run 2 of 9 claims
-#: differed by exactly that one character (round 3 finding 1).
+#: differed by exactly that one character.
 _EDGE_PUNCTUATION = " \t.。,，、;；:：!！?？'\"“”‘’()（）[]【】《》<>-—…"
 
 #: Tokenisation for the fallback pass: a run of ASCII alphanumerics is one
@@ -206,7 +206,7 @@ _EDGE_PUNCTUATION = " \t.。,，、;；:：!！?？'\"“”‘’()（）[]【�
 _TOKEN_RE = re.compile(r"[0-9a-z]+|[^\x00-\x7f]")
 
 #: A claim's tokens must be hit in order at at least this rate to count as
-#: "this is that passage" (0.8, set by the owner).
+#: "this is that passage" (0.8).
 _TOKEN_OVERLAP_THRESHOLD = 0.8
 
 
@@ -308,7 +308,7 @@ _CLAUSE_BOUNDARY = ".;,:。；，："
 def _clause_boundary(text: str, end: int) -> int | None:
     """The first clause or sentence boundary at or after `end`; `None` when the clause runs on.
 
-    regress18 `acc_035` t=3: the overlap window stopped on `rather`, because the
+    `acc_035` t=3: the overlap window stopped on `rather`, because the
     claim's tail (`than as a phase`) fell outside the bounded window, and the
     parenthesis went in as `rather(confidence: high) than` — inside a word pair,
     in the middle of a clause.
@@ -539,8 +539,7 @@ def render_certainties(
     was given, so it is not a payload miss. A claim that is found but not
     appended under this setting writes a line too -- otherwise `Hide`'s "no
     parenthesis" is unfalsifiable: the renderer finding every claim and
-    withholding per setting looks exactly like it finding none (round 3
-    finding 4).
+    withholding per setting looks exactly like it finding none.
 
     The appended parenthesis is **not part of the prose** -- the model does not
     hedge in prose, the parenthesis is generated here.

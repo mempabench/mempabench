@@ -16,8 +16,8 @@ The path may END in a selector instead of an index, ``[<state-relative path>]``:
 
     path: $list_bistro_folder.files[documents/bistro/tipout_and_paystubs.md]
 
-which picks the one element of a returned string list equal to that text
-(owner, 2026-09-20). A folder listing is where a fixed index is a structural
+which picks the one element of a returned string list equal to that text.
+A folder listing is where a fixed index is a structural
 error rather than an off-by-one: an earlier session adds a file to the folder,
 and the PA names its own writes at run time, so the position of the file the
 draft means moves between the L0 world and the run. At most one selector, only
@@ -126,7 +126,7 @@ def _ref_sites(label: str, value: Any) -> dict[str, tuple[str, list[str]]]:
     Lists are walked because an argument may BE a list of references:
     ``email_message_send.attachments`` is an array of state-relative paths, and
     the path an earlier read step returned is the only way to name the file
-    without writing the path out (owner, 2026-09-17). Dicts are not walked --
+    without writing the path out. Dicts are not walked --
     no catalog parameter takes one -- so a mapping-valued argument stays a
     literal exactly as it was.
     """
@@ -297,8 +297,8 @@ def task_fact_refs(arguments: dict[str, Any] | None) -> dict[str, list[str]]:
     (`$task_facts.file_locations.draft_introduction`); its FIRST segment is the
     `task_facts` key, which is the granularity `reveal_at` works at.
 
-    An argument may also EMBED the reference in a longer string (owner,
-    2026-09-11): the draft writes the body around `$task_facts.<key>` -- the
+    An argument may also EMBED the reference in a longer string: the draft
+    writes the body around `$task_facts.<key>` -- the
     anchored line, the elicited fields, the rest of a note. That argument
     consumes the fact exactly as a whole-value reference does, so it is
     reported here too, by the first path it embeds.

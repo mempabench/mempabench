@@ -1,6 +1,6 @@
 """The phone domain: placing a call and reading it back.
 
-Owner ruling 39 (2026-09-17): a `Suggest alternatives` recovery may be "call the
+A `Suggest alternatives` recovery may be "call the
 locksmith", and `Find and hand off` may only hand the number over. That needs a
 real outbound-call tool, and like every other World Toolbox handler it is a
 function over the run-local world: whether the line answers, and what it says

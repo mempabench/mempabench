@@ -2,11 +2,10 @@
 
 A readback beat exists to make the assistant show the end state of its own
 write instead of asserting it, so `simulator.loop` arms the ask gate on its
-first turn (record-only since owner ruling 2026-09-14 "只记": a missing ask is
-recorded, never re-asked). When the read already happened — on the user's own
-request a beat earlier, or of the PA's own accord — there is nothing left to
-ask for, and the gate reads a miss on a beat that owed nothing. Live
-`check039` `acc_039`: the PA
+first turn (record-only: a missing ask is recorded, never re-asked). When the
+read already happened — on the user's own request a beat earlier, or of the
+PA's own accord — there is nothing left to ask for, and the gate reads a miss on
+a beat that owed nothing. Live `acc_039`: the PA
 printed the clinic confirmation on `beat_5` after `appointment_read`, and
 `beat_6_confirm_booking_record` then spent three attempts on "The confirmation
 record is sufficient..." before the session aborted `beat_ask_unfulfilled`.
@@ -116,9 +115,10 @@ def _script(
     compressed: bool = False,
     pair: tuple[str | None, str | None] | None = None,
 ) -> SessionScript:
-    """check039's shape: a write beat, a beat the user asks to see it on, and
-    the readback beat that follows. `pair` is the (write, read) the readback
-    beat's own state change declares, as `readback_beat_tools` derives it."""
+    """The live `acc_039` shape: a write beat, a beat the user asks to see it
+    on, and the readback beat that follows. `pair` is the (write, read) the
+    readback beat's own state change declares, as `readback_beat_tools` derives
+    it."""
     script = SessionScript(
         session_id="readback_delivered",
         scenario="the assistant books and then shows the booking",
@@ -185,15 +185,15 @@ def _of_kind(events: list[dict], kind: str) -> list[dict]:
 
 def _gate_calls(events: list[dict]) -> list[dict]:
     """Every `carries_an_ask` the session put to the judge. The forced-ask
-    check is commented out (owner ruling 2026-09-14), so this is empty however
+    check is commented out, so this is empty however
     the switch below falls: the beat that keeps its ask costs no judge call
     either."""
     return [e for e in _of_kind(events, "judge_call") if e["rule"] == "carries_an_ask"]
 
 
 def test_a_read_after_the_write_switches_the_forced_ask_off() -> None:
-    """check039's own shape: the beat's appointment record was written and then
-    read back, so the beat has nothing left to ask for."""
+    """The live `acc_039` shape itself: the beat's appointment record was
+    written and then read back, so the beat has nothing left to ask for."""
     events = _run(
         [
             _turn("Please book the 10:00 slot with Dr. Patel.", "advance"),
@@ -223,7 +223,7 @@ def test_a_read_after_the_write_switches_the_forced_ask_off() -> None:
 
 
 def test_another_records_write_and_read_do_not_answer_this_beat() -> None:
-    """Live regress21r `acc_039` t=20. The PA created the calendar hold and
+    """Live `acc_039` t=20. The PA created the calendar hold and
     read it back at t=15, and its `appointment_create` then errored, so nothing
     was booked. `beat_6_confirm_booking_record` is the readback beat of the
     appointment, not of the calendar entry, and the calendar pair is no answer
@@ -323,7 +323,7 @@ def test_a_beat_whose_change_names_no_tool_falls_back_to_the_effect() -> None:
 def test_a_write_the_pa_never_read_back_is_not_a_readback() -> None:
     """The switch needs a read AFTER the write; an update is not a read, so the
     beat's artefact was never shown. What used to follow — the forced ask —
-    is commented out (owner ruling 2026-09-14), so the acknowledging turn is
+    is commented out, so the acknowledging turn is
     played and nothing is recorded about it."""
     events = _run(
         [
@@ -351,7 +351,7 @@ def test_a_write_the_pa_never_read_back_is_not_a_readback() -> None:
 
 
 def test_a_refused_write_is_not_a_write() -> None:
-    """Live regress18 `acc_039` t=20: the switch fired on a refused
+    """Live `acc_039` t=20: the switch fired on a refused
     `email_message_send` (the gate had not opened yet) and an unrelated
     `calendar_event_search`, so `beat_4` lost its forced ask with nothing
     written and nothing read back."""
@@ -376,8 +376,8 @@ def test_a_refused_write_is_not_a_write() -> None:
 
 
 def test_a_compressed_session_is_untouched() -> None:
-    # A compressed session has no readback beat at all (owner ruling E,
-    # 2026-09-07), so the switch never arms however the PA's tools fell.
+    # A compressed session has no readback beat at all, so the switch never
+    # arms however the PA's tools fell.
     events = _run(
         [
             _turn("Where does the citation go?", "advance"),

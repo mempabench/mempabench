@@ -35,7 +35,7 @@ def not_applicable_ids(audit: dict) -> frozenset[str]:
 
 def require_complete(run: Path, not_applicable: frozenset[str] = frozenset()) -> dict:
     """Every Probe and forced event done, except the named Probes that exhausted
-    all attempts. An accumulation step may be done or skipped (D2: a run with
+    all attempts. An accumulation step may be done or skipped (a run with
     skipped steps is scored; the statistics decide what to exclude)."""
     if (run / "recovery/pending.json").exists():
         raise ValueError("run has an unfinished checkpoint restore")

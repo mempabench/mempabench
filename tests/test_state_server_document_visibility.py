@@ -1,4 +1,4 @@
-"""Section-level date scoping inside a document (owner, 2026-09-12).
+"""Section-level date scoping inside a document.
 
 A `<!-- visible_from: YYYY-MM-DD -->` marker on a line of its own opens a block
 the store hides from a session that runs before that date, so one working

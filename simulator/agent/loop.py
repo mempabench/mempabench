@@ -37,7 +37,7 @@ from simulator.message_quality import (
     sentences_carrying,
     simulator_message_quality_findings,
     simulator_style_findings,
-    # Non-blocking, owner ruling 2026-09-13: judged and recorded for
+    # Non-blocking: judged and recorded for
     # observation this round, never a finding — the only caller was the retry
     # note commented out below.
     # unexecuted_pa_action_clause,
@@ -59,7 +59,7 @@ from simulator.schemas import OPENING_BEATS, Beat, PreferenceMatrix, SessionScri
 
 #: The two findings the general form produces. `user_instruction` and
 #: `avoid` are what the draft's own author wrote down as this beat's "must" and
-#: "must not", so a violation is hard (owner ruling 2026-09-09: a rule that is
+#: "must not", so a violation is hard (a rule that is
 #: only recorded is not a rule).
 BEAT_INSTRUCTION_NOT_FOLLOWED = "beat_instruction_not_followed"
 BEAT_AVOID_VIOLATED = "beat_avoid_violated"
@@ -72,7 +72,7 @@ BEAT_AVOID_VIOLATED = "beat_avoid_violated"
 #: where that one exchange IS the measurement and the finding blocks.
 #: `reaction_authorises_pa_action` is not on this list either: it inherits the
 #: blocking consequence of the `authorised_before_its_beat` regex it replaced
-#: (owner ruling 2026-09-09, "不改后果") — a go-ahead the actor keeps repeating
+#: — a go-ahead the actor keeps repeating
 #: past the retry budget hands the PA a release the session never meant to
 #: give, so the step dies instead of playing it.
 PLAYED_AFTER_BUDGET: frozenset[str] = frozenset(
@@ -86,13 +86,13 @@ PLAYED_AFTER_BUDGET: frozenset[str] = frozenset(
         # measures something.
         BEAT_INSTRUCTION_NOT_FOLLOWED,
         BEAT_AVOID_VIOLATED,
-        # Hard from Phase 3 (裁定 vi): it was a diagnostic while a pattern
+        # Hard: it was a diagnostic while a pattern
         # decided it, and the judge decides it now.
         "reaction_states_future_policy",
     }
 )
 
-# Owner ruling 2026-09-14 ("只记"): every judgement about the turn is recorded,
+# Every judgement about the turn is recorded,
 # none triggers a rewrite or a void this round. Remove a name to make it
 # blocking again.
 RECORD_ONLY_FINDINGS: frozenset[str] = frozenset(
@@ -113,8 +113,8 @@ RECORD_ONLY_FINDINGS: frozenset[str] = frozenset(
         # to keep back.
         "probe_fact_missing",
         "withheld_fact_before_ask",
-        # dictation_missing_key_terms is blocking again (owner ruling
-        # 2026-09-15): a dropped term is the one judgement the run cannot
+        # dictation_missing_key_terms is blocking again:
+        # a dropped term is the one judgement the run cannot
         # absorb, because the PA is then holding a sentence the store will
         # refuse and the session measures nothing either way. It retries with
         # the note naming the missing words and voids past the budget.
@@ -125,7 +125,7 @@ RECORD_ONLY_FINDINGS: frozenset[str] = frozenset(
         # Every style finding, from `simulator_style_findings`.
         "grades_pa_before_acting",
         "reviewer_voice_in_message",
-        # sentence_over_35_words is blocking again (owner ruling 2026-09-14: 19/19 correct live).
+        # sentence_over_35_words is blocking again (19/19 correct live).
     }
 )
 
@@ -224,7 +224,7 @@ def _on_request_fact_keys(session: SessionScript, beat: Beat) -> list[str]:
     them over only when the PA asks for it", "unprompted"). A reveal beat that
     simply delivers the fact — live `acc_023` pose_both_topics, "giving the
     dictated text from task_facts in his own words" — owes it from its first
-    turn; regress19 read that beat as on-request and `withheld_fact_before_ask`
+    turn; one run read that beat as on-request and `withheld_fact_before_ask`
     stripped the dictation out of the probe turn.
     """
     if not _ON_REQUEST_RE.search(f"{beat.actor_instruction or ''} {beat.avoid or ''}"):
@@ -297,8 +297,8 @@ def _judge_probe_fact_missing(
     (`_latest_user_message`). The judge is asked only whether the words are in
     the turn.
 
-    Hard since the owner's ruling of 2026-09-13, where it was a diagnostic
-    before: the keys go back to the caller, which turns them into a finding
+    Hard (it was a diagnostic
+    before): the keys go back to the caller, which turns them into a finding
     like any other judge finding — the turn is said again with the missing
     values named in the note, and a fact still missing when the retries are
     gone voids the session. The judge is the only decider: with the judge off
@@ -341,8 +341,8 @@ def _judge_withheld_fact_before_ask(
 ) -> str | None:
     """Hard: the turn handed the gated sentence over before it was asked for.
 
-    One rule for both ends of the gated beat since the owner's ruling of
-    2026-09-09, so it is called on the UNION of the two windows the two rules
+    One rule for both ends of the gated beat, so it is called on the
+    UNION of the two windows the two rules
     used to have and on nothing wider: an armed script, and either a beat
     earlier than the gate's reveal beat whose turn does not deliver the real
     dictated text (where wording is necessarily invented), or a beat whose
@@ -485,7 +485,7 @@ def _authorising_beat_index(session: SessionScript) -> int | None:
     The LAST match, not the first: a reaction beat that branches on whether
     the assistant asked for a go-ahead reads like an authorising beat from a
     distance, and taking the first match let it close the window early. Live
-    regress14c `acc_039`: beat_4's branch wording disarmed the check from
+    `acc_039`: beat_4's branch wording disarmed the check from
     beat_4 on, one beat before beat_5, the beat that actually gives it.
     """
     return next(
@@ -515,11 +515,11 @@ def before_authorising_beat(session: SessionScript, beat: Beat) -> bool:
     """True when this beat comes before the beat that carries the go-ahead.
 
     When no beat carries one, the boundary sits one past the declaring beat,
-    so the probe beat itself stays armed (owner ruling 2026-09-08): a session
+    so the probe beat itself stays armed: a session
     with nothing to authorise has no beat where a go-ahead belongs, and the
     probe is exactly where one was slipping through — `acc_011`
     `b5_probe_prep_list` lost its arming when the authorising-beat predicate
-    stopped matching b6, and regress9 `acc_001` t22 gave the go-ahead on the
+    stopped matching b6, and `acc_001` t22 gave the go-ahead on the
     declaring beat.
     """
     order = {item.beat: i for i, item in enumerate(session.beats)}
@@ -541,7 +541,7 @@ def _delivers_gated_dictation(
     withheld from the prompt entirely (`simulator.prompting.gated_fact_keys`)
     and a turn that carried it would be an invention, not a
     dictation. From the reveal beat onwards every delivery counts, on whatever
-    beat it lands: live regress15 `acc_039` was asked for the reason again on
+    beat it lands: live `acc_039` was asked for the reason again on
     `beat_6`, five beats past the reveal, and restated it there.
     """
     if not session.gate_key_terms or not session.gate_dictated_text:
@@ -628,11 +628,11 @@ def _script_dictates(
     prompt entirely — so `_from_gate_reveal` carries both. What is read is the
     beat's own prose rather than the whole draft: a beat whose `avoid` forbids
     volunteering the sentence does not dictate it, and stays unarmed until it
-    is delivered (live regress15 `acc_009` t2), as does a reaction beat, whose
+    is delivered (live `acc_009` t2), as does a reaction beat, whose
     script reacts and dictates nothing.
 
-    It disarms on the first turn of the session that carries every key term
-    (owner, 2026-09-15). A dictating beat is otherwise armed on all of its
+    It disarms on the first turn of the session that carries every key term.
+    A dictating beat is otherwise armed on all of its
     turns, and the dictation only has to land once: replayed over the four
     finished user_b runs that cost 10 false positives on 6 probes, every one a
     follow-up or a closing after the title had already been said correctly —
@@ -661,7 +661,7 @@ def _is_reaction_beat(session: SessionScript, beat: Beat) -> bool:
     it declares the target attribute by contract. Both halves of the derivation
     below reject it — `if not current` excludes index 0, `not beat.active_skills`
     excludes a declaring beat — so the reception relaxations were dead on both
-    openings (live regress14c `acc_007`). The loop stamps the answer on the
+    openings (live `acc_007`). The loop stamps the answer on the
     script as it enters the beat; take it from there.
     """
     if session.compressed_reaction_beat is not None:
@@ -730,8 +730,8 @@ class SimulatorAgentLoop:
         # own flag, and joins the list `ctx.executed_acts` hands the judge.
         pa_outreach_sent: bool = False,
         judge: Any | None = None,
-        # The actor's private record of what the latest PA reply did (owner
-        # 2026-09-17); rendered into the trigger, never into the judge's input.
+        # The actor's private record of what the latest PA reply did;
+        # rendered into the trigger, never into the judge's input.
         reply_facts: ReplyFacts | None = None,
     ) -> SimulatorOutput:
         if beat.line:
@@ -759,7 +759,7 @@ class SimulatorAgentLoop:
         # The same calls as lines the judge can read — name, arguments, status.
         # The names above stay the mechanical clause's input; this is the
         # `<tool_log>` block, and a name with no arguments cannot say which
-        # record a write touched (live regress22 `acc_006`).
+        # record a write touched (live `acc_006`).
         tool_log = tuple(pa_tool_log)
         # The window `simulator.loop` already computed the diagnostic over: a
         # beat carrying reception rules that declares none of its own, OR the
@@ -772,7 +772,7 @@ class SimulatorAgentLoop:
         # it declares itself, which the carry subtracts. `bool(...)` is
         # therefore false on exactly the beat that IS the reaction, and the
         # reception checks below were dead on every triggered shape —
-        # regress21 `acc_007` among them. `_is_reaction_beat` (445-467) already
+        # `acc_007` among them. `_is_reaction_beat` (445-467) already
         # reads the stamp this way; this line was the one that had not caught
         # up.
         reception_attributes = reception_carry_attributes(session, beat)
@@ -791,8 +791,8 @@ class SimulatorAgentLoop:
             and session.gate_cue_beat == beat.beat
             and first_turn_in_beat
         )
-        # Commented out with the judge half of withheld_fact_before_ask (owner
-        # ruling 2026-09-14, see the call site below): `on_request_arm` was its
+        # Commented out with the judge half of withheld_fact_before_ask (see
+        # the call site below): `on_request_arm` was its
         # only reader. Uncomment it together with that block.
         # gated_fact_key = _gated_fact_key(session)
         selected_model = model or self.get_default_model()
@@ -881,14 +881,14 @@ class SimulatorAgentLoop:
             # `require_ask` shape would suggest, because `reveal_at` marks where
             # a fact is UNLOCKED, not where it is said. Replayed over the 1156
             # simulator turns of the five gated sessions, the first-turn rule
-            # aborts regress15 `acc_009` at t2 — a turn whose own draft `avoid`
+            # aborts `acc_009` at t2 — a turn whose own draft `avoid`
             # forbids volunteering the sentence, which the user then dictates
             # correctly at t8 — and misses the case this check exists for,
             # `acc_039` t55 on `beat_6`, five beats past the reveal. Arming on
-            # delivery catches t55 and nothing else in regress15.
+            # delivery catches t55 and nothing else in those sessions.
             #
-            # The second arm is the beat whose OWN script dictates the sentence
-            # (owner, 2026-09-15). Reading the message alone leaves the one case
+            # The second arm is the beat whose OWN script dictates the sentence.
+            # Reading the message alone leaves the one case
             # the gate cannot survive unchecked: a turn that paraphrases the
             # title away is not a delivery, so nothing fires, and the PA is left
             # with no wording to write — live `fin_05`. It is spent once the
@@ -905,7 +905,7 @@ class SimulatorAgentLoop:
             # The other half of the same window: the gated sentence is the
             # assistant's to ask for, and a turn that hands it over anyway has
             # answered the elicitation probe on the assistant's behalf. One rule
-            # for both ends of the beat since the owner's ruling of 2026-09-09,
+            # for both ends of the beat,
             # so it is armed on the UNION of the two windows it was split
             # across, and no wider. Before the reveal the gated fact is not in
             # the prompt, so wording handed over there is invented — and the
@@ -920,7 +920,7 @@ class SimulatorAgentLoop:
             ) and not delivers_dictated_text(
                 output.message, session.gate_dictated_text
             )
-            # Commented out, owner ruling 2026-09-14: the judge half of
+            # Commented out: the judge half of
             # withheld_fact_before_ask is off — 29/29 live verdicts false, 0
             # real leaks, ~13 s per pre-reveal turn. The key-term code check
             # stays. Uncomment to restore.
@@ -953,24 +953,24 @@ class SimulatorAgentLoop:
                 and session.gate_key_terms
                 and not missing_key_terms(output.message, session.gate_key_terms)
             )
-            # Hard wherever the reaction is taken (owner ruling 2026-09-08: an
+            # Hard wherever the reaction is taken (an
             # invented PA action is an instrument error, and an after-the-fact
             # claim the record can settle is hard). The reaction beat is the
             # measurement, so a reaction to work the assistant never did scores
-            # the attribute against a fiction — live regress16 `acc_006` t7
+            # the attribute against a fiction — live `acc_006` t7
             # credited the PA with reformatting the bibliography into APA style
             # after a turn that had only read two documents, and the turn was
             # delivered because the check only ran in the session loop, after
             # the retry budget was gone. The window was the compressed beat
-            # alone for one round; over regress12-19 the three uncompressed hits
-            # are all true (regress14c `acc_039` t17, regress18 `acc_009` t13,
-            # regress18 `acc_039` t23), so it is armed on all of them.
+            # alone for one round; over the recorded runs the three uncompressed hits
+            # are all true (`acc_039` t17, `acc_009` t13,
+            # `acc_039` t23), so it is armed on all of them.
             # The judge is the only decider on both: the semantic
             # patterns they used to run on are gone, so with `MEMPA_JUDGE=off`
             # the reception beat is not judged at all. The second of them is
             # still narrowed by the beat's own `avoid` — where the draft says
             # this turn hands nothing over, a go-ahead spoken here releases
-            # work no beat authorises (live regress20 `acc_002` t6 "so I will
+            # work no beat authorises (live `acc_002` t6 "so I will
             # proceed with that" after the PA closed "Want me to book it?",
             # and it booked) — but the ban and its carve-outs are read out of
             # `avoid` by the judge's own questions. It BLOCKS: it took over the
@@ -995,7 +995,7 @@ class SimulatorAgentLoop:
                     "reaction_authorises_pa_action",
                 ):
                     if await asyncio.to_thread(judge.judge, rule, reception_ctx):
-                        # Non-blocking, owner ruling 2026-09-13: judged and
+                        # Non-blocking: judged and
                         # recorded for observation this round, never a finding.
                         # The call above still writes its `judge_call` row with
                         # the verdict, the evidence and the reason; the verdict
@@ -1013,7 +1013,7 @@ class SimulatorAgentLoop:
             # beat gets them. The judge is the only decider on both,
             # so with `MEMPA_JUDGE=off` the reaction beat is
             # not judged. One of them changed standing with the wiring:
-            # `reaction_states_future_policy` is hard (裁定 vi) and leaves the
+            # `reaction_states_future_policy` is hard and leaves the
             # diagnostics list below.
             #
             # The contraction rule's arming stays mechanical: only
@@ -1031,7 +1031,7 @@ class SimulatorAgentLoop:
                     beat_id=beat.beat,
                 )
                 rules = [
-                    # Commented out, owner ruling 2026-09-13 ("先comment"): the
+                    # Commented out: the
                     # rule is not asked this round; gold, prompt and builder
                     # stay.
                     # "reaction_states_future_policy",
@@ -1052,9 +1052,9 @@ class SimulatorAgentLoop:
                 finding
                 for finding in (
                     # The reception specs ask the actor to quote the offending
-                    # words back; regress14b `acc_004` t5 quoted "wouldn't"
+                    # words back; `acc_004` t5 quoted "wouldn't"
                     # against a reply that does not contain it. Diagnostic on
-                    # its first round: one hit over regress12-14b is too thin
+                    # its first round: one hit over the recorded runs is too thin
                     # a base to spend a retry on.
                     quoted_span_not_in_pa_turn_finding(
                         output.message,
@@ -1063,7 +1063,7 @@ class SimulatorAgentLoop:
                 )
                 if finding
             ]
-            # Non-blocking, owner ruling 2026-09-13: judged and recorded for
+            # Non-blocking: judged and recorded for
             # observation this round, never a finding. It is appended after the
             # list above is rebuilt, the shape `probe_fact_missing` uses — the
             # rule on `diagnostics`, the judge's own evidence on
@@ -1077,7 +1077,7 @@ class SimulatorAgentLoop:
                     "reaction_asserts_unexecuted_pa_action"
                 ] = asserts_unexecuted
             # The code half of `withheld_fact_before_ask`, all that is left of
-            # the rule since the owner's ruling of 2026-09-14 (see the arming
+            # the rule (see the arming
             # site above): before the reveal beat the gated sentence is not in
             # the prompt, so a turn carrying every key term of it has handed
             # the thing over. `missing_key_terms()` is the store's own test and
@@ -1096,7 +1096,7 @@ class SimulatorAgentLoop:
             # judge off the rule is simply not checked. The detail list is the
             # keys it named, so a reader gets them without the draft.
             #
-            # Hard since the owner's ruling of 2026-09-13: a fact the judge
+            # Hard: a fact the judge
             # does not read in the turn is a finding like any other, so the
             # turn is said again with the missing values in its note. It is out
             # of `PLAYED_AFTER_BUDGET`, so a fact still missing when the
@@ -1135,8 +1135,8 @@ class SimulatorAgentLoop:
                     first_turn_in_beat=first_turn_in_beat,
                     must_ask=must_ask,
                 )
-            # The sentences the turn has to keep, as one list (owner,
-            # 2026-09-16): the strings the style retry note below quotes back
+            # The sentences the turn has to keep, as one list:
+            # the strings the style retry note below quotes back
             # word for word are exactly the strings that buy a sentence out of
             # the 35-word cap. Three sources — the required fact values no
             # earlier turn has delivered, the session's gate cue whether this
@@ -1144,11 +1144,11 @@ class SimulatorAgentLoop:
             # terms on a turn the dictation rule is armed on.
             #
             # Each is a sentence a shortening retry otherwise pays the cut
-            # with. The facts: live regress19 `acc_027` b1 mandates three of
+            # with. The facts: live `acc_027` b1 mandates three of
             # them in one sentence, so the cap alone is unsatisfiable — four
             # retries each sheared something else out and attempt 4 played at
-            # 43 words anyway. The cue: regress18 deleted it on `acc_009` t2,
-            # `acc_039` t3 and `acc_011` t7, and regress20 `acc_003` t10
+            # 43 words anyway. The cue: one run deleted it on `acc_009` t2,
+            # `acc_039` t3 and `acc_011` t7, and `acc_003` t10
             # dropped a later beat's restatement of it, which is the same
             # sentence the gate depends on, whoever owes it. The key terms: a
             # 35-word rewrite of a mixed message drops them and the blocking
@@ -1172,7 +1172,7 @@ class SimulatorAgentLoop:
                 on_reaction_beat=reaction_beat,
                 owed_strings=kept_strings,
             )
-            # Record-only, owner ruling 2026-09-14 (live FP watch: 51/71
+            # Record-only (live FP watch: 51/71
             # rewrite findings were false positives): the one place a
             # record-only finding stops being a finding. It runs before
             # anything acts on the two lists, so the accept below, the
@@ -1210,7 +1210,7 @@ class SimulatorAgentLoop:
             rejected_attempts.append(record)
             style_budget = self.output_contract_retries
             # On the compressed reaction beat an invented PA action is an
-            # instrument error (owner ruling 2026-09-08): that one exchange IS
+            # instrument error: that one exchange IS
             # the measurement, so it is not played past the budget there.
             compressed_reaction = (
                 session.compressed_reaction_beat is not None
@@ -1246,7 +1246,7 @@ class SimulatorAgentLoop:
                 # default `next_beat: stay`), which routed the beat off a value
                 # the actor never produced. The simulator is the instrument, so
                 # the session loop turns this raise into an invalid session
-                # rather than a degraded turn (owner ruling 2026-09-08).
+                # rather than a degraded turn.
                 raise SimulatorOutputContractError(
                     findings,
                     rejected_attempts=rejected_attempts,
@@ -1323,7 +1323,7 @@ class SimulatorAgentLoop:
                 ),
                 # Fixed wording, and the facts by VALUE rather than by key:
                 # the key alone left the actor without the subject on
-                # regress17 `acc_002`, and the whole point of the retry is
+                # `acc_002`, and the whole point of the retry is
                 # that the words the beat exists to deliver end up in the turn.
                 "probe_fact_missing": (
                     "This turn still has to state these facts, in your own "
@@ -1359,7 +1359,7 @@ class SimulatorAgentLoop:
                     "the work should say, and do not offer a substitute or a "
                     "placeholder."
                 ),
-                # Non-blocking, owner ruling 2026-09-13: judged and recorded for
+                # Non-blocking: judged and recorded for
                 # observation this round, never a finding. The rule never
                 # reaches `findings`, so this note is never asked for; it is
                 # commented out so the clause is not computed either. Uncomment
@@ -1409,7 +1409,7 @@ class SimulatorAgentLoop:
                 for finding in [*findings, *style_findings]
             )
             # A style retry asks for a shorter turn and nothing else, and on
-            # regress15 `acc_002` attempt 3 paid for the third sentence with
+            # `acc_002` attempt 3 paid for the third sentence with
             # the two facts the beat existed to deliver. Name them in the note
             # so the shortening happens somewhere else.
             keep_facts = (
@@ -1419,7 +1419,7 @@ class SimulatorAgentLoop:
                 if style_findings and owed_facts
                 else ""
             )
-            # Naming the strings is not enough: regress18 `acc_002` t4 had the
+            # Naming the strings is not enough: `acc_002` t4 had the
             # note with the value spelled out and still rewrote "Marcus is free
             # from 18:00" into "you are available from 18:00". So the note also
             # quotes back the sentences of the REJECTED attempt that already
@@ -1432,7 +1432,7 @@ class SimulatorAgentLoop:
             # turn and for that sentence whole.
             #
             # Minus the key terms this attempt's dictation finding reports
-            # missing (owner, 2026-09-16): a term the dictation rule asks the
+            # missing: a term the dictation rule asks the
             # actor to put back is never protected word for word. The two
             # matchers read the same sentence differently — `sentences_carrying`
             # keeps a sentence that covers 70% of a string's tokens, while
@@ -1466,7 +1466,7 @@ class SimulatorAgentLoop:
             # already in `rejected_attempts`, and the harness writes every key
             # of it to `simulator_validation_attempts.jsonl`. The whole note,
             # `detail` first: writing only the keep clauses left every row whose
-            # finding was not a style one with an empty note — regress20
+            # finding was not a style one with an empty note —
             # `acc_023` had three such rows, including the t15
             # `dictation_missing_key_terms` one whose note names the terms the
             # dictation dropped.

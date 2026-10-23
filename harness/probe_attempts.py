@@ -50,7 +50,7 @@ class ProbeAttempts:
     def reopen(self, authorization: str) -> None:
         """Give an exhausted Probe one more budget of three attempts (six in total at most).
 
-        Only by an explicit user decision (e.g. C/USER_CHY_MEM0_PROBE_RERUN_3ROUNDS_20260924.json);
+        Only by an explicit user decision;
         the earlier failed attempts stay recorded as they were.
         """
         from harness.probe_na import ATTEMPT_LIMIT, TOTAL_ATTEMPT_LIMIT, counted_failures

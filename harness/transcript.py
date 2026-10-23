@@ -224,17 +224,17 @@ def tool_outside_plan_events(
     Diagnostic only — nothing refuses the call, and the PA keeps the capability
     it had. It says where the PA reached for a tool no `atomic_step` declares,
     so a batch review can find the turn without re-reading every transcript:
-    regress13 `acc_023` sent a real email (`email_message_send`) and edited a
+    `acc_023` sent a real email (`email_message_send`) and edited a
     calendar event (`calendar_event_update`) with neither step in its draft.
 
     Both classes are recorded and `tool_class` (`read` / `write`, by
     `READ_CLASS_TOOL_SUFFIXES`) tells them apart. Reads used to be dropped
     here, on the grounds that they are how a PA finds its way around a world it
     was not handed a map to and that the `document_read` / `place_search` /
-    `map_route_search` probes were the bulk of the first regress13 pass. That
-    filter also threw away the measurement: regress20 `acc_023` made roughly
+    `map_route_search` probes were the bulk of the first pass. That
+    filter also threw away the measurement: `acc_023` made roughly
     ninety out-of-plan reads and its records said none, and the per-model read
-    behaviour is analysed later (owner ruling 2026-09-08). Keeping the class on
+    behaviour is analysed later. Keeping the class on
     the record leaves the write count exactly as readable as it was, since
     every consumer that wants writes only filters on `tool_class`.
 
@@ -242,7 +242,7 @@ def tool_outside_plan_events(
     retry loop into one record on the theory that "a PA that retries the same
     undeclared write eleven times is one finding" — but the record is what a
     batch review counts, so the fold made a loop indistinguishable from a
-    single slip: regress18 `acc_011` wrote 1 record for 6 refused
+    single slip: `acc_011` wrote 1 record for 6 refused
     `document_update`s and `acc_039` 2 for 4 refused email writes, and both
     read as "tried once". `turn` and `beat` locate the PA turn; `call_index`
     is the call's position among that turn's task tool events, which is the
@@ -254,7 +254,7 @@ def tool_outside_plan_events(
     the only surface an atomic step can name.
 
     Argument-level matching closes the gap the name-only rule left open
-    (regress13 `acc_019` wrote to `draft_section3_w_notes.md`, a file no atomic
+    (`acc_019` wrote to `draft_section3_w_notes.md`, a file no atomic
     step mentions, through a perfectly declared `document_update`). When
     `declared_arguments` is supplied, a call whose tool *is* declared is
     compared against the `tool_arguments` of every step that declares that
@@ -401,7 +401,7 @@ class TranscriptWriter:
             self.run_dir / "simulator_validation_attempts.jsonl"
         )
         # Written empty rather than lazily, so "no retries" and "retries not
-        # recorded" stop looking alike. The file was absent on regress19
+        # recorded" stop looking alike. The file was absent on
         # `acc_004`, `acc_007` and `acc_019` and a read could not tell whether
         # the simulator accepted every turn first time or the artifact was
         # simply never produced.
@@ -711,7 +711,7 @@ def write_pa_toolcalls(
 def _consecutive_repeats(rows: list[dict]) -> list[tuple[dict, int]]:
     """`rows` with each run of identical neighbours collapsed to (row, count).
 
-    Rendering only: the ledger keeps every row. regress21r acc_039 t19 printed
+    Rendering only: the ledger keeps every row. acc_039 t19 printed
     25 identical `held call` lines for one booking the wrapper refused over and
     over, and a reviewer reading the page could not see past them.
     """
@@ -764,7 +764,7 @@ def _render_eval_block(sim_evt: dict) -> list[str]:
     if consent_decisions:
         out.append("**consent_decisions**:")
         for decision in consent_decisions:
-            # Owner ruling 2026-09-08: an entry with no id and a `tool` is a
+            # An entry with no id and a `tool` is a
             # standing authorisation for that act, not an answer about a held
             # item. Rendered as the tool it covers — as an empty id it read
             # like a malformed row.

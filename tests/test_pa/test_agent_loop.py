@@ -1,10 +1,10 @@
 """The pool the loop hands the memory adapter.
 
-Steps 1–3 rendered whatever `session.messages` had kept. These tests ask the
-harder question: does the adapter receive the PA's *whole* first-person
-experience of the turn — the prose of an intermediate iteration, the reasoning
-of the final one, the PA's own IX choice with the outcome the registry gave it,
-and the environment trigger it stayed silent about.
+These tests ask more than what `session.messages` kept: does the adapter
+receive the PA's *whole* first-person experience of the turn — the prose of an
+intermediate iteration, the reasoning of the final one, the PA's own IX choice
+with the outcome the registry gave it, and the environment trigger it stayed
+silent about.
 """
 
 from __future__ import annotations
@@ -175,7 +175,7 @@ def _selections(event):
 
 
 # ---------------------------------------------------------------------------
-# step 4 · the pool is the raw loop slice, not what the next prompt kept
+# the pool is the raw loop slice, not what the next prompt kept
 # ---------------------------------------------------------------------------
 
 def test_turn_pool_contains_intermediate_prose_and_reasoning(tmp_path: Path) -> None:
@@ -183,8 +183,8 @@ def test_turn_pool_contains_intermediate_prose_and_reasoning(tmp_path: Path) -> 
 
     Projection 2 exists so held prose never returns to the PA's own prompt, and
     it pays for that by blanking the prose of an intermediate iteration
-    (`pa/agent/ix/collector.py:1404`) and rebuilding the final assistant message
-    without its reasoning (`:1434`). The pool is projection 3 and reads the raw
+    (`pa/agent/ix/collector.py:1403`) and rebuilding the final assistant message
+    without its reasoning (`:1433`). The pool is projection 3 and reads the raw
     provider slice instead.
     """
     async def run() -> None:
@@ -223,7 +223,7 @@ def test_turn_pool_contains_intermediate_prose_and_reasoning(tmp_path: Path) -> 
             ("reasoning", "The search returned one match."),
             ("assistant", "It is out for delivery."),
         ]
-        # Q3: the delivered text appears exactly once, as `public_turn`.
+        # The delivered text appears exactly once, as `public_turn`.
         blob = json.dumps(adapter.events[0].messages, default=str)
         assert blob.count("It is out for delivery.") == 1
         assert outbound.content == "It is out for delivery."
@@ -261,8 +261,8 @@ def test_the_acc_slice_reaches_the_pool_already_cut(tmp_path: Path) -> None:
     history at `TOOL_RESULT_MAX_CHARS` while the pool was built from the raw
     provider slice, so a 25 348-character `mcp_state_scholarly_paper_search`
     result went into Qdrant whole and — never carrying the marker — stamped
-    `truncated=false`. That contradicts `memory/event_writer.py:20-34` and
-    owner ruling Q2: the pool carries the persisted form. Both writers now go
+    `truncated=false`. That contradicts `memory/event_writer.py:20-34`: the
+    pool carries the persisted form. Both writers now go
     through `AgentLoop._cut_tool_result`.
     """
     async def run() -> None:
@@ -409,7 +409,7 @@ def test_ix_selection_outcomes_cover_executed_rejected_and_duplicate(
 
 
 # ---------------------------------------------------------------------------
-# step 5 · the environment branch is a write path, not a rendering
+# the environment branch is a write path, not a rendering
 # ---------------------------------------------------------------------------
 
 def _outreach_provider(action: str, message: str) -> _ScriptProvider:
@@ -467,7 +467,7 @@ def test_suppressed_outreach_writes_one_pool_with_environment_event_and_no_reply
         outbound = await _environment_event(loop)
 
         assert outbound.content == ""
-        # Q2 = A: journal-only. Nothing synthetic re-enters the PA's prompt.
+        # Journal-only: nothing synthetic re-enters the PA's prompt.
         assert loop.sessions.get(SESSION_KEY).messages == []
 
         assert len(adapter.events) == 1
@@ -478,7 +478,7 @@ def test_suppressed_outreach_writes_one_pool_with_environment_event_and_no_reply
         assert kinds.count("no_reply") == 1
         assert "user" not in kinds
 
-        # Q4: the fixed IX instruction suffix is contract enforcement, and the
+        # The fixed IX instruction suffix is contract enforcement, and the
         # split is exact because the clean body never carried it.
         blob = json.dumps(adapter.events[0].messages, default=str)
         assert "Use IX_proactive_outreach" not in blob
@@ -550,7 +550,7 @@ def test_environment_branch_pool_carries_the_ix_selection_and_result(
             selection = _selections(adapter.events[0])[0]
             assert selection.attrs["attribute"] == "proactive_outreach"
             assert selection.attrs["outcome"] == "executed"
-            # Q3 again: the internal completion text was never delivered.
+            # The internal completion text was never delivered either.
             blob = json.dumps(adapter.events[0].messages, default=str)
             assert "Internal completion text." not in blob
 

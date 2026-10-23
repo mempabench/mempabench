@@ -117,8 +117,8 @@ def _third_party_message_transcript(tmp_path: Path) -> Path:
     """The fixture with its delivery rewritten as a direct third-party message.
 
     An `environment_action` and a `MessageItem` carrying a `SourceRef` source
-    are the two ways a third party speaks in a transcript, and under owner
-    ruling DC1 neither is the user or the PA, so neither reaches memory. No
+    are the two ways a third party speaks in a transcript, and neither is
+    the user or the PA, so neither reaches memory. No
     landed transcript and no fixture authors the second shape, so the tests
     build it: the delivery becomes a third-party `message`, the PA answers it
     inside the same exchange, and the user's reply moves to the next exchange.
@@ -269,7 +269,7 @@ async def test_executor_runs_frozen_event_without_live_models(tmp_path: Path) ->
         for event in adapter.events
         for message in event.messages
     )
-    # Owner ruling 2026-09-13: the delivered third-party message is in the PA's
+    # The delivered third-party message is in the PA's
     # own session -- and so in the prompt history of every later turn -- and in
     # the pool the adapter is handed, as a tagged block on an `assistant`
     # message. It is never the person's own speech.
@@ -1071,7 +1071,7 @@ def test_a_forced_event_must_end_on_a_pa_visible_user_message(
 
 
 def test_environment_action_content_is_in_the_preview_as_a_tagged_block() -> None:
-    """Owner ruling 2026-09-13: the pool is the PA's whole experience.
+    """The pool is the PA's whole experience.
 
     A delivered third-party line is part of that experience -- the PA perceived
     it, and the person's next line answers it -- so it is in the preview. What
@@ -1243,7 +1243,7 @@ def _with_realized_call_reference(tmp_path: Path) -> Path:
     """The fixture plus a call whose argument names an earlier realized id.
 
     `call_fixture_02` mints a `draft_id` the transcript cannot know
-    (`state_server/store.py:1800`, `_mint_id`), and the added `call_fixture_03`
+    (`state_server/store.py:1801`, `_mint_id`), and the added `call_fixture_03`
     reads it back through `$call_fixture_02.draft_id` (`harness/tool_refs.py`).
     That pairing is what makes a re-execution visible: a second run that
     executes `call_fixture_02` again mints a second draft, so the reference in
@@ -1361,7 +1361,7 @@ async def test_resume_does_not_re_execute_a_realized_exchange(
     `await registry.execute(...)` at `:345`). So the crash is tripped at the
     top of the NEXT registry call, `call_fixture_03`'s
     `mcp_state_email_draft_read`: at that instant the minted `draft_id` is in
-    `self._replay.results` where a step-9 journal can persist it, the draft
+    `self._replay.results` where a turn journal can persist it, the draft
     exists in the world, and `_commit_session_and_memory` (`:568`) has not run,
     so nothing has reached the adapter. Raising inside `registry.execute`
     itself would be a crash *before* `:347`, leaving nothing journaled and
@@ -1574,7 +1574,7 @@ def _environment_delivery_transcript(tmp_path: Path) -> Path:
 async def test_environment_action_reaches_the_pa_in_accs_role_and_wrapper(
     tmp_path: Path,
 ) -> None:
-    """Owner ruling 4, 2026-09-13: one environment event, one shape.
+    """One environment event, one shape.
 
     ACC delivers an environment event to the PA as `role: "system"` carrying a
     body that opens with `[Environment event; no user request is currently
@@ -1641,7 +1641,7 @@ async def test_environment_action_enters_memory_as_tagged_block_not_user_role(
 ) -> None:
     """The live pool carries the delivered world line, never as the person.
 
-    Owner ruling 2026-09-13: the pool is the PA's complete first-person
+    The pool is the PA's complete first-person
     experience, so what a third party said is in it -- but a third party's
     words are never attributed to the person, so the block sits on an
     `assistant` message.
@@ -1977,7 +1977,7 @@ async def test_crash_between_pending_and_written_resumes_through_the_journal(
 
 
 # ---------------------------------------------------------------------------
-# a mid-event compaction sweep against the step-7 turn journal
+# a mid-event compaction sweep against the turn journal
 # ---------------------------------------------------------------------------
 
 

@@ -86,7 +86,7 @@ def test_seeded_setting_renders_and_its_selection_tool_is_not_offered(
 # ---------------------------------------------------------------------------
 # (a2) the seed survives the environment-event turn
 # ---------------------------------------------------------------------------
-# `measurements_render.md` Finding 2: the proactive round inherits no settings,
+# The proactive round inherits no settings,
 # so `IX_proactive_outreach` is still offered -- it has to be, it is the only
 # carrier of the candidate contact -- and the model's own answer used to
 # overwrite the seed in `_ix_selection_cache` before the renderer read it. The

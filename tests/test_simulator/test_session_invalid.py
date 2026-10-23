@@ -8,14 +8,14 @@ rule, and the raise is what the harness turns into the step's status and a
 non-zero rc.
 
 `beat_ask_unfulfilled` — the beat's scripted ask never got produced — came
-through the same door until the owner's ruling of 2026-09-14 switched the
-forced-ask check off altogether: the turn is played like any other, the judge
+through the same door until the forced-ask check was switched off
+altogether: the turn is played like any other, the judge
 is never asked whether it carries an ask, and nothing is recorded. The rule
 keeps its place in `SESSION_INVALID_RULES` because the commented-out check in
 `simulator/loop.py` still names it. Section (a) is what that looks like.
 
 The PA's own contract failures are the other way round — the PA is the subject,
-so they stay continue-and-record (ruling 4). The last two tests hold that line.
+so they stay continue-and-record. The last two tests hold that line.
 
 Run with:
     PYTHONPATH=. python -m pytest tests/test_simulator/test_session_invalid.py
@@ -204,7 +204,7 @@ _ACKNOWLEDGEMENTS = [
 
 
 def test_a_beat_ask_that_never_comes_is_played_and_nothing_is_recorded() -> None:
-    """The forced-ask check is off (owner ruling 2026-09-14): the probe beat's
+    """The forced-ask check is off: the probe beat's
     first turn asks nothing and is played like any other turn. The judge is
     never asked about it, and no event, diagnostic or rejected row is left."""
     events, provider, pa = _run(_ACKNOWLEDGEMENTS + [_turn("That one will do.")])
@@ -224,7 +224,7 @@ def test_a_beat_ask_that_never_comes_is_played_and_nothing_is_recorded() -> None
     assert len(provider.calls) == 3
 
 
-@pytest.mark.skip(reason="forced-ask check off, owner ruling 2026-09-14")
+@pytest.mark.skip(reason="forced-ask check off")
 def test_the_unfulfilled_event_carries_the_played_text_without_an_abort() -> None:
     """Same shape `beat_ask_retry` uses for what it threw away: the event is a
     record of the candidate, truncated, not the artifact. `aborted` is now
@@ -255,7 +255,7 @@ def test_the_candidate_the_gate_read_becomes_the_simulator_turn() -> None:
 def test_an_invalid_session_ends_on_session_invalid_not_session_end() -> None:
     """Scripted on `simulator_output_format_invalid`, which still voids: the
     point here is the generic abort path once turns have already been played,
-    and the ask rule that used to carry it is record-only since 2026-09-14."""
+    and the ask rule that used to carry it is record-only now."""
     _, events, _, _ = _run_expecting_invalid(
         [_turn("Anything from Marcus?"), _MALFORMED], output_contract_retries=0
     )
@@ -370,9 +370,8 @@ def test_another_output_contract_failure_still_raises_its_own_error() -> None:
     contract error propagates, and no `session_invalid` is written.
 
     An authoring leak, not the invented path this used to be scripted with:
-    every judgement about the turn is record-only since the owner's ruling of
-    2026-09-14, so the findings left blocking are the ones whose message cannot
-    be played as it stands.
+    every judgement about the turn is record-only, so the findings left blocking
+    are the ones whose message cannot be played as it stands.
     """
     leaks_authoring = _turn("As the simulator I need the venue list today.")
     provider = _ScriptedProvider([leaks_authoring] * 4)
@@ -395,7 +394,7 @@ def test_another_output_contract_failure_still_raises_its_own_error() -> None:
 
 
 def test_a_pa_side_contract_failure_does_not_invalidate_the_session() -> None:
-    """Ruling 4: the PA is the subject, so its own contract failures are
+    """The PA is the subject, so its own contract failures are
     recorded and the session runs on. `ix_contract_failure` and the certainty
     events ride the PA's `tool_events` and never reach the abort path."""
     pa = _CountingPA(

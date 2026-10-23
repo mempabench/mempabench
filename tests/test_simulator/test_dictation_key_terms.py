@@ -1,10 +1,10 @@
 """The dictation on a gated session has to carry the gate's key terms.
 
-The session gate is keyed on information (owner, 2026-09-08): the state server
+The session gate is keyed on information: the state server
 passes a gated write only when the value carries every `gate_key_term`, and the
 wording the PA has is the wording the user dictated. So a dictation that drops a
 term hands the PA a sentence the world will refuse whatever it does with it —
-live regress15 `acc_039` t55 restated the reason as "chest tightness ... three
+live `acc_039` t55 restated the reason as "chest tightness ... three
 weeks" against a gate keyed on "chest tightening". The dictation is the
 instrument's, so it is the instrument that has to carry them, and the retry
 budget spent on it aborts the session rather than delivering the refusal.
@@ -51,7 +51,7 @@ from simulator.schemas import (
 )
 
 
-# `acc_039`'s gate as it was authored before ruling 6 re-authored it to the
+# `acc_039`'s gate as it was authored before it was re-authored to the
 # information (`chest` / `stairs` / `three weeks`). Kept here because it is what
 # the live t55 restatement below was refused against.
 TERMS = ["chest tightening", "the stairs", "three weeks"]
@@ -59,7 +59,7 @@ DICTATED = (
     "the chest tightening when I take the stairs in the mornings, which began "
     "about three weeks ago"
 )
-# Live regress15 t=55, on `beat_6_confirm_booking_record`: the same information
+# Live t=55, on `beat_6_confirm_booking_record`: the same information
 # with one word changed, which is the whole failure.
 T55 = (
     "The reason is: chest tightness when taking the stairs in the mornings, "
@@ -117,8 +117,8 @@ def test_term_words_is_the_stores_own_normalisation() -> None:
 def test_a_number_word_and_its_digits_are_one_term() -> None:
     """The store folds a standalone number word to its digits; so does the copy.
 
-    regress16 `acc_039` lost the gate to "began approximately 3 weeks ago"
-    against a term of "three weeks" (owner ruling 6). The instrument has to fold
+    `acc_039` lost the gate to "began approximately 3 weeks ago"
+    against a term of "three weeks". The instrument has to fold
     them the same way, or it flags a dictation the store would have taken.
     """
     for text in ("began about three weeks ago", "began about 3 weeks ago"):
@@ -242,7 +242,7 @@ def test_a_turn_before_the_reveal_beat_is_not_armed() -> None:
 
 
 def test_a_turn_that_does_not_deliver_the_dictation_is_not_armed() -> None:
-    """Live regress15 `acc_039` t=20, on the reveal beat and about the calendar
+    """Live `acc_039` t=20, on the reveal beat and about the calendar
     entry rather than the reason. Under a "first turn of the reveal beat" rule
     the beat's other six turns would each have had to re-say the sentence."""
     script = _gated_script()
@@ -510,7 +510,7 @@ def test_the_retry_note_names_every_missing_term() -> None:
 
 
 def test_the_rejected_attempt_row_carries_the_note_it_was_sent() -> None:
-    """regress20 `acc_023`: three rejection rows with an empty `retry_note`,
+    """`acc_023`: three rejection rows with an empty `retry_note`,
     the t15 `dictation_missing_key_terms` one among them. The row now carries
     the note the loop put to the actor, terms named."""
 
@@ -542,7 +542,7 @@ def test_the_rejected_attempt_row_carries_the_note_it_was_sent() -> None:
 
 # The reason in the user's own words: every key term, none of the dictated
 # sentence verbatim (so the whole-message dictation exemption does not cover
-# it), and 37 words. The shape live memos r2 `acc_059` was.
+# it), and 37 words. The shape live memos `acc_059` was.
 _OWN_WORDS = (
     "It is the chest tightening when I take the stairs in the mornings, and it "
     "started about three weeks ago, so please put that on the entry before you "
@@ -568,8 +568,8 @@ def _confirm_beat(script: SessionScript) -> Beat:
 
 
 def test_the_key_terms_buy_their_sentence_out_of_the_length_cap() -> None:
-    """Owner, 2026-09-16: one list for the retry note and the 35-word cap, and
-    the dictation key terms join it. Live memos r2 `acc_059`: the dictation
+    """One list for the retry note and the 35-word cap, and the dictation key
+    terms join it. Live memos `acc_059`: the dictation
     sentence of a mixed message was over the cap, the style retry shortened it,
     the terms went with the clauses it cut, and the blocking dictation rule
     then spent a second retry on the rewrite."""
@@ -640,7 +640,7 @@ _CUE_SENTENCE = "Put the reason for the visit on the entry."
 
 
 def test_a_term_the_dictation_reports_missing_is_not_kept_word_for_word() -> None:
-    """Owner, 2026-09-16: the note never protects a sentence for a key term the
+    """The note never protects a sentence for a key term the
     same attempt's dictation finding calls missing. The two matchers disagree on
     a scattered phrase — 70% token coverage keeps the sentence, words-in-order
     calls the term missing — and the actor is then asked to put the phrase back
@@ -751,13 +751,13 @@ def test_the_invalid_session_ends_on_the_rule_and_carries_the_discarded_text() -
 
 
 # --- one inflectional ending per word --------------------------------------
-# The store gained this at jl 569490b (`_is_inflection`, `_same_word`,
-# `_carries_term`): a word matches an ordinary inflection of itself, in either
-# direction. The copy here has to agree, or the instrument flags a dictation the
-# gate would have taken — live regress19r2 `acc_009` lost a write to "hardest"
-# against a term of "hard". These cases are NOT pinned against the `StateStore`
-# in this tree, which predates that commit; `test_the_normalisation_matches_the
-# _store` still pins everything the two shared before it.
+# The store has this too (`_is_inflection`, `_same_word`, `_carries_term`): a
+# word matches an ordinary inflection of itself, in either direction. The copy
+# here has to agree, or the instrument flags a dictation the gate would have
+# taken — live `acc_009` lost a write to "hardest" against a term of "hard".
+# These cases are NOT pinned against the `StateStore`;
+# `test_the_normalisation_matches_the_store` pins the rest of what the two
+# share.
 
 
 @pytest.mark.parametrize(
@@ -791,7 +791,7 @@ def test_a_word_carries_one_inflection_of_itself(
 
 
 # ── a beat whose own script dictates ───────────────────────────────
-# Owner ruling 2026-09-15: the check also arms when the BEAT'S SCRIPT dictates
+# The check also arms when the BEAT'S SCRIPT dictates
 # the gated value. Reading the message alone leaves the case the gate cannot
 # survive unchecked — an ask turn that paraphrases the dictated title away is
 # not a delivery, so nothing fires, and the PA has no wording to write.
@@ -818,8 +818,8 @@ PICKUP_TURN = (
     'counter pickup".'
 )
 
-# Live `fin_19`, the probe the ruling was written off. Kept because it is the
-# owner's example, with the correction the replay turned up: the delivery arm
+# Live `fin_19`, the probe the rule was written off. Kept because it is the
+# rule's example, with the correction the replay turned up: the delivery arm
 # ALREADY fires here — "water", "bill", "payment" and "hold" are all somewhere
 # in the turn, so `delivers_dictated_text` reads it as a delivery and the live
 # run recorded the finding. The new arm changes nothing about this case; the
@@ -911,7 +911,7 @@ def test_the_scripted_dictation_said_correctly_is_no_finding() -> None:
 
 
 def test_the_fin_19_turn_is_a_finding_and_the_dictated_title_clears_it() -> None:
-    """The owner's example. Armed by either arm — see `WATER_DICTATED`."""
+    """The rule's example. Armed by either arm — see `WATER_DICTATED`."""
     script = _probe_script(
         dictated=WATER_DICTATED, terms=WATER_TERMS, script=WATER_SCRIPT
     )
@@ -943,7 +943,7 @@ def test_a_beat_that_does_not_dictate_stays_unarmed() -> None:
 
 
 def test_a_reaction_beat_whose_script_does_not_dictate_stays_unarmed() -> None:
-    """The memos r2 false positive `_delivers_gated_dictation` was found in:
+    """The live memos false positive `_delivers_gated_dictation` was found in:
     a reaction beat read as the delivery turn. `_script_dictates` cannot widen
     it — it keys on the beat's OWN script text, and a reaction beat that only
     reacts dictates nothing."""
@@ -985,7 +985,7 @@ def test_an_acc_beat_that_dictates_in_text_and_drops_a_term_is_armed() -> None:
 
 
 def test_the_arm_is_spent_once_the_session_has_said_the_sentence() -> None:
-    """Owner ruling 2026-09-15, the narrowing. Live `simple_rag` `fin_22`: the
+    """The narrowing. Live `simple_rag` `fin_22`: the
     title was dictated correctly on the ask turn, and the closing "That works,
     thanks." was then failed for not repeating it. A dictating beat owes the
     sentence once, not on every turn."""
@@ -1063,7 +1063,7 @@ _PICKUP_FIXED = (
 
 
 def test_the_finding_blocks_rather_than_only_recording() -> None:
-    """Owner ruling 2026-09-15: it is out of `RECORD_ONLY_FINDINGS` again, so
+    """It is out of `RECORD_ONLY_FINDINGS` again, so
     the existing consequence applies — a retry note, and a void past the
     budget."""
     assert "dictation_missing_key_terms" not in RECORD_ONLY_FINDINGS

@@ -430,7 +430,7 @@ def test_normal_and_forced_event_exchanges_write_the_same_memory_schema(
         ]
 
         # What the wrapper withheld reaches no backend. The gated call's
-        # declaration is the PA's own act and now travels (item #5), but
+        # declaration is the PA's own act and now travels, but
         # carrier C is wrapper state and does not — and no result is invented
         # for a call that never ran.
         assert memory_io.records

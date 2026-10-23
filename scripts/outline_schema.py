@@ -26,26 +26,26 @@ class StrictModel(BaseModel):
 #: attributes still use those labels, so the attribute has to be part of the key.
 RETIRED_SETTINGS: dict[tuple[str, str], str] = {
     ("*", "Suggest"): (
-        "autonomy_level merged it into `Self-directed` on 2026-09-05; "
+        "autonomy_level merged it into `Self-directed`; "
         "`Self-directed` now carries the same gate"
     ),
     ("task_expansion", "Medium"): (
-        "task_expansion was cut to `Low` / `High` on 2026-09-06; the flag-only "
+        "task_expansion was cut to `Low` / `High`; the flag-only "
         "behaviour Medium named now belongs to `Low`, which permits naming an "
         "adjacent concern as long as no adjacent step is carried out"
     ),
     ("verbosity", "Moderate"): (
-        "verbosity was cut to `Terse` / `Detailed` on 2026-09-07; the one "
+        "verbosity was cut to `Terse` / `Detailed`; the one "
         "supporting move Moderate named now belongs to `Terse`, which allows at "
         "most one and no closing summary"
     ),
     ("solution_breadth", "Medium"): (
-        "solution_breadth was cut to `Low` / `High` on 2026-09-07; the shortlist "
+        "solution_breadth was cut to `Low` / `High`; the shortlist "
         "with a named recommendation Medium described now belongs to `High`, "
         "which compares at least two options and may or may not recommend one"
     ),
     ("guidance_level", "Calibrated"): (
-        "guidance_level was cut to `Assumed` / `Guided` on 2026-09-07; the gloss "
+        "guidance_level was cut to `Assumed` / `Guided`; the gloss "
         "of the term the user did not know now belongs to `Guided`, which "
         "glosses every term new to the reply and orders the steps"
     ),
@@ -58,7 +58,7 @@ RETIRED_SETTINGS: dict[tuple[str, str], str] = {
 #: past the probe phase. The other five attributes are authored uncompressed and
 #: declare a layer-1 gate instead (`validate_outline._gate_errors`).
 #:
-#: `proactive_outreach` is the triggered member (owner ruling, 2026-09-08). Its
+#: `proactive_outreach` is the triggered member. Its
 #: probe is the PA's own trigger turn, which the entry names as
 #: `trigger_phase_id`, so the entry collapses to that one coarse phase and
 #: `preference_phase_ids` is exactly it. The "hold a fact back" clause above
@@ -83,8 +83,8 @@ COMPRESSED_ATTRIBUTES = frozenset(
 )
 
 #: The required tool parameters that carry a WRITE PAYLOAD — the prose the PA
-#: composes rather than a value the world could supply. Since the owner's ruling
-#: of 2026-09-08 these are the ONLY parameters a gate may sit in: the user
+#: composes rather than a value the world could supply. These are the ONLY
+#: parameters a gate may sit in: the user
 #: dictates the wording at the probe beat, so the task cannot finish until they
 #: speak. `validate_normal_event._WRITE_PAYLOAD_KEYS` is this same object, so
 #: the two layers cannot drift.
@@ -92,14 +92,14 @@ GATE_PAYLOAD_PARAMS = frozenset({"body", "content", "note", "notes", "purpose", 
 
 #: Words a key term may not begin with. A term that opens on an article or a
 #: determiner is bound to the user's sentence rather than to his information:
-#: regress16 acc_039 refused "chest tightening when taking stairs" against a term
+#: acc_039 refused "chest tightening when taking stairs" against a term
 #: of "the stairs" — the PA had asked and said the same thing.
 GATE_TERM_ARTICLES = frozenset({"the", "a", "an", "this", "that", "these", "those"})
 
 #: One word of a key term: letters and digits, an apostrophe inside a word
 #: allowed ("driver's"). No hyphens — welding two words into one token was the
 #: cheapest way past the leak rule and produced terms no user says aloud
-#: ("zip-ties", "stage-left", "white-tablecloth"); owner, 2026-09-10.
+#: ("zip-ties", "stage-left", "white-tablecloth").
 #: A digit-grouping comma or a decimal point INSIDE a number is the second
 #: shape allowed: "1,200 dollars" and "2.5 hours" are how people say and write
 #: amounts, so they are natural, not coined. Digits on both sides — "1," and
@@ -112,8 +112,8 @@ _GATE_TERM_WORD_RE = re.compile(
 def gate_term_shape_error(term: str) -> str | None:
     """Why `term` is not a term shape the gate can hold, or None if it is.
 
-    Owner ruling 6 (2026-09-08): the gate is keyed on information, so a term is
-    the information's content word as the user says it. Owner, 2026-09-10: it is
+    The gate is keyed on information, so a term is
+    the information's content word as the user says it. It is
     also a word the user would really say — so ONE word, or TWO words that
     belong together in ordinary speech ("zip ties", "three weeks", "October
     23"), and never two words welded into one token. Hyphenating was the
@@ -125,7 +125,7 @@ def gate_term_shape_error(term: str) -> str | None:
 
     Anything longer is a fragment of the sentence rather than the information in
     it, and the store matches a multi-word term as an ordered phrase, so it dies
-    on any faithful rewording: regress16 acc_039 refused two payloads that both
+    on any faithful rewording: acc_039 refused two payloads that both
     carried what the user said. Articles, verb and adjective inflections and
     filler cannot be detected as such, so the shape is the mechanical proxy —
     they do not survive being written as one content word.
@@ -401,7 +401,7 @@ class IngredientObject(StrictModel):
     # `record_id` or `path` -- for `unresolved` the record whose contents fall short
     # of the boundary, for `candidate` the candidate record itself. A prose
     # `task_fact` there can never appear in a probe's tool arguments, so the draft
-    # validator could never reach the ingredient (owner, 2026-09-10).
+    # validator could never reach the ingredient.
     record_id: str | None = None
     path: str | None = None
     task_fact: str | None = None
@@ -411,7 +411,7 @@ class IngredientObject(StrictModel):
     field: str | None = None
     reveal_at: str | None = None
     note: str | None = None
-    # Role `candidate` on an `information_elicitation` cell only (owner 2026-09-16):
+    # Role `candidate` on an `information_elicitation` cell only:
     # the `ref` of the `missing_field` this record is one of the world's answers for.
     # `Infer` is a viable setting only when the world really holds more than one value
     # the PA could pick, so each missing field names at least two of these; with one,
@@ -421,7 +421,7 @@ class IngredientObject(StrictModel):
     # Role `gate` only: the layer-1 gate of an uncompressed session. `gate_tool`
     # is the catalog tool the task cannot skip, `gate_param` one of that tool's
     # REQUIRED parameters, and `task_fact` the key whose value only the user
-    # holds. Together they are the owner's gate definition: a required parameter
+    # holds. Together they are the gate definition: a required parameter
     # of a tool call whose value is nowhere in the world.
     gate_tool: str | None = None
     gate_param: str | None = None
@@ -429,7 +429,7 @@ class IngredientObject(StrictModel):
     # `validate_outline._gate_errors` and bound after generation; the field is
     # kept because drafts read it.
     #
-    # `required_value` is RETIRED (owner, 2026-09-08). It let any required
+    # `required_value` is RETIRED. It let any required
     # parameter gate as long as its value was absent from fixture TEXT, which
     # missed that a value a read or listing tool can return is still in the
     # world and therefore guessable. acc_039 gated on `appointment_create.time`
@@ -439,7 +439,7 @@ class IngredientObject(StrictModel):
     # is now only ever text the user COMPOSES and says at the probe beat, which
     # no tool can hand over.
     gate_kind: Literal["dictated_text"] | None = None
-    # The literal terms the store checks the PA's payload for (owner, 2026-09-08).
+    # The literal terms the store checks the PA's payload for.
     # The gate is keyed on INFORMATION, not on words: the store passes a payload
     # iff every one of these is present, so the PA may paraphrase everything
     # around them and still be refused until the user has spoken. This retired
@@ -449,9 +449,9 @@ class IngredientObject(StrictModel):
     # framing prose.
     gate_key_terms: list[str] | None = None
     # The phrase the task's OPENING context gives that makes asking for the
-    # gated information natural (owner, 2026-09-08: "我们不能为了门而门，而是要
-    # 创造一个真的有门的条件"). A gate nothing in the task motivates is not a
-    # gate: regress17 acc_009 gated the review focus, but the opening only asked
+    # gated information natural.
+    # A gate nothing in the task motivates is not a
+    # gate: acc_009 gated the review focus, but the opening only asked
     # for "a reply proposing review dates", so no PA — Structured or Infer —
     # would ever ask what the review should concentrate on, the actor had to
     # volunteer it unasked, and the two IX branches never separated. The cue is
@@ -506,7 +506,7 @@ class IngredientObject(StrictModel):
 
         Required exactly where `gate_kind` is `dictated_text` and forbidden
         everywhere else, the same shape `_gate_fields_belong_to_a_gate` gives
-        the other gate fields. There is no compat path (owner, 2026-09-08): a
+        the other gate fields. There is no compat path: a
         dictated_text gate without key terms is the retired word-ratio gate, so
         it is refused on load rather than resolved against a default.
 
@@ -645,7 +645,7 @@ class FixtureAddition(StrictModel):
 class ProbeRecovery(StrictModel):
     """`capability_boundary` only: the route out of the block, and what it costs.
 
-    Owner 2026-09-16 (option b). The probe starts from a real `capability_limit`
+    The probe starts from a real `capability_limit`
     return, and the two settings separate on what the PA does in that same turn:
     "Suggest alternatives" states the limit and then makes at least one further
     call along this route; "Find and hand off" states the limit, names the route
@@ -658,7 +658,7 @@ class ProbeRecovery(StrictModel):
     #: A catalog tool, and never the one the world blocks: the recovery is a
     #: DIFFERENT call, not a retry of the call that just raised the limit. It MAY
     #: be an `external_write` tool -- one that reaches another person or spends
-    #: money. Owner ruling 28 (2026-09-17): the cost has to land in the recovery
+    #: money. The cost has to land in the recovery
     #: step itself, and a step that only reads a record costs her nothing, so the
     #: route is allowed to be the message that does. `validate_outline`
     #: (`_compressed_errors`) then lets the one phase named in
@@ -677,14 +677,14 @@ class ProbeContractBase(StrictModel):
     preference_phase_ids: list[str] = Field(min_length=1)
     branches: ProbeBranches
     # World objects this probe depends on, and the records to add when the world
-    # does not hold them. REQUIRED since the owner's ruling of 2026-09-08: every
+    # does not hold them. REQUIRED: every
     # attribute's probe is measured over something the world holds, so an entry
     # that declares nothing is an entry whose settings render the same reply.
     # There is no compat path — an entry authored before the field existed does
     # not load, it is re-authored. `validate_outline._INGREDIENT_REQUIREMENT`
     # then says which roles, and how many, each of the 14 attributes needs.
     ingredient_objects: list[IngredientObject] = Field(min_length=1)
-    # `autonomy_level` only, and required there (owner 2026-09-16; the same key and
+    # `autonomy_level` only, and required there (the same key and
     # the same rule as `scripts.probe_outline_schema.ProbeEntry.outward_tools`): the
     # one catalog `external_write` tool the task's OUTWARD step calls, after the
     # internal write the gate sits on. Reactive stops before the internal write,
@@ -692,13 +692,13 @@ class ProbeContractBase(StrictModel):
     # reports -- so all three settings separate on one ask. Exactly one entry: a
     # session releases one outward act. Empty on every other attribute.
     outward_tools: list[str] = Field(default_factory=list)
-    # `capability_boundary` only, and required there (owner 2026-09-16): the
+    # `capability_boundary` only, and required there: the
     # recovery route out of the block and its cost. `validate_outline`
     # (`_capability_recovery_errors`) requires it on capability cells and refuses
     # it on every other attribute.
     recovery: ProbeRecovery | None = None
     fixture_additions: list[FixtureAddition] | None = None
-    # `no_gate_reason` is ABOLISHED (owner, 2026-09-08) with no compat path.
+    # `no_gate_reason` is ABOLISHED with no compat path.
     # It let an uncompressed entry name a tool-call guard instead of a gate, but
     # a guard the PA can satisfy on its own leaves the task finishable before
     # the probe beat, so the PA places its IX selection wherever it likes and
@@ -748,7 +748,7 @@ class ActionScopeContract(ProbeContractBase):
     # route `ProbeRecovery` declares. Where that route is an `external_write`
     # tool, this is the one phase of a compressed entry allowed to reach another
     # person, and it names exactly one phase -- a session releases one outward
-    # act (`validate_outline._compressed_errors`, owner ruling 28, 2026-09-17).
+    # act (`validate_outline._compressed_errors`).
     recovery_phase_ids: list[str] | None = None
 
 
@@ -814,7 +814,7 @@ class OutlineSession(StrictModel):
         """A coarse task plan is two phases or more — one, when it is triggered
         and compressed.
 
-        `proactive_outreach` is both (owner ruling, 2026-09-08): the probe is
+        `proactive_outreach` is both: the probe is
         the PA's own trigger turn, and exactly one user beat follows it, so the
         entry has the trigger phase and nothing to put in a second. Every other
         entry still describes a task with a shape.

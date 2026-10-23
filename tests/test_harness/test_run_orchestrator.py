@@ -249,7 +249,7 @@ REAL_VALIDATE_FORCED_TRANSCRIPT = run_plan_builder._validate_forced_transcript
 
 @pytest.fixture(autouse=True)
 def _forced_transcript_check_passes_at_freeze(monkeypatch):
-    """D5 checks forced transcripts against their sources at freeze; the
+    """Forced transcripts are checked against their sources at freeze; the
     synthetic drafts these tests freeze are not real sessions."""
     from test_harness.test_run_plan_builder_probes import _pass_forced_transcript_check
 
@@ -825,8 +825,8 @@ def test_superseding_a_probe_goes_through_the_shared_run_layout_helper(
 ):
     """One implementation of the layout, two callers of it.
 
-    `--rerun-probe-steps` here and the in-batch void retry (D5,
-    `Orchestrator._run_one_probe`) must write the same
+    `--rerun-probe-steps` here and the in-batch void retry
+    (`Orchestrator._run_one_probe`) must write the same
     `steps_superseded/<id>__<stamp>/`, because the cohort manifest and
     `--list-cohorts` read whichever of them wrote it. The ledger stays this
     caller's own business: the helper only moves the directory.
@@ -2535,7 +2535,7 @@ async def test_no_borrowed_runs_root_leaves_the_same_parent_fallback(
 
 
 def test_soul_text_forbids_claiming_a_file_change_with_no_write() -> None:
-    """acc_006 P2: three merges reported as done on a turn with zero tool calls.
+    """acc_006: three merges reported as done on a turn with zero tool calls.
 
     The claim was then consolidated into HISTORY.md and MEMORY.md as fact.
     """
@@ -2548,7 +2548,7 @@ def test_soul_text_forbids_claiming_a_file_change_with_no_write() -> None:
     )
 
 
-# --- the simulator's dictation check is armed from the resolved gate (2026-09-08)
+# --- the simulator's dictation check is armed from the resolved gate
 
 
 def _fixture_script():
@@ -2715,7 +2715,7 @@ async def test_the_loop_carries_the_cue_off_the_beat_the_simulator_skips(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Live regress19 `acc_003`: the beat the cue was armed on was skipped after
+    """Live `acc_003`: the beat the cue was armed on was skipped after
     a turn limit and the cue never reached the PA. The loop installs the carry
     hook on the writer, so the skip moves the obligation onto the landing beat
     of the very script the simulator is holding."""
@@ -2833,7 +2833,7 @@ def _forced_plan_kwargs() -> dict:
 def test_a_forced_transcript_its_validator_refuses_is_not_frozen(
     authoring_root, monkeypatch
 ):
-    """D5: the forced-event transcript is checked against its sources at freeze.
+    """The forced-event transcript is checked against its sources at freeze.
 
     The real check, not the stand-in: the synthetic draft the transcript names
     holds only `event_meta.event_id` and `source_acc_num`, so it is not a valid

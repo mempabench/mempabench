@@ -23,8 +23,8 @@ EXPECTED_RULES = {
     "reaction_misstates_contractions",
     "probe_fact_missing",
     "reaction_authorises_pa_action",
-    # Commented out, owner ruling 2026-09-13 ("先comment"): the rule is not
-    # asked this round; gold, prompt and builder stay. Eight rules, not nine.
+    # Commented out: the rule is not asked; gold, prompt and builder stay.
+    # Eight rules, not nine.
     # "reaction_states_future_policy",
     "withheld_fact_before_ask",
     "reaction_beat_off_attribute",
@@ -75,7 +75,7 @@ SINGLE_VERDICT_RULES = {
 
 
 def test_sub_questions_answer_yes_no_and_nothing_else():
-    """The vocabulary split of the 2026-09-09 amendment: only a whole-rule
+    """The vocabulary split: only a whole-rule
     verdict gets the connotative words."""
     ctx = cat.TurnContext(
         candidate_turn="You may now proceed to the next entry.",
@@ -90,14 +90,13 @@ def test_sub_questions_answer_yes_no_and_nothing_else():
         elif rule in SINGLE_VERDICT_RULES:
             assert allowed == {VERDICT_VALUES}, rule
         elif rule == "reaction_misstates_contractions":
-            # q2 carries the extra `not_applicable` for "q1 found no report"
-            # (audit finding I, 2026-09-12).
+            # q2 carries the extra `not_applicable` for "q1 found no report".
             assert allowed == {YES_NO_VALUES, YES_NO_NA_VALUES}, rule
         else:
             assert allowed == {YES_NO_VALUES}, rule
 
 
-#: The owner's ruling of 2026-09-09 ("没违反不引用"), one row per question: which
+#: One row per question: which
 #: answers point at words that are IN the evidence block, and so must be backed
 #: by a verbatim quote. Everything not listed asserts an ABSENCE and quotes
 #: nothing. Read off what each question asserts, not off its vocabulary — three
@@ -113,8 +112,7 @@ QUOTES_ON_TABLE = {
     "reaction_authorises_pa_action__q2": ("yes",),
     "reaction_authorises_pa_action__q2_first_person": ("yes",),
     "reaction_authorises_pa_action__q2_conditional": ("yes",),
-    # Commented out, owner ruling 2026-09-13 ("先comment"): the rule is not
-    # asked this round; gold, prompt and builder stay.
+    # Commented out: the rule is not asked; gold, prompt and builder stay.
     # "reaction_states_future_policy": ("violated",),
     "withheld_fact_before_ask__q_handed": ("yes",),
     "withheld_fact_before_ask__q_wording": ("yes",),
@@ -173,7 +171,7 @@ def test_a_quotes_on_answer_the_question_does_not_allow_is_refused():
 def test_every_group_is_uniform_so_the_format_union_is_exact():
     """`client.verdict_schema` unions the pairs; that is only sound while no
     group mixes vocabularies. A sub-question adding `not_applicable` is the one
-    allowed widening (audit finding I, 2026-09-12) — it stays inside the yes/no
+    allowed widening — it stays inside the yes/no
     vocabulary, and `parse_verdicts` still holds each question to its own set."""
     ctx = cat.TurnContext(
         candidate_turn="Book it.",
@@ -226,8 +224,7 @@ def test_the_measured_prompts_carry_the_conditions_the_one_liners_dropped():
     numbers and that the phase-1 one-liners lost."""
     ask = cat.RULE_PROMPTS["carries_an_ask"]
     assert "reacts to what the assistant did" in ask.preamble
-    # The two owner patches were removed on the ruling of 2026-09-09: the
-    # measured text stands alone, and nothing about not-acting or dictated
+    # The measured text stands alone, and nothing about not-acting or dictated
     # content is added to it.
     assert "suppresses that sentence only" not in ask.preamble
     assert "reads out because the assistant asked" not in ask.preamble
@@ -237,7 +234,7 @@ def test_the_measured_prompts_carry_the_conditions_the_one_liners_dropped():
         "withheld_fact_before_ask__q_wording"
     )
     handed = withheld.text("withheld_fact_before_ask__q_handed")
-    # the narrowing the step-0 replay of the deleted rule's own text forced:
+    # the narrowing a replay of the deleted rule's own text forced:
     # the slot noun is worked out first, and a yes is a value, not a mention
     assert "That noun names a SLOT." in handed
     assert "the thing: written into the note" in handed
@@ -248,7 +245,7 @@ def test_the_measured_prompts_carry_the_conditions_the_one_liners_dropped():
 
 
 def test_asserts_asks_one_question_and_is_shown_no_tool_log():
-    """Owner ruling B, 2026-09-10: q2 is code, so the group asks only what the
+    """q2 is code, so the group asks only what the
     turn claims and the log it no longer reads is not printed to it."""
     rule = "reaction_asserts_unexecuted_pa_action"
     ctx = cat.TurnContext(
@@ -265,7 +262,7 @@ def test_asserts_asks_one_question_and_is_shown_no_tool_log():
 
 def test_a_tool_log_line_carries_the_arguments_and_the_status():
     """A name on its own does not say WHICH record a write touched, and live
-    regress22 `acc_006` was refused four times over seven `document_update`
+    `acc_006` was refused four times over seven `document_update`
     calls that had all come back ok. IX calls, the wrapper's own control
     records and errored calls are not lines here; a long value is clipped."""
     lines = cat.tool_log_lines(
@@ -295,8 +292,7 @@ def test_a_tool_log_line_with_no_arguments_is_the_name_and_the_status():
 
 
 def test_withheld_asks_the_handing_over_question_and_both_exemptions():
-    """One question for the handing over and one for each exemption (owner
-    ruling A, 2026-09-09).
+    """One question for the handing over and one for each exemption.
 
     They read three different blocks. `q_handed` quotes the wording the turn
     handed over, so its evidence is the candidate turn. `q_wording` reads
@@ -334,9 +330,8 @@ def test_withheld_asks_the_handing_over_question_and_both_exemptions():
 
 
 def test_withheld_pre_reveal_arm_asks_q_handed_alone():
-    """Ruling A leaves both exemptions unread before the reveal beat, so the
-    call does not ask them and does not print the two blocks only they read
-    (audit finding H, restored by the owner 2026-09-12)."""
+    """Both exemptions are unread before the reveal beat, so the call does not
+    ask them and does not print the two blocks only they read."""
     ctx = cat.TurnContext(
         candidate_turn="The focus is the hard questions.",
         pa_previous_turn="How long should the session run?",
@@ -527,7 +522,7 @@ def test_authorises_compose_ands_every_exemption_in_code():
 
 
 def test_asserts_is_q1_alone():
-    """No second half any more (owner ruling 2026-09-12). The session boolean
+    """No second half any more. The session boolean
     cleared every claim on a turn as soon as anything at all had run, so the
     turn that credits a send after an order went through was never asked
     about; the acts are handed over as a list and the question is asked
@@ -561,7 +556,7 @@ def test_executed_acts_are_the_calls_that_changed_state():
 
 
 def test_an_in_sandbox_write_is_an_act_and_the_read_before_it_is_not():
-    """Live user_b `acc_001` on the mem0 line (2026-09-13): the PA read the
+    """Live user_b `acc_001` on the mem0 line: the PA read the
     bistro staff notes and ran `document_update` on them, the list came out
     "none yet" because `internal_write` was off the effect set, and four
     rewrites of the user thanking it for that edit were all judged fictions
@@ -590,7 +585,7 @@ def test_one_act_however_many_calls_it_took():
 
 
 def test_a_delivered_outreach_is_one_of_the_acts():
-    """Live regress24m `acc_029`: the PA decided `send`, the harness delivered
+    """Live `acc_029`: the PA decided `send`, the harness delivered
     the message, and no tool name carries it because the outreach never enters
     the tool record. The actor's true "having it sent was unwelcome" then read
     as a claimed act with none executed, and the session died. It is a line of
@@ -612,7 +607,7 @@ def test_the_acts_block_is_printed_even_when_there_are_none():
 
 
 def test_named_noun_reads_the_noun_off_every_shape_the_prompt_can_produce():
-    """Regress23 finding 1: the prompt now asks for `noun: one sentence`,
+    """The prompt now asks for `noun: one sentence`,
     because live the judge answered with the bare word — or nothing. The
     separator is not worth a schema field, so the reader takes the first
     word run and the prompt carries the shape."""
@@ -630,7 +625,7 @@ def test_named_noun_reads_the_noun_off_every_shape_the_prompt_can_produce():
 
 
 def test_a_blank_reason_cannot_exempt_the_withheld_rule():
-    """Fail-closed on finding 1's degenerate answers: `named_noun` returns "",
+    """Fail-closed on a degenerate answer: `named_noun` returns "",
     `asked_by_name` is false, and the rule fires rather than being excused by
     a word that names no slot."""
     ctx = cat.TurnContext(missing_key_terms=())
@@ -744,7 +739,7 @@ def test_withheld_fires_on_either_half_of_the_handing_over():
 
 
 def test_withheld_is_exempted_by_a_request_for_the_wording():
-    """Restored with `q_wording` itself (owner ruling A, 2026-09-09): the code's
+    """Restored with `q_wording` itself: the code's
     own key-term count fires the rule, and this is the answer that excuses it."""
     ctx = cat.TurnContext(missing_key_terms=())
     answers = verdicts(
@@ -761,8 +756,8 @@ def test_withheld_is_exempted_by_a_request_for_the_wording():
 
 
 def test_withheld_pre_reveal_takes_q_handed_alone():
-    """Before the reveal beat neither exemption excuses the handing over (owner
-    ruling A, 2026-09-09): the sentence is not the actor's to give yet, however
+    """Before the reveal beat neither exemption excuses the handing over: the
+    sentence is not the actor's to give yet, however
     early the assistant asked for it."""
     handed_yes = Verdict(
         "withheld_fact_before_ask__q_handed",
@@ -816,7 +811,7 @@ def test_withheld_pre_reveal_ignores_code_delivery():
 
 
 def test_authorises_pa_action_does_not_print_the_assistants_own_turns():
-    """Audit finding G (2026-09-12): no sub-question reads that block, and the
+    """No sub-question reads that block, and the
     assistant's own go-aheads inside it pull q2 onto the wrong speaker."""
     group = cat.build_authorises_pa_action(
         cat.TurnContext(
@@ -830,7 +825,7 @@ def test_authorises_pa_action_does_not_print_the_assistants_own_turns():
 
 
 def test_misstates_contractions_q2_is_not_applicable_when_q1_found_no_report():
-    """Audit finding I (2026-09-12): q1 = no leaves q2 nothing to judge, and
+    """q1 = no leaves q2 nothing to judge, and
     compose never reads it on that branch."""
     q1, q2 = "reaction_misstates_contractions__q1", "reaction_misstates_contractions__q2"
     group = cat.build_misstates_contractions(cat.TurnContext(candidate_turn="Fine."))
@@ -965,7 +960,7 @@ def test_both_new_rules_are_unmeasured_and_render():
 
 def test_the_evidence_tail_is_a_short_field_line():
     """The grammar of a reference lives in the system prompt, once; the
-    per-question tail carries only what varies (framework audit 2026-09-12)."""
+    per-question tail carries only what varies."""
     group = cat.QuestionGroup(
         rule="r",
         shape="general",
@@ -987,7 +982,7 @@ def test_carries_an_ask_speaks_the_schemas_values_and_asks_no_negative_quote():
     assert "YES" not in body and "Answer NO" not in body
     assert '"ask"' in body and '"not_applicable"' in body
     # `check_evidence` rejects evidence on `not_applicable`, so the question
-    # must not ask for it (framework audit 2026-09-12).
+    # must not ask for it.
     assert "otherwise the sentence that best shows" not in body
 
 

@@ -2,7 +2,7 @@
 
 OpenRouter serves one model id from many upstream providers and names the one
 that answered in each response (`upstream_provider=` on the `openrouter_call`
-line). One upstream can fail the same way over and over -- on 2026-10-19
+line). One upstream can fail the same way over and over --
 DigitalOcean answered `deepseek/deepseek-v4-flash` File memory consolidations
 with empty tool calls until the run stopped six times at one session -- and
 OpenRouter keeps routing to it. So once one model has failed `threshold`

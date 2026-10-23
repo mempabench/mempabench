@@ -1,4 +1,4 @@
-"""Hour-granular `visible_from` (owner, 2026-09-14).
+"""Hour-granular `visible_from`.
 
 A pre-event probe sits 60 minutes before its forced event, on a day that
 already carries earlier accumulation sessions: pre_01 runs 17:00 on 2026-10-05,

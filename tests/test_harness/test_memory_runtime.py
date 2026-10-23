@@ -160,10 +160,10 @@ def test_capabilities_follow_backend():
 
 
 # ---------------------------------------------------------------------------
-# step 7 · the three consolidation entry points read the turn journal
+# the three consolidation entry points read the turn journal
 # ---------------------------------------------------------------------------
 #
-# Until step 7 the file-memory condition consolidated
+# The file-memory condition used to consolidate
 # `session.messages[file_consolidated_end_index:]` through
 # the two-message projection the pool replaces. The pool is
 # projection 3, built at live time from the raw provider slice, and the
@@ -382,7 +382,7 @@ def test_suppressed_outreach_turn_reaches_file_consolidation(
         assert "[environment_event" in prompt
         assert "The store closes in two hours." in prompt
         assert "[no_reply decision=suppress]" in prompt
-        # Q4: the fixed instruction suffix is contract enforcement, not memory.
+        # The fixed instruction suffix is contract enforcement, not memory.
         assert "Use IX_proactive_outreach" not in prompt
 
     asyncio.run(run())
@@ -614,7 +614,7 @@ async def test_probe_step_writes_nothing_and_moves_no_cursor(
         # `committed` starts BEHIND the message count on purpose. With
         # `committed == count` both branches of `record_adapter_write_commit`
         # return the same number (`max(committed_index, current_index)`,
-        # `memory/event_writer.py:346-352`), so assertion (ii) below could not
+        # `memory/event_writer.py:347-353`), so assertion (ii) below could not
         # tell a committed write from a skipped one. At 0 it can: a
         # `WriteStatus.committed` receipt would advance it to 4.
         session = _Session(committed=0, count=4)
@@ -796,11 +796,11 @@ class _MarkdownFlushHandle:
 async def test_forced_exchange_reaches_the_memory_files_under_the_file_condition(
     tmp_path: Path,
 ) -> None:
-    """Step-7 discrepancy 7: a forced event must reach MEMORY.md/HISTORY.md.
+    """A forced event must reach MEMORY.md/HISTORY.md.
 
     `NanobotFileMemoryAdapter.record_event` is a documented no-op that returns
     `deferred_to_file_consolidation` (`memory/conditions/nanobot_file_memory.py:50-61`),
-    and since step 7 the pinned flush reads the journal rather than
+    and the pinned flush reads the journal rather than
     `session.messages` — so an executor that writes no record writes nothing
     to the files at all, whatever the session holds. With the record in place
     the flush consumes it and the rendered pool is what the consolidation LM

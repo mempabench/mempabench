@@ -146,7 +146,7 @@ def test_every_taxonomy_attribute_has_a_feature_table() -> None:
 
 
 def test_process_visibility_rubric_counts_the_actual_tool_log() -> None:
-    # D4 (owner ruling 2026-09-16): the authoring side plans a readback call after
+    # The authoring side plans a readback call after
     # every write, so an outline counts three calls where the transcript may hold
     # two. The judge must count what `tool_log` really contains.
     text = rubric_markdown("process_visibility")

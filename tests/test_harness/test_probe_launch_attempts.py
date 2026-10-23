@@ -6,7 +6,7 @@ last launch recorded are three failures with a retried kind
 retry loop (`Orchestrator._run_one_probe`) through whole launches of one run
 directory, so the records under test are the ones a run writes. The ledger's
 `started_at` and the `steps_superseded/` stamps are whole seconds of a clock
-that can be set back; the records must decide alone (Codex round 5, A-1/A-2).
+that can be set back; the records must decide alone.
 """
 from __future__ import annotations
 

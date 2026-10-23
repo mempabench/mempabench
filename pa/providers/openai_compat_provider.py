@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     from harness.provider_avoidance import ProviderAvoidance
     from pa.providers.registry import ProviderSpec
 
-#: Wall-clock ceiling on one provider request. regress21r acc_039 sat nine
+#: Wall-clock ceiling on one provider request. acc_039 sat nine
 #: minutes on its first OpenRouter call with nothing on stderr: the SDK default
 #: is a 600 s timeout with two internal retries, so a stalled connection could
 #: hold a run for half an hour before anything surfaced. The SDK retries are
@@ -79,7 +79,7 @@ def _short_tool_id() -> str:
 
 #: `deepseek/deepseek-v4-flash` on OpenRouter sometimes answers with its own
 #: native tool-call syntax typed into `content` instead of structured
-#: `tool_calls`. regress5 acc_006: six of eleven PA turns arrived that way, five
+#: `tool_calls`. acc_006: six of eleven PA turns arrived that way, five
 #: of them shipped the empty-reply template with no task call at all, and the
 #: session's writes fell from 8 to 1. The block the model writes is
 #:
@@ -252,7 +252,7 @@ def _uses_openrouter_attribution(spec: "ProviderSpec | None", api_base: str | No
 
 
 #: OpenRouter's refusal when the request's ignore list covers every upstream
-#: of the model (live, 2026-10-19): HTTP 404, "All providers have been
+#: of the model (live): HTTP 404, "All providers have been
 #: ignored. ...", with this routing step in `error.metadata`.
 _IGNORED_ALL_ROUTING_STEP = "Filter by Ignored Providers"
 
@@ -325,7 +325,7 @@ def _log_openrouter_call(
     if task_key:
         line += f" task={task_key}"
     # One model id can be served by several upstreams whose forced-tool_choice
-    # behaviour differs (2026-09-18, `z-ai/glm-5.3-flash`), so the line names
+    # behaviour differs (`z-ai/glm-5.3-flash`), so the line names
     # the one that answered. Omitted entirely when the gateway does not say.
     if upstream_provider:
         line += f" upstream_provider={upstream_provider}"
@@ -334,7 +334,7 @@ def _log_openrouter_call(
         line += f" provider_ignore={','.join(provider_ignore)}"
     if response.dsml_converted:
         line += f" dsml_tool_calls={response.dsml_converted}"
-    # regress21 on gemini-3.8-flash cut 7/13 self-report calls at completion_tokens=4092
+    # A run on gemini-3.8-flash cut 7/13 self-report calls at completion_tokens=4092
     # and the log could not say `length`.
     line += f" finish_reason={response.finish_reason}"
     print(line, file=sys.stderr, flush=True)
@@ -376,7 +376,7 @@ class OpenAICompatProvider(LLMProvider):
         #: lists for the model in `provider.ignore`, merged into `extra_body`.
         #: Neither happens while `extra_body` pins the routing. None: off.
         self.provider_avoidance = provider_avoidance
-        #: Owner decision C/USER_RAW_RESPONSE_ON_FAILURE_20260924.json (logging only): when set, every PA
+        #: Logging only: when set, every PA
         #: call's raw upstream response (or raw provider error body) is appended here. No auth data.
         self.raw_response_log: Path | None = None
         #: Upstream provider ids (OpenRouter's `provider`) of the calls made
@@ -755,7 +755,7 @@ class OpenAICompatProvider(LLMProvider):
     def _extract_upstream_provider(cls, provider_response: Any) -> str | None:
         """Which upstream actually served the call (OpenRouter's `provider`).
 
-        One model id is not one implementation: the 2026-09-18 inspection of
+        One model id is not one implementation: an inspection of
         `z-ai/glm-5.3-flash` sent byte-identical forced-`tool_choice` requests
         and got the pinned tool from `Wafer` / `Cloudflare` / `Together` but
         never from `Phala`, which either ignored the pin or dropped the schema's

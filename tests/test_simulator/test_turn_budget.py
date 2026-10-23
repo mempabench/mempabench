@@ -31,7 +31,7 @@ from simulator.schemas import (
     SessionScript,
 )
 
-# The harness's own import: it is what P4 passes in as `turn_budget_fn`.
+# The harness's own import: it is what is passed in as `turn_budget_fn`.
 from pa.agent.ix.render import IX_EMPTY_REPLY_LINE
 from pa.agent.ix.render_types import turn_budget
 from pa.bus.events import OutboundMessage
@@ -298,7 +298,7 @@ class _HoldingPA:
 
 
 def test_a_held_pa_turn_keeps_the_last_beat_open_for_one_more_answer() -> None:
-    """Live (`v5g02`), the gate opened on the story's last beat, the simulator
+    """Live, the gate opened on the story's last beat, the simulator
     advanced out of it, and the step failed on the open hold episode with no
     checkpoint published. The user answers the ask before the session ends."""
     async def run():
@@ -339,12 +339,12 @@ def test_a_pa_that_asks_for_nothing_closes_the_beat_as_before() -> None:
 
 # -- a hold the script cannot release yet -----------------------------------
 #
-# Live regress15 `acc_039`: the PA's `external_action_floor` hold opened on the
+# Live `acc_039`: the PA's `external_action_floor` hold opened on the
 # probe beat, three beats before the beat that gives the go-ahead. The pin
 # demanded a release the script could not give before the authorising beat;
 # the actor wrote one 12 times, had each bounced, and
 # invented offstage deferral reasons for 7 exchanges on the probe and 3 on the
-# reaction beat, which ate the reaction. Owner ruling: a beat that routed
+# reaction beat, which ate the reaction. A beat that routed
 # `advance` and is pinned only by a hold it cannot release advances and carries
 # the hold on.
 
@@ -422,7 +422,7 @@ def test_the_authorising_beat_is_still_pinned_by_a_hold_and_says_so() -> None:
         kept = [e for e in events if e["kind"] == "beat_kept_for_hold"]
         # `b4_close` is pinned too — it is the last beat, where there is no next
         # beat to carry a hold into and leaving would end the session with the
-        # episode open (`v5g02`).
+        # episode open.
         assert [e["beat"] for e in kept] == ["b3_authorise"] * 3 + ["b4_close"] * 3
         assert [e["turn"] for e in kept] == [1, 2, 3, 1, 2, 3]
         assert kept[0]["held_items"] == ["i1"]
@@ -454,7 +454,7 @@ def test_an_advance_with_nothing_held_is_untouched_by_the_carry_rule() -> None:
 
 
 class _PendingOnlyPA:
-    """Holds something that is consent-able by nothing (R7).
+    """Holds something that is consent-able by nothing.
 
     An Iterative question hold and a One-at-a-time batch hold both leave
     `held_items` empty — there is no `interaction_item_id` to answer about — so
@@ -493,7 +493,7 @@ class _PendingOnlyPA:
 def test_a_hold_with_nothing_to_consent_to_still_keeps_the_last_beat_open(
     content: str,
 ) -> None:
-    """R7: the advance rule used to read the consent list, which a question-only
+    """The advance rule used to read the consent list, which a question-only
     or batch-only hold leaves empty. The simulator walked out of the question
     and, on the last beat, ended the session with the episode still open."""
     async def run():

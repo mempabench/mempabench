@@ -1,6 +1,6 @@
 """Model execution loop for the simulator agent.
 
-Deliberate COPY of `pa/agent/runner.py` as of commit d396375, not a shared
+Deliberate COPY of `pa/agent/runner.py`, not a shared
 import. `pa/` and `simulator/` never share modules: the PA under test and the
 simulated user must be able to drift independently, and `harness/` is the only
 integration point. Sharing this loop would have made every PA-side change to

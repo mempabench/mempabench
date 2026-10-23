@@ -1,4 +1,4 @@
-"""Simulator prompt rendering — extracted from simulator/loop.py (M1).
+"""Simulator prompt rendering — extracted from simulator/loop.py.
 
 Section renderers + template assembly for simulator LLM calls.
 """
@@ -283,7 +283,7 @@ def reception_carry_attributes(session: SessionScript, beat: Beat) -> list[str]:
 
     The carry used to run to the end of the session, on the reasoning that the
     assistant keeps behaving that way long after the asking beat. It does, and
-    so did the complaint: live regress11 `acc_035` objected to the confidence
+    so did the complaint: live `acc_035` objected to the confidence
     tags on its reaction beat (`t=13`, correct) and then again at `t=16`, 19,
     21, 24 and 29, six retries and a session that is all complaint. The IX
     selection is made once, at the declaring beat, and the assistant cannot
@@ -469,7 +469,7 @@ def render_beat_block(
     if beat.active_skills and first_turn_in_beat:
         # A declaring beat that is also the reaction beat is the played opening
         # of a triggered session: it declares the attribute by contract and
-        # asks for nothing. Live regress14c `acc_007` got the ask line a few
+        # asks for nothing. Live `acc_007` got the ask line a few
         # lines above its own "Avoid: do not ask what the message said", and
         # the prompt contradicting itself is half of why the turn asked.
         lines.append(
@@ -717,7 +717,7 @@ def _render_user_trigger(
     """Trigger message that prompts the LLM to produce the next line.
 
     The current beat is the only actor-facing action boundary. `reply_facts`
-    is the private record of what the latest PA reply did (owner 2026-09-17);
+    is the private record of what the latest PA reply did;
     it is rendered only once there is a reply to react to.
     """
     suffix = (

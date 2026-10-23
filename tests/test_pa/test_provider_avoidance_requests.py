@@ -26,7 +26,7 @@ from pa.providers.registry import find_by_name
 MODEL = "deepseek/deepseek-v4-flash"
 OTHER_MODEL = "z-ai/glm-5.3-flash"
 URL = "https://openrouter.ai/api/v1/chat/completions"
-#: What OpenRouter answered on 2026-10-19 to a `deepseek/deepseek-v4-flash`
+#: What OpenRouter answered to a `deepseek/deepseek-v4-flash`
 #: request whose `provider.ignore` named all 16 of the model's upstreams.
 ALL_IGNORED_BODY = {
     "message": "All providers have been ignored. To change your default ignored "
@@ -346,8 +346,8 @@ def _save_memory(upstream: str, arguments: dict | None, *, finish_reason: str = 
 
 @pytest.mark.asyncio
 async def test_only_an_empty_consolidation_reply_counts_against_the_upstream_that_served_it(monkeypatch, tmp_path):
-    """`save_memory` with `{}`, as DigitalOcean answered over and over on
-    2026-10-19, is an empty reply: the upstream's failure. Prose instead of the
+    """`save_memory` with `{}`, as DigitalOcean answered over and over,
+    is an empty reply: the upstream's failure. Prose instead of the
     call, or the call with only some of its fields, is the model's own failure,
     the same on every upstream, so it is not counted."""
     valid = {"history_entry": "[2026-10-19 09:00] noted", "memory_update": "# Memory\n- noted"}
@@ -400,7 +400,7 @@ def _ix(name: str, **arguments: Any) -> tuple[str, dict]:
 def test_pa_replies_that_say_something_without_the_render_payload_are_not_counted(monkeypatch, tmp_path):
     """Two replies from DigitalOcean with prose but without the IX render
     payload, with the threshold at 1: the model left the payload out, as it did
-    on four upstreams in thirty minutes on 2026-10-20, so no upstream is
+    on four upstreams in thirty minutes, so no upstream is
     charged and the pinned third repair is sent with no ignore list."""
     provider, completions = _provider(monkeypatch, tmp_path, [
         _reply("DigitalOcean", content=None, finish_reason="tool_calls", tool_calls=[_ix(

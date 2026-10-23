@@ -6,10 +6,10 @@ landed — but nothing in the schema links a step to a beat, so
 write whose `entry_condition` reports that change's target as done. The loop
 holds those beats back from the `goal_already_met` collapse, because otherwise
 the PA's own claim about its own write is what deletes the check on it (live
-regress5 `acc_001` beat_06).
+`acc_001` beat_06).
 
-A COMPRESSED session has no readback beat at all — owner ruling E (2026-09-07)
-puts the write and its readback inside beat 1 — so the marking is skipped
+A COMPRESSED session has no readback beat at all — the write and its readback
+both happen inside beat 1 — so the marking is skipped
 there; see `test_compressed_stop.py` for what that spares the actor.
 
 The compressed side is read from `tests/fixtures/authoring/`, not from the
@@ -78,8 +78,8 @@ def test_a_compressed_session_holds_no_beat_however_its_beats_read() -> None:
     """The two-beat `verbosity` fixture, given the worst beat 2 the scan could
     be handed: a declared write of the citation notes, and an
     `entry_condition` that says the PA updated the note and showed it. The
-    beat is the scan's first candidate and matches on both counts, and under
-    ruling E it is still not marked, because the write and its readback both
+    beat is the scan's first candidate and matches on both counts, and it is
+    still not marked, because the write and its readback both
     belong to beat 1.
     """
     data = yaml.safe_load(COMPRESSED_FIXTURE.read_text(encoding="utf-8"))
@@ -124,7 +124,7 @@ def test_only_the_target_attribute_decides_it_on_otherwise_identical_beats() -> 
 
 
 def test_the_beat_that_says_the_write_was_shown_is_marked_only_uncompressed() -> None:
-    """The wording ruling E bans on a compressed beat 2 is still a readback on
+    """The wording banned on a compressed beat 2 is still a readback on
     a beat of an uncompressed session — the guard is on the attribute, not on
     the sentence. `acc_003` writes the same citation notes; put the sentence on
     an earlier beat and its one write holds that beat instead.
@@ -186,7 +186,7 @@ def test_acc_039_carries_the_write_and_read_tool_of_each_change() -> None:
     """Each held beat also carries the pair of catalog tools its own state
     change names — `atomic_step_id` writes, `readback_step_id` reads back.
 
-    Live regress21r `acc_039` t=20 is what this is for: the loop's "already
+    Live `acc_039` t=20 is what this is for: the loop's "already
     read back" switch keyed on any write followed by any read, took the
     calendar hold `beat_4` inspects as proof for `beat_6`, and dropped the
     appointment beat's ask while the clinic booking had errored out.

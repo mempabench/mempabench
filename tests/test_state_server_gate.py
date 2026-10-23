@@ -1,18 +1,18 @@
 """The session gate is enforced by the store, not by the draft.
 
-Owner ruling 2026-09-08: a session's gate is a write payload the user dictates,
+A session's gate is a write payload the user dictates,
 and the runtime has to force the PA to ask for it. Before this the gate lived
 only in the authoring layer -- the PA invented the value and the tool took it
 (live acc_039 wrote its own `reason` three rounds running).
 
-The same ruling later closed two ways past the text check. The gate is *closed*
+Two ways past the text check are closed too. The gate is *closed*
 until the harness touches `gate_open` in the state root at the reveal beat: the
 gate tool is refused whatever the PA passes, and so is every write tool the
 frozen draft does not call before that beat -- which is what stops a sibling
 tool reaching the outcome without ever asking (acc_039: a `calendar_event_create`
 checkup and "done"). Every test below is either an `open` or a `closed` case.
 
-Two further rulings (2026-09-08) decide what "the user's words" means and how
+Two further rules decide what "the user's words" means and how
 long it is demanded. The gate is keyed on INFORMATION: the outline authors
 `gate_key_terms` off the dictated sentence and a value passes when it carries
 every one of them, so a PA that rewords around the terms has still asked and one
@@ -21,10 +21,10 @@ filler words. And the gate holds the FIRST write only: the call that carries the
 terms puts down `gate_satisfied`, after which the PA may compose that parameter
 itself, because it has asked.
 
-Ruling 6 (2026-09-08) settles what a term is: the information's content word, so
-a standalone number word matches its digits and the outline authors no articles
-or phrases. regress16 acc_039 refused two payloads that both said what the user
-said -- the terms as authored were word-bound.
+A term is the information's content word, so a standalone number word matches
+its digits and the outline authors no articles or phrases. Live acc_039 refused
+two payloads that both said what the user said -- the terms as authored were
+word-bound.
 """
 
 import ast
@@ -67,8 +67,8 @@ MISMATCH_REFUSAL = (
     "Ask the user to give or confirm it, and stop."
 )
 
-# Lock 2 says nothing about the gate (owner ruling B, 2026-09-08). Naming the
-# gate tool and param told the regress18 acc_011 PA, on an unplanned beat-1
+# Lock 2 says nothing about the gate. Naming the
+# gate tool and param told the acc_011 PA, on an unplanned beat-1
 # write, that a dictated `document_create` was coming; it asked the user to
 # dictate the file four beats early. Lock 1 still names what it needs.
 SIBLING_REFUSAL = (
@@ -267,7 +267,7 @@ def test_punctuation_around_a_key_term_does_not_hide_it(tmp_path: Path):
 
 
 def test_the_acc_009_body_that_scored_below_the_old_ratio_now_passes(tmp_path: Path):
-    """regress15 acc_009 t9: refused at 0.571 while keeping the information.
+    """acc_009 t9: refused at 0.571 while keeping the information.
 
     The user asked for the hard questions on the braiding-statistics subsection
     rather than a line-by-line pass; the PA said the same thing in its own
@@ -304,12 +304,12 @@ def test_the_acc_009_body_that_scored_below_the_old_ratio_now_passes(tmp_path: P
 def test_the_regress16_acc_039_payloads_pass_the_reauthored_terms(tmp_path: Path):
     """The terms are the information, not the words the user wrapped it in.
 
-    regress16 acc_039 refused two payloads that both carried what the user said,
+    acc_039 refused two payloads that both carried what the user said,
     against terms of `["chest tightening", "the stairs", "three weeks"]`: the
     first wrote "taking stairs" without the article and "3 weeks" in digits, the
     second "tightness in the chest". Those terms were word-bound. Re-authored to
-    the information -- `chest`, `stairs`, `three weeks` -- both pass (owner
-    ruling 6, 2026-09-08), and a payload that drops the number has still not
+    the information -- `chest`, `stairs`, `three weeks` -- both pass, and a
+    payload that drops the number has still not
     carried what the user gave.
     """
     dictated = (
@@ -350,10 +350,10 @@ def test_a_number_word_and_its_digits_are_one_term(tmp_path: Path):
 
 # A word in another form is the same word
 #
-# regress19 acc_009 t11 refused a body that said everything the user had
+# acc_009 t11 refused a body that said everything the user had
 # dictated, because the PA wrote "hardest" where the term was "hard"; an
 # earlier round lost "I confirm receipt" to a PA that wrote "Confirming
-# receipt". The gate is keyed on the INFORMATION (owner, 2026-09-08), and an
+# receipt". The gate is keyed on the INFORMATION, and an
 # ordinary inflection of a word carries that word's information, so the ending
 # is not the gate's business. Endings only: a word that merely BEGINS with the
 # term -- hardware, hardly, harden -- is a different word, and the store does no
@@ -596,7 +596,7 @@ def test_one_key_term_is_an_error_at_init(tmp_path: Path):
 
 
 def test_the_whole_dictated_text_is_a_legal_single_key_term(tmp_path: Path):
-    """The probe line's gate (owner, 2026-09-14).
+    """The probe line's gate.
 
     `harness/gate.py:_probe_gate_wording` has no authored terms to read, so it
     names the user's whole sentence as the one term. That is stricter than any
@@ -700,7 +700,7 @@ def test_closed_a_write_tool_outside_the_allowlist_is_refused(tmp_path: Path):
 
 
 def test_the_closed_write_refusal_names_no_part_of_the_gate(tmp_path: Path):
-    """regress18 acc_011: the refusal announced the gated step four beats early.
+    """acc_011: the refusal announced the gated step four beats early.
 
     An unplanned pre-reveal write is refused by a tool the PA was not thinking
     about, so whatever this text says about the gate is a leak: naming
@@ -843,7 +843,7 @@ def _store_gate_points() -> set[tuple[str, str]]:
 def test_the_store_checks_exactly_the_catalog_s_free_text_params():
     """The two lists cannot drift: a gate the store never checks is no gate.
 
-    Every persisted free-text parameter is gate-capable (owner, 2026-09-08), so
+    Every persisted free-text parameter is gate-capable, so
     a new one in the catalog -- or a new write tool carrying `notes` -- has to
     arrive with its `_enforce_gate` call, or an outline could gate on something
     the store waves through.
@@ -956,8 +956,8 @@ def test_every_payload_tool_logs_its_payload(tmp_path: Path):
 
 # ...on every tool the gate can be on, and on the parameter it is on
 #
-# Owner ruling 2026-09-16: the tool log has to certify the gate by itself. A
-# reader of the user_b simple_rag trial-2 run could not. `calendar_event_create`
+# The tool log has to certify the gate by itself. A
+# reader of a user_b simple_rag run could not. `calendar_event_create`
 # is the gate tool of four of its probes (fin_05/19/22/27) and its row carried
 # no `gate` block at all, so only the `gate_satisfied` row spoke for them. And
 # fin_08 gates on `subject`, but the logger was handed `{"body": body}`, so the
@@ -1259,7 +1259,7 @@ def test_the_satisfied_marker_is_hidden_from_the_pa(tmp_path: Path):
 
 # ...and every later write on the gate tool has to leave it satisfied
 #
-# `gate_satisfied` used to open the parameter completely. regress16/17/18
+# `gate_satisfied` used to open the parameter completely. Three live runs of
 # acc_009 spent that opening: two free `email_draft_create` revisions after the
 # gate dropped "line-by-line", so the saved draft no longer carried the focus
 # the user had dictated. The rule is now about the ARTIFACT rather than the
@@ -1342,7 +1342,7 @@ def test_a_later_document_update_that_keeps_the_terms_passes(tmp_path: Path):
 
 
 def test_a_later_document_update_that_drops_a_term_is_refused(tmp_path: Path):
-    """regress16-18 acc_009, on the file instead of the draft body.
+    """The acc_009 case, on the file instead of the draft body.
 
     The write is legal per call -- the gate is satisfied -- and it still leaves
     the artifact without what the user said, which is the whole failure.
@@ -1476,8 +1476,8 @@ def test_a_later_email_draft_revision_must_still_carry_the_terms(tmp_path: Path)
 def test_a_later_appointment_create_must_still_carry_the_terms(tmp_path: Path):
     """The reworded booking passes; the composed one no longer does.
 
-    Ruling 1 opened the parameter after the first matching write; ruling A
-    narrows that opening to rewordings that keep the information.
+    The first matching write opens the parameter only to rewordings that keep
+    the information.
     """
     store = _store(tmp_path, _gate())
     _book(store, DICTATED)
@@ -1536,11 +1536,11 @@ def test_an_update_that_leaves_the_gated_field_alone_passes(tmp_path: Path):
 
 
 # ── the compressed session's last turn ────────────────────────────
-# Owner ruling 2026-09-09. A compressed session is exactly two beats -- the
+# A compressed session is exactly two beats -- the
 # probe, then the reaction -- and it ends with the PA's reply to the reaction.
-# Rule E says the reaction beat never asks for a product, so no beat of such a
+# The reaction beat never asks for a product, so no beat of such a
 # session can want a write on that turn; and nothing scores what the PA does
-# there, because the transcript stops. Live regress19 `acc_035` t8 spent it
+# there, because the transcript stops. Live `acc_035` t8 spent it
 # executing an offer the user never answered: two roster writes carrying an
 # invented 8 -> 9 and a corrupted note, committed to the stage unseen.
 #
@@ -1626,7 +1626,7 @@ def test_reads_are_untouched_on_the_closing_turn(tmp_path: Path):
 
 
 def test_the_acc_035_shape_a_document_update_after_the_reaction(tmp_path: Path):
-    """regress19 `acc_035` t8: the roster edit nobody asked for, and nobody read.
+    """`acc_035` t8: the roster edit nobody asked for, and nobody read.
 
     The PA offered to bump Court 1 from 8 to 9, the user's reaction beat never
     answered the offer, and the PA executed it anyway on the turn after -- the

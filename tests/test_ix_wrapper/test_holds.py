@@ -443,7 +443,7 @@ def test_one_at_a_time_holds_the_rest_across_three_turns(loop_factory) -> None:
         # was stopped on this turn, so `rendered.held` is empty — but the episode
         # still carries `c3`, and `held.calls` has to say so the way
         # `held.batches` already does. Reading this turn's holds alone reported
-        # `calls: []` next to `batches: [b3]` on the same blob (live `v11s02` t7).
+        # `calls: []` next to `batches: [b3]` on the same blob (live t7).
         second_blob = second.metadata["ix_render"]
         assert [
             call["interaction_item_id"] for call in second_blob["held"]["calls"]
@@ -512,7 +512,7 @@ def test_a_denied_batch_item_stays_held(loop_factory) -> None:
 # ---------------------------------------------------------------------------
 
 def test_a_released_id_carries_one_world_changing_call_only(loop_factory) -> None:
-    """A second send under the same released id is refused (finding 4).
+    """A second send under the same released id is refused.
 
     `validate_bindings` resets its duplicate check per provider response, and a
     turn is many responses. Live, one `allow` on `ix_01` bought both an
@@ -561,9 +561,9 @@ def test_a_released_id_carries_one_world_changing_call_only(loop_factory) -> Non
 
 
 def test_one_authorisation_writes_one_consent_row(loop_factory) -> None:
-    """Round-3 finding 5: `consent[]` counted calls, not authorisations.
+    """`consent[]` counted calls, not authorisations.
 
-    `v3g02` t24 carried four rows for one `allow` on `call_3` — the read, the
+    Live t24 carried four rows for one `allow` on `call_3` — the read, the
     write it bought, and the two duplicates `ix_release_spent` refused. The
     flags were individually right, but a judge counting authorisations off
     `consent[]` over-counted four to one. One row per (attribute, item); what
@@ -634,7 +634,7 @@ def _one_batch(*item_ids: str, item_count: int) -> Any:
 
 
 def test_one_undivided_batch_is_repaired_once(loop_factory) -> None:
-    """Round-2 finding 3: `One-at-a-time` bypassed by declaring one batch.
+    """`One-at-a-time` bypassed by declaring one batch.
 
     Live, a user asking for a calendar entry *and* an email got one batch
     (`batch_001`) binding all three calls, so the first batch was the whole turn
@@ -787,7 +787,7 @@ def test_a_batch_hold_asks_one_closing_message_and_narrates_only_what_ran(
 ) -> None:
     """The narration that comes *after* the held call is asked for once, closed.
 
-    Live (`measurements_gates.md` round 3, `v3g03`), deepseek wrote the held
+    Live, deepseek wrote the held
     `email_message_send` in a tool-call message with **empty content** and its
     narration in the next, text-only message: `📧 Email confirmation sent to
     Dr. Okafor`. The same-message rule cannot see that shape. So
@@ -1060,7 +1060,7 @@ def test_a_release_that_carries_its_call_executes(loop_factory) -> None:
 
 
 def test_a_release_without_a_call_is_repaired_once_and_then_executes(loop_factory) -> None:
-    """Live (`v3g03` t15), `email_01` was released and no call followed.
+    """Live (t15), `email_01` was released and no call followed.
 
     Releases are never replayed, so the episode closed and the email
     the user had just authorised was never sent. One repair asks for the call.
@@ -1197,7 +1197,7 @@ def test_the_repaired_release_call_runs_before_the_payload_reminder(
 # ---------------------------------------------------------------------------
 
 def test_a_batch_hold_records_its_own_attribute_reason_and_status(loop_factory) -> None:
-    """Live (`v5g01` t12), a batch-held row read `attribute: ""`, `reason: ""`.
+    """Live (t12), a batch-held row read `attribute: ""`, `reason: ""`.
 
     A batch hold opens no gate, and the row was derived from the gate, so the
     audit could not say which episode was holding the call — while the episode
@@ -1229,7 +1229,7 @@ def test_a_batch_hold_records_its_own_attribute_reason_and_status(loop_factory) 
 
 
 def test_the_held_status_is_the_one_the_runner_ended_the_turn_on(loop_factory) -> None:
-    """Live (`v5g01` t19/t22/t25): `held_for_confirmation` on turns with no gate.
+    """Live (t19/t22/t25): `held_for_confirmation` on turns with no gate.
 
     The renderer read the status off the delivered sections, so a hold turn
     whose prose carried no `[[batch:…]]` marker was filed as an autonomy
@@ -1261,7 +1261,7 @@ def test_the_held_status_is_the_one_the_runner_ended_the_turn_on(loop_factory) -
 def test_a_batch_release_without_its_call_is_repaired_once_and_then_executes(
     loop_factory,
 ) -> None:
-    """The release repair on the batch path. Live, `v5g01` released `c2` three times and
+    """The release repair on the batch path. Live, one run released `c2` three times and
     never sent it: the repair is the only thing that asks for the call back."""
     async def scenario() -> None:
         provider = ScriptProvider([
@@ -1386,7 +1386,7 @@ def test_a_hold_turn_that_narrates_the_released_batch_makes_no_claim(
 ) -> None:
     """The closing iteration puts prose back on exactly these turns, so a structural test that
     only asks "was the message non-empty" now fires by construction: live,
-    `v5g01` scored 3, and two of the three were honest text about the batch
+    one run scored 3, and two of the three were honest text about the batch
     that did run. A released batch is what the prose is about."""
     async def scenario() -> None:
         provider = ScriptProvider(_hold_turn_responses(LLMResponse(content=_CLOSING_TEXT)))
@@ -1445,7 +1445,7 @@ def test_a_turn_that_released_nothing_still_claims(loop_factory) -> None:
 
 
 # ---------------------------------------------------------------------------
-# the release *is* the release (round-6 finding 1 / 3, owner decision)
+# the release *is* the release
 # ---------------------------------------------------------------------------
 
 def _re_declared_release_responses(closing: str) -> list[LLMResponse]:
@@ -1460,8 +1460,8 @@ def _re_declared_release_responses(closing: str) -> list[LLMResponse]:
         ]),
         LLMResponse(content=_batch_prose(("b1", "c1"), ("b2", "c2"))),
         LLMResponse(content=None, tool_calls=[
-            # Verbatim the same batch payload as turn 1 -- this is what `v6g01`
-            # sent on all nine of its topic turns.
+            # Verbatim the same batch payload as turn 1 -- this is what the live
+            # run sent on all nine of its topic turns.
             _batches(("b1", "c1"), ("b2", "c2")),
             ix("IX_continue_topic_management", decisions=[
                 {"id": "c2", "decision": "release", "user_evidence": "send the email now"},
@@ -1473,9 +1473,9 @@ def _re_declared_release_responses(closing: str) -> list[LLMResponse]:
 
 
 def test_a_release_overrides_the_batch_hold_for_that_id(loop_factory) -> None:
-    """Round-6 finding 1/3: the batch protocol re-held what the release let out.
+    """The batch protocol re-held what the release let out.
 
-    `v6g01` released `email1` on eight turns, issued `email_message_send` on all
+    Live, one run released `email1` on eight turns, issued `email_message_send` on all
     eight, and the PA's re-declared `b2` — identical every turn — re-held it
     every time with `batch_not_released`. Eight authorisations, zero sends, and
     the run's final summary listed the email under "Completed". The release the
@@ -1550,11 +1550,11 @@ def test_the_batch_override_does_not_lift_the_consent_gate(loop_factory) -> None
 
 
 def test_a_held_call_does_not_satisfy_a_release() -> None:
-    """Only an **executed** call answers a release (owner decision 2).
+    """Only an **executed** call answers a release.
 
     `_releases_without_calls` read `collector.calls`, which carries the withheld
     ones too, so a call the wrapper itself re-held counted as the call the
-    release promised — that is why `v6g01` recorded 0 `ix_release_missing` while
+    release promised — that is why the live run recorded 0 `ix_release_missing` while
     `email1` never went out. A call the wrapper refused *this turn* is still not
     reported as missing: the refusal is already a held row, and a repair would
     only get it held again.
@@ -1625,7 +1625,7 @@ _EMAIL_LABEL = "the confirmation email to Dr. Okafor"
 
 
 def _labelled_batches() -> Any:
-    """The `v6g01` pair, with a real label on the batch that gets cancelled."""
+    """The same batch pair, with a real label on the batch that gets cancelled."""
     return ix(
         "IX_render_topic_management",
         batch_set_id="bs1",
@@ -1679,11 +1679,11 @@ async def _run_to_the_cap(loop) -> list[Any]:
 def test_a_cancelled_item_is_recorded_and_the_user_reads_only_the_pa_prose(
     loop_factory,
 ) -> None:
-    """Owner decision 2026-09-06: no template close line.
+    """No template close line.
 
-    Live `v6g01`: the round cap cancelled `email1` twice, `ix_close_no_message`
+    Live, the round cap cancelled `email1` twice, `ix_close_no_message`
     fired both times, and the PA wrote no closing line — the answer to that was
-    a renderer-composed sentence, and `v11s02` t11 showed what it costs: it was
+    a renderer-composed sentence, and a later live turn showed what it costs: it was
     appended under an answer the PA had just given, contradicting it, with a
     snake_case intent id in the user's face. The miss stays fully recorded; the
     sentence goes.
@@ -1732,9 +1732,9 @@ def test_the_pa_s_own_closing_line_is_still_delivered(loop_factory) -> None:
 
 
 def test_a_cancellation_fires_its_forced_close_once(loop_factory) -> None:
-    """Round-6 finding 4: `finished_episodes` accumulates, the event must not.
+    """`finished_episodes` accumulates, the event must not.
 
-    Live `v6g01` had two genuine cancellations and **nine**
+    One live run had two genuine cancellations and **nine**
     `ix_hold_forced_close` + `ix_close_no_message` pairs, because every later
     turn re-read the finished episode. Anything counting cancellations off the
     event stream over-counted 4.5 to 1.
@@ -1762,10 +1762,10 @@ def test_a_cancellation_fires_its_forced_close_once(loop_factory) -> None:
 def test_a_cancelled_item_is_on_the_record_and_in_the_reminder_afterwards(
     loop_factory,
 ) -> None:
-    """Owner decision 3(b)/(c): the turns *after* the cancellation.
+    """The turns *after* the cancellation.
 
     The turn that lists a cancelled item as done withholds nothing, so no
-    structural detector can reach it — `v6g01` t35's "Confirmation email sent to
+    structural detector can reach it — a live turn's "Confirmation email sent to
     Dr. Okafor" fired nothing at all. Two answers, neither of them NLP: the PA
     is reminded on every later turn that the item was never executed, and
     `cancelled_items` is on every later turn's blob so the judge can read the
@@ -1868,10 +1868,10 @@ async def _run_elicitation_to_the_cap(loop) -> list[Any]:
 def test_a_cancelled_question_keeps_its_held_text_off_every_public_face(
     loop_factory,
 ) -> None:
-    """R3 + owner decision 2026-09-06: the cap says nothing on the public face.
+    """The cap says nothing on the public face.
 
-    R3 kept the withheld wording out of the close line; the close line itself is
-    now gone, so neither the question, nor its label, nor its id is delivered.
+    There is no close line, so neither the question, nor its label, nor its id
+    is delivered.
     The reminder to the PA still names both, on the internal plane.
     """
     async def scenario() -> None:
@@ -1918,7 +1918,7 @@ def test_a_cancelled_question_keeps_its_held_text_off_every_public_face(
 def test_a_cancelled_question_without_a_label_drops_the_subject(
     loop_factory,
 ) -> None:
-    """R3, the no-label case: after the 2026-09-06 decision there is no line at all.
+    """The no-label case: there is no line at all.
 
     The unlabelled variant existed because the id is no subject for a user.
     Nothing is composed now, so the reply is the PA's prose and the cancellation
@@ -1950,9 +1950,9 @@ def test_a_cancelled_question_without_a_label_drops_the_subject(
 def test_a_gate_repair_keeps_the_consent_row_of_a_call_that_already_ran(
     loop_factory,
 ) -> None:
-    """Round-6 finding 5: two authorisations, one `consent[]` row.
+    """Two authorisations, one `consent[]` row.
 
-    `v6g02` t20 released `item_2`, ran `appointment_create`, then opened a second
+    Live t20 released `item_2`, ran `appointment_create`, then opened a second
     gate for `item_3` whose ask was missing. The missing-ask repair calls
     `clear_holds()`, which wiped `consent[]` wholesale — and the retry has no
     reason to re-issue a call that already ran, so the row was gone for good. A
@@ -2027,7 +2027,7 @@ def _held_episode(attribute: str, **held: Any) -> IXHold:
 
 
 def test_a_question_only_episode_is_reminded_by_id_and_marker_not_by_its_text() -> None:
-    """Owner decision 2026-09-05: no held *call* is not the same as nothing held.
+    """No held *call* is not the same as nothing held.
 
     `Iterative` can withhold a question on a turn that makes no tool call, so
     `calls_held` is empty while `IX_continue_information_elicitation` is still

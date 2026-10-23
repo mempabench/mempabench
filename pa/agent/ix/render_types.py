@@ -1,6 +1,6 @@
-"""IX wrapper interface freeze (P0) -- types, constants and serialised shapes only, no runtime logic.
+"""IX wrapper interface freeze -- types, constants and serialised shapes only, no runtime logic.
 
-This module is the single interface source between P1-P5 and P6a: the
+This module is the single interface source for the rest of the IX wrapper: the
 implementations of the renderer (`render.py`), the collector and the gates are
 not here. The one function, `turn_budget()`, is the beat budget formula
 itself, not runtime wiring.
@@ -21,7 +21,7 @@ throughout below):
 - contract 5  the `capability_limit` error-code contract --
   `CAPABILITY_LIMIT_ERROR_CODE` / `CAPABILITY_LIMIT_TOOL_STATUS` / `ToolResultStatus`
   / `CAPABILITY_LIMIT_RESULT_KEYS` / `CapabilityLimitResult`
-- contract 6  retired 2026-09-06. The number is left unused rather than renumbered
+- contract 6  retired. The number is left unused rather than renumbered
   so existing `contract 6` cross-references still resolve. The one rule it carried
   that survives belongs to no contract because it is unconditional: the three
   internal position markers `BATCH_MARKER_RE` / `QUESTION_MARKER_RE` /
@@ -64,7 +64,7 @@ from typing import Any, Callable, Literal, NotRequired, TypedDict
 #: (`solution_breadth` after `task_expansion`). No setting and no description
 #: changed, so `setting_universe_sha256` and `spec_sha256` stand; the renderer
 #: contract hash covers this tuple's order, so it moves, and with it every run
-#: frozen under 2.0.0 becomes read-only (owner ruling 2026-09-17).
+#: frozen under 2.0.0 becomes read-only.
 IX_CONTRACT_VERSION = "ix-wrapper/2.1.0"
 
 #: The schema version of the `metadata["ix_render"]` blob itself.
@@ -136,7 +136,7 @@ def turn_budget(active_skills: Iterable[str]) -> int:
               + CLOSE_ROUNDS                                  # 1 (the forced-close round)
         )
 
-    **Who calls it** (owner's decision, how contract 9 lands): the formula and
+    **Who calls it** (how contract 9 lands): the formula and
     the constants have **exactly one definition**, here in `pa/`. **The harness
     injects it** -- `harness/` imports `turn_budget` (or reads
     `TURN_BUDGET_PARAMS` and computes it itself) and passes it (a callable, or
@@ -144,7 +144,7 @@ def turn_budget(active_skills: Iterable[str]) -> int:
     **`simulator/` never imports `pa/`**. The formula reads only
     `beat.active_skills` and no setting, so the budget leaks no GT.
 
-    One point lands per the owner's acceptance example:
+    One edge case:
     a beat with no hold-bearing attribute returns `BASE_TURNS`
     (3) without `CLOSE_ROUNDS` -- `CLOSE_ROUNDS` is the
     forced-close round, and with no episode there is nothing to close, so there
@@ -161,7 +161,7 @@ def turn_budget(active_skills: Iterable[str]) -> int:
 
 
 #: Contract 9's **pure-data export**: a serialisable copy of the four constants above.
-#: [owner decision]: the **only definition** of the formula and the constants is
+#: The **only definition** of the formula and the constants is
 #: this module's `turn_budget()` and those four constants; `harness/` imports
 #: `turn_budget` (or reads these params and computes it itself) and injects it --
 #: a callable, or the already-computed per-beat turn count -- when it builds the
@@ -222,10 +222,10 @@ IX_TOOL_NAME_PREFIX = "IX_"
 
 #: Carrier A: the per-session setting selection tools, one per attribute for all
 #: 14.
-#: **Literals, not derived from `pa.agent.ix.specs`**: this module is P0's
+#: **Literals, not derived from `pa.agent.ix.specs`**: this module is the
 #: interface freeze point and depends on the standard library only; importing
 #: `pa.agent.ix.specs` would also execute `pa/agent/ix/__init__.py` (which
-#: imports `tools` / `registry` / `policy`), while P1's `tools.py` has to read
+#: imports `tools` / `registry` / `policy`), while `tools.py` has to read
 #: this module's payload shapes in turn -- that is a cycle. Consistency is
 #: guaranteed by `tests/test_pa/test_ix_render_types.py` asserting against
 #: `IX_PASSIVE_SPECS`, not by a runtime import. The order is the document order
@@ -274,8 +274,8 @@ IX_CAPABILITY_RESOLVE_TOOL = "IX_capability_resolve"
 CAPABILITY_BOUNDARY_ATTRIBUTE = "capability_boundary"
 
 #: Which `TurnPayloads` fields each `IX_render_<attribute>` carries (see the
-#: per-field carrier notes inside `TurnPayloads`). P1 aligns its
-#: schema and P2 its payload collection against this, so the field list is not
+#: per-field carrier notes inside `TurnPayloads`). `tools.py` aligns its
+#: schema and the collector its payload collection against this, so the field list is not
 #: written out twice.
 RENDER_PAYLOAD_FIELDS: dict[str, tuple[str, ...]] = {
     "IX_render_reasoning_visibility": ("user_facing_rationale",),
@@ -407,10 +407,10 @@ HELD_STATUS_BY_ATTRIBUTE: dict[str, HoldStatus] = {
     "information_elicitation": "held_for_questions",
 }
 
-#: **Reason** -> `status`, which wins over the attribute (added after the round 7 live run).
+#: **Reason** -> `status`, which wins over the attribute.
 #: `held_for_confirmation` means "the user has been asked and we are waiting for
 #: an answer", so it **can only** come from the path that really opened a gate.
-#: In live run `v7r06` t18, all six `binding_invalid` rows were written as
+#: In one live turn, all six `binding_invalid` rows were written as
 #: `held_for_confirmation` + `gate: null` + `asked: false` -- the user was
 #: neither asked nor told, and three reads simply vanished. These reasons open
 #: no gate (see `_NO_GATE_HOLD_REASONS`), so they get their own status instead
@@ -439,8 +439,7 @@ def held_status(attribute: str, reason: str = "") -> HoldStatus:
     """The `status` of one held record: **reason first, attribute second**.
 
     One entry point, so the collector's gate path and the runner's back-fill
-    path cannot give two answers for the same `(attribute, reason)` -- which is
-    exactly where round 5 finding 4 came from.
+    path cannot give two answers for the same `(attribute, reason)`.
     """
     by_reason = HELD_STATUS_BY_REASON.get(reason)
     if by_reason is not None:
@@ -561,7 +560,7 @@ IX_EVENT_NAMES: tuple[str, ...] = (
     #: are appended to `tool_events` *after* every executed call
     #: (`runner.py`'s `tool_events.extend(collector.events)`), so the position
     #: of a ladder event in that list says nothing about when it fired. Three
-    #: regress21 reads took the tail position for chronology and concluded the
+    #: reads of one live run took the tail position for chronology and concluded the
     #: wrapper had pinned a carrier the turn already had (`acc_007` t2,
     #: `acc_026` t4). `call_index` is the number of calls recorded when the pin
     #: went out, on the same scale as `ToolCallRecord.order`, so the record says
@@ -571,7 +570,7 @@ IX_EVENT_NAMES: tuple[str, ...] = (
     "ix_release_folded",
     "ix_release_spent",
     "ix_release_inherited",
-    #: Owner ruling 2026-09-08: the floor let an external act through on a
+    #: The floor let an external act through on a
     #: standing authorisation the user spoke in the immediately preceding turn,
     #: so no ask was needed and none was made. Carries `tool` and the item id
     #: the act ran under.
@@ -607,32 +606,32 @@ IX_EVENT_NAMES: tuple[str, ...] = (
     "beat_gate_turn",
     #: Not an IX diagnostic: the provider cut the reply off at `max_tokens` with
     #: nothing in it, and the runner answered it instead of counting it as a
-    #: ladder miss (regress12 acc_026). Registered here because it is emitted
+    #: ladder miss (acc_026). Registered here because it is emitted
     #: with the same `ix_event` stamp and has to be read and banned with the rest.
     "provider_truncated",
     #: Same family, one step later: the turn's *last* response was the cut-off
     #: one, so the prose it would have delivered was never finished. The tail
     #: after the last sentence end is dropped before the turn ships, and this
-    #: carries `completion_tokens` and `dropped_chars` (regress16 acc_006, whose
+    #: carries `completion_tokens` and `dropped_chars` (acc_006, whose
     #: two PA turns both reached the user as a mid-tool-sequence aside).
     "turn_truncated",
     #: Same family: the provider marked the response an error, so its `content`
     #: is the gateway's error body and not a reply. One more request with the
     #: same messages is spent on it before the turn ends on the error path
-    #: (regress12 acc_003, whose error body shipped as the PA's whole turn).
+    #: (acc_003, whose error body shipped as the PA's whole turn).
     "provider_error_retried",
     #: Also not an IX diagnostic: one tool failed identically three times in a
     #: turn on a value the model was guessing, so it was stopped for the rest of
-    #: the turn and the model told to ask the user (regress12 acc_004).
+    #: the turn and the model told to ask the user (acc_004).
     "tool_failure_strike",
-    #: Its other half (owner ruling 2026-09-08): the same tool answered with an
+    #: Its other half: the same tool answered with an
     #: error on three separate iterations of one turn, so the runner stopped
     #: re-prompting and shipped the turn. Carries `tool`, `count`, `turn_index`
     #: and `beat`; the turn ends `completed`, not on a contract failure.
     "tool_retry_cap_reached",
     #: Also not an IX diagnostic: a per-session selection tool called on a beat
     #: that no longer offers it, after the session already recorded the setting
-    #: (regress20 acc_027). The call is answered and dropped -- it spends no
+    #: (acc_027). The call is answered and dropped -- it spends no
     #: repair budget and changes no selection. Carries `attribute`, `setting`,
     #: `turn_index`, `beat` and `call_index`.
     "ix_reselection_ignored",
@@ -645,7 +644,7 @@ IX_EVENT_NAMES: tuple[str, ...] = (
 #: The consequence is the same either way: the turn ends with
 #: `stop_reason = "ix_contract_failure"`, no further task call runs, no scorable
 #: reply is produced, the step fails and may be retried, and **no state change
-#: is left behind** (changed in round 6, replacing round 3's fail-open).
+#: is left behind**.
 #: The event also carries `attempts` (always 2).
 BOUNDARY_FAILURE_REASONS: tuple[str, str] = ("missing", "invalid_payload")
 
@@ -655,7 +654,7 @@ BOUNDARY_FAILURE_REASONS: tuple[str, str] = ("missing", "invalid_payload")
 # outside the taxonomy.
 # The three reductions (reasoning_visibility drops `Summarize`,
 # proactive_outreach drops `Medium`, topic_management drops `Follow user's
-# flow`) land in `specs.py` via P1 / P6b; what is frozen here is the domain
+# flow`) land in `specs.py`; what is frozen here is the domain
 # after the reduction.
 ReasoningVisibilitySetting = Literal["Show", "Hide"]
 UncertaintyExpressionSetting = Literal["Express", "Hide"]
@@ -857,7 +856,7 @@ class IXHold:
     asks for once a set has closed."""
 
     act_releases: dict[str, str] = field(default_factory=dict)
-    """Owner ruling 2026-09-08 — `tool -> the item id whose release is still
+    """`tool -> the item id whose release is still
     unspent on it`.
 
     The user authorised *an action*, not an id, and the tool
@@ -954,7 +953,7 @@ class HeldItem:
 class HeldNarration:
     """The prose written in the **same assistant message** as a call the gate held.
 
-    It narrates something that did not happen -- live, `v3g03` t12's `📧 Email
+    It narrates something that did not happen -- live, one turn's `📧 Email
     confirmation sent to Dr. Okafor` while `email_01` was being held. So it goes
     where held prose goes: into `audit_trace`'s `held.narration` alone, with the
     `public_turn` / `runtime_history` / memory projections seeing not one byte
@@ -978,7 +977,7 @@ class ReleaseDecision:
     id: str
     decision: ReleaseDecisionValue
     user_evidence: str = ""
-    """An **audit field** (downgraded in round 6): the whitespace-normalised
+    """An **audit field**: the whitespace-normalised
     substring check still runs and still goes to `audit_trace`, but **its result
     no longer decides the release**."""
 
@@ -994,7 +993,7 @@ class ConsentDecision:
     **PA-blind**: never into `<message>`, never into the simulator's `_history`,
     never anywhere in the PA prompt; the wrapper reads it as **gate state** only.
 
-    Owner ruling 2026-09-08 ("这个肯定要改") adds a second shape: an entry with an
+    There is a second shape: an entry with an
     **empty** `interaction_item_id` and a `tool` is a **standing authorisation**
     -- the actor spoke the go-ahead for an outward act on its authorising beat
     and no held id existed yet to answer. Live acc_039 t40: "You may proceed
@@ -1115,7 +1114,7 @@ class RequiredContext:
     required; a pure-conversation turn with neither -> not offered."""
 
 
-#: The signature of a named predicate. P1 offers, P2 consumes, and P0 freezes the shape.
+#: The signature of a named predicate; this module freezes the shape.
 RequiredPredicate = Callable[[RequiredContext], bool]
 
 
@@ -1164,13 +1163,13 @@ class IXRenderInput:
     The renderer **skips** these segments when it delivers prose;
     they appear only in `audit_trace`'s `held.narration`."""
     empty_reply: bool = False
-    """Round 9 item 1: this beat can deliver nothing at all, and the extra prose
+    """This beat can deliver nothing at all, and the extra prose
     the runner asked for is empty too. The renderer delivers the fixed safe
     sentence on that basis (`close_line_source: template`). The verdict lives in
     the runner and the sentence in the renderer -- so an "empty reply" has one
     rule and one exit."""
     binding_refused: bool = False
-    """Round 9 item 2: the fail-closed binding exit really fired (bound wrongly
+    """The fail-closed binding exit really fired (bound wrongly
     again on the second attempt, so the whole batch does not execute). A binding
     failure that was repaired the first time **does not set this** -- its held
     row stays on the audit plane, and judging by held rows would tell the user
@@ -1201,7 +1200,7 @@ class RenderedTurn:
     """The episodes cancelled **this beat** on hitting `HOLD_ROUNDS_HARD_CAP`.
     `hold_next.finished_episodes` accumulates **over the whole
     session**, so emitting events from it would repeat one cancellation on every
-    later beat (live run `v6g01`: 2 cancellations -> 9 `ix_hold_forced_close`)."""
+    later beat (one live run: 2 cancellations -> 9 `ix_hold_forced_close`)."""
     release_folded: list[dict] = field(default_factory=list)
     """The carried questions this beat released by decision alone, with no
     `[[q:…]]` marker in the prose: they are folded into the reply and settle.
@@ -1211,7 +1210,7 @@ class RenderedTurn:
     close_line_source: str = ""
     """Where the forced-close sentence came from: `payload` (the
     `closing_message` the PA wrote itself) / `none` (the PA wrote none and the
-    renderer writes nothing in its place -- owner decision 2026-09-06;
+    renderer writes nothing in its place;
     the miss lives on the audit plane as `ix_close_no_message` and
     `cancelled_items`) / "" (nothing was cancelled this beat). `template` is
     still written by the two fail-closed exits that own a safety line of their
@@ -1228,7 +1227,7 @@ class RenderedTurn:
     ask ends the turn) / `stripped` (the `WRAPPER_VOCABULARY` filter cut the
     line after assembly) / "" (nothing suppressed it)."""
     withheld_narration: list[HeldNarration] = field(default_factory=list)
-    """Round 9 item 3: whole sentences the `WRAPPER_VOCABULARY` filter held,
+    """Whole sentences the `WRAPPER_VOCABULARY` filter held,
     verbatim, `item_id: "wrapper_vocabulary"`; the unparsed tool-call blocks the
     markup filter held (acc_001 t32/t34), `item_id: "dsml_markup"`; and the
     sentences claiming an action the gate is still asking about (acc_039),
@@ -1243,7 +1242,7 @@ class RenderedTurn:
     cell that exists to produce it. `ix_certainty_claim_not_found` is what makes
     it countable."""
     leadin_dropped: str = ""
-    """regress13 acc_009 — the framing sentence the excision left pointing at
+    """acc_009 — the framing sentence the excision left pointing at
     nothing, verbatim, or "". Under `Infer` the release is 0/N, so three turns of
     that session reached the user as a lead-in and a colon with the questions
     gone. It goes where the other withheld text goes: `audit_trace` only."""
@@ -1310,7 +1309,7 @@ class RuntimeHistory:
 
 @dataclass(frozen=True)
 class MemoryProjection:
-    """Projection 3 · the PA's **whole first-person experience** of the turn, as the memory adapter receives it (owner ruling 2026-09-13).
+    """Projection 3 · the PA's **whole first-person experience** of the turn, as the memory adapter receives it.
 
     The old rule chose the wrong subject. It kept the two messages *the person*
     saw, and the subject of memory is the assistant. What the PA produced, or
@@ -1333,10 +1332,10 @@ class MemoryProjection:
     measures. `ForcedEventExecutor` renders through the same grammar, so normal
     and forced still share one memory event schema.
 
-    Still excluded, and these are hard: held prose at hold time (O4 — the turn
+    Still excluded, and these are hard: held prose at hold time (the turn
     carries the `[ix_result]` hold status, and the released text enters as
     dialogue in the turn that delivers it); the provider output of an iteration
-    the wrapper voided (Q1); `consent_decisions`, `target_cell` /
+    the wrapper voided; `consent_decisions`, `target_cell` /
     `target_attribute` / `target_setting`, probe ids and `acc_num`, none of
     which is a message at all — the builder reads messages and never `metadata`.
 
@@ -1394,7 +1393,7 @@ class AuditTrace:
     """The `ix_render` blob; the whole thing is `metadata["ix_render"]`."""
 
 
-#: The names of the five projections. P4 / P7's banned-field tests check
+#: The names of the five projections. The banned-field tests check
 #: against this list.
 PROJECTION_NAMES: tuple[str, str, str, str, str] = (
     "public_turn",
@@ -1509,7 +1508,7 @@ class ReasoningJSON(TypedDict):
 class CertaintyJSON(TypedDict):
     """`certainties[]`: `rendered` is the parenthesis rendered out, "" for none appended.
 
-    `claim` / `strategy` are two audit-side columns (added in round 7):
+    `claim` / `strategy` are two audit-side columns:
     `rendered` alone cannot tell "located but withheld under this setting" from
     "never located at all" -- under `Hide` both are "".
     `strategy ∈ {exact, normalized, token_overlap, not_found}` is the pass
@@ -1572,9 +1571,9 @@ class IXRenderJSON(TypedDict):
     record without it stays valid)."""
     stop_reason: NotRequired[str]
     """How this beat ended (`ix_hold` / `ix_gate` / `ix_contract_failure` / …).
-    In live runs not one `pa_turn` line carried it: round 5 could only infer
+    In live runs not one `pa_turn` line carried it: a review could only infer
     `ix_hold` from the held status and the prompt tokens in the API log, and the
-    stop reason `f19702b` added could not be read out of the artefacts at all."""
+    stop reason itself could not be read out of the artefacts at all."""
     closing_iteration: NotRequired[bool]
     """Whether the closing request got prose back (`True` = yes,
     `False` = empty). The key being absent altogether means this beat made
@@ -1583,7 +1582,7 @@ class IXRenderJSON(TypedDict):
     """Every item cancelled **so far this session** (id +
     intent), **written on every beat from the cancellation onward**.
     The judge uses it to check "did a later beat call something done that was
-    never executed" -- live, `v6g01` t35 listed an email that was never sent
+    never executed" -- live, one turn listed an email that was never sent
     under a "done" heading, on a beat that held nothing, so structurally no
     detector could reach it. With nothing cancelled this session the key is
     omitted entirely."""
@@ -1625,12 +1624,12 @@ IX_RENDER_OPTIONAL_KEYS: frozenset[str] = frozenset({
 #: The keys that may **never appear** in the text-plane pack (projection 4).
 #: The rule is "**remove the whole `ix_render` block**" -- not delete a few of
 #: its fields, since one `trace` string is enough to leak a setting.
-#: P4's banned-field test (T11) uses it.
+#: The banned-field test (T11) uses it.
 TEXT_JUDGE_BANNED_KEYS: frozenset[str] = frozenset({
     # the whole ix_render block and each of its top-level keys
     "ix_render",
     *IX_RENDER_TOP_LEVEL_KEYS,
-    # the old IX event groupings (dropped along with P4)
+    # the old IX event groupings (dropped)
     "ix_directives",
     "process_events",
     "elicitation_events",
@@ -1680,7 +1679,7 @@ def to_ix_render_metadata(
 ) -> IXRenderJSON:
     """Assemble one `RenderedTurn` and its audit-side material into the `ix_render` blob.
 
-    `proactive_decision` and `trace` come straight from `rendered`; P2 supplies
+    `proactive_decision` and `trace` come straight from `rendered`; the collector supplies
     the other sections at render time.
     Contract 12: every record carries its own `schema_version` and restates the
     run's `ix_contract_version`.
@@ -1800,7 +1799,8 @@ def text_judge_projection(
     rendered: RenderedTurn,
     render_input: IXRenderInput,
 ) -> TextJudgeProjection:
-    """Build projection 4. **P0 freezes only the field set; the packing lands in P4.**
+    """Build projection 4. **Only the field set is frozen here; the packing
+    lives in `harness/judge_pack.py`.**
 
     Two hard requirements for the implementation: keep only `public_turn` and
     the `name` / `args` / `status` / ordering of the **executed** task tool
@@ -1810,5 +1810,5 @@ def text_judge_projection(
     """
     raise NotImplementedError(
         "text_judge_projection packing is not implemented; "
-        "P0 freezes only the field set and TEXT_JUDGE_BANNED_KEYS."
+        "this module freezes only the field set and TEXT_JUDGE_BANNED_KEYS."
     )

@@ -55,8 +55,8 @@ from simulator.judge.guards import ASK_GATE_VALUES, JudgeTimeout, strip_fences
 #: means re-running the replay. There is no second candidate and no fallback.
 DEFAULT_MODEL = "gemma-4-12b-it"
 
-#: Thinking is on: the owner's ruling is that the judge reasons before it
-#: answers, and that every measurement is taken under this one production
+#: Thinking is on: the judge reasons before it
+#: answers, and every measurement is taken under this one production
 #: config. The deployment's `gemma4` reasoning parser puts that pass in
 #: `delta.reasoning`, separate from the answer, so the schema still constrains
 #: the answer alone.
@@ -87,36 +87,36 @@ RETRY_STATUSES = (429, 502, 503)
 #: from `RETRY_PAUSE_S` and is not a knob. Three retries at 2/4/8 s covers the
 #: transient TLS EOF and 429 bursts that killed whole lanes under the previous
 #: one-retry policy, and costs 14 s before the fallback box is tried. A timeout
-#: is retried on the same count but with no pause at all (owner ruling
-#: 2026-09-18): the attempt that timed out has already waited a whole deadline
+#: is retried on the same count but with no pause at all:
+#: the attempt that timed out has already waited a whole deadline
 #: on that box, so a backoff on top of it buys nothing.
 DEFAULT_RETRIES = 3
 RETRY_PAUSE_S = 2.0
 
 #: How many times a call walks the pool before the judge is unavailable. Two,
-#: because one was the live run of 2026-09-18: the primary timed out, both
+#: because one failed a live run: the primary timed out, both
 #: fallback boxes were unreachable, and the walk ran off the end of the list
 #: with the whole round exiting on it — while the primary was answering again
-#: seconds later. So the end of the list comes back round to the head once more
-#: (owner ruling 2026-09-18), and then stops: a pool walked twice over is a
+#: seconds later. So the end of the list comes back round to the head once more,
+#: and then stops: a pool walked twice over is a
 #: judge that is genuinely not there, and looping on it would hang the round
 #: instead of failing it.
 POOL_PASSES = 2
 
-#: The default is the measured maximum under load plus headroom (owner rule).
-#: Measured on the smoke runs of 2026-09-09, one lane, model resident: a single
+#: The default is the measured maximum under load plus headroom.
+#: Measured on smoke runs, one lane, model resident: a single
 #: question 3.7-11 s, a 1748-token two-question pair 23-39 s under load average
 #: 5.3 (33 s on acc_003), the preflight probe 10-13 s. 15 s covered only the
 #: single questions and voided sessions on any round that forgot the env
 #: override; 60 s = measured max 39 s + headroom. `MEMPA_JUDGE_DEADLINE_S`
 #: still overrides per round. It bounds ONE attempt, not the whole call: every
-#: retry starts a fresh one (owner ruling 2026-09-18), so a single slow call can
+#: retry starts a fresh one, so a single slow call can
 #: no longer eat the retries that were meant to cover it.
 DEFAULT_DEADLINE_S = 60.0
 
 #: The floor covers up to two questions, and every question above that adds the
-#: measured mean increment per question. From 主-解读's step-0 gate_cue replay
-#: 2026-09-09 (deadline 60, load average 11-14): one question 7.6 s mean, ten
+#: measured mean increment per question. From a gate_cue replay
+#: (deadline 60, load average 11-14): one question 7.6 s mean, ten
 #: 32.1 s, so (32.1 - 7.6) / 9 s per extra question.
 DEADLINE_PER_QUESTION_S = (32.1 - 7.6) / 9
 
@@ -128,8 +128,8 @@ DEADLINE_HEADROOM = DEFAULT_DEADLINE_S / 39.0
 #: from was a two-question pair).
 DEADLINE_FLOOR_QUESTIONS = 2
 
-#: A call that timed out mid-stream is given to the other box once (owner
-#: ruling 2026-09-14, after nanobot acc_108 voided on a workstation that
+#: A call that timed out mid-stream is given to the other box once (after
+#: nanobot acc_108 voided on a workstation that
 #: dropped mid-call and the whole session was rerun pinned to the other box).
 #: The window is measured in the call's own deadlines, because that deadline is
 #: the only per-call timeout there is: a stream that dropped has already spent
@@ -162,8 +162,8 @@ NUM_PREDICT = {"yes_no": 256, "wide": 600, "general": 2048}
 
 #: A tier is not enough on its own: the wide tier's 600 is a whole-call budget,
 #: and a two-question call whose q1 quoted a long span spent all 600 on q1's
-#: evidence and reason and was cut mid-value in q2 (three times over, the smoke
-#: run of 2026-09-09). So the tier is a floor and the group's own width
+#: evidence and reason and was cut mid-value in q2 (three times over, in a smoke
+#: run). So the tier is a floor and the group's own width
 #: sets the rest: one verdict with a verbatim evidence span and a one-sentence
 #: reason fits comfortably in 320 tokens, plus 128 for the wrapper.
 PER_QUESTION_NUM_PREDICT = 320
@@ -195,7 +195,7 @@ def effective_num_predict(kind: str, n_questions: int) -> int:
 
 #: The verdict schema, passed as `response_format` rather than asked for in
 #: prose. Unconstrained, this model answers a group of one with a fenced,
-#: unwrapped single verdict (step-0 probe, 2026-09-10), so the constraint is
+#: unwrapped single verdict, so the constraint is
 #: what makes the reply parseable at all.
 VERDICT_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -213,8 +213,8 @@ VERDICT_SCHEMA: dict[str, Any] = {
                     "evidence": {"type": "string"},
                     # `minLength` so constrained decoding cannot emit "": ~8
                     # live answers came back with an empty `evidence` AND an
-                    # empty `reason`, schema-legal and unauditable (regress23
-                    # read, finding 2), and `withheld_fact_before_ask` reads
+                    # empty `reason`, schema-legal and unauditable,
+                    # and `withheld_fact_before_ask` reads
                     # the first word of `reason` as the slot noun.
                     "reason": {"type": "string", "minLength": 1},
                 },
@@ -589,7 +589,7 @@ class JudgeClient:
         #: The most recent call, so the session can put its latency on the
         #: record it writes. The per-call log line is stderr only, and nothing
         #: in a run directory keeps it, so the batch report had no latency to
-        #: read (report of 2026-09-09).
+        #: read.
         self.last_call: "JudgeCall | None" = None
         self.model = model or os.environ.get("MEMPA_JUDGE_MODEL", "").strip() or DEFAULT_MODEL
         self.endpoints = load_endpoints(base_url=base_url)
@@ -622,7 +622,7 @@ class JudgeClient:
         """The pool, shuffled by weight: first place is the binding.
 
         Weighted without replacement, so the first entry is drawn at exactly
-        its share of the total weight — the owner's 1/3 LAN, 2/3 workstation —
+        its share of the total weight — 1/3 LAN, 2/3 workstation —
         and the rest fall in behind it as the fallbacks, in the same weighted
         order.
 
@@ -750,8 +750,8 @@ class JudgeClient:
                     )
                     break
                 except JudgeTimeout as exc:
-                    # The box dropped this call mid-stream. Owner ruling
-                    # 2026-09-14: try it once on the other box before the
+                    # The box dropped this call mid-stream.
+                    # Try it once on the other box before the
                     # session is voided — a dropped socket is the box's
                     # failure, not the turn's outcome, and the rerun pinned to
                     # the other box is what a void buys anyway. Once only,
@@ -833,7 +833,7 @@ class JudgeClient:
 
         Retried in place, on the same box: 429 and any 5xx, a refused or reset
         connection, a TLS EOF mid-stream, a 200 whose body carried no content at
-        all, and — since the owner's ruling of 2026-09-18 — a call the box
+        all, and a call the box
         dropped on its deadline. Explicit transient SSE errors follow the same
         budget. No complete answer arrived, so this does not request a second
         verdict. A reply that arrived and was merely bad is not retried here and
@@ -1024,7 +1024,7 @@ class JudgeClient:
     def probe(self, endpoint: JudgeEndpoint | None = None) -> JudgeCall:
         """One real call with a real-shaped payload, before any run.
 
-        Phase 2 uses it as the run gate: it must come back parseable against the
+        It is the run gate: it must come back parseable against the
         verdict schema, or the round does not start.
         """
         from simulator.judge.catalogue import PROBE_PROMPT, PROBE_SYSTEM

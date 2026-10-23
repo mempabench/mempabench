@@ -217,7 +217,7 @@ def _write_probe_line(
 
 
 def _pass_forced_transcript_check(monkeypatch: pytest.MonkeyPatch) -> None:
-    """D5 checks each forced transcript against its sources at freeze. These
+    """Each forced transcript is checked against its sources at freeze. These
     synthetic transcripts name drafts that are not real sessions, so a
     stand-in passes them; a test that needs the real check restores it."""
     monkeypatch.setattr(

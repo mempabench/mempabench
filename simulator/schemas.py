@@ -1,6 +1,6 @@
 """Pydantic data models for the simulator.
 
-Schema reflects the 2026-04-22 design (see MemPABench_Simulator_Design.md):
+Schema reflects the design:
 - Persona is split into PersonaIdentity (file: {name}_identity.yaml) and
   PreferenceMatrix (file: {name}_{seasons}_preferences.yaml).
 - PreferenceMatrix is a 2 x 14 grid (context x active IPaS attribute). Every cell
@@ -245,27 +245,27 @@ ContextLiteral = Literal["work", "personal"]
 #: one attribute may still be live on another, so the attribute is part of the key.
 RETIRED_SETTINGS: dict[tuple[str, str], str] = {
     ('*', 'Suggest'): (
-        'autonomy_level merged it into `Self-directed` on 2026-09-05; '
+        'autonomy_level merged it into `Self-directed`; '
         '`Self-directed` now carries the same gate'
     ),
     ('task_expansion', 'Medium'): (
-        'task_expansion was cut to `Low` / `High` on 2026-09-06; the flag-only '
+        'task_expansion was cut to `Low` / `High`; the flag-only '
         'behaviour Medium named now belongs to `Low`, which permits naming an '
         'adjacent concern as long as no adjacent step is carried out'
     ),
     ('verbosity', 'Moderate'): (
-        'verbosity was cut to `Terse` / `Detailed` on 2026-09-07; the one '
+        'verbosity was cut to `Terse` / `Detailed`; the one '
         'supporting move Moderate named now belongs to `Terse`, which allows at '
         'most one and no closing summary'
     ),
     ('solution_breadth', 'Medium'): (
-        'solution_breadth was cut to `Low` / `High` on 2026-09-07; the '
+        'solution_breadth was cut to `Low` / `High`; the '
         'shortlist with a named recommendation Medium described now belongs to '
         '`High`, which compares at least two options and may or may not '
         'recommend one'
     ),
     ('guidance_level', 'Calibrated'): (
-        'guidance_level was cut to `Assumed` / `Guided` on 2026-09-07; the '
+        'guidance_level was cut to `Assumed` / `Guided`; the '
         'gloss of the term the user did not know now belongs to `Guided`, which '
         'glosses every term new to the reply and orders the steps'
     ),
@@ -343,7 +343,7 @@ class PreferenceMatrix(BaseModel):
         if self.status:
             raise ValueError(
                 f"matrix is marked status={self.status!r} and must not be loaded: "
-                "it holds settings removed from the IPaS taxonomy on 2026-09-05. "
+                "it holds settings removed from the IPaS taxonomy. "
                 "Re-extract the affected cells under the current settings and drop "
                 "the status key before using this persona."
             )
@@ -547,7 +547,7 @@ class SessionScript(BaseModel):
     # simulator needs to see it — the literal substrings the store keys the gate
     # on, the sentence the user dictates, and the beat that unlocks it. The store
     # passes a gated write only when its value carries every term, so every turn
-    # that delivers the sentence has to carry them: live regress15 `acc_039` t55
+    # that delivers the sentence has to carry them: live `acc_039` t55
     # restated the reason as "chest tightness ... three weeks" and a PA copying
     # the user's own words would have been refused on "chest tightening".
     gate_key_terms: list[str] = Field(default_factory=list)
@@ -556,7 +556,7 @@ class SessionScript(BaseModel):
     # Runtime-only in the same way, and part of the same gate: the outline's
     # `gate_cue`, the phrase the session's own prose gives the PA that makes
     # asking for the gated fact natural, and the beat whose goal or instruction
-    # carries it. The cue is the actor's to say — live regress18 lost it on
+    # carries it. The cue is the actor's to say — one live run lost it on
     # three of the five gated sessions when a style retry shortened the turn
     # (`acc_009` t3, `acc_011` t11, `acc_039` t6), and a PA with no cue never
     # asks, so the gate is never reached as designed. `gate_cue_beat` is None
@@ -568,7 +568,7 @@ class SessionScript(BaseModel):
     # by the step this session hangs `authorization: required_before_step` on.
     # It is what the consent sideband's pre-authorisation entry names, so the
     # PA's external_action_floor does not ask again for an act the user handed
-    # over on the turn before (live regress19 `acc_039` t40/t41). Independent
+    # over on the turn before (live `acc_039` t40/t41). Independent
     # of the gate fields above and under no together-rule with them: a session
     # can gate a dictation without authorising anything, and the other way
     # round.
@@ -728,7 +728,7 @@ def readback_beat_ids(session: NormalSessionDraft | ProbeSessionDraft) -> list[s
     earlier change's beat, so a session's writes hold the beats that follow
     them and nothing before.
 
-    A COMPRESSED session has no such beat at all. Owner ruling E (2026-09-07):
+    A COMPRESSED session has no such beat at all:
     the write and its readback both happen inside beat 1 and the PA shows the
     result in its beat-1 reply, so beat 2 is pure reaction and never asks for
     the product, to see it, or for a readback. Beat 2 is nonetheless this
@@ -780,7 +780,7 @@ def readback_beat_tools(
     lookup. A step with no tool (`actor: pa`) yields `None` on that side.
 
     Without this the loop's "the PA already read it back" switch keyed on any
-    write followed by any read anywhere in the session, so live regress21r
+    write followed by any read anywhere in the session, so live
     `acc_039` t=20 took the t=15 calendar pair as proof that the clinic
     appointment `beat_6` asks for had been shown — while its
     `appointment_create` had errored and no such record existed.

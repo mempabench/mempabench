@@ -46,7 +46,7 @@ from memory.scope import AdapterMode, MemoryScope, RetrieveRequest
 #: The single-input token ceiling the OpenAI embeddings endpoint enforces for
 #: `text-embedding-3-small` — the embedder our mem0 config pins
 #: (`MEM0_OPENAI_EMBEDDING_MODEL`, wired into the client's `embedder` block in
-#: `memory/backends/mem0_client.py`). It is the cap that killed the 2026-09-14
+#: `memory/backends/mem0_client.py`). It is the cap that killed the first
 #: `mem0` smoke on its first write, and this is the repo's only declaration of
 #: it.
 #:
@@ -62,7 +62,7 @@ from memory.scope import AdapterMode, MemoryScope, RetrieveRequest
 #: `infer=False` path never reaches that block: it builds one record per
 #: message and embeds each on its own. That deferred the cap for `simple_rag`
 #: rather than removing it — one MESSAGE over the cap is unwritable there, and
-#: two of them killed `ub_simple_rag_glm_5_3_flash_20260918` on 2026-09-18
+#: two of them killed a user_b `simple_rag` run
 #: (`_raw_records_that_fit_the_embedding_input`).
 MEM0_EMBEDDING_MAX_INPUT_TOKENS = 8191
 
@@ -333,7 +333,7 @@ def _raw_records_that_fit_the_embedding_input(
     `simple_rag` stores one raw record per message and embeds each message's
     own content, so message-boundary chunking never reached it and a single
     over-cap message was the one thing it could not write at all. That is what
-    killed `ub_simple_rag_glm_5_3_flash_20260918` twice on 2026-09-18: one
+    killed a user_b `simple_rag` run twice: one
     8291-token assistant message at `acc_014:beat_clarify_task:t1`, one 8567-
     token one at `acc_017:request_dance_spot:t0`, both a long `[reasoning]`
     block rendered into the same message as the iteration's other blocks.
@@ -346,17 +346,16 @@ def _raw_records_that_fit_the_embedding_input(
     What does NOT follow is that every input already written stays one record.
     The threshold here is the 7935-token BUDGET, not the endpoint's 8191-token
     cap, and the band between the two is populated: five messages the
-    2026-09-18 user_b runs already committed measure 7954 to 8138 tokens —
-    `ub_simple_rag_glm_5_3_flash_20260918` at `acc_028:beat_2:t2` (7954),
-    `ub_simple_rag_qwen3_8_27b_20260918` at `acc_033`/`acc_048` (7966, 8066),
-    `ub_simple_rag_deepseek_v4_1_flash_20260918` at `acc_033`/`acc_044` (8033,
+    user_b `simple_rag` runs already committed measure 7954 to 8138 tokens —
+    the glm-5.3-flash run at `acc_028:beat_2:t2` (7954),
+    the qwen3.8-27b run at `acc_033`/`acc_048` (7966, 8066),
+    the deepseek-v4.1-flash run at `acc_033`/`acc_044` (8033,
     8138) — each written as ONE record, because the endpoint accepted it.
     Resumed under this code, a message in that band becomes two records: the
     same bytes, but two memory entries and two retrieval units where there was
     one. Only a message at or below the budget passes through untouched, and
     that — not "everything that used to be written" — is the claim this
-    function can make (owner ruling 2026-09-18, ⑥: keep the 7935 margin and
-    record the consequence).
+    function can make.
     """
     budget = MEM0_EMBEDDING_MAX_INPUT_TOKENS - MEM0_EMBEDDING_CHUNK_SAFETY_MARGIN_TOKENS
     records: list[dict[str, Any]] = []
