@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use MemPABench, please cite the paper below."
+title: "MemPABench"
+version: "1.0.0"
+date-released: "2026-10-24"
+license: MIT
+url: "https://mempabench.com"
+repository-code: "https://github.com/mempabench/mempabench"
+authors:
+  - family-names: Li
+    given-names: Jialin
+  - family-names: Chen
+    given-names: Zhenhao
+  - family-names: Luo
+    given-names: Hanjun
+  - family-names: Salam
+    given-names: Hanan
+preferred-citation:
+  type: generic
+  title: "Why Bother Me Again? Benchmarking Personal Agent Memory for Interaction Preferences"
+  authors:
+    - family-names: Li
+      given-names: Jialin
+    - family-names: Chen
+      given-names: Zhenhao
+    - family-names: Luo
+      given-names: Hanjun
+    - family-names: Salam
+      given-names: Hanan
+  year: 2026
+  url: "https://arxiv.org/abs/2610.30485"
+  identifiers:
+    - type: other
+      value: "arXiv:2610.30485"
+      description: "arXiv preprint"
