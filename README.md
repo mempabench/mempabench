@@ -5,7 +5,7 @@
 <h1 align="center">MemPABench: Can Personal Agents Keep Up with Your Interaction Habits Across Contexts and Over Time?</h1>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2610.30485"><img src="https://img.shields.io/badge/arXiv-2610.30485-B31B1B?style=flat-square&logo=arxiv&logoColor=white" alt="arXiv"></a>
+  <a href="https://arxiv.org/abs/2610.30485"><img src="https://img.shields.io/badge/arXiv-2610.30485-b31b1b?style=flat-square&logo=arxiv&logoColor=white" alt="arXiv"></a>
   <a href="https://mempabench.com"><img src="https://img.shields.io/badge/Website-mempabench.com-4F46E5?style=flat-square&logo=googlechrome&logoColor=white" alt="Website"></a>
   <a href="#results"><img src="https://img.shields.io/badge/Leaderboard-results-FFD21E?style=flat-square" alt="Leaderboard"></a>
   <a href="https://huggingface.co/datasets/mempabench/mempabench-personas"><img src="https://img.shields.io/badge/Dataset-mempabench--personas-FFD21E?style=flat-square&logo=huggingface&logoColor=000" alt="Dataset"></a>
