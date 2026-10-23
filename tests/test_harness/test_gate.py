@@ -872,7 +872,7 @@ def test_repeated_calls_of_one_external_tool_are_one_act(tmp_path: Path):
 
 def test_every_normal_draft_resolves_to_at_most_one_external_act():
     """Measured against the live drafts, not a fixture: this is the value the
-    simulator will actually see for each session on `jl`.
+    simulator will actually see for each session.
 
     Every persona that has drafts is checked, so a draft written for `user_b`
     is held to the same property as one written for `user_a`.

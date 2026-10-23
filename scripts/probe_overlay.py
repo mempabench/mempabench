@@ -38,14 +38,11 @@ def _declared_pairing(draft_path: Path) -> tuple[str | None, str | None]:
     outline resolves overlays over a directory that holds none yet. So
     `(None, None)`, and `resolved_gt.yaml` decides.
 
-    A draft that IS there and cannot be read or parsed raises. This used to be
-    `except (OSError, yaml.YAMLError): return None, None`, inherited from
-    `harness/orchestrator.py::_probe_pairs_with`, which
-    an exemption audit judged a hatch -- "the paired
-    fixture overlay silently dropped, so the two halves of an evolving pair face
-    different conditions" -- with `raise` as the fix. Silence there is not "we do
-    not know", it is the answer "no partner", under which a paired final resolves
-    to its OWN `fixture/` instead of the pre's. Three call sites share this
+    A draft that IS there and cannot be read or parsed raises. Swallowing the
+    error would drop the paired fixture overlay silently, so the two halves of
+    an evolving pair would face different conditions. Silence there is not "we
+    do not know", it is the answer "no partner", under which a paired final
+    resolves to its OWN `fixture/` instead of the pre's. Three call sites share this
     function, so one unreadable byte would split the pair's conditions in all
     three at once.
     """

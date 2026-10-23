@@ -18,15 +18,8 @@ data/state_fixtures/{persona}/
 `data/state_tools/catalog.yaml` is the canonical tool catalog. A runtime
 artifact with `tool_status: world_toolbox` receives every catalog entry whose
 status is `implemented`; the artifact does not generate or narrow the tool set.
-Each entry's `returns.fields` lists the result field paths probed from the live
-handlers (`scripts/generate_catalog_result_fields.py`); rerun that script after
-any change to a handler's result shape — `tests/test_catalog_result_fields.py`
-gates the match, and every `implemented` tool must be stamped (a new tool with
-no corpus sample needs a probe chain in the script's `_hand_chains`).
-Rerun it as `--all-personas`, not `--persona`: the union over every world is
-the stamp, and only that run drops a field no world returns any more.
-Verify with `--all-personas --check`, which fails both on an observed field the
-stamp lacks and on a stale field the stamp still carries.
+Each entry's `returns.fields` lists the result field paths the live handlers
+return; when a handler's result shape changes, update its entry to match.
 
 ## Main files
 
@@ -56,16 +49,15 @@ in `server.py`, which FastMCP renders into the schema the PA sees):
 
 A bad value raises `ValueError` naming the parameter, the value received, and
 the expected format; FastMCP returns that text to the PA as a tool error, so the
-PA can correct the call. Keep the descriptions and the validators in step —
-`tests/test_state_server_param_formats.py` gates the pairing.
+PA can correct the call. Keep the descriptions and the validators in step.
 
 ## Record ids
 
 `ID_PREFIXES` in `store.py` is the one table of id shapes (`IdScheme` per record
 type), keyed by the store file each record type lives in. Handlers mint through
-`StateStore._mint_id`, which reads the table, and `scripts/validate_l0_world.py`
-checks seeded records against the same table — so a fixture and the handler that
-appends to it cannot end up in two id families. (They did, twice: seeded
+`StateStore._mint_id`, which reads the table, and the seeded records were
+checked against the same table when the worlds were authored — so a fixture and
+the handler that appends to it cannot end up in two id families. (They did, twice: seeded
 reservations were `res_0001` while `restaurant_reservation_create` minted
 `rsv_0001`, and seeded orders were `GM-118427` while `shopping_order_create`
 minted `order_0001`.)
@@ -95,11 +87,9 @@ flight numbers, room names) that the store never mints.
    a real-world slot goes through `_require_slot` (or the domain equivalent), so
    a booking for something that does not exist errors instead of persisting.
 4. **Take ids from the id table.** Add an `IdScheme` row to `ID_PREFIXES` for a
-   new record type and mint with `_mint_id`; that row is also what the fixture
-   validator enforces on seeded records, so never format an id by hand.
-5. **Run the gates.** `python -m pytest tests/test_state_server* -q` (the
-   parameter tests fail on any undescribed or unformatted parameter) and
-   `python scripts/validate_l0_world.py` over the fixtures.
+   new record type and mint with `_mint_id`; seed fixture records in the same
+   shape, and never format an id by hand.
+5. **Run the tests.** `uv run pytest tests/test_state_server* -q`.
 
 ## Runtime environment
 

@@ -1,9 +1,6 @@
-"""`test_resume_pool.py` is skipped on this branch. This proves it still says something.
+"""Proves that `test_resume_pool.py` says something beyond passing.
 
-The acceptance suite waits for `memory/turn_journal.py`, so on this branch
-the suite is skipped at import and
-contributes no red. That is an honest state to be in, but only if two claims
-about the skipped file can be checked rather than taken on trust:
+Two claims about the suite are checked here rather than taken on trust:
 
 1. **it is satisfiable** -- no assertion in it is an equality the design
    rejects, so a correct implementation can turn all three tests green. A test
@@ -13,9 +10,7 @@ about the skipped file can be checked rather than taken on trust:
    (a journal that keeps a span and a hash rather than the pool itself).
 
 Both are checked here by loading the suite twice, once against each throwaway
-journal in `_stubs/`, and running its three tests by hand. This file runs
-today; when `memory/turn_journal.py` lands the suite itself runs for
-real and this proof becomes redundant -- delete it in that commit.
+journal in `_stubs/`, and running its three tests by hand.
 """
 
 from __future__ import annotations

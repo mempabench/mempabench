@@ -553,8 +553,8 @@ class ProbeSessionMeta(StrictModel):
     # Pairing of an evolving cell's two reads. `before_acc` (the event acc's
     # number) exists exactly on `pre_event`; `pairs_with` is written into BOTH
     # drafts of a pair -- pre -> its final, final -> its pre -- because the
-    # runtime overlay lookup (`harness/orchestrator._probe_pairs_with`) reads
-    # it off the final side. So `pairs_with` + `before_acc` both present <=>
+    # runtime overlay lookup (`_declared_pairing` in `scripts/probe_overlay.py`)
+    # reads it off the final side. So `pairs_with` + `before_acc` both present <=>
     # `pre_event`, and a final's `pairs_with`, when present, names a `pre_XX`.
     pairs_with: str | None = Field(default=None, pattern=PROBE_ID_PATTERN)
     before_acc: int | None = Field(default=None, ge=1)

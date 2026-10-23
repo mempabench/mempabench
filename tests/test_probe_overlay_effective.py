@@ -165,13 +165,10 @@ def test_the_call_sites_resolve_the_same_directory(
 
 # ── a draft that cannot be read is an error, not "no pairing" ──────
 #
-# `_declared_pairing` inherited `except (OSError, yaml.YAMLError): return None`
-# from `harness/orchestrator.py::_probe_pairs_with`, which
-# an exemption audit judged a **hatch** -- "the
-# paired fixture overlay silently dropped, so the two halves of an evolving pair
-# face different conditions" -- with `raise` as the fix. Sharing the function put
-# that one swallow behind three call sites, so it has to go: an unreadable draft
-# reads as "declares no partner", and a paired final then resolves to its OWN
+# `_declared_pairing` must not swallow an unreadable draft: the paired fixture
+# overlay would drop silently, so the two halves of an evolving pair would face
+# different conditions. Three call sites share the function, so a swallow there
+# reaches all three: an unreadable draft reads as "declares no partner", and a paired final then resolves to its OWN
 # `fixture/` instead of the pre's, which is the very split the pairing prevents.
 
 

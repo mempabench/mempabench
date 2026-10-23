@@ -508,8 +508,8 @@ def test_an_older_journal_mark_naming_an_unknown_turn_raises(tmp_path):
     "mark", ["whole_scene_failed_terminal", "failed_terminal", "not_a_mark"]
 )
 def test_other_unknown_marks_still_raise(tmp_path, mark):
-    # `whole_scene_failed_terminal` set a state jl has no counterpart for, so
-    # it is not read as anything.
+    # `whole_scene_failed_terminal` set a state this code has no counterpart
+    # for, so it is not read as anything.
     path = _two_turn_journal(tmp_path)
     _append_raw_line(path, _whole_scene_mark(mark, "turn-1"))
 
