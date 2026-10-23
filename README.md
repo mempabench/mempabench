@@ -4,11 +4,8 @@
 
 <h1 align="center">MemPABench: Can Personal Agents Keep Up with Your Interaction Habits Across Contexts and Over Time?</h1>
 
-<!-- TODO(arXiv): once the arXiv ID exists, point the Paper badge at https://arxiv.org/abs/<id>
-     and switch it to https://img.shields.io/badge/arXiv-<id>-B31B1B?style=flat-square&logo=arxiv&logoColor=white
-     Until then it points at the project website. -->
 <p align="center">
-  <a href="https://mempabench.com"><img src="https://img.shields.io/badge/Paper-PDF-B31B1B?style=flat-square&logo=adobeacrobatreader&logoColor=white" alt="Paper"></a>
+  <a href="https://arxiv.org/abs/2610.30485"><img src="https://img.shields.io/badge/arXiv-2610.30485-B31B1B?style=flat-square&logo=arxiv&logoColor=white" alt="arXiv"></a>
   <a href="https://mempabench.com"><img src="https://img.shields.io/badge/Website-mempabench.com-4F46E5?style=flat-square&logo=googlechrome&logoColor=white" alt="Website"></a>
   <a href="#results"><img src="https://img.shields.io/badge/Leaderboard-results-FFD21E?style=flat-square" alt="Leaderboard"></a>
   <a href="https://huggingface.co/datasets/mempabench/mempabench-personas"><img src="https://img.shields.io/badge/Dataset-mempabench--personas-FFD21E?style=flat-square&logo=huggingface&logoColor=000" alt="Dataset"></a>
@@ -30,12 +27,10 @@
 
 ## What are you looking for?
 
-<!-- TODO(arXiv): point "Read the paper" at the arXiv abstract page once the ID exists. -->
-
 | I want to… | Go to |
 |---|---|
 | See the scores | [Results](#results) below |
-| Read the paper | [mempabench.com](https://mempabench.com) |
+| Read the paper | [arXiv:2610.30485](https://arxiv.org/abs/2610.30485) |
 | Get the data | [Data](#data) |
 | Evaluate my PA model or memory system | [Quick start](#quick-start) and [docs/adding_a_memory_backend.md](docs/adding_a_memory_backend.md) |
 
@@ -200,16 +195,15 @@ The conversations, tool calls and scores of the paper's runs are published as [`
 
 ## Citation
 
-<!-- TODO(arXiv): fill in the eprint field once the arXiv ID exists. -->
-
 ```bibtex
 @misc{li2026mempabench,
   title         = {Why Bother Me Again? Benchmarking Personal Agent Memory for Interaction Preferences},
   author        = {Li, Jialin and Chen, Zhenhao and Luo, Hanjun and Salam, Hanan},
   year          = {2026},
-  eprint        = {XXXX.XXXXX},
+  eprint        = {2610.30485},
   archivePrefix = {arXiv},
-  url           = {https://mempabench.com}
+  primaryClass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2610.30485}
 }
 ```
 
