@@ -588,7 +588,7 @@ async def test_probe_step_writes_nothing_and_moves_no_cursor(
     """The read-only gate is what makes a test probe retrieve-only.
 
     The pool change rewrites every write path, so this pins the three layers
-    the plan names -- the step's fixed `memory_mode`, the mode applied once per
+    -- the step's fixed `memory_mode`, the mode applied once per
     step, and the per-adapter refusal -- against both eviction policies: the
     cursor-carrying one (`after_adapter_commit`) and the file condition, whose
     real state is MEMORY.md / HISTORY.md.

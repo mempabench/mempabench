@@ -1401,8 +1401,8 @@ def validate_full_timeline_shape(plan: RunPlan) -> None:
         )
     # The acc_num skeleton still runs 1..108; what has to be authored and
     # actually executed is the 99 active sessions inside it. "Active" is the
-    # Outline's own count (`meta.active_session_count`, which
-    # `scripts/validate_outline.py` holds equal to the number of entries), so
+    # Outline's own count (`meta.active_session_count`, which is held equal to
+    # the number of entries when the outline is authored), so
     # the five forced events are among the 99 and the remaining nine slots are
     # gap days carried as placeholders.
     active = [step for step in timeline if not step.placeholder]

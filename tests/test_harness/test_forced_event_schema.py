@@ -457,9 +457,8 @@ def test_authored_held_attempt_is_rejected(tmp_path: Path) -> None:
 
     The gate opens strictly before the behaviour the event is about, so a
     pre-reveal attempt would be a second thing going wrong in a story that has
-    room for one. The rule sits in the authoring layer that both
-    `generate_forced_event_transcript.py` and
-    `scripts/validate_forced_event_transcript.py` come through, so it covers a
+    room for one. The rule sits in the authoring layer that generating a
+    transcript and validating one both come through, so it covers a
     generated transcript and a hand-written one alike;
     `load_forced_event_transcript` is left alone because the executor and
     `forced_event_replay` keep the held-call support they share with the

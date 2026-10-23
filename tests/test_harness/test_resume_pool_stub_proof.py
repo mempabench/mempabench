@@ -82,7 +82,7 @@ def _run(module: ModuleType, name: str, tmp_path: Path) -> None:
         asyncio.run(getattr(module, name)(tmp_path=tmp_path, monkeypatch=inner))
 
 
-def test_the_step9_suite_passes_against_a_faithful_journal(
+def test_the_resume_pool_suite_passes_against_a_faithful_journal(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Claim 1: every assertion in the suite is satisfiable.
@@ -90,7 +90,7 @@ def test_the_step9_suite_passes_against_a_faithful_journal(
     The faithful stub is the smallest correct journal -- it persists
     the rendered pool per `turn_id`, and its `replay_pending_turns` rewrites
     every pending record and logs the ids. Against it all three tests pass, so
-    none of them is asserting an equality the plan rejects, and each of the
+    none of them is asserting an equality the design rejects, and each of the
     three `strict=True` xfails can actually fire once the resume entry point lands.
     """
     module = _load_suite(monkeypatch, _stub("faithful"), "faithful")
@@ -99,7 +99,7 @@ def test_the_step9_suite_passes_against_a_faithful_journal(
 
 
 @pytest.mark.parametrize(("name", "expected_line"), zip(TEST_NAMES, REFUTED_BY))
-def test_the_step9_suite_fails_against_a_journal_that_loses_the_pool(
+def test_the_resume_pool_suite_fails_against_a_journal_that_loses_the_pool(
     name: str, expected_line: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Claim 2: the suite refuses the shortcut, and fails by assertion.

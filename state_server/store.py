@@ -139,8 +139,8 @@ DIGIT_GROUP_COMMA_RE = re.compile(r"(?<=\d),(?=\d)")
 #: matches it.
 GATE_INFLECTION_SUFFIXES = ("s", "es", "ed", "d", "ing", "er", "est")
 
-#: NOT the gate match rule any more -- `scripts/validate_normal_event.py` is the
-#: one remaining importer, where it is the authoring-time guessability floor
+#: NOT the gate match rule any more -- the draft validator is the one
+#: remaining importer, where it is the authoring-time guessability floor
 #: (how much of the dictated text the world already hands over). It goes when
 #: that check moves to the key terms.
 GATE_TOKEN_RATIO = 0.7
@@ -164,9 +164,9 @@ SEARCH_LOG_ID_LIMIT = 20
 #: would guard no tool, an empty `reveal_beat` would never shut -- so each is
 #: checked at init rather than discovered in a live round. `dictated_text` is
 #: no longer compared against the payload (the key terms are), but it stays
-#: required: it is what the terms were authored off, the dry-resolve check in
-#: `scripts/validate_normal_event.py` holds the draft to it, and a finished
-#: run's `meta.yaml` gate block is unreadable without it.
+#: required: it is what the terms were authored off, the draft validator's
+#: dry-resolve check holds the draft to it, and a finished run's `meta.yaml`
+#: gate block is unreadable without it.
 GATE_REQUIRED_TEXT_KEYS = ("tool", "param", "task_fact", "dictated_text", "reveal_beat")
 
 #: `tool_log.jsonl` row written once per step when the server receives a gate.
@@ -247,10 +247,10 @@ SESSION_CLOSING_WRITE_REFUSAL = (
 )
 
 #: Every write tool in `data/state_tools/catalog.yaml` -- `allowed_effects`
-#: carrying `external_write` or `internal_write`, the same rule
-#: `scripts/validate_normal_event.py:_tool_effect` applies -- and the store
-#: method each one runs. Six tools are named differently on the store than in
-#: the catalog, which is why this is a map and not a set.
+#: carrying `external_write` or `internal_write`, the same rule the draft
+#: validator applies -- and the store method each one runs. Six tools are
+#: named differently on the store than in the catalog, which is why this is a
+#: map and not a set.
 #:
 #: The catalog is repeated here rather than read, because the store runs as an
 #: MCP subprocess whose working directory is not the project root -- the same
@@ -443,7 +443,7 @@ def stamp_visible(
       today's behaviour. A caller that knows only the day cannot place the
       stamp against the session's hour, and the safe reading is the one that
       changes nothing: the authoring-time validators (which know only a day)
-      keep their current verdicts, and `validate_probe_outline` is what
+      keep their current verdicts, and the probe outline validator is what
       keeps a same-day timed stamp inside its probe's window.
     * no session clock at all -> everything is visible, as before.
     """
@@ -799,11 +799,11 @@ def order_merchant(order_store: dict[str, Any]) -> tuple[str, str]:
         {"merchant": {"name": "Harbor Market", "code": "HM"}, "orders": [...]}
 
     A dict rather than a list on purpose: the loaders that take "the single list
-    value" of a store document (`scripts/world_context.py::_load_store`,
-    `list_record_key` below) still find `orders`, and
-    `scripts/validate_l0_world.py` sees a record with no id, date or status to
-    check. `code` is optional -- without it the name's own two capitals stand --
-    and so is the whole key, which leaves the GlenMart defaults above.
+    value" of a store document (`list_record_key` below, and the authoring
+    loader) still find `orders`, and the world validator sees a record with no
+    id, date or status to check. `code` is optional -- without it the name's
+    own two capitals stand -- and so is the whole key, which leaves the
+    GlenMart defaults above.
     """
     declared = order_store.get("merchant") or {}
     name = str(declared.get("name") or ORDER_MERCHANT)
@@ -831,7 +831,7 @@ class IdScheme(NamedTuple):
 
     def valid_re(self) -> re.Pattern[str]:
         """A well-formed id of this shape: the rule the minter satisfies and
-        `scripts/validate_l0_world.py` enforces on seeded records."""
+        the world validator enforces on seeded records."""
         return re.compile(
             rf"^{self.code_pattern or re.escape(self.code)}"
             rf"{re.escape(self.sep)}\d{{{self.digits}}}$"
@@ -855,8 +855,8 @@ class IdScheme(NamedTuple):
 # a seeded `res_0001` and then books a table should not get an id from a second
 # family. (`restaurant_reservation_create` used to mint `rsv_`, and
 # `shopping_order_create` used to mint `order_0001` beside seeded `GM-118427` --
-# the same split twice.) Minting sites take the scheme from here and
-# `scripts/validate_l0_world.py` checks seeded records against the same table, so
+# the same split twice.) Minting sites take the scheme from here and the
+# world validator checks seeded records against the same table, so
 # neither side can drift. Value is (id field, scheme).
 def _phone_digits(number: Any) -> str:
     """A phone number reduced to its digits, for comparing two spellings."""
@@ -920,8 +920,7 @@ def list_record_key(document: dict[str, Any], id_field: str) -> str:
 
 
 #: A probe's record-level overlay, beside the whole files of its `fixture/`
-#: directory. One JSON object per line, in the shape
-#: `scripts/apply_fixture_additions.py` writes into a run's
+#: directory. One JSON object per line, in the shape of a run's
 #: `authoring/fixture_additions.jsonl`: `store`, `id_field`, `record_id`,
 #: `record`.
 FIXTURE_RECORDS_NAME = "records.jsonl"

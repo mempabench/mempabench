@@ -201,7 +201,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated by scripts/diagnostics/validate_model_policy.py --online
+  # validated by an online model-policy probe
   - provider_name: openrouter
     model: google/gemini-3.8-flash
     temperature: send
@@ -211,7 +211,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated by scripts/diagnostics/validate_model_policy.py --online
+  # validated by an online model-policy probe
   # free channel: probes saw no 429 and no rate-limit signal, but one call took 15s
   - provider_name: openrouter
     model: nvidia/nemotron-3-ultra-550b-a55b:free
@@ -222,7 +222,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated by scripts/diagnostics/validate_model_policy.py --online
+  # validated by an online model-policy probe
   - provider_name: openrouter
     model: deepseek/deepseek-v4.1-flash
     temperature: send
@@ -232,7 +232,7 @@ models:
     supports_forced_tool_choice: true
     validated_roles: [pa]
 
-  # validated by scripts/diagnostics/validate_model_policy.py --online
+  # validated by an online model-policy probe
   # also probed: tool_choice "auto", the proactive trailing-`system` shape, the
   # trailing-`tool` shape, and 3+3 stability reps (no 429, no empty choices)
   - provider_name: openrouter

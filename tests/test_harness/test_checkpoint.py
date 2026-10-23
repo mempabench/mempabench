@@ -1946,7 +1946,7 @@ def test_a_killed_recovery_is_finished_by_the_next_process(
 ) -> None:
     """A process destroyed mid-rollback, continued by a process that follows.
 
-    The plan requires this of a real subprocess rather than a raised
+    This is done with a real subprocess rather than a raised
     exception, at both of the two points where the run's own files have
     already changed: after the marker is published, and after the ledger has
     been replaced from the snapshot.

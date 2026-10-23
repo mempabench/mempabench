@@ -531,8 +531,8 @@ def sentence_too_long_finding(
     return None
 
 
-# Identical to scripts.text_literals.PATH_LITERAL_RE, copied rather than imported
-# so the simulator never depends on scripts/ (a test asserts they stay equal).
+# Identical to the authoring path-literal pattern, copied rather than imported
+# so the simulator never depends on scripts/.
 _PATH_LITERAL_RE = re.compile(
     r"(?<![A-Za-z0-9_.-])(?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+"
     r"|(?<![A-Za-z0-9_.-])[A-Za-z0-9_.-]+\.(?:csv|docx|json|jsonl|md|pdf|tex|txt|yaml|yml)\b",
@@ -625,7 +625,7 @@ def reviewer_voice_finding(message: str) -> str | None:
 # What "putting the request to the assistant" looks like in a spoken turn: a
 # question, or one of these request verbs. The list is local on purpose — the
 # simulator never imports from `scripts/` (same rule as `_PATH_LITERAL_RE`),
-# and `scripts.normal_actor_text_policy` holds per-attribute probe markers, not
+# and the authoring actor text policy holds per-attribute probe markers, not
 # a general request vocabulary. The beat's ask gate is the judge's
 # (`carries_an_ask`); this narrower reading only says whether the assistant has
 # asked for anything, which is what decides a withheld fact is owed yet.

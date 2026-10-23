@@ -1641,7 +1641,7 @@ def test_the_block_itself_is_kept_verbatim_on_the_audit_plane(loop_factory) -> N
 
     Every delivered surface drops the block, so without this the only record of
     what the model committed to would be gone — and `AuditTrace.segments`, the
-    field the plan names for it, is never constructed by anything.
+    field named for it, is never constructed by anything.
     """
     async def scenario() -> None:
         loop, _ = loop_factory(_block_provider("Hide"))

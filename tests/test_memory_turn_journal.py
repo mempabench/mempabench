@@ -399,8 +399,9 @@ def test_realized_artefacts_round_trip(tmp_path):
     assert "realized" not in second_line
 
 
-# Runs before 7aae87cc6 wrote two other marks for a turn the memory files are
-# never to have. The lines below are synthetic, shaped like those runs' lines.
+# Journals written by older versions carry two other marks for a turn the
+# memory files are never to have. The lines below are synthetic, shaped like
+# those journals' lines.
 
 
 def _append_raw_line(path, entry: dict) -> None:
@@ -447,7 +448,7 @@ def _two_turn_journal(tmp_path):
     ],
     ids=["file_unconsolidated_skipped", "whole_scene_file_unconsolidated"],
 )
-def test_pre_7aae87cc6_marks_read_as_dropped_from_files(tmp_path, entry):
+def test_older_journal_marks_read_as_dropped_from_files(tmp_path, entry):
     # An old run must load as a reference-arm source: its turn stays out of
     # the memory files exactly as `dropped_from_files` keeps it out.
     path = _two_turn_journal(tmp_path)
@@ -485,7 +486,7 @@ def test_pre_7aae87cc6_marks_read_as_dropped_from_files(tmp_path, entry):
         "whole-scene-turn-id-not-str",
     ],
 )
-def test_a_pre_7aae87cc6_mark_without_its_turn_ids_raises_naming_the_line(tmp_path, entry):
+def test_an_older_journal_mark_without_its_turn_ids_raises_naming_the_line(tmp_path, entry):
     # Nothing is defaulted: a mark that cannot say which turns it names is
     # corruption, and the error points at the file and line.
     path = _two_turn_journal(tmp_path)
@@ -495,7 +496,7 @@ def test_a_pre_7aae87cc6_mark_without_its_turn_ids_raises_naming_the_line(tmp_pa
         TurnJournal(path)
 
 
-def test_a_pre_7aae87cc6_mark_naming_an_unknown_turn_raises(tmp_path):
+def test_an_older_journal_mark_naming_an_unknown_turn_raises(tmp_path):
     path = _two_turn_journal(tmp_path)
     _append_raw_line(path, _whole_scene_mark("whole_scene_file_unconsolidated", "turn-9"))
 

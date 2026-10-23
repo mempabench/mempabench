@@ -216,7 +216,7 @@ def test_the_simulator_copy_of_the_table_matches_the_authoring_schema() -> None:
     assert set(table) == set(COMPRESSED_ATTRIBUTES)
 
 
-def test_the_table_is_the_nine_attributes_the_owner_named() -> None:
+def test_the_table_is_the_nine_compressed_attributes() -> None:
     assert COMPRESSED_ATTRIBUTES == frozenset(
         {
             "verbosity",

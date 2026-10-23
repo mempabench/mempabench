@@ -150,10 +150,10 @@ class JudgeSession:
 
         A group that answered writes one `judge_call` record: which rule, which
         generation, how many groups that generation had spent by then, the
-        client's own latency for the call, and every verdict. The batch report
-        (`scripts/diagnostics/regression_counters.py`) is read off these — hits
-        per rule, calls per session, the worst generation, latency p95 — and
-        nothing in a run directory kept the stderr log line it used to need.
+        client's own latency for the call, and every verdict. The batch report is
+        read off these — hits per rule, calls per session, the worst generation,
+        latency p95 — and nothing in a run directory kept the stderr log line it
+        used to need.
 
         `verdicts` answers *what* the judge said; `answers` answers *why*. It
         carries, in question order and untruncated, each verdict with the

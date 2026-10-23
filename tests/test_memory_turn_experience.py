@@ -176,7 +176,7 @@ def test_unknown_tag_is_refused_on_both_sides() -> None:
 
 
 def test_undeclared_attribute_key_is_refused_by_the_renderer() -> None:
-    # Section 3.3 fixes the attribute set per tag; a key outside it would put
+    # The attribute set is fixed per tag; a key outside it would put
     # a field on the wire that no reader is defined to understand.
     with pytest.raises(ValueError):
         render_blocks([

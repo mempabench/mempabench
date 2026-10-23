@@ -270,7 +270,7 @@ def test_resolve_carries_an_empty_slot_rather_than_raising(tmp_path: Path):
     The key terms and the cue fail closed because a run without them LOOKS gated
     while nothing holds it. A gate with no slot still holds exactly as designed;
     only the judge is back to inferring what the PA had to ask for. Presence is
-    enforced where it can be fixed -- `validate_outline`'s `gate_slot_required`.
+    enforced where it can be fixed, at authoring time.
     """
     _write_outline(tmp_path, gate=True, slot=None)
     _write_catalog(tmp_path)
@@ -1222,8 +1222,7 @@ def _write_probe_outline(
 
     Legitimate only for a compressed attribute: the probe outline validator
     wants exactly one `role: gate` object on every attribute outside
-    `COMPRESSED_ATTRIBUTES` and none on the rest
-    (`scripts/validate_probe_outline.py:role_errors`, `_GATE_ATTRIBUTES`).
+    `COMPRESSED_ATTRIBUTES` and none on the rest.
     """
     world: list[dict] = [
         {

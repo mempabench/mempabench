@@ -100,8 +100,8 @@ SUPERSEDED_SEGMENT = "steps_superseded"
 PRODUCER_LOCKS_SEGMENT = ".producer-locks"
 
 #: The stamp every directory one `supersede_step_dirs` call sets aside carries.
-#: `scripts/diagnostics/probe_cohort_manifest.py` reads it back as the cohort
-#: id, so the format is part of that contract and not a detail of the caller.
+#: It is read back as the cohort id, so the format is part of that contract and
+#: not a detail of the caller.
 SUPERSEDED_STAMP_FORMAT = "%Y%m%dT%H%M%SZ"
 
 #: Directories a run keeps for its own machinery. They carry their own copy of
@@ -226,9 +226,9 @@ def supersede_step_dirs(
     """Set each step's evidence aside as ``steps_superseded/<id>__<stamp>/``.
 
     One stamp for the whole call, so everything one supersede sets aside reads
-    back as one cohort (`scripts/diagnostics/probe_cohort_manifest.py`), and no
-    two calls share a stamp (`_free_cohort_stamp`). A step with nothing on disk
-    moves nothing and is simply absent from the result.
+    back as one cohort, and no two calls share a stamp (`_free_cohort_stamp`).
+    A step with nothing on disk moves nothing and is simply absent from the
+    result.
 
     The layout has two writers — `--rerun-probe-steps` before a resume
     (`scripts/run_orchestrator.py`) and the in-batch void retry

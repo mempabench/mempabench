@@ -78,9 +78,9 @@ _AVOID_LEAD = (
     "The clause:"
 )
 #: The opening of the generator's fixed scope-sentence template for a
-#: measurement reaction beat. It mirrors `_REACTION_SCOPE_SENTENCE` in
-#: `scripts/validate_normal_event.py`: a literal the generator writes, matched
-#: as a literal prefix, never a wording variant.
+#: measurement reaction beat, the same constant the draft validator uses: a
+#: literal the generator writes, matched as a literal prefix, never a wording
+#: variant.
 _REACTION_SCOPE_SENTENCE = "This turn judges only"
 _INSTRUCTION_LEAD = (
     "The line must do what this direction describes. The direction is the "
@@ -152,7 +152,7 @@ def build_general_groups(ctx: TurnContext) -> list[QuestionGroup]:
 
     # The reaction beat's scope sentence is authoring metadata: it tells the
     # validator which beat measures the attribute's surface
-    # (`_REACTION_SCOPE_SENTENCE`, scripts/validate_normal_event.py). It is not
+    # (`_REACTION_SCOPE_SENTENCE`). It is not
     # a ban, but the judge read it as one and answered `violated` on the very
     # behaviour the beat measures (20 of 28 residual avoid FPs in a live
     # round). It is dropped here; the kept clauses hold their global index so

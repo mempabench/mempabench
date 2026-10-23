@@ -630,7 +630,7 @@ def test_ix_tools_are_never_counted_as_task_tool_calls(tmp_path: Path) -> None:
     assert _count_tool_calls(load_events(run_dir / "transcript.jsonl")) == 1
 
 
-def test_ix_calls_keep_the_payload_type_tj_selects_b2_by(tmp_path: Path) -> None:
+def test_ix_calls_keep_the_payload_type_selections_filter_on(tmp_path: Path) -> None:
     """`selections[]` takes only `payload_type == "ix_preference_selection"`.
 
     The per-turn payload tools are `type == "ix"` too and their `setting` is the
@@ -682,7 +682,7 @@ def test_ix_calls_keep_the_payload_type_tj_selects_b2_by(tmp_path: Path) -> None
     ]
 
 
-def test_ix_control_records_keep_the_ids_tj_correlates_them_by(
+def test_ix_control_records_keep_the_ids_they_are_correlated_by(
     tmp_path: Path,
 ) -> None:
     """Cancellations and false claims are correlated through

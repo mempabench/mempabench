@@ -56,7 +56,7 @@ RETIRED_SETTINGS: dict[tuple[str, str], str] = {
 #: completable in one PA reply after one user message, so the outline entry may
 #: not describe a write-then-tell-someone chain and may not hold a fact back
 #: past the probe phase. The other five attributes are authored uncompressed and
-#: declare a layer-1 gate instead (`validate_outline._gate_errors`).
+#: declare a layer-1 gate instead.
 #:
 #: `proactive_outreach` is the triggered member. Its
 #: probe is the PA's own trigger turn, which the entry names as
@@ -66,8 +66,8 @@ RETIRED_SETTINGS: dict[tuple[str, str], str] = {
 #: says enters the user's knowledge at the draft layer, on the suppress branch.
 #:
 #: `scripts/session_authoring_schema.py` mirrors this table for the draft layer
-#: (the outline and authoring packages do not share modules);
-#: `tests/test_generate_outline.py` checks the two sets are equal.
+#: (the outline and authoring packages do not share modules); the two sets
+#: must stay equal.
 COMPRESSED_ATTRIBUTES = frozenset(
     {
         "verbosity",
@@ -86,8 +86,8 @@ COMPRESSED_ATTRIBUTES = frozenset(
 #: composes rather than a value the world could supply. These are the ONLY
 #: parameters a gate may sit in: the user
 #: dictates the wording at the probe beat, so the task cannot finish until they
-#: speak. `validate_normal_event._WRITE_PAYLOAD_KEYS` is this same object, so
-#: the two layers cannot drift.
+#: speak. The draft validator uses this same object, so the two layers cannot
+#: drift.
 GATE_PAYLOAD_PARAMS = frozenset({"body", "content", "note", "notes", "purpose", "reason", "relation", "replacement", "subject", "title"})
 
 #: Words a key term may not begin with. A term that opens on an article or a
@@ -265,7 +265,7 @@ class SessionIdentity(StrictModel):
 class SessionStory(StrictModel):
     domain: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
     story_id: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
-    # The World Design errand this session was dealt (assign_errands.py); the model
+    # The World Design errand this session was dealt; the model
     # may omit it and the generator stamps it, the validator requires it.
     errand_id: str = Field(pattern=r"^[wp][1-6]_[a-z0-9_]+$")
     time_position: str = Field(min_length=1)
@@ -320,8 +320,7 @@ class SessionTask(StrictModel):
     completion_condition: str = Field(min_length=1)
     background: str = Field(min_length=1)
     # Candidates may omit this until the generator binds the fixed preallocated
-    # mapping: normal openings from opening_assignment.yaml, evolving_event
-    # (forced) ones from forced_opening_assignment.yaml.
+    # mapping, one for normal openings and one for evolving_event (forced) ones.
     opening: OpeningPattern | None = None
     # Only world-triggered stories carry this: what concretely fires (the PA
     # proactive-outreach flow reads it). Must be non-empty when present.
@@ -355,8 +354,8 @@ class ProbeBranches(StrictModel):
 
 
 #: Record-id field names the world's stores mint themselves, read from the one
-#: table `StateStore._mint_id` and `validate_l0_world.check_formats_and_ids` both
-#: use. A `fixture_additions` record may not supply any of them: the patcher
+#: table `StateStore._mint_id` and the world validator both use. A
+#: `fixture_additions` record may not supply any of them: the patcher
 #: mints the id so collisions are impossible by construction.
 _MINTED_ID_FIELDS = frozenset({"id"} | {field for field, _ in ID_PREFIXES.values()})
 
@@ -392,7 +391,7 @@ class IngredientObject(StrictModel):
     # `None` on a `missing_field` only, and required there: an elicited value
     # lives with the user, so naming a store makes the probe unsatisfiable --
     # the draft layer then wants the fact both held by the world and ungated.
-    # `validate_outline._missing_field_store_errors` enforces both directions.
+    # The outline validator enforces both directions.
     store: str | None = Field(default=None, min_length=1)
     # Exactly one locator. `record_id` for a minted record, `path` for a document,
     # `task_fact` only for a fact no store holds: the key the opening omits (role
@@ -416,7 +415,7 @@ class IngredientObject(StrictModel):
     # `Infer` is a viable setting only when the world really holds more than one value
     # the PA could pick, so each missing field names at least two of these; with one,
     # the PA reads the single value and `Infer` and `Structured` render the same turn.
-    # `validate_outline._missing_field_candidate_errors` holds the count and the roles.
+    # The outline validator holds the count and the roles.
     missing_field_ref: str | None = None
     # Role `gate` only: the layer-1 gate of an uncompressed session. `gate_tool`
     # is the catalog tool the task cannot skip, `gate_param` one of that tool's
@@ -425,9 +424,9 @@ class IngredientObject(StrictModel):
     # of a tool call whose value is nowhere in the world.
     gate_tool: str | None = None
     gate_param: str | None = None
-    # The only gate shape there is. Derived from `gate_param` by
-    # `validate_outline._gate_errors` and bound after generation; the field is
-    # kept because drafts read it.
+    # The only gate shape there is. Derived from `gate_param` by the outline
+    # validator and bound after generation; the field is kept because drafts
+    # read it.
     #
     # `required_value` is RETIRED. It let any required
     # parameter gate as long as its value was absent from fixture TEXT, which
@@ -455,7 +454,7 @@ class IngredientObject(StrictModel):
     # for "a reply proposing review dates", so no PA — Structured or Infer —
     # would ever ask what the review should concentrate on, the actor had to
     # volunteer it unasked, and the two IX branches never separated. The cue is
-    # the mechanical proxy for that motivation: `validate_normal_event` requires
+    # the mechanical proxy for that motivation: the draft validator requires
     # it in the draft's text BEFORE the reveal beat.
     gate_cue: str | None = None
     # The slot the dictated value fills, named in the author's own words -- the
@@ -464,7 +463,7 @@ class IngredientObject(StrictModel):
     # INFER the slot from the dictated sentence and got it wrong: `acc_003`
     # authored a note and the judge read it as a reason, so a PA that asked for
     # exactly the right thing was scored as if it had not asked at all. Presence
-    # is `validate_outline._gate_errors`' `gate_slot_required`.
+    # is enforced by the outline validator.
     gate_slot: str | None = None
 
     @model_validator(mode="after")
@@ -579,8 +578,8 @@ class IngredientObject(StrictModel):
         the PA has to come back to the user for.
 
         Whether the draft's opening really carries the cue, and whether the cue
-        leaks a key term, are facts about the draft — `validate_normal_event`'s
-        `gate_cue_absent_before_reveal` and `gate_cue_contains_key_term`.
+        leaks a key term, are facts about the draft, checked by the draft
+        validator.
         """
         if self.gate_kind != "dictated_text":
             if self.gate_cue is not None:
@@ -660,8 +659,8 @@ class ProbeRecovery(StrictModel):
     #: be an `external_write` tool -- one that reaches another person or spends
     #: money. The cost has to land in the recovery
     #: step itself, and a step that only reads a record costs her nothing, so the
-    #: route is allowed to be the message that does. `validate_outline`
-    #: (`_compressed_errors`) then lets the one phase named in
+    #: route is allowed to be the message that does. The outline validator
+    #: then lets the one phase named in
     #: `ActionScopeContract.recovery_phase_ids` carry that one outward call and
     #: holds the rest of the compressed shape exactly as it was.
     tool: str = Field(min_length=1)
@@ -681,8 +680,8 @@ class ProbeContractBase(StrictModel):
     # attribute's probe is measured over something the world holds, so an entry
     # that declares nothing is an entry whose settings render the same reply.
     # There is no compat path — an entry authored before the field existed does
-    # not load, it is re-authored. `validate_outline._INGREDIENT_REQUIREMENT`
-    # then says which roles, and how many, each of the 14 attributes needs.
+    # not load, it is re-authored. The outline validator then says which
+    # roles, and how many, each of the 14 attributes needs.
     ingredient_objects: list[IngredientObject] = Field(min_length=1)
     # `autonomy_level` only, and required there (the same key and
     # the same rule as `scripts.probe_outline_schema.ProbeEntry.outward_tools`): the
@@ -693,9 +692,8 @@ class ProbeContractBase(StrictModel):
     # session releases one outward act. Empty on every other attribute.
     outward_tools: list[str] = Field(default_factory=list)
     # `capability_boundary` only, and required there: the
-    # recovery route out of the block and its cost. `validate_outline`
-    # (`_capability_recovery_errors`) requires it on capability cells and refuses
-    # it on every other attribute.
+    # recovery route out of the block and its cost. The outline validator
+    # requires it on capability cells and refuses it on every other attribute.
     recovery: ProbeRecovery | None = None
     fixture_additions: list[FixtureAddition] | None = None
     # `no_gate_reason` is ABOLISHED with no compat path.
@@ -748,7 +746,7 @@ class ActionScopeContract(ProbeContractBase):
     # route `ProbeRecovery` declares. Where that route is an `external_write`
     # tool, this is the one phase of a compressed entry allowed to reach another
     # person, and it names exactly one phase -- a session releases one outward
-    # act (`validate_outline._compressed_errors`).
+    # act.
     recovery_phase_ids: list[str] | None = None
 
 

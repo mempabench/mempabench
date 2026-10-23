@@ -361,7 +361,7 @@ BoundaryKind = Literal[
 CapabilityStage = Literal["select_setting", "declare_boundary", "apply_setting"]
 
 #: Contract 5 · the **three required keys** of a `capability_limit` tool result.
-#: The plan's shape is `{"ok": false, "error_code": "capability_limit", "boundary_kind": …}`;
+#: The result's shape is `{"ok": false, "error_code": "capability_limit", "boundary_kind": …}`;
 #: the `log_tool` side also records `status="capability_limit"`
 #: (`CAPABILITY_LIMIT_TOOL_STATUS`), so that it **coexists with, yet stays
 #: distinguishable from**, the existing error verdict of `_tool_result_error`

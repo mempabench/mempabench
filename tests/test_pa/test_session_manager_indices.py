@@ -179,7 +179,7 @@ def test_restoring_a_checkpoint_without_a_journal_leaves_none_behind(tmp_path):
 
 
 def test_list_sessions_reads_past_the_journal_beside_a_session(tmp_path):
-    """Live `run_forced_event_gate_c.py:166`, after the FE executor journals.
+    """A live forced-event run, after the FE executor journals.
 
     `<safe_key>.journal.jsonl` and the `<safe_key>.journal.<n>.jsonl` `/new`
     rotates aside both match `*.jsonl` and hold no session metadata line, so

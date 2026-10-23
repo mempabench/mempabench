@@ -11,7 +11,7 @@ landed, `replay_pending_turns` -- the at-least-once resume, reading
 `resume_pending()`, re-writing each pending pool, advancing the cursor and
 logging every turn id it rewrote. It is a test fixture, not a proposal: whoever
 lands the real entry point picks its home and its name, and the behaviour
-asserted by the suite is from the plan.
+asserted by the suite is what it has to satisfy.
 """
 
 from __future__ import annotations

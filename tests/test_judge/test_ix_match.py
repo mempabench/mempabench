@@ -20,7 +20,7 @@ def test_ix_match_is_an_exact_string_comparison(selected, expected, matched) -> 
     assert ix_match(selected, expected) == {"matched": matched, "selected": selected, "expected": expected}
 
 
-def test_ix_face_has_the_section_4_6_shape_and_is_computed_by_code() -> None:
+def test_ix_face_has_its_five_keys_and_is_computed_by_code() -> None:
     face = ix_face(
         {"selected_setting": "Detailed", "no_selection": False},
         {"setting": "Detailed", "allowed_settings": ["Terse", "Detailed"]},

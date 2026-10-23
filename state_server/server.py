@@ -20,8 +20,7 @@ mcp = FastMCP("mempabench-state")
 # is later compared as a string or parsed by `state_server/store.py`, so an
 # undocumented format was a silent mismatch: an empty search, or a stored record
 # no later read could find. The store now rejects a bad value and these
-# descriptions say what a good one looks like -- keep the two in step
-# (tests/test_state_server_param_formats.py gates the pairing).
+# descriptions say what a good one looks like -- keep the two in step.
 
 
 class _PublicStore:

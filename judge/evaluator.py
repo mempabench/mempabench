@@ -16,7 +16,7 @@ one-line by-design note for the attributes whose criteria do not use them
 (`UNUSED_BLOCKS`); every block keeps its heading and its place in the order.
 
 Provider/model are parameters; every call goes through OpenRouter with the same
-streaming wall-clock-deadline pattern as `scripts/generate_normal_session.py`.
+streaming wall-clock-deadline pattern as the authoring generator.
 `judge_id` is `llm__<provider>_<model>`.
 
 Run (no provider call):
@@ -42,8 +42,7 @@ from harness.judge_pack import text_judge_tool_log
 from judge.evidence import check_text_face_evidence
 from judge.ix_match import ix_face
 
-# The OpenRouter helpers of the authoring generator
-# `scripts/generate_normal_session.py`, copied verbatim.
+# The OpenRouter helpers of the authoring generator, copied verbatim.
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 # Models whose JSON mode returns an empty object on this prompt's length.
 _NO_JSON_MODE_PREFIXES = ("deepseek/", "z-ai/")
@@ -489,7 +488,7 @@ def judge_id_for(model: str) -> str:
 class OpenRouterJudgeClient:
     """One OpenRouter chat completion per `complete`, with a wall-clock deadline.
 
-    Same shape as `scripts/generate_normal_session._call_openrouter`: streamed
+    Same shape as the authoring generator's OpenRouter call: streamed
     body so keep-alive bytes cannot silently extend the request past
     `deadline_seconds`, JSON mode only where the model declares it, one
     unbuffered log line per call with tokens / seconds / USD.

@@ -216,8 +216,8 @@ class StateChange(StrictModel):
     The world accumulates across sessions in acc order: every write a session's
     PA makes stands for every session after it. Nothing is rolled back between
     sessions, so a later session must not anchor on text or records an earlier
-    session's PA is expected to change. `scripts/check_cross_acc_state.py` is
-    the mechanical check for that.
+    session's PA is expected to change. That is checked mechanically at
+    authoring time.
 
     `expected_before` and `expected_after` are AUTHORING-ONLY: they record what
     the author believes the target looks like before and after this write, they
@@ -228,9 +228,9 @@ class StateChange(StrictModel):
     # Retired field: `persistence: session | run` said whether a write survived
     # past its own session. Under accumulation every write does, so the field
     # had nothing left to distinguish. `StrictModel`'s `extra="forbid"` makes a
-    # draft that still carries it an error; `scripts/migrate_drop_persistence.py`
-    # removes it. Docstrings reach the generator's structured-output schema, so
-    # the retired name stays in this comment rather than in the description.
+    # draft that still carries it an error. Docstrings reach the generator's
+    # structured-output schema, so the retired name stays in this comment
+    # rather than in the description.
     change_id: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
     atomic_step_id: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
     target: str = Field(min_length=1)
@@ -264,10 +264,10 @@ class SessionLifeContext(StrictModel):
     # waiting at. Written by the author so the claim can be checked; without it
     # the only way to tell "she finished a lunch shift" from "she has a lunch
     # shift tomorrow" is to read the verb, and a verb scan is not a check.
-    # `validate_normal_event`'s `life_context_outside_calendar` then asks the
-    # arithmetic question: does that event's recurrence reach this weekday, and
-    # do its hours reach this hour. Null when the scene rests on the user's own
-    # ordinary state and no appointment — which is most sessions.
+    # The draft validator then asks the arithmetic question: does that event's
+    # recurrence reach this weekday, and do its hours reach this hour. Null when
+    # the scene rests on the user's own ordinary state and no appointment —
+    # which is most sessions.
     calendar_event_id: str | None = None
 
 
@@ -352,9 +352,8 @@ class NormalSessionDraft(StrictModel):
     # draft because the cue sits in the scenario prose while the beats
     # paraphrase it, and a cue no beat owes is a cue the style retry may cut.
     # Whether the field is required is a question about the outline's gate, so
-    # `validate_normal_event` owns that arm (`gate_cue_beat_missing` /
-    # `gate_cue_beat_without_gate` / `gate_cue_beat_unresolved`); the schema
-    # owns only the shape -- a named beat this draft has.
+    # the draft validator owns that arm; the schema owns only the shape -- a
+    # named beat this draft has.
     gate_cue_beat: str | None = None
 
     @model_validator(mode="after")
@@ -407,10 +406,9 @@ class NormalSessionDraft(StrictModel):
                 # by entry condition, and whichever plays is the single
                 # reaction. So both declare the target -- the measurement is on
                 # either path -- and there is no beat to keep empty.
-                # `validate_normal_event` accordingly holds
-                # BOTH openings to the reception-beat standard
-                # (`reception_beat_has_no_reaction_move`), not "the beat after
-                # the first declaring beat".
+                # The draft validator accordingly holds
+                # BOTH openings to the reception-beat standard, not "the beat
+                # after the first declaring beat".
                 undeclared = [
                     beat.beat
                     for beat in self.beats
@@ -994,8 +992,8 @@ class ForcedSimulation(StrictModel):
     reveal_at: dict[str, str] = Field(default_factory=dict)
     # No fixed floor. The old `min_length=7` predated the compressed shape and
     # forced acc_030/045/075 — whose normal siblings are exactly two beats — into
-    # seven. The real requirement is that the story is complete, which
-    # `validate_forced_event` checks against the beats the causality stages cite.
+    # seven. The real requirement is that the story is complete, which the
+    # forced-event validator checks against the beats the causality stages cite.
     beats: list[ForcedBeat]
 
 
@@ -1050,7 +1048,7 @@ class ForcedEventDraft(StrictModel):
         # and one reaction) and its forced event starts from that base, but the
         # forced story then runs until the user has stated the new rule, so the
         # causality stages decide how many beats it needs — which
-        # `validate_forced_event` checks against the beats they cite.
+        # the forced-event validator checks against the beats they cite.
         for beat in simulator.beats:
             if len(beat.uses) != len(set(beat.uses)):
                 raise ValueError(f"beat {beat.beat} repeats a uses key")

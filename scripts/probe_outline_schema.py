@@ -10,8 +10,8 @@ fired by instead of a question. Nothing else — no story,
 no phases, no opening, no identity section — because probes need neither
 diversity nor a causal chain.
 
-The outline layer is what gets reviewed; `scripts/validate_probe_outline.py`
-runs the A1–A12 rows over a parsed `ProbeOutline`.
+The outline layer is what gets reviewed; the probe outline validator runs the
+A1–A12 rows over a parsed `ProbeOutline`.
 """
 
 from __future__ import annotations

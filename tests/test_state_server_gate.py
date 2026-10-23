@@ -301,7 +301,7 @@ def test_the_acc_009_body_that_scored_below_the_old_ratio_now_passes(tmp_path: P
     assert sent["message_id"]
 
 
-def test_the_regress16_acc_039_payloads_pass_the_reauthored_terms(tmp_path: Path):
+def test_the_acc_039_payloads_pass_the_reauthored_terms(tmp_path: Path):
     """The terms are the information, not the words the user wrapped it in.
 
     acc_039 refused two payloads that both carried what the user said,
@@ -373,7 +373,7 @@ ACC_009_BODY = (
 )
 
 
-def test_the_regress19_acc_009_body_refused_for_hardest_now_passes(tmp_path: Path):
+def test_the_acc_009_body_refused_for_hardest_now_passes(tmp_path: Path):
     """The live refusal this rule is for: one word ending, the whole gate lost.
 
     The PA had asked, the user had dictated, and the value carried the focus,

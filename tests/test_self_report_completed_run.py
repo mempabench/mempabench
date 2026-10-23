@@ -25,7 +25,7 @@ from simulator.schemas import PreferenceMatrix
 
 ROOT = Path(__file__).resolve().parents[1]
 PERSONA = "user_a"
-PLAN_HEADER = ROOT / "tests/fixtures/run_plan_ce1de67_user_a_file_memory.yaml"
+PLAN_HEADER = ROOT / "tests/fixtures/run_plan_before_provider_avoidance_user_a_file_memory.yaml"
 PREFERENCES = ROOT / "data/personas/user_a_preferences.yaml"
 CHECKPOINT = "acc_108"
 #: Finals with a recorded conversation; every other final is floored by BRS.

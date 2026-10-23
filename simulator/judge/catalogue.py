@@ -744,9 +744,9 @@ def build_withheld_fact_before_ask(ctx: TurnContext) -> QuestionGroup:
 def build_reaction_beat_off_attribute(ctx: TurnContext) -> QuestionGroup:
     """The frozen word table's finding, asked.
 
-    `_REACTION_SURFACE_TERMS` in `scripts/validate_normal_event.py` takes no
-    new rows; whether a shared word opens another attribute's surface is a
-    reading, so it is asked here instead of matched there.
+    The draft validator's word table takes no new rows; whether a shared word
+    opens another attribute's surface is a reading, so it is asked here instead
+    of matched there.
     """
     return _single_verdict(
         "reaction_beat_off_attribute",

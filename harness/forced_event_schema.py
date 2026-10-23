@@ -761,13 +761,13 @@ def _validate_repo_sources(
     # `forced_transcript_held_attempt`: a forced transcript never authors the
     # attempt the gate stops. The gate opens strictly before the behaviour the
     # event exists to show ("One thing goes wrong in this story, and it is the
-    # behavior", `data/scripts/prompts/forced_event_gen_system.md`), so a
-    # pre-reveal attempt would be a second thing going wrong. This sits in the
-    # authoring layer, not in the model validator: `generate_forced_event_
-    # transcript.py` and `scripts/validate_forced_event_transcript.py` both
-    # come through here, so it covers a generated transcript and a hand-written
-    # one alike, while `load_forced_event_transcript` stays as it was and the
-    # runtime keeps the held-call support it shares with the accumulation line.
+    # behavior", in the forced-event generator's prompt), so a pre-reveal
+    # attempt would be a second thing going wrong. This sits in the authoring
+    # layer, not in the model validator: generating a transcript and validating
+    # one both come through here, so it covers a generated transcript and a
+    # hand-written one alike, while `load_forced_event_transcript` stays as it
+    # was and the runtime keeps the held-call support it shares with the
+    # accumulation line.
     if held_calls or transcript.assertions.held_tool_calls:
         raise ForcedEventTranscriptLoadError(
             "forced_transcript_held_attempt: a forced transcript never authors "
@@ -873,7 +873,7 @@ def depended_read_call_ids(
     assigned, which is exactly what must never be pinned.
 
     What such a call then has to assert is decided where the result's shape is
-    known, in `scripts/generate_forced_event_transcript.py:check_world_replay`.
+    known, when the transcript is generated.
     """
     depended_steps: set[str] = set()
     for step in draft.task_execution.atomic_steps:

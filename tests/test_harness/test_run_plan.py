@@ -929,8 +929,8 @@ def test_full_timeline_requires_99_active_timeline_steps():
     """The 99 the Outline counts: every authored session, forced ones included.
 
     A complete Outline holds 99 entries of which five are `evolving_event`
-    (`meta.active_session_count`, held equal to the entry count by
-    `scripts/validate_outline.py`), so the 1..108 skeleton has nine gap days.
+    (`meta.active_session_count`, held equal to the entry count when the
+    outline is authored), so the 1..108 skeleton has nine gap days.
     """
     plan = RunPlan(**_full_timeline_plan())
     # The acc_num skeleton is unchanged: 1..108, 5 of them forced events.

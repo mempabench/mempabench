@@ -238,7 +238,7 @@ def test_the_vocabulary_stays_closed() -> None:
         assert classify_failure(error) in FAILURE_KINDS
 
 
-def test_probe_retry_kinds_hold_the_owners_2026_09_19_line():
+def test_probe_retry_kinds_are_the_judge_void_kinds_plus_ix_runtime_and_other():
     """Which failures buy a probe another attempt.
 
     The cap is three and `ix_runtime` is in: the PA breaking an IX contract

@@ -1,9 +1,9 @@
 """Guard: pre-assigned-outcome mechanism fields must not reappear.
 
-The depolarization plan deleted the fields that used to pre-decide which side a
-session would play. They may survive only as rejection guards (leak-key bans,
-do-not-output prompt lists), in tests that prove they are rejected, and in the
-Archive. Anything else is a regression.
+The fields that used to pre-decide which side a session would play are
+deleted. They may survive only as rejection guards (leak-key bans,
+do-not-output prompt lists) and in tests that prove they are rejected.
+Anything else is a regression.
 """
 from __future__ import annotations
 

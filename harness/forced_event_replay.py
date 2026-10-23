@@ -5,9 +5,9 @@ carried its own copy of the same four decisions:
 
 * `harness/forced_event_executor.py` replays it against the run's real stage,
   for the benchmark;
-* `replay_world_results()` in `scripts/generate_forced_event_transcript.py`
-  replays it against a scratch copy of the persona world, to freeze each read's
-  `expected_contains` and to re-check the transcript at validation time.
+* the transcript generator replays it against a scratch copy of the persona
+  world, to freeze each read's `expected_contains` and to re-check the
+  transcript at validation time.
 
 Two copies of "which argument value is this", "does the gate hold this call",
 "does this message open the gate", and "does the world's answer satisfy this
@@ -69,8 +69,7 @@ def result_contains_expected(actual: Any, expected: Any) -> bool:
 
     The fourth decision both replays make, and the one they disagreed on
     longest: the offline replay froze the pins and re-checked them at
-    validation time with its own copy of this walk
-    (`scripts/generate_forced_event_transcript.py`), the live one checked the
+    validation time with its own copy of this walk, the live one checked the
     same pins against the run's real stage with another
     (`harness/forced_event_executor.py`).
 

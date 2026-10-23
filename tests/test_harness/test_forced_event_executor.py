@@ -1353,7 +1353,7 @@ async def test_resume_does_not_re_execute_a_realized_exchange(
     realized and no memory write is.
 
     `after_world_call_before_memory_ack` interrupts inside `_prepare_exchange`
-    after `call_fixture_02`'s realization is recorded. The plan's phrase is
+    after `call_fixture_02`'s realization is recorded. The interruption point is
     "after the world call but before the memory ack", and the realization is
     recorded on the line after the call --
     `self._replay.results[item.call_id] = actual_result`
@@ -2017,7 +2017,7 @@ async def test_a_mid_event_sweep_consolidates_whole_journal_records_only(
 ) -> None:
     """A sweep that stops mid-event must cut on a journal-record boundary.
 
-    The plan's consumption rule is per TURN, not per event: "automatic
+    The consumption rule is per TURN, not per event: "automatic
     compaction consumes exactly the journal prefix whose turns end at or before
     the chosen `compaction_end_index`". So an event's exchanges being split
     across two sweeps is by design -- an FE exchange *is* a turn. What is not by

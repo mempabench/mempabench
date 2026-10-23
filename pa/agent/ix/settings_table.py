@@ -1,14 +1,12 @@
 """The setting-definition table, `configs/setting_definitions.yaml`, typed.
 
-One row per attribute x setting, in document order (the order of
-`docs/definitions/PA_Interaction_Preference.md`, of `data/personas/coverage.py`
-`TAXONOMY`, and of the judge numbering in
-`docs/definitions/MemPABench_Attribute_Feature_Tables.md`). `specs.py` builds
-`IX_PASSIVE_SPECS` from it at import time, so `pa_instruction` is the text the PA
-is handed and enters `spec_sha256`; `user_sees` / `judge_observable` /
-`judge_evidence` are the table cells `scripts/render_setting_definitions.py`
-writes into the two definition documents. Every cell is one line of markdown
-table content: no line break, no `|`.
+One row per attribute x setting, in document order (the order of the two
+definition documents, of `data/personas/coverage.py` `TAXONOMY`, and of the
+judge numbering). `specs.py` builds `IX_PASSIVE_SPECS` from it at import time,
+so `pa_instruction` is the text the PA is handed and enters `spec_sha256`;
+`user_sees` / `judge_observable` / `judge_evidence` are the table cells of the
+two definition documents. Every cell is one line of markdown table content: no
+line break, no `|`.
 
 Standard library, pydantic and yaml only. `render_types.py` has to stay
 importable without this module and `specs.py` imports it, so nothing here

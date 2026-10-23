@@ -24,7 +24,7 @@ the memory files are never to have. A skipped step under
 `failure_policy.partial_skip_pending_memory: drop` sets it on its own turns
 the files had not yet had (`mark_dropped_from_files`), and consolidation then
 leaves them out. It is not `file_consolidated`: nothing was written. Journals
-of runs before 7aae87cc6 name such turns with `file_unconsolidated_skipped` or
+written by older versions name such turns with `file_unconsolidated_skipped` or
 `whole_scene_file_unconsolidated`; both are read as `dropped_from_files`.
 
 The file is append-only: `append_pending` writes one record line, and each mark
@@ -503,7 +503,7 @@ class TurnJournal:
             "file_unconsolidated_skipped",
             "whole_scene_file_unconsolidated",
         ):
-            # Marks written by runs before 7aae87cc6, read as dropped_from_files; the
+            # Marks written by older versions, read as dropped_from_files; the
             # old code's keeping of a failed interval in the prompt is not reproduced.
             if entry["mark"] == "file_unconsolidated_skipped":
                 rows = entry.get("records")

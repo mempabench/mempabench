@@ -210,7 +210,7 @@ def test_an_unreadable_draft_is_an_error_too(tree: Path) -> None:
 
 def test_a_draft_not_generated_yet_still_declares_nothing(tree: Path) -> None:
     """The boundary the fix must keep: probe drafts are written AFTER the outline,
-    and `scripts/generate_probe_outline.py` resolves overlays while the directory
+    and generating the probe outline resolves overlays while the directory
     holds no draft at all. Absent is a state, not a failure being hidden -- so it
     stays `(None, None)` and `resolved_gt.yaml` decides."""
     assert _declared_pairing(_drafts_root(tree) / PERSONA / "fin_09/fin_09.yaml") == (

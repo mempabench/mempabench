@@ -35,10 +35,10 @@ The journal calls below are the landed `memory.turn_journal` API --
 name still unfixed is the resume entry point, `replay_pending_turns`, which is
 this suite's proposal for a function that does not exist yet; whichever commit
 lands it either takes that name or updates the two call sites here. What is
-*not* negotiable is the behaviour each test asserts, which is quoted from the
-plan in each docstring. The import is at module scope on purpose: a resume entry
-point landed under a different name fails loudly here instead of turning these
-tests into silent xfails.
+*not* negotiable is the behaviour each test asserts, which each docstring
+states. The import is at module scope on purpose: a resume entry point landed
+under a different name fails loudly here instead of turning these tests into
+silent xfails.
 """
 
 from __future__ import annotations

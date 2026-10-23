@@ -1190,8 +1190,7 @@ def _declared_cue_beat(script_path: Path) -> str | None:
 
 # The window `gate_cue_absent_before_reveal` accepted the draft on, so the beat
 # the cue is armed to is the beat that rule read it in. The helpers below are
-# verbatim copies of that rule's own, from the authoring validator
-# `validate_normal_event`.
+# verbatim copies of that rule's own, from the draft validator.
 _TIME_NUM_TOKEN = r"[0-9]{1,2}(?::[0-9]{2})?"
 _TIME_RANGE_DASH_RE = re.compile(
     rf"({_TIME_NUM_TOKEN})\s*[-–—]\s*({_TIME_NUM_TOKEN})"
@@ -1213,7 +1212,7 @@ def _normalised_fact(value: str) -> str:
 
 # The authoring convention for handing over a gated value: the beat refers to
 # `task_facts` rather than quoting it ("gives the note text from task_facts when
-# the PA is ready to write" — session_gen_system.md).
+# the PA is ready to write" — the session generator's prompt).
 _TASK_FACTS_REFERENCE_RE = re.compile(r"(?<!\w)task_facts(?!\w)", re.IGNORECASE)
 
 
@@ -1268,12 +1267,11 @@ def _gate_cue_beat(script, cue: str, reveal_beat: str, declared: str | None = No
     """The beat on which the actor has to speak the gate's cue, or None.
 
     `declared` is the draft's own `gate_cue_beat` and wins when it is a beat of
-    this script: the author pinned the beat, and `validate_normal_event`
-    (`gate_cue_beat_unresolved`) held it to sitting before the reveal. The
-    search below is the fallback for a draft that declares nothing — the forced
-    line, whose drafts carry no such field.
+    this script: the author pinned the beat, and the draft validator held it
+    to sitting before the reveal. The search below is the fallback for a draft
+    that declares nothing — the forced line, whose drafts carry no such field.
 
-    Read off the same window `validate_normal_event`'s
+    Read off the same window the draft validator's
     `gate_cue_absent_before_reveal` accepted the draft on, through verbatim
     copies of that rule's own helpers (above): the first beat strictly
     before the reveal whose goal or instruction carries the cue, or the reveal

@@ -50,9 +50,8 @@ from pa.agent.ix.render_types import (
 #: has only this one value.
 RATIONALE_SOURCE = "user_facing_rationale"
 
-#: The parenthetical wording. The plan hard-codes a
-#: Chinese parenthetical, but every benchmark persona speaks English (user_a)
-#: and the Chinese one already reached live English prose, so what ships is
+#: The parenthetical wording. Every benchmark persona speaks English (user_a),
+#: and a Chinese parenthetical would reach live English prose, so what ships is
 #: `(confidence: low)`, with `high` / `medium` in the same shape.
 CERTAINTY_LABELS: dict[str, str] = {"high": "high", "medium": "medium", "low": "low"}
 

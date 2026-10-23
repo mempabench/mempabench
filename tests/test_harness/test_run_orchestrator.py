@@ -2560,10 +2560,9 @@ def _fixture_script():
 def _gate(**overrides) -> dict:
     """A resolved gate for the acc_001 fixture, revealed on its last beat.
 
-    The cue is the one the fixture's outline entry carries
-    (`tests/test_normal_session_authoring.py:_gate`): `ex_open_request` has the
-    user state the practical decision, which is the reason the PA has anything
-    to ask about.
+    The cue is the one the fixture's outline entry carries: `ex_open_request`
+    has the user state the practical decision, which is the reason the PA has
+    anything to ask about.
     """
     return {
         "tool": "document_update",
@@ -3461,7 +3460,7 @@ async def test_a_pending_recovery_builds_its_client_before_any_recorder(
 ):
     """The client that performs the rollback is built; nothing else is yet.
 
-    Two things the plan asks of the startup path. The client a recovery needs
+    Two things are asked of the startup path. The client a recovery needs
     must not require the live state the recovery exists to rebuild -- a
     recovery interrupted inside the backend layer can leave the history
     database not yet copied back from the snapshot. And the run's recorder and

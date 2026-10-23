@@ -38,7 +38,7 @@ from pa.agent.ix.render_types import (
 #: `IX_<attribute>` tool is `required == "always"`.
 UNSET = ""
 
-# --- the plan's worked examples ---------------------------------------------
+# --- the worked examples ----------------------------------------------------
 
 THREE_BATCHES = (
     "Here is where the three of them stand.\n\n"

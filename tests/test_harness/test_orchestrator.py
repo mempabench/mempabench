@@ -4701,8 +4701,7 @@ async def test_a_thirty_three_probe_batch_schedules_and_then_resumes(
 
 # ── a voided probe is rerun at once ───────────────────────────────────
 
-#: The directory name `harness.run_layout.supersede_step_dirs` writes, which
-#: `scripts/diagnostics/probe_cohort_manifest.py --list-cohorts` reads back.
+#: The directory name `harness.run_layout.supersede_step_dirs` writes.
 _SUPERSEDED_DIR = re.compile(r"^(?P<step_id>.+)__\d{8}T\d{6}Z$")
 
 

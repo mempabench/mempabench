@@ -312,10 +312,10 @@ def test_hold_bearing_attributes_have_episode_id_field_and_held_status() -> None
     }
 
 
-# --- construction from the plan's examples -----------------------------------
+# --- construction from the worked examples -----------------------------------
 
 
-def test_plan_items_a1_a3_from_section_3_3() -> None:
+def test_plan_items_a1_a3_mark_a3_key_and_bound_to_i3() -> None:
     assert [item.id for item in PLAN_A1_A3] == ["a1", "a2", "a3"]
     assert [item.is_key for item in PLAN_A1_A3] == [False, False, True]
     assert PLAN_A1_A3[2].bound_item_ids == ["i3"]
@@ -579,7 +579,7 @@ def test_projection_containers_hold_the_turn_envelope() -> None:
     assert audit.ix_render["schema_version"] == IX_RENDER_SCHEMA_VERSION
 
 
-def test_text_judge_projection_builder_is_deferred_to_p4() -> None:
+def test_text_judge_projection_builder_is_not_implemented() -> None:
     with pytest.raises(NotImplementedError):
         text_judge_projection(RenderedTurn(message="x"), IXRenderInput())
 
@@ -587,7 +587,7 @@ def test_text_judge_projection_builder_is_deferred_to_p4() -> None:
 # --- `ix_render` JSON --------------------------------------------------------------
 
 
-def test_text_judge_banned_keys_cover_every_section_4_4_key() -> None:
+def test_text_judge_banned_keys_cover_every_ix_render_key() -> None:
     # The optional keys are the ones a turn may simply not have: no carrier
     # block, no hold exit, no closing round. The 1.0.0 records that predate
     # them never wrote any of the three.
@@ -602,7 +602,7 @@ def test_text_judge_banned_keys_cover_every_section_4_4_key() -> None:
         assert key in TEXT_JUDGE_BANNED_KEYS
 
 
-def test_from_ix_render_metadata_accepts_the_section_4_4_example() -> None:
+def test_from_ix_render_metadata_accepts_the_ix_render_example() -> None:
     assert from_ix_render_metadata(IX_RENDER_EXAMPLE) == IX_RENDER_EXAMPLE
 
 

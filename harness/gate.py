@@ -51,8 +51,7 @@ FORCED_EVENT_ID_BY_ACC = {
 }
 
 #: A catalog tool writes when `allowed_effects` carries one of these -- the rule
-#: `scripts/validate_normal_event.py:_tool_effect` applies, mirrored rather than
-#: imported (harness/ does not import from scripts/). `verify` is not a write.
+#: the draft validator applies too. `verify` is not a write.
 _WRITE_EFFECTS = frozenset({"external_write", "internal_write"})
 
 #: The effects of a call that leaves the sandbox -- the act a user releases,
@@ -110,7 +109,7 @@ def resolve_session_gate(
     nor a probe (a `pretest_*` script, which has no outline entry), and a
     session whose target attribute is compressed -- the probe beat plus one
     reaction, with no task to gate. The compressed table decides it on both
-    lines: `scripts/validate_probe_outline.py:_GATE_ATTRIBUTES` is
+    lines: the probe outline validator gates exactly
     `TAXONOMY - COMPRESSED_ATTRIBUTES`, so a probe carries a gate on exactly
     the attributes an acc session does.
 
@@ -200,9 +199,8 @@ def resolve_authorised_tool(
     carry `authorization: required_before_step` -- the authoring schema defaults
     every step to `not_required` and only a gate revealed at a phase after the
     probe is ever required to say otherwise -- so the step that leaves the
-    sandbox is what identifies it. That is the same classification
-    `scripts/validate_normal_event.py:_tool_effect` makes, off the catalog's
-    `allowed_effects`.
+    sandbox is what identifies it. That is the same classification the draft
+    validator makes, off the catalog's `allowed_effects`.
 
     Exactly one such tool is expected; repeated calls of it are one act, since
     what the user releases is the tool name and the PA's floor resolves it by
@@ -262,7 +260,7 @@ class _GateSource:
 
     Only the fields whose home differs between the dialects are here. The plan
     stays where `_pre_reveal_write_tools` reads it, off the raw draft, because
-    `scripts/validate_normal_event.py` calls that function directly.
+    the draft validator calls that function directly.
 
     A probe answers `probe_id` and no `acc_num`: its outline entry is keyed on
     the probe id, and it sits on no acc slot. Exactly one of the two is set,
@@ -410,8 +408,7 @@ def _gate_slot(ingredient: dict[str, Any]) -> str:
     the lock and the actor; a missing one makes a run LOOK gated while nothing
     holds. The slot is a label carried alongside the gate -- absent, the judge is
     back to the inference it makes today, which is worse but not a false gate.
-    Presence is enforced where it can be fixed, at authoring time, by
-    `scripts/validate_outline.py:gate_slot_required`.
+    Presence is enforced where it can be fixed, at authoring time.
     """
     slot = ingredient.get("gate_slot")
     return slot.strip() if isinstance(slot, str) else ""
@@ -459,10 +456,9 @@ def _pre_reveal_write_tools(
     this event runs before the reveal. Same question, read off the artifact the
     forced line actually freezes.
 
-    Takes the raw draft rather than a `_GateSource` because
-    `scripts/validate_normal_event.py:_pre_reveal_write_closure_errors` calls it
-    with `session.model_dump()` to check the frozen draft against what the
-    harness would hand the store.
+    Takes the raw draft rather than a `_GateSource` because the draft
+    validator calls it with `session.model_dump()` to check the frozen draft
+    against what the harness would hand the store.
     """
     steps = [
         step
@@ -823,8 +819,8 @@ def _require_gateless_is_legal(meta: dict[str, Any], name: str) -> None:
     with no gate ingredient is a hole that would run ungated while the finished
     run still looked gated.
 
-    The same table rules the probe line: `validate_probe_outline._GATE_ATTRIBUTES`
-    is `TAXONOMY - COMPRESSED_ATTRIBUTES` and its A4 row wants exactly one
+    The same table rules the probe line: the probe outline validator gates
+    exactly `TAXONOMY - COMPRESSED_ATTRIBUTES`, and its A4 row wants exactly one
     `role: gate` object on each of those attributes and none on the rest, so a
     probe is legitimately gateless under exactly this condition too.
     """

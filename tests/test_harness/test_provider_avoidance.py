@@ -33,8 +33,8 @@ from scripts import run_orchestrator
 MODEL = "deepseek/deepseek-v4-flash"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 #: user_a x nanobot_file_memory, acc 1, frozen by `scripts.diagnostics.mint_run_plan_only`
-#: at ce1de67, before the setting existed.
-OLD_PLAN = PROJECT_ROOT / "tests/fixtures/run_plan_ce1de67_user_a_file_memory.yaml"
+#: before the setting existed.
+OLD_PLAN = PROJECT_ROOT / "tests/fixtures/run_plan_before_provider_avoidance_user_a_file_memory.yaml"
 
 
 def _fail(avoidance: ProviderAvoidance, provider: str, model: str = MODEL, *,
@@ -269,7 +269,7 @@ def test_a_new_plan_freezes_the_threshold(tmp_path, monkeypatch):
     assert dumped["provider_avoid_after_failures"] == 0
 
 
-def test_a_plan_frozen_by_ce1de67_loads_with_avoidance_off():
+def test_a_plan_frozen_before_provider_avoidance_loads_with_avoidance_off():
     assert "provider_avoid_after_failures" not in OLD_PLAN.read_text()
 
     plan = load_run_plan(OLD_PLAN, project_root=PROJECT_ROOT, validate_paths=False)

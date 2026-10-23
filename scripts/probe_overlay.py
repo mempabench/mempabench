@@ -34,9 +34,9 @@ def _declared_pairing(draft_path: Path) -> tuple[str | None, str | None]:
     """`(probe_kind, pairs_with)` off a probe draft's `meta`.
 
     A draft that is not on disk has declared nothing, and that is a real state:
-    probe drafts are written after the outline, and
-    `scripts/generate_probe_outline.py` resolves overlays over a directory that
-    holds none yet. So `(None, None)`, and `resolved_gt.yaml` decides.
+    probe drafts are written after the outline, and generating the probe
+    outline resolves overlays over a directory that holds none yet. So
+    `(None, None)`, and `resolved_gt.yaml` decides.
 
     A draft that IS there and cannot be read or parsed raises. This used to be
     `except (OSError, yaml.YAMLError): return None, None`, inherited from

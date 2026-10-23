@@ -115,7 +115,7 @@ TRACKING = {
 # --- the frozen shape -------------------------------------------------------
 
 
-def test_duplicated_constants_equal_the_p0_originals() -> None:
+def test_duplicated_constants_equal_the_render_types_originals() -> None:
     """state_server/ imports nothing from pa/, so the four capability-limit
     literals are duplicated. They must stay equal to the values frozen in
     `render_types`."""
