@@ -36,6 +36,7 @@ ENTRY_POINTS = {
     "plan": "scripts.diagnostics.mint_run_plan_only",
     "run": "scripts.run_locked",
     "score": "scripts.score_completed_run",
+    "self-report": "scripts.self_report_completed_run",
     "repeat-prepare": "scripts.prepare_probe_variance",
     "repeat-run": "scripts.run_probe_variance",
     "repeat-report": "scripts.report_probe_variance",
@@ -59,6 +60,7 @@ commands:
   plan            freeze a RunPlan and stop (--pa-model required)
   run             launch or resume one run (--pa-model required)
   score           score a finished run
+  self-report     rate a scored run's final probes as its simulated user (PRS)
   repeat-prepare  prepare probe repeat rounds
   repeat-run      run probe repeat rounds
   repeat-report   report on probe repeat rounds

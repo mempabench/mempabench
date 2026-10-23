@@ -48,7 +48,15 @@ The paper's PA backbones are `openai/gpt-5.6-sol`, `qwen/qwen3.8-27b`, `tencent/
 
 ## Scoring
 
-Scoring needs all 33 probes; add `--not-applicable-exhausted` when a probe failed all its attempts (see [Long runs](#long-runs-interruptions-and-resume)). It judges each with `google/gemini-3.8-flash` and writes `metrics/llm__google_gemini-3.8-flash.json` and a Markdown copy into the run directory. For a single run, the `E1_consistency` block holds PSA (as a fraction of the 28 final probes) and BRS (as a percentage of the 5-point maximum). The paper averages PSA over three repeats per user, and pools the CS pairs and PET cells of all four users within a repeat. If scoring fails, rerun the same command; finished judgements are kept. `score` does not compute PRS.
+Scoring needs all 33 probes; add `--not-applicable-exhausted` when a probe failed all its attempts (see [Long runs](#long-runs-interruptions-and-resume)). It judges each with `google/gemini-3.8-flash` and writes `metrics/llm__google_gemini-3.8-flash.json` and a Markdown copy into the run directory. For a single run, the `E1_consistency` block holds PSA (as a fraction of the 28 final probes) and BRS (as a percentage of the 5-point maximum). The paper averages PSA over three repeats per user, and pools the CS pairs and PET cells of all four users within a repeat. If scoring fails, rerun the same command; finished judgements are kept.
+
+PRS comes from a separate command, run after `score`:
+
+```bash
+uv run mempabench self-report --run-dir <run directory>
+```
+
+After each final probe, the same simulated user (its persona card and the simulator model and settings frozen in the run plan, without the memory it built up) rereads its side of the conversation and rates the one dimension that probe tests from 1 to 5, with a short reason. PRS is the mean over the 28 final probes. A probe that BRS scores at the floor because all its attempts failed gets the same floor here (`rule_assigned`) and is not asked. A probe whose recorded transcript does not rebuild into what the simulated user saw is marked `rebuild_mismatch`; it is not asked and leaves the mean. The command writes one JSON per probe to `metrics/self_report/` and a summary with the PRS and these counts to `metrics/self_report.json`, and prints the PRS. It works the same on a probe-repeat round or reference arm. It asks one probe at a time, one `google/gemini-3.8-flash` call each; a full run took about 11 minutes. A call that keeps failing stops the command with an error; rerun it and the probes already rated are kept. In the paper, an extra check left out emotional_engagement probes whose simulated user voiced no feeling in its opening; it left out none of 432, so it is not part of this command.
 
 ## Your own PA model
 

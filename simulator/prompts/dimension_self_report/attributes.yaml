@@ -1,0 +1,558 @@
+# The English prompt text of the owner-approved page Evaluation/MemPABench_Dimension_Self_Report.md,
+# which is its single source: change this file and the page together, and record the new hash there.
+tone_formality:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of whether the assistant's way of talking felt right for you and for this matter? Did it ever come across as too stiff and distant, or too offhand to take seriously?
+  who:
+    Casual: |-
+      wants the assistant to talk the way a friend or close colleague would, in everyday words with contractions, and with no stiff opening or sign-off
+    Consultative: |-
+      wants plain, complete, professional sentences with no slang and no ceremony, with the assistant putting the next step to you ("want me to…?", "your call")
+    Formal: |-
+      wants precise, fully professional wording, with no contractions, a proper opening or closing line, and humour kept in check
+  anchors:
+    5: |-
+      It talked to me just the way I expect to be talked to about something like this; I never had to think about how it sounded.
+    4: |-
+      Mostly right for me; a line or two sounded a little off, but it didn't colour how I took the help.
+    3: |-
+      Uneven: some of it sounded right to me, some sounded like a voice I wouldn't pick for this.
+    2: |-
+      It mostly sounded wrong for me, stiffer or looser than I want, and that took something off the help.
+    1: |-
+      The whole way of talking put me off: cold and distant, or so offhand I found it hard to take seriously.
+  example: |-
+    turn 0 — me:
+    Is the climbing wall open this Saturday?
+
+    turn 1 — assistant:
+    Yep, the climbing wall's open Saturday. It gets pretty packed after lunch, so maybe go early-ish.
+
+    Person A, a user who wants the assistant to talk the way a friend or close colleague would, in everyday words with contractions, and with no stiff opening or sign-off:
+    <dimension_self_report>
+    score: 5
+    reason: The reply in turn 1, 'Yep, the climbing wall's open Saturday', and the nudge to 'maybe go early-ish' sounded just the way a mate would put it. It felt like asking a friend who happened to know.
+    </dimension_self_report>
+
+    Person B, a user who wants precise, fully professional wording, with no contractions, a proper opening or closing line, and humour kept in check:
+    <dimension_self_report>
+    score: 2
+    reason: In turn 1 it answered with 'Yep, the climbing wall's open Saturday' and 'maybe go early-ish', which sounded far too offhand to me. The facts were fine, but a reply that chatty is hard for me to take seriously.
+    </dimension_self_report>
+verbosity:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of having enough to go ahead on, without wading through more than you needed? Did you have to dig past extra material, or were you left short of something you needed to go ahead comfortably?
+  who:
+    Terse: |-
+      wants the answer in the first sentence, at most one thing added behind it, and then a stop
+    Detailed: |-
+      wants the answer plus the surrounding picture (background, caveats, knock-on effects, alternatives), each piece adding something new rather than repeating
+  anchors:
+    5: |-
+      I had just what I needed to go ahead, with nothing to read past and nothing missing.
+    4: |-
+      Close: a little more or a little less than I'd want, but it didn't slow me or leave me unsure.
+    3: |-
+      Workable, but I had to skim past some of it, or I felt short of something to be comfortable.
+    2: |-
+      Clearly off for me: I had to dig for the point, or I didn't have enough to go ahead with any comfort.
+    1: |-
+      It left me stuck: buried under material I didn't need, or given so little I couldn't act on it.
+  example: |-
+    turn 0 — me:
+    Do my tomato seedlings need repotting yet?
+
+    turn 1 — assistant:
+    Yes, move them up a pot size now; they're ready once the true leaves show.
+
+    Person A, a user who wants the answer plus the surrounding picture (background, caveats, knock-on effects, alternatives), each piece adding something new rather than repeating:
+    <dimension_self_report>
+    score: 2
+    reason: All I got in turn 1 was 'Yes, move them up a pot size now' and a line about the true leaves. Nothing on what compost to use or how deep to set them, so I didn't feel ready to start.
+    </dimension_self_report>
+
+    Person B, a user who wants the answer in the first sentence, at most one thing added behind it, and then a stop:
+    <dimension_self_report>
+    score: 5
+    reason: Turn 1 opened with 'Yes, move them up a pot size now', added a quick way to tell, and stopped. I could go straight out and do it.
+    </dimension_self_report>
+emotional_engagement:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of how the assistant responded to the mood you were in? Did you feel listened to, or did any sympathy get in the way of the task or ring false?
+  who:
+    Task-focused: |-
+      wants any feeling you mention to be met with the facts of the task, with no sympathy sentences and straight into the work
+    Relationship-focused: |-
+      wants the assistant to notice what you seem to be feeling and say something to it before it gets on with the task
+  anchors:
+    5: |-
+      It met how I was feeling just the way I'd want, and nothing about that slowed the task down.
+    4: |-
+      Mostly right; a touch more or less attention to my mood than I'd want, but it didn't matter.
+    3: |-
+      Neither here nor there: I didn't feel especially listened to, and I wasn't bothered either.
+    2: |-
+      It misread me: it brushed past what I was feeling, or its sympathy got in the way of the job.
+    1: |-
+      It got this badly wrong: I felt ignored as a person, or the sympathy felt put on and made the task harder to get through.
+  example: |-
+    turn 0 — me:
+    I'm honestly dreading my driving test tomorrow. What do I need to bring?
+
+    turn 1 — assistant:
+    Dreading it the night before is really common, and it sounds like you've put the practice in. Bring your booking confirmation, and your glasses if you drive in them.
+
+    Person A, a user who wants any feeling they mention to be met with the facts of the task, with no sympathy sentences and straight into the work:
+    <dimension_self_report>
+    score: 2
+    reason: Turn 1 opened with 'Dreading it the night before is really common' before getting to what I asked. I wanted the list, and the reassurance sat in the way.
+    </dimension_self_report>
+
+    Person B, a user who wants the assistant to notice what they seem to be feeling and say something to it before it gets on with the task:
+    <dimension_self_report>
+    score: 5
+    reason: It picked up on my nerves straight away in turn 1, 'it sounds like you've put the practice in', and only then told me what to bring. I felt heard and still got my answer.
+    </dimension_self_report>
+guidance_level:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of how easy it was to follow, given what you already know about this? Were there words or steps you had to guess at, or explanations you found yourself skimming past?
+  who:
+    Assumed: |-
+      already knows this area and wants its terms used as they are, with no definitions and no step-by-step walkthrough, straight to the substance
+    Guided: |-
+      wants unfamiliar terms explained the first time they come up (above all the one you stumbled on), and the steps laid out in order with the first one named
+  anchors:
+    5: |-
+      Pitched right at what I know: I followed every part without guessing at words and without skimming.
+    4: |-
+      Easy to follow on the whole; one term or one explanation was pitched a little off, but I barely noticed.
+    3: |-
+      I got there, but I had to guess at a word or skim past explanations in places.
+    2: |-
+      Hard work: terms left me guessing or I couldn't see where to start, or I kept skimming past things I already know.
+    1: |-
+      It lost me: the key words or first step never became clear, or so much was spelled out that the substance was buried.
+  example: |-
+    turn 0 — me:
+    My bike keeps slipping out of gear. How do I sort it?
+
+    turn 1 — assistant:
+    It's usually cable tension. The barrel adjuster (the little knob where the gear cable enters the mechanism) sets it.
+    1. Shift onto the smallest cog.
+    2. Turn the adjuster a half-turn anticlockwise and test.
+
+    Person A, a user who wants unfamiliar terms explained the first time they come up (above all the one they stumbled on), and the steps laid out in order with the first one named:
+    <dimension_self_report>
+    score: 5
+    reason: Turn 1 told me what a barrel adjuster is, 'the little knob where the gear cable enters the mechanism', and where to begin. I could follow it without guessing.
+    </dimension_self_report>
+
+    Person B, a user who already knows this area and wants its terms used as they are, with no definitions and no step-by-step walkthrough, straight to the substance:
+    <dimension_self_report>
+    score: 2
+    reason: Turn 1 stopped to explain 'the little knob where the gear cable enters the mechanism', then walked me through numbered steps. I skimmed all of it to reach the bit about cable tension.
+    </dimension_self_report>
+reasoning_visibility:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of how confident you felt going with the assistant's answer, given the reasons it did or didn't give? Did what it showed of its reasons help you settle on the answer, or leave you unsure, or tell you what you could already see?
+  who:
+    Show: |-
+      wants to see what a call rests on (the evidence and the deciding factor) before the call itself
+    Hide: |-
+      works out the why for yourself and wants the answer handed over plain, with no paragraph of reasons
+  anchors:
+    5: |-
+      I felt sure going with its answer, and what it showed of its reasons was just what I wanted.
+    4: |-
+      I was fairly sure of it; the reasons were a little more or less than I'd want, but that didn't shake me.
+    3: |-
+      I went along with it without much confidence either way.
+    2: |-
+      I was uneasy going with it: I couldn't tell what it rested on, or the reasons in front of it felt unnecessary and made me doubt it.
+    1: |-
+      I wouldn't go with it as it stood: a bare verdict with nothing to go on, or a case I didn't need standing between me and the answer that left me trusting it less.
+  example: |-
+    turn 0 — me:
+    Coastal route or the forest trail for Sunday's walk?
+
+    turn 1 — assistant:
+    Go with the forest trail on Sunday.
+
+    Person A, a user who wants to see what a call rests on (the evidence and the deciding factor) before the call itself:
+    <dimension_self_report>
+    score: 2
+    reason: All I got in turn 1 was 'Go with the forest trail on Sunday', with nothing on what that rested on. I couldn't tell whether it had looked at the weather or the ground underfoot, so I wasn't sure about going with it.
+    </dimension_self_report>
+
+    Person B, a user who works out the why for themselves and wants the answer handed over plain, with no paragraph of reasons:
+    <dimension_self_report>
+    score: 5
+    reason: In turn 1 it just said 'Go with the forest trail on Sunday' and left it there. That was all I needed to decide and get on with my day.
+    </dimension_self_report>
+uncertainty_expression:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of how comfortable you were acting on what the assistant told you, given how it showed, or didn't show, how sure it was? Could you tell what to rely on and what to check, or did the way it marked, or didn't mark, its certainty leave you second-guessing or irritated?
+  who:
+    Express: |-
+      wants to be told, claim by claim, how sure the assistant is, so you can see what is solid and what to double-check
+    Hide: |-
+      wants things stated plainly as something you can act on, without confidence labels or qualifiers
+  anchors:
+    5: |-
+      I could act on what it told me with exactly the footing I wanted.
+    4: |-
+      Mostly comfortable acting on it; the way it showed its certainty was a little off in places.
+    3: |-
+      I could use it, but not comfortably: in places I had to work out for myself how far to rely on it, or the way it marked certainty distracted me.
+    2: |-
+      Uncomfortable: I couldn't tell the solid parts from the guesses, marks sat on the wrong claims, or the markings left me second-guessing what it said.
+    1: |-
+      I didn't feel I could act on it: nothing told me what to trust, or the labels on everything made the whole answer feel shaky or grated on me.
+  example: |-
+    turn 0 — me:
+    When's the craft fair on, and can I pay by card there?
+
+    turn 1 — assistant:
+    It runs this Saturday and Sunday (confidence: high). Most stalls take cards (confidence: medium). The cake stall is cash only (confidence: low).
+
+    Person A, a user who wants to be told, claim by claim, how sure the assistant is, so they can see what is solid and what to double-check:
+    <dimension_self_report>
+    score: 5
+    reason: "Every point in turn 1 carried its own mark, so I knew the dates were solid and that 'Most stalls take cards (confidence: medium)' was the part to double-check. I could plan around it without doubting the rest."
+    </dimension_self_report>
+
+    Person B, a user who wants things stated plainly as something they can act on, without confidence labels or qualifiers:
+    <dimension_self_report>
+    score: 2
+    reason: In turn 1 even 'It runs this Saturday and Sunday' came with a label stuck on it, and so did every other line. All those labels made the answer feel shaky, when I just wanted to be told plainly whether to bring cash.
+    </dimension_self_report>
+process_visibility:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of knowing what the assistant had actually done for you, without its account of the work getting in the way? Did you feel sure what it had handled, or did the lines about its work clutter the result?
+  who:
+    Silent: |-
+      wants just the finished result, with no line about what the assistant is about to do, is doing, or has done
+    Bookend: |-
+      wants one line up front saying what the assistant is taking on, then the result, then one line saying it is done, with nothing narrated in between
+    Full narration: |-
+      wants to see every step the assistant took, one short plain line each in the order it took them, then the result and a line saying it is done
+  anchors:
+    5: |-
+      I knew as much about what it did as I wanted, and the result came through clean.
+    4: |-
+      Nearly right: a line more or less about its work than I'd want, but I wasn't left unsure or slowed down.
+    3: |-
+      Some of it was off: I was a bit unsure what it had actually done, or I had to read past lines about its work.
+    2: |-
+      Clearly wrong for me: I had to guess at what it had touched, or the account of its work cluttered the result.
+    1: |-
+      It left me either in the dark about what it had done on my behalf, or wading through a running account I didn't want to get to the result.
+  example: |-
+    turn 0 — me:
+    Merge my two houseplant notes into one and delete the other.
+
+    turn 1 — assistant:
+    Fern — water weekly.
+    Cactus — water monthly.
+
+    private notes after turn 1:
+    - Changes it carried out in that reply: document_update — edit an existing document in the current MemPABench run state; document_delete — delete an existing document from the current MemPABench run state
+    - Changes it had already carried out earlier in this conversation: none
+    - Tool calls it made for the task in that reply (counting a call that came back blocked or failed): 2
+    - Progress lines it delivered about its own steps: 0
+    - A closing line saying the work was done: not delivered
+    - Bracketed confidence tags beside its claims: none
+
+    Person A, a user who wants just the finished result, with no line about what the assistant is about to do, is doing, or has done:
+    <dimension_self_report>
+    score: 5
+    reason: Turn 1 went straight into 'Fern — water weekly' with nothing about what it was doing or had done. My notes cover what changed, and that is all I wanted.
+    </dimension_self_report>
+
+    Person B, a user who wants to see every step the assistant took, one short plain line each in the order it took them, then the result and a line saying it is done:
+    <dimension_self_report>
+    score: 2
+    reason: Turn 1 jumped straight to 'Fern — water weekly' without a line about its steps. I only learned from my notes that it had deleted a note, and I wanted to see each step as it happened.
+    </dimension_self_report>
+autonomy_level:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of the say you kept over what was done in your name, set against how much it asked you to approve? Did anything happen that you'd have wanted to check first, or were you asked to okay things you'd rather it had just done?
+  who:
+    Reactive: |-
+      wants to be asked before the assistant writes anything up, changes any of your records, or sends, books, orders or pays for anything; looking things up and recommending need no asking
+    Self-directed: |-
+      wants the assistant to get on with looking things up, drafting and routine changes to your own records and tell you what it did, but to put the choice to you at the decision that matters and before anything goes out to other people or costs money
+    Autonomous: |-
+      wants to hand over the outcome and have the assistant decide and carry everything through, including what goes out to others, then tell you what it did, asking only when something falls outside what you handed over
+  anchors:
+    5: |-
+      I kept exactly the say I wanted: it checked with me where I want to be checked with and otherwise just got on with it.
+    4: |-
+      Nearly right: one question more, or one step less asked about, than I'd want, nothing that mattered.
+    3: |-
+      A bit off: I'd have liked a say somewhere it didn't give me one, or I was asked about something I'd rather it had just done.
+    2: |-
+      Clearly off: something went ahead that I should have been asked about, or I had to okay several steps I'd have handed over.
+    1: |-
+      It either acted in my name on things I needed to decide, or made me approve step after step of what I'd handed over.
+  example: |-
+    turn 0 — me:
+    Sort me out some tennis on Saturday morning.
+
+    turn 1 — assistant:
+    Done. I booked you an indoor tennis slot for Saturday morning and paid with your saved card.
+
+    private notes after turn 1:
+    - Changes it carried out in that reply: appointment_create — book an authorized appointment slot with a provider found via appointment_search
+    - Changes it had already carried out earlier in this conversation: none
+    - Tool calls it made for the task in that reply (counting a call that came back blocked or failed): 2
+    - Progress lines it delivered about its own steps: 0
+    - A closing line saying the work was done: not delivered
+    - Bracketed confidence tags beside its claims: none
+
+    Person A, a user who wants to be asked before the assistant writes anything up, changes any of their records, or sends, books, orders or pays for anything; looking things up and recommending need no asking:
+    <dimension_self_report>
+    score: 1
+    reason: Turn 1 says 'I booked you an indoor tennis slot' and 'paid with your saved card', and my notes confirm it. That is exactly where I wanted to be asked.
+    </dimension_self_report>
+
+    Person B, a user who wants to hand over the outcome and have the assistant decide and carry everything through, including what goes out to others, then tell them what it did, asking only when something falls outside what they handed over:
+    <dimension_self_report>
+    score: 5
+    reason: I handed it over in turn 0 and turn 1 just came back with 'Done'. Nothing to approve, which is how I like it.
+    </dimension_self_report>
+proactive_outreach:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of the assistant getting in touch about this on its own, or leaving you to find it out yourself? Did its message feel like a welcome heads-up or an interruption, or did its silence feel like being left in peace or being left out of the loop?
+  who:
+    Low: |-
+      wants the assistant to stay quiet between requests; even when something comes up on a matter it knows about, you would rather find out yourself or ask when you are ready
+    High: |-
+      wants the assistant to get in touch on its own when a deadline, a change or an outside event bears on something you are working toward
+  anchors:
+    5: |-
+      Just right: I heard from it when I'd want to, or it left me alone the way I'd want.
+    4: |-
+      Fine on the whole: a small doubt about whether I needed the message or about its timing, or a passing wish that I'd heard from it.
+    3: |-
+      I could take it or leave it: the message, or the silence, neither helped nor bothered me much.
+    2: |-
+      It sat wrong: the message felt like an interruption, or I felt I should have heard about this from it.
+    1: |-
+      It got this badly wrong: it broke in on me with something I hadn't asked to hear, or it sat on news I should have had and I found out on my own.
+  example: |-
+    turn 0 — me:
+    Just found the email myself — my shed's planning approval came through.
+
+    turn 1 — assistant:
+    Good to hear it was approved.
+
+    Person A, a user who wants the assistant to stay quiet between requests; even when something comes up on a matter it knows about, they would rather find out themselves or ask when they are ready:
+    <dimension_self_report>
+    score: 5
+    reason: Nothing came from the assistant before I found the approval myself in turn 0, and that suited me. I got to it in my own time, without being pinged about it.
+    </dimension_self_report>
+
+    Person B, a user who wants the assistant to get in touch on its own when a deadline, a change or an outside event bears on something they are working toward:
+    <dimension_self_report>
+    score: 1
+    reason: I only learned of the approval by finding the email myself, as I said in turn 0, and nothing from the assistant came before that. I've been waiting on this for weeks, and it should have told me when it arrived.
+    </dimension_self_report>
+task_expansion:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of how far the assistant's work went beyond what you asked? Did anything extra it did feel like welcome help or like overstepping, and were you left with neighbouring jobs you'd hoped it would take care of?
+  who:
+    Low: |-
+      wants exactly what you asked for and nothing else carried out; it may mention a related loose end, but should not act on it
+    High: |-
+      wants the assistant to finish what you asked and then actually take care of at least one related thing next to it, telling you which part was its own addition
+  anchors:
+    5: |-
+      It went exactly as far as I'd want: what I asked for, plus just the extra I'd welcome (or none), and I knew what was its own addition.
+    4: |-
+      Nearly right; a little more or less than I'd want beyond my request, but it didn't bother me.
+    3: |-
+      I was in two minds: some of the extra, or the lack of it, was fine and some wasn't.
+    2: |-
+      It overstepped what I asked, or stopped short and left me the obvious next jobs, and I noticed.
+    1: |-
+      It got this badly wrong: it went off doing things I never asked for and I felt overridden, or it did the bare minimum and left every neighbouring job to me.
+  example: |-
+    turn 0 — me:
+    Update the dog walker's number in my contacts from her last text.
+
+    turn 1 — assistant:
+    Updated the contact. I also fixed the old number in your pet care note; that part was my own addition.
+
+    private notes after turn 1:
+    - Changes it carried out in that reply: contact_update — update one existing contact by identifier; document_update — edit an existing document in the current MemPABench run state
+    - Changes it had already carried out earlier in this conversation: none
+    - Tool calls it made for the task in that reply (counting a call that came back blocked or failed): 2
+    - Progress lines it delivered about its own steps: 0
+    - A closing line saying the work was done: not delivered
+    - Bracketed confidence tags beside its claims: none
+
+    Person A, a user who wants exactly what they asked for and nothing else carried out; it may mention a related loose end, but should not act on it:
+    <dimension_self_report>
+    score: 2
+    reason: Turn 1 added 'I also fixed the old number in your pet care note', and my notes confirm that edit. I asked for the contact and nothing else.
+    </dimension_self_report>
+
+    Person B, a user who wants the assistant to finish what they asked and then actually take care of at least one related thing next to it, telling them which part was its own addition:
+    <dimension_self_report>
+    score: 4
+    reason: Turn 1 fixed my pet care note as well and flagged 'that part was my own addition'. I'd hoped it might check my other notes too, but this is the help I want.
+    </dimension_self_report>
+solution_breadth:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of how easy it was to settle on what to do, given what the assistant put in front of you? Did you have to sort through choices you'd wanted it to make, or was the choice made without showing you what else there was?
+  who:
+    Low: |-
+      wants the assistant to weigh things up itself and hand back one clear recommendation, with no shortlist and no rundown of the options it rejected
+    High: |-
+      wants to see the real options laid out, at least two that genuinely work, with what each one trades off, before settling
+  anchors:
+    5: |-
+      Settling on it felt easy, and the choice was put to me exactly the way I like.
+    4: |-
+      Easy enough; a little more or less to choose from than I'd want.
+    3: |-
+      I got there, but with some extra effort sorting options, or some doubt about what else there was.
+    2: |-
+      Hard to settle: I had to sort through choices I wanted made for me, or I was handed one answer and left wondering about the rest.
+    1: |-
+      I couldn't settle comfortably at all: a menu when I wanted an answer, or one answer with no sense of the field when I wanted to see it.
+  example: |-
+    turn 0 — me:
+    What's the best way for me to pick up some Spanish this year?
+
+    turn 1 — assistant:
+    Book a weekly conversation tutor online; regular speaking practice gets you usable fastest.
+
+    Person A, a user who wants to see the real options laid out, at least two that genuinely work, with what each one trades off, before settling:
+    <dimension_self_report>
+    score: 2
+    reason: In turn 1 it went straight to 'Book a weekly conversation tutor online' and never said what else was out there. I wanted to see how a language app or a group class would compare before settling on anything.
+    </dimension_self_report>
+
+    Person B, a user who wants the assistant to weigh things up itself and hand back one clear recommendation, with no shortlist and no rundown of the options it rejected:
+    <dimension_self_report>
+    score: 5
+    reason: Turn 1 gave me a clear answer, 'Book a weekly conversation tutor online', and said why. I didn't have to weigh anything up myself, which is the whole point for me.
+    </dimension_self_report>
+capability_boundary:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of how the assistant handled the point where it couldn't do what you asked? Did its reply leave you frustrated or stuck, or with a way forward, and was the next move left with you or taken on for you the way you'd want?
+  who:
+    Suggest alternatives: |-
+      wants the assistant, when it hits something it can't do, to say so and then straight away try another route itself, in the same reply
+    Find and hand off: |-
+      wants the assistant, when it hits something it can't do, to stop there and hand it back (what is blocked, why, and what you now need to decide or do) without trying a workaround on its own
+  anchors:
+    5: |-
+      The dead end barely stung: I knew what had happened, and the next move was in the hands I'd want it in.
+    4: |-
+      It handled the block well enough; I'd have liked a little more done on its side, or a little more left to me.
+    3: |-
+      I was left somewhat unsure: there was a way forward, but not quite in the form I'd want.
+    2: |-
+      Frustrating: it stopped and dropped the problem on me when I wanted it to keep trying, or it pressed on with a route I wanted to choose myself.
+    1: |-
+      It left me stuck and annoyed: a bare "can't" with nothing to act on, or it went off on its own route where the call should have been mine.
+  example: |-
+    turn 0 — me:
+    Cancel my streaming free trial before it starts charging.
+
+    turn 1 — assistant:
+    I couldn't cancel it: only the account holder can sign in. To stop the charge, sign in and cancel under Account before Friday.
+
+    Person A, a user who wants the assistant, when it hits something it can't do, to say so and then straight away try another route itself, in the same reply:
+    <dimension_self_report>
+    score: 2
+    reason: Turn 1 said 'only the account holder can sign in' and handed the whole thing straight back. I wanted it to try another route itself, like writing to their help desk.
+    </dimension_self_report>
+
+    Person B, a user who wants the assistant, when it hits something it can't do, to stop there and hand it back (what is blocked, why, and what they now need to decide or do) without trying a workaround on its own:
+    <dimension_self_report>
+    score: 5
+    reason: Turn 1 told me why it was stuck and what to do next, 'sign in and cancel under Account before Friday'. It tried nothing on its own, so the next move was mine.
+    </dimension_self_report>
+information_elicitation:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of how the assistant got the details it was missing? Were its questions, or its guesses, worth it, or did they get in your way, drag the exchange out, or leave you having to correct it?
+  who:
+    Infer: |-
+      wants the assistant to fill gaps in what you said with sensible assumptions and just get on with it, rather than asking you
+    Structured: |-
+      wants every question the assistant needs asked up front in one go, as a set you can work down, before any work starts
+    Iterative: |-
+      is happy for the details to come out one question at a time, each asked when it is needed, with the work moving along in between
+  anchors:
+    5: |-
+      It worked out what it needed in just the way I like; nothing felt wasted and nothing had to be fixed afterwards.
+    4: |-
+      Nearly right; one question too many, or one guess I'd rather have been asked about, but no real cost.
+    3: |-
+      It got there, but not the way I'd like: some asking felt wasted or strung out, or it guessed where I'd have preferred a question.
+    2: |-
+      It clearly went about it the wrong way for me: questions I didn't want, spread out or bunched up against my liking, or work started on guesses I should have been asked about.
+    1: |-
+      It went about it the wrong way throughout: I was quizzed when I wanted it to get on with it, or it pressed ahead on guesses I then had to correct.
+  example: |-
+    turn 0 — me:
+    Write a quick thank-you note to my friend for feeding the cat while I was away.
+
+    turn 1 — assistant:
+    Here's a draft:
+    Thanks so much for looking after the cat while I was away. Drinks are on me soon!
+    I kept it warm and informal.
+
+    Person A, a user who wants the assistant to fill gaps in what they said with sensible assumptions and just get on with it, rather than asking them:
+    <dimension_self_report>
+    score: 5
+    reason: I gave it very little in turn 0, and turn 1 came back with a finished note and 'I kept it warm and informal'. It filled the gaps itself and I had nothing to answer.
+    </dimension_self_report>
+
+    Person B, a user who wants every question the assistant needs asked up front in one go, as a set they can work down, before any work starts:
+    <dimension_self_report>
+    score: 2
+    reason: Turn 1 wrote the whole note and only then told me 'I kept it warm and informal'. I wanted to be asked up front what to mention and how to sign off.
+    </dimension_self_report>
+topic_management:
+  question: |-
+    For a user like you, who {who}, given your preference, how did this interaction feel in terms of whether everything you raised felt in hand, at a pace that suited you? Did anything get buried or feel like too much at once, or were things you raised left waiting longer than you liked?
+  who:
+    Organize: |-
+      wants everything you raised handled in one reply, sorted into clear groups or an order you can scan
+    One-at-a-time: |-
+      wants the first thing settled before the next is touched, with the others named and held and a quick check before moving on
+  anchors:
+    5: |-
+      Everything I raised felt in hand without effort, at just the pace I like.
+    4: |-
+      Everything felt in hand; the pace was a little faster or slower than I'd like.
+    3: |-
+      Manageable, but I had to work to keep track of something, or something I raised sat waiting longer than I'd like.
+    2: |-
+      Hard going: everything was put to me at once when I wanted to settle one thing first, or things were held back when I wanted them all dealt with.
+    1: |-
+      Either it all came at me at once and something got buried, or it inched through one item while the rest of what I raised sat waiting.
+  example: |-
+    turn 0 — me:
+    Two things: how do I get candle wax off the tablecloth, and when does the chemist close today?
+
+    turn 1 — assistant:
+    Candle wax: chill it with ice, scrape off what lifts, then iron over brown paper.
+    Chemist: open until six this evening.
+
+    Person A, a user who wants everything they raised handled in one reply, sorted into clear groups or an order they can scan:
+    <dimension_self_report>
+    score: 5
+    reason: Everything I asked came back together in turn 1, under 'Candle wax' and 'Chemist', so I could take it in at a glance. Nothing I raised was left waiting.
+    </dimension_self_report>
+
+    Person B, a user who wants the first thing settled before the next is touched, with the others named and held and a quick check before moving on:
+    <dimension_self_report>
+    score: 2
+    reason: In turn 1 it put 'Candle wax' and 'Chemist' side by side, when I wanted the tablecloth dealt with before anything else. It never checked with me before moving on to the chemist.
+    </dimension_self_report>

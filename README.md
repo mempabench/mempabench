@@ -53,7 +53,7 @@ Four memory systems, each run with four PA backbones (GPT-5.6-Sol, Qwen3.8-27B, 
 - **PSA**, Preference Selection Accuracy: share of the 28 final probes per user where the PA selects the user's current setting.
 - **CS**, Context Sensitivity: of the user–attribute pairs whose work and personal settings differ, the share where both selections are correct.
 - **PET**, Preference Evolution Tracking: of the cells that change, the share selected correctly both before and after the change.
-- **BRS**, Behavioral Realization Score: an LLM judge (Gemini-3.8-Flash) rates from 1 to 5 how well the delivered reply and actions follow the target setting. **PRS**, Perceived Realization Score: the simulated user's own 1–5 rating after each final probe. Both columns give the range of the four backbones' means.
+- **BRS**, Behavioral Realization Score: an LLM judge (Gemini-3.8-Flash) rates from 1 to 5 how well the delivered reply and actions follow the target setting. **PRS**, Perceived Realization Score: the simulated user's own 1–5 rating after each final probe, from `mempabench self-report`. Both columns give the range of the four backbones' means.
 - No Memory gives the PA no memory, so it shows each backbone's default behavior. Oracle puts the target setting and its definition where the retrieved memory would be. Both run on the probes only, from the checkpoints of the same user's DeepSeek-V4-Flash File memory run. Random selection reaches 45.2% PSA.
 - ‡ Mean of the paper's 16 per-user, per-backbone Oracle values (96.4–100.0).
 
